@@ -1,0 +1,41 @@
+networks:
+  my_network:
+    driver: bridge
+
+services:
+  server:
+    image: tensorflow/serving:latest
+    container_name: tf_serving_container
+    environment:
+      - MODEL_NAME=OtherMnist
+    volumes:
+      - ./server:/server
+      - ../models/server:/models
+    ports:
+      - "8501:8501" # Optional, to access it outside the network
+    networks:
+      - my_network
+    command:
+      [
+        "tensorflow_model_server",
+        "--port=8500",
+        "--rest_api_port=8501",
+        "--model_config_file=/models/models.config",
+      ]
+    restart: always
+
+  client:
+    build:
+      dockerfile: ./client.dockerfile
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./client:/client
+      - ../../models/client:/models
+    networks:
+      - my_network
+    depends_on:
+      - server
+    environment:
+      - TF_SERVING_URL=http://server:8501
+    working_dir: "/client"
