@@ -10,7 +10,7 @@ services:
       - MODEL_NAME=OtherMnist
     volumes:
       - ./server:/server
-      - ../models/server:/models
+      - ../../models/server:/models
     ports:
       - "8501:8501" # Optional, to access it outside the network
     networks:
@@ -20,7 +20,7 @@ services:
         "tensorflow_model_server",
         "--port=8500",
         "--rest_api_port=8501",
-        "--model_config_file=/models/models.config",
+        "--model_config_file=/server/models.config",
       ]
     restart: always
 

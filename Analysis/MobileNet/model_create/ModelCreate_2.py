@@ -43,11 +43,6 @@ class NetworkGraph() :
             
 
 def main():
-    data = np.empty((1, 224, 224, 3))
-    data[0] = imread('../client/boef.jpg')
-    data = preprocess_input(data)
-    with open('../client/boef_pre.pkl', "wb") as f :
-        pickle.dump(data, f)
 
     model : keras.Model = keras.applications.MobileNetV2()
 
@@ -56,16 +51,24 @@ def main():
     for layer in model.layers:
         modelGraph.add_node(layer.name, level=-1)
 
+    nextLayersDict = {}
+    for layer in model.layers :
+        nextLayersDict[layer.name] = []
+
     for layer in model.layers:
-        inputList = []
         if isinstance(layer.input, list) :
             inputList = layer.input
         else :
             inputList = [layer.input]
 
         for input in inputList :
-            prevLayerInfo = input._keras_history[0] ## Containes info about prev layer
-            modelGraph.add_edge(prevLayerInfo.name, layer.name)
+            prevLayerInfo = input._keras_history[0] ## Containes info about prev layers
+            nextLayersDict[prevLayerInfo.name].append(layer.name)
+    
+    print(nextLayersDict)
+
+    
+
     
 
 

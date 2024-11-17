@@ -10,6 +10,7 @@ services:
       - MODEL_NAME=OtherMnist
     volumes:
       - ./server:/server
+      - ../../models/server:/models
     ports:
       - "8501:8501" # Optional, to access it outside the network
     networks:
@@ -30,6 +31,7 @@ services:
     stdin_open: true
     volumes:
       - ./client:/client
+      - ../../models/client:/models
     networks:
       - my_network
     depends_on:

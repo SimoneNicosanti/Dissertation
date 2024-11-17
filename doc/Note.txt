@@ -3,8 +3,8 @@
 ## Continuare a studiare le due librerie
     ## Provare gli split della Rete
     ## Vedere quanti dati sono trasferiti / Prestazioni Energetiche / Operazioni TFLOPS (Cercare metriche prestazionali TF)
-        >>> Ok per i FLOPS della rete
-    ## Compressione ??
+        >>> Ok per i FLOPS del modello, sembrano dare una stima sensata
+    ## Compressione dei dati all'invio??
     ## Valutazione punti in cui avviene la divisione della rete --> imbuto porta a trasferimento di meno dati
 
 ## Vedere senza partizionamento

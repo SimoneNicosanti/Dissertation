@@ -33,7 +33,7 @@ def main():
 
     # Compile and train model
     model.compile(optimizer = 'adam', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-    model.fit(trainSet, trainLabels, epochs=5)
+    model.fit(trainSet, trainLabels, epochs=2)
 
 
 
@@ -58,26 +58,15 @@ def main():
             fn = modelPart.__call__,
             input_signature = [signatures[modelPart.name]]
         )
-    expArch.write_out(f"../models/mnist/1")
-    converter = tf.lite.TFLiteConverter.from_saved_model(f"../models/mnist/1")
+    expArch.write_out(f"../../../models/server/mnist/1")
+    model.save("../../../models/server/mnist.keras")
+
+    converter = tf.lite.TFLiteConverter.from_saved_model(f"../../../models/server/mnist/1")
     convertedModel = converter.convert()
-    with open(f"../client/models/mnist.tflite", "wb") as f :
+    with open(f"../../../models/client/mnist.tflite", "wb") as f :
         f.write(convertedModel)
-
-    # for modelPart in modelParts :
-    #     expArch = keras.export.ExportArchive()
-    #     expArch.track(modelPart)
-    #     expArch.add_endpoint(
-    #         name = modelPart.name,
-    #         fn = modelPart.__call__,
-    #         input_signature = [signatures[modelPart.name]]
-    #     )
-    #     expArch.write_out(f"../models/{modelPart.name}/1")
-
-    #     converter = tf.lite.TFLiteConverter.from_saved_model(f"../models/{modelPart.name}/1")
-    #     convertedModel = converter.convert()
-    #     with open(f"../client/models/{modelPart.name}.tflite", "wb") as f :
-    #         f.write(convertedModel)
+    
+    
 
 
 
