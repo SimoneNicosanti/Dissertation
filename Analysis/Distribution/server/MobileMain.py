@@ -19,7 +19,7 @@ from threading import Thread
 def main() :
     model : keras.Model = keras.applications.mobilenet_v2.MobileNetV2()
 
-    # print(model.summary())
+    print(model.summary())
 
     nextLayersDict = {}
     for layer in model.layers:
@@ -41,7 +41,7 @@ def main() :
     
     portNum = 9000
     allThreads = []
-    MAX_LAYERS_PER_SERVICE = 20
+    MAX_LAYERS_PER_SERVICE = 30
     for i in range(0, len(model.layers), MAX_LAYERS_PER_SERVICE) :
         
         layerSubList = model.layers[i : min(i + MAX_LAYERS_PER_SERVICE, len(model.layers))]
@@ -62,7 +62,8 @@ def main() :
 def startServer(layerList, nextLayersDict, portNum) :
     t = ThreadedServer(
         LayerService(layerList, nextLayersDict), 
-        port = portNum
+        port = portNum,
+        listener_timeout = None
     )
     print("Starting Service")
     t.start()

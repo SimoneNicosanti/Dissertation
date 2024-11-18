@@ -8,14 +8,16 @@ def main() :
     
     firstLayerInfo = registryConnection.root.getLayerHost("Conv1")
 
-    serverConnection = rpyc.connect(firstLayerInfo[0], firstLayerInfo[1])
+    serverConnection = rpyc.connect(firstLayerInfo[0], firstLayerInfo[1], config={"sync_request_timeout": None})
 
     testElem = readTestElem()
+    print(testElem.dtype, testElem.shape)
+    convertedTestElem = testElem.tobytes()
 
-    output = serverConnection.root.processLayer("Conv1", testElem.tolist(), 0)
-    print(type(output))
-    output = np.array(output)
-    print(output.shape)
+    output = serverConnection.root.processLayer("Conv1", convertedTestElem, testElem.shape, testElem.dtype.name, 0)
+    predictions = np.frombuffer(output[0], dtype=output[2]).reshape(output[1])
+    for i in range(predictions.shape[0]) :
+        print(f"Elem {i} - Predicted Class >>> {np.argmax(predictions[i])}")
 
 
 def readTestElem() :
@@ -23,7 +25,7 @@ def readTestElem() :
     with open("boef_pre.pkl", "rb") as f :
         testElem = pickle.load(f)
     
-    return np.array(testElem)
+    return np.array([testElem[0], testElem[0], testElem[0]], dtype=np.float64)
 
 
 

@@ -11,8 +11,12 @@ def main() :
     serverConnection = rpyc.connect(firstLayerInfo[0], firstLayerInfo[1])
 
     testMatrix, trueArray = readTestMatrix()
-
-    print(serverConnection.root.processLayer("preprocess", np.array([testMatrix[0]]).tolist(), 0))
+    print(testMatrix.dtype, testMatrix.shape)
+    convertedInput = np.array(testMatrix).tobytes()
+    output = serverConnection.root.processLayer("preprocess", convertedInput, testMatrix.shape, testMatrix.dtype.name, 0)
+    predictions = np.frombuffer(output[0], dtype=output[2]).reshape(output[1])
+    for i in range(predictions.shape[0]) :
+        print(f"Elem {i} - Predicted Class >>> {np.argmax(predictions[i])} // True Class >>> {trueArray[i]}")
 
 
 def readTestMatrix() :
@@ -24,7 +28,7 @@ def readTestMatrix() :
         testMatrix.append(row[0])
         trueArray.append(row[1])
     
-    return testMatrix, trueArray
+    return np.array(testMatrix), trueArray
 
 
 
