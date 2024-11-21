@@ -1,24 +1,27 @@
-import rpyc
-import keras
+from typing import Callable
+
 import numpy as np
-import tensorflow as tf
+import rpyc
 
-class RequestPool() :
 
-    def __init__(self) :
-        self.requestMap : dict[tuple[str, int], list] = {} ## Maps (Layer Name, requestId) --> list of inputs
-    
-    def addRequest(self, layerName, requestId, input) :
+class RequestPool:
+
+    def __init__(self):
+        self.requestMap: dict[tuple[str, int], list] = (
+            {}
+        )  ## Maps (Layer Name, requestId) --> list of inputs
+
+    def addRequest(self, layerName, requestId, input):
         key = (layerName, requestId)
-        if key not in self.requestMap :
+        if key not in self.requestMap:
             self.requestMap[key] = []
         self.requestMap[key].append(input)
-        
-    def getRequestInfo(self, layerName, requestId) :
+
+    def getRequestInfo(self, layerName, requestId):
         key = (layerName, requestId)
         return self.requestMap[key]
 
-    def removeRequestInfo(self, layerName, requestId) :
+    def removeRequestInfo(self, layerName, requestId):
         key = (layerName, requestId)
         self.requestMap.pop(key)
 
@@ -27,13 +30,11 @@ class LayerService(rpyc.Service):
 
     requestPool = RequestPool()
 
-    def __init__(self, layers : list[keras.Layer], nextLayersDict : dict[str, list[str]]) :
+    def __init__(self, ops: dict[str, Callable], prevOps: set[str], nextOps: set[str]):
         super().__init__()
-        self.layerDict : dict[str, keras.Layer] = {}
-        for layer in layers :
-            self.layerDict[layer.name] = layer
-        self.nextLayersDict : dict[str, list[str]] = nextLayersDict
-
+        self.ops = ops
+        self.prevOps = prevOps
+        self.nextOps = nextOps
         self.registryConnection = rpyc.connect("localhost", 8000)
 
     def on_connect(self, conn):
@@ -46,45 +47,71 @@ class LayerService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_processLayer(self, layerName : str, input : list, shape, dtype, requestId : int) : # this is an exposed method
-        print(f"Processing {layerName} >>> {shape}, {dtype}")
+    def sendToNextLayer(self, layerName, layerResult: np.ndarray, requestId):
+        convertedResult = np.array(layerResult)
+        currNextLayers = self.nextOps[layerName]
+        # print(f"{layerName} Sending to >>> {currNextLayers}")
+        if len(currNextLayers) == 0:
+            ## This is the last layer of the network
+            return (
+                convertedResult.tobytes(),
+                convertedResult.shape,
+                convertedResult.dtype.name,
+            )
+
+        for nextLayerName in currNextLayers:
+            if nextLayerName in self.ops:
+                processFunction: Callable = self.exposed_processLayer
+            else:
+
+                nextLayerHost: tuple = self.registryConnection.root.getLayerHost(
+                    nextLayerName
+                )
+                nextLayerConnection = rpyc.connect(
+                    nextLayerHost[0],
+                    nextLayerHost[1],
+                    config={"sync_request_timeout": None},
+                )
+
+                processFunction: Callable = nextLayerConnection.root.processLayer
+
+            returnedValue = processFunction(
+                nextLayerName,
+                convertedResult.tobytes(),
+                convertedResult.shape,
+                convertedResult.dtype.name,
+                requestId,
+            )
+
+            if returnedValue is not None:
+                ## Next Layer has all its inputs and has returned a valid value
+                return returnedValue
+
+    def exposed_processLayer(
+        self, opName: str, input: list, shape, dtype, requestId: int
+    ):  # this is an exposed method
+        # print(f"Processing {opName} >>> {shape}, {dtype}")
         convertedInput = np.frombuffer(input, dtype=dtype).reshape(shape)
-        currLayer : keras.Layer = self.layerDict[layerName]
 
-        LayerService.requestPool.addRequest(currLayer.name, requestId, convertedInput)
+        currOp: Callable = self.ops[opName]
+        layerInputNum: int = len(self.prevOps[opName])
+        if layerInputNum == 0:
+            ## This is the input layer --> Forward directly to next layer
+            return self.sendToNextLayer(opName, convertedInput, requestId)
 
-        if isinstance(currLayer.input, list) :
-            inputList = currLayer.input
-        else :
-            inputList = [currLayer.input]
-        
-        collectedInputs = LayerService.requestPool.getRequestInfo(currLayer.name, requestId)
-        if len(inputList) == len(collectedInputs) :
-            if (len(inputList) == 1) :
-                layerResult = currLayer(collectedInputs[0])
-            else :
-                layerResult = currLayer(collectedInputs)
+        LayerService.requestPool.addRequest(opName, requestId, convertedInput)
+        collectedInputs = LayerService.requestPool.getRequestInfo(opName, requestId)
 
-            convertedResult = np.array(layerResult, dtype = np.float64)
-            LayerService.requestPool.removeRequestInfo(currLayer.name, requestId)
+        if layerInputNum == len(collectedInputs):
+            ## We have collected all the inputs for the layer --> Process and send to next
+            if layerInputNum == 1:
+                layerResult = currOp(collectedInputs[0])
+            else:
+                layerResult = currOp(collectedInputs)
+            LayerService.requestPool.removeRequestInfo(opName, requestId)
 
-            nextLayers = self.nextLayersDict[layerName]
-            if (len(nextLayers) == 0) :
-                ## This is the last layer of the network
-                return (convertedResult.tobytes(), convertedResult.shape, convertedResult.dtype.name)
-            
-            
-            
-            for nextLayerName in nextLayers :
-                nextLayerHost : tuple = self.registryConnection.root.getLayerHost(nextLayerName)
-                nextLayerConnection = rpyc.connect(nextLayerHost[0], nextLayerHost[1], config={"sync_request_timeout": None})
-                returnedValue = nextLayerConnection.root.processLayer(nextLayerName, convertedResult.tobytes(), convertedResult.shape, convertedResult.dtype.name, requestId) ## Gestire caso multi input
+            return self.sendToNextLayer(opName, layerResult, requestId)
 
-                if returnedValue != None :
-                    ## Next Layer has all its inputs and has returned a valid value
-                    return returnedValue
-        else :
+        else:
+            ## We have to wait for other inputs for this layer --> We wait for them and return Null
             return None
-            
-            
-        

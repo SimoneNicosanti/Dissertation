@@ -19,10 +19,11 @@
         "VisualStudioExptTeam.vscodeintellicode",
         "VisualStudioExptTeam.intellicode-api-usage-examples",
         "AykutSarac.jsoncrack-vscode",
-        "esbenp.prettier-vscode",
         "Gruntfuggly.todo-tree",
         "zxh404.vscode-proto3",
-        "vincent-templier.vscode-netron"
+        "vincent-templier.vscode-netron",
+        "eamodio.gitlens",
+        "trunk.io"
       ]
     }
   }

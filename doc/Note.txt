@@ -16,3 +16,24 @@
 
 ## Provare a vedere come va torch
 >>> Se funziona tf meglio, quindi adesso che funziona bene così
+
+
+
+##################################################################################################################
+
+## Risolvere il problema di MobileNetV3
+    >>> Capito dove sta il problema: sta nel fatto che se si fanno delle Operazioni
+        inline a queste operazioni non viene associato esplicitamente un livello
+
+## Profiling della comunicazione
+    ## Quanti dati sono trasferiti tra le parti (dimensioni dei tensori) (diff tra size di TensorProto e dimensione del tensore)
+    ## Protocollo utilizzato (vedere se usa eventuale compressione)
+    ## Quantità di elaborazione per singoli livelli (capire se i FLOPS dipendono dall'architettura)
+
+## Studiare distribuzione mista (concentrando la cosa sulla parte iniziale)
+
+## Componente di front-end che restituisce al client il risultato
+## Vedere di caricare solo i sottolivelli necessari
+
+## Vedere se si può far girare modello Torch su Tensorflow
+    >>> Provare formato ONNX
