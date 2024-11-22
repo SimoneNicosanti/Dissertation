@@ -1,5 +1,4 @@
 import keras
-import tensorflow as tf
 
 
 def buildModel() -> keras.Model:

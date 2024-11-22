@@ -32,7 +32,7 @@ def remoteTest():
 
 def localTest():
     testElem = readTestElem()
-    model = keras.applications.MobileNetV3Small()
+    model = keras.applications.MobileNetV3Large()
     start = time.time()
     predictions = model(testElem)
     end = time.time()
