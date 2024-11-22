@@ -13,6 +13,9 @@ RUN pip install ai-edge-litert
 RUN pip install prettytable
 RUN pip install imageio
 RUN pip install rpyc
+RUN pip install grpcio
+RUN pip install grpcio-tools
+RUN pip install mypy-protobuf
 
 ## User Settings
 RUN groupadd -g 1234 customgroup && \

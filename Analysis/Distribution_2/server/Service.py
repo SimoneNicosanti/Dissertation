@@ -88,9 +88,8 @@ class Service(server_pb2_grpc.ServerServicer):
     def _serveLayer(self, request: LayerRequest) -> LayerResponse:
         opName: str = request.layerName
         requestId: int = request.requestId
-        convertedInput: tf.Tensor = tf.convert_to_tensor(
-            tf.make_ndarray(request.tensor)
-        )
+        convertedInput: tf.Tensor = tf.make_ndarray(request.tensor)
+
         # print(f"{opName} Processing >>> {convertedInput.shape} {convertedInput.dtype}")
 
         # convertedInput = np.frombuffer(input, dtype=dtype).reshape(shape)

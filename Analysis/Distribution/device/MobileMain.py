@@ -5,6 +5,8 @@ import keras
 import numpy as np
 import rpyc
 
+TEST_NUM = 50
+
 
 def remoteTest():
     registryConnection = rpyc.connect("localhost", 8000)
@@ -18,13 +20,18 @@ def remoteTest():
     testElem = readTestElem()
     print(testElem.dtype, testElem.shape)
     convertedTestElem = testElem.tobytes()
-
-    start = time.time()
-    output = serverConnection.root.processLayer(
-        "input_layer", convertedTestElem, testElem.shape, testElem.dtype.name, 0
+    timeArray = np.zeros(shape=TEST_NUM)
+    for i in range(0, TEST_NUM):
+        print(f"Iteration >>> {i}")
+        start = time.time()
+        output = serverConnection.root.processLayer(
+            "input_layer", convertedTestElem, testElem.shape, testElem.dtype.name, 0
+        )
+        end = time.time()
+        timeArray[i] = end - start
+    print(
+        f"Avg Remote Time >>> {timeArray.mean()} // Remote Time Std dev {timeArray.std()}"
     )
-    end = time.time()
-    print(f"Remote Time >>> {end - start}")
     predictions = np.frombuffer(output[0], dtype=output[2]).reshape(output[1])
     for i in range(predictions.shape[0]):
         print(f"Elem {i} - Predicted Class >>> {np.argmax(predictions[i])}")

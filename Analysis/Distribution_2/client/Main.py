@@ -9,9 +9,12 @@ from proto import registry_pb2_grpc, server_pb2_grpc
 from proto.registry_pb2 import LayerInfo, LayerPosition
 from proto.server_pb2 import LayerRequest, LayerResponse
 
+TEST_NUM = 50
+
 
 def remoteTest():
     inputTensor = readTestElem()
+    timeArray = np.zeros(shape=TEST_NUM)
     with grpc.insecure_channel("localhost:5000") as channel:
         stub = registry_pb2_grpc.RegisterStub(channel)
         layerPosition: LayerPosition = stub.getLayerPosition(
@@ -23,28 +26,38 @@ def remoteTest():
             f"{layerPosition.layerHost}:{layerPosition.layerPort}"
         ) as layerChannel:
             serverStub = server_pb2_grpc.ServerStub(layerChannel)
-            layerRequest: LayerRequest = LayerRequest(
-                modelName="",
-                layerName="input_layer",
-                requestId=0,
-                tensor=tf.make_tensor_proto(inputTensor),
-            )
-            start = time.time()
-            result: LayerResponse = serverStub.serveLayer(layerRequest)
-            end = time.time()
+            for i in range(0, TEST_NUM):
+                print(f"Iteration >>> {i}")
+                layerRequest: LayerRequest = LayerRequest(
+                    modelName="",
+                    layerName="input_layer",
+                    requestId=0,
+                    tensor=tf.make_tensor_proto(inputTensor),
+                )
+                start = time.time()
+                result: LayerResponse = serverStub.serveLayer(layerRequest)
+                end = time.time()
+                timeArray[i] = end - start
             tensorResult = tf.convert_to_tensor(tf.make_ndarray(result.result))
             for i in range(0, len(tensorResult)):
                 print(f"Predicted Class >>> {np.argmax(tensorResult[i])}")
-            print(f"Remote Time >>> {end - start}")
+            print(
+                f"Avg Remote Time >>> {timeArray.mean()} // Remote Time Std dev {timeArray.std()}"
+            )
 
 
 def localTest():
     testElem = readTestElem()
     model = keras.applications.MobileNetV3Large()
-    start = time.time()
-    predictions = model(testElem)
-    end = time.time()
-    print(f"Local Time >>> {end - start}")
+    timeArray = np.zeros(shape=TEST_NUM)
+    for i in range(0, TEST_NUM):
+        start = time.time()
+        predictions = model(testElem)
+        end = time.time()
+        timeArray[i] = end - start
+    print(
+        f"Avg Local Time >>> {timeArray.mean()} // Remote Time Std dev {timeArray.std()}"
+    )
     print(f"Predicted >>> {np.argmax(predictions)}")
 
 
