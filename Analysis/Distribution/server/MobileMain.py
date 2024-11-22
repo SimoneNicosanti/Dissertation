@@ -3,6 +3,7 @@ import inspect
 from threading import Thread
 
 import keras
+import keras.api
 import rpyc
 from rpyc.utils.server import ThreadedServer
 from Service import LayerService
@@ -62,7 +63,7 @@ class OperationWrapper:
 
 
 def main():
-    model: keras.Model = keras.applications.MobileNetV3Large()
+    model: keras.Model = keras.api.applications.MobileNetV3Large()
     with open("res_net.json", "w") as f:
         f.write(model.to_json())
 

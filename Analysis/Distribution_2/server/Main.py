@@ -14,9 +14,10 @@ from Service import Service
 ##  * Posizione del livello nella rete
 
 
-class OperationWrapper:
+class OperationWrapper(keras.Layer):
 
     def __init__(self, operationInfo) -> None:
+        super().__init__(name=operationInfo["config"]["name"])
         self.args = []
         for inNode in operationInfo["inbound_nodes"]:
             if "args" in inNode:
@@ -30,10 +31,23 @@ class OperationWrapper:
         signature = inspect.signature(self.operation.call)
         self.argNames = [param.name for param in signature.parameters.values()]
 
+    def getInput(self):
+        inputTensors = [x for x in self.args if isinstance(x, keras.KerasTensor)]
+        if len(inputTensors) == 1:
+            input = inputTensors[0]
+        else:
+            input = inputTensors
+
+        return input
+
     def parseArgs(self, node, argsList: list):
         if isinstance(node, dict):
             ## Keras Tensor --> Append PlaceHolder
-            argsList.append(None)
+            argsList.append(
+                keras.Input(
+                    shape=node["config"]["shape"][1:], dtype=node["config"]["dtype"]
+                )
+            )
         elif isinstance(node, list) or isinstance(node, tuple):
             ## Wrapped Input --> Go to other Level
             for elem in node:
@@ -42,7 +56,7 @@ class OperationWrapper:
             ## Simple Object --> Use It
             argsList.append(node)
 
-    def __call__(self, args):
+    def call(self, args):
         if not isinstance(args, list):
             argsList = [args]
         else:
@@ -52,7 +66,7 @@ class OperationWrapper:
         j = 0
         for i in range(0, len(self.args)):
             key = self.argNames[i]
-            if self.args[i] is None:
+            if isinstance(self.args[i], keras.KerasTensor):
                 argsDict[key] = argsList[j]
                 j += 1
             else:
@@ -111,6 +125,19 @@ def main():
             server.wait_for_termination()
 
 
+# def buildCallables(
+#     opsList: list[str], opsInfoDict: dict, model: keras.Model, validLayersName: str
+# ):
+#     callables = {}
+#     for op in opsList:
+#         if op in validLayersName:
+#             callables[op] = model.get_layer(op)
+#         else:
+#             ## It is other type of operation
+#             callables[op] = OperationWrapper(opsInfoDict[op])
+#     return callables
+
+
 def buildCallables(
     opsList: list[str], opsInfoDict: dict, model: keras.Model, validLayersName: str
 ):
@@ -121,6 +148,22 @@ def buildCallables(
         else:
             ## It is other type of operation
             callables[op] = OperationWrapper(opsInfoDict[op])
+
+    for opName in callables:
+        if isinstance(callables[opName], keras.layers.InputLayer):
+            continue
+
+        layer: keras.Layer = callables[opName]
+        if isinstance(layer, OperationWrapper):
+            layerInput = layer.getInput()
+        else:
+            layerInput = layer.input
+        layerWrapper = keras.Model(inputs=layerInput, outputs=layer(layerInput))
+        keras.saving.save_model(
+            layerWrapper,
+            f"../../../models/registry/{layer.name}.keras",
+        )
+
     return callables
 
 

@@ -9,7 +9,7 @@ from proto import registry_pb2_grpc, server_pb2_grpc
 from proto.registry_pb2 import LayerInfo, LayerPosition
 from proto.server_pb2 import LayerRequest, LayerResponse
 
-TEST_NUM = 50
+TEST_NUM = 1
 
 
 def remoteTest():
