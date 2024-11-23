@@ -1,6 +1,7 @@
 import importlib
 import inspect
 from concurrent import futures
+from typing import Callable
 
 import grpc
 import keras
@@ -14,10 +15,27 @@ from Service import Service
 ##  * Posizione del livello nella rete
 
 
+@keras.saving.register_keras_serializable()
 class OperationWrapper(keras.Layer):
 
-    def __init__(self, operationInfo) -> None:
-        super().__init__(name=operationInfo["config"]["name"])
+    def __init__(
+        self,
+        operationInfo,
+        activity_regularizer=None,
+        trainable=True,
+        dtype=None,
+        autocast=True,
+        name=None,
+        **kwargs,
+    ) -> None:
+        super().__init__(
+            activity_regularizer=activity_regularizer,
+            trainable=trainable,
+            dtype=dtype,
+            autocast=autocast,
+            name=operationInfo["config"]["name"],
+            **kwargs,
+        )
         self.args = []
         for inNode in operationInfo["inbound_nodes"]:
             if "args" in inNode:
@@ -125,19 +143,6 @@ def main():
             server.wait_for_termination()
 
 
-# def buildCallables(
-#     opsList: list[str], opsInfoDict: dict, model: keras.Model, validLayersName: str
-# ):
-#     callables = {}
-#     for op in opsList:
-#         if op in validLayersName:
-#             callables[op] = model.get_layer(op)
-#         else:
-#             ## It is other type of operation
-#             callables[op] = OperationWrapper(opsInfoDict[op])
-#     return callables
-
-
 def buildCallables(
     opsList: list[str], opsInfoDict: dict, model: keras.Model, validLayersName: str
 ):
@@ -149,6 +154,10 @@ def buildCallables(
             ## It is other type of operation
             callables[op] = OperationWrapper(opsInfoDict[op])
 
+    return callables
+
+
+def saveModels(callables: dict[str, Callable]):
     for opName in callables:
         if isinstance(callables[opName], keras.layers.InputLayer):
             continue
@@ -161,10 +170,8 @@ def buildCallables(
         layerWrapper = keras.Model(inputs=layerInput, outputs=layer(layerInput))
         keras.saving.save_model(
             layerWrapper,
-            f"../../../models/registry/{layer.name}.keras",
+            f"../../../../models/registry/{layer.name}.keras",
         )
-
-    return callables
 
 
 def modelParse(model: keras.Model):
