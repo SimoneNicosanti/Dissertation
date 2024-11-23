@@ -1,0 +1,40 @@
+networks:
+  my_network:
+    driver: bridge
+
+services:
+  server:
+    build:
+      dockerfile: ./node.dockerfile
+    container_name: server
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./server:/server
+    networks:
+      - my_network
+    working_dir: /server
+
+  registry:
+    build:
+      dockerfile: ./node.dockerfile
+    container_name: registry
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./registry:/registry
+    networks:
+      - my_network
+    working_dir: /registry
+
+  client:
+    build:
+      dockerfile: ./node.dockerfile
+    container_name: client
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./client:/client
+    networks:
+      - my_network
+    working_dir: /client

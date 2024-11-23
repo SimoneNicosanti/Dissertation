@@ -2,7 +2,7 @@ syntax = "proto3";
 
 service Register {
     // (Method definitions not shown)
-    rpc registerModel(Model) returns (LayerPosition) {}
+    rpc registerServer(Model) returns (LayerPosition) {}
 
     rpc registerLayer(LayerPosition) returns (Empty) {}
 

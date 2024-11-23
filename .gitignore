@@ -1,2 +1,3 @@
-/models
+models/
 /doc/.obsidian
+__pycache__/

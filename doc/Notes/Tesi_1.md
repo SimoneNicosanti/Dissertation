@@ -14,6 +14,7 @@ Premettendo che non mi è molto chiaro il motivo per cui siano necessarie operaz
 > [!Warning] Validità e generalizzazione della soluzione
 > A questo punto il dubbio che mi sorge è relativo alla validità di una soluzione di questo tipo in un contesto più generale: potrebbero esserci altri oggetti con cui keras fa cose simili di cui potrei non venire a sapere l'esistenza e che potrebbero dare problemi simili.
 
+
 ### Conferma di questo aspetto
 In MobileNetV3 questo comportamento è dovuto alla definizione della *hard_sigmoid* (https://github.com/keras-team/keras/blob/f6c4ac55692c132cd16211f4877fac6dbeead749/keras/src/applications/mobilenet_v3.py#L538), definita come:
 ```python

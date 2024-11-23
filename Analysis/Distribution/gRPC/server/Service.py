@@ -43,7 +43,7 @@ class Service(server_pb2_grpc.ServerServicer):
         self.nextOps: dict[str, set[str]] = nextOps
         self.requestPool = RequestPool()
 
-        channel = grpc.insecure_channel("localhost:5000")
+        channel = grpc.insecure_channel("registry:5000")
         self.registry: registry_pb2_grpc.RegisterStub = registry_pb2_grpc.RegisterStub(
             channel
         )

@@ -15,7 +15,7 @@ TEST_NUM = 1
 def remoteTest():
     inputTensor = readTestElem()
     timeArray = np.zeros(shape=TEST_NUM)
-    with grpc.insecure_channel("localhost:5000") as channel:
+    with grpc.insecure_channel("registry:5000") as channel:
         stub = registry_pb2_grpc.RegisterStub(channel)
         layerPosition: LayerPosition = stub.getLayerPosition(
             LayerInfo(modelName="", layerName="input_layer")
