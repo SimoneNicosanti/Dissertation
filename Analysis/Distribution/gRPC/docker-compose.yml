@@ -11,9 +11,12 @@ services:
     stdin_open: true
     volumes:
       - ./server:/server
+      - ../../../models/callables:/callables
     networks:
       - my_network
     working_dir: /server
+    depends_on:
+      - registry
 
   registry:
     build:
@@ -23,6 +26,7 @@ services:
     stdin_open: true
     volumes:
       - ./registry:/registry
+      - ../../../models/callables:/callables
     networks:
       - my_network
     working_dir: /registry

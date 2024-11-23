@@ -34,41 +34,31 @@ class RegisterStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.registerModel = channel.unary_unary(
-                '/Register/registerModel',
-                request_serializer=registry__pb2.Model.SerializeToString,
-                response_deserializer=registry__pb2.LayerPosition.FromString,
-                _registered_method=True)
-        self.registerLayer = channel.unary_unary(
-                '/Register/registerLayer',
-                request_serializer=registry__pb2.LayerPosition.SerializeToString,
-                response_deserializer=registry__pb2.Empty.FromString,
+        self.registerServer = channel.unary_unary(
+                '/Register/registerServer',
+                request_serializer=registry__pb2.ServerInfo.SerializeToString,
+                response_deserializer=registry__pb2.RegisterResponse.FromString,
                 _registered_method=True)
         self.getLayerPosition = channel.unary_unary(
                 '/Register/getLayerPosition',
                 request_serializer=registry__pb2.LayerInfo.SerializeToString,
-                response_deserializer=registry__pb2.LayerPosition.FromString,
+                response_deserializer=registry__pb2.ServerInfo.FromString,
                 _registered_method=True)
 
 
 class RegisterServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def registerModel(self, request, context):
-        """(Method definitions not shown)
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def registerLayer(self, request, context):
+    def registerServer(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def getLayerPosition(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """rpc registerLayer(LayerPosition) returns (Empty) ;
+
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -76,20 +66,15 @@ class RegisterServicer(object):
 
 def add_RegisterServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'registerModel': grpc.unary_unary_rpc_method_handler(
-                    servicer.registerModel,
-                    request_deserializer=registry__pb2.Model.FromString,
-                    response_serializer=registry__pb2.LayerPosition.SerializeToString,
-            ),
-            'registerLayer': grpc.unary_unary_rpc_method_handler(
-                    servicer.registerLayer,
-                    request_deserializer=registry__pb2.LayerPosition.FromString,
-                    response_serializer=registry__pb2.Empty.SerializeToString,
+            'registerServer': grpc.unary_unary_rpc_method_handler(
+                    servicer.registerServer,
+                    request_deserializer=registry__pb2.ServerInfo.FromString,
+                    response_serializer=registry__pb2.RegisterResponse.SerializeToString,
             ),
             'getLayerPosition': grpc.unary_unary_rpc_method_handler(
                     servicer.getLayerPosition,
                     request_deserializer=registry__pb2.LayerInfo.FromString,
-                    response_serializer=registry__pb2.LayerPosition.SerializeToString,
+                    response_serializer=registry__pb2.ServerInfo.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -103,7 +88,7 @@ class Register(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def registerModel(request,
+    def registerServer(request,
             target,
             options=(),
             channel_credentials=None,
@@ -116,36 +101,9 @@ class Register(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/Register/registerModel',
-            registry__pb2.Model.SerializeToString,
-            registry__pb2.LayerPosition.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def registerLayer(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/Register/registerLayer',
-            registry__pb2.LayerPosition.SerializeToString,
-            registry__pb2.Empty.FromString,
+            '/Register/registerServer',
+            registry__pb2.ServerInfo.SerializeToString,
+            registry__pb2.RegisterResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -172,7 +130,7 @@ class Register(object):
             target,
             '/Register/getLayerPosition',
             registry__pb2.LayerInfo.SerializeToString,
-            registry__pb2.LayerPosition.FromString,
+            registry__pb2.ServerInfo.FromString,
             options,
             channel_credentials,
             insecure,

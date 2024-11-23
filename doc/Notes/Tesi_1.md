@@ -26,12 +26,13 @@ $$
 swish(x)=x * \sigma(x)
 $$
 e risulta pertanto abbastanza costosa dal punto di vista computazionale (https://towardsdatascience.com/everything-you-need-to-know-about-mobilenetv3-and-its-comparison-with-previous-versions-a5d5e5a6eeaa). La *hard_sigmoid* permette di approssimarla (grafico) con un costo computazionale minore, che in questo tipo di modello è importante.
-![[h-swish.png]]
 
+| Funzione H-Sigmoid e sua Approssimazione |
+| ---------------------------------------- |
+| ![[h-swish.png]]                         |
 Il motivo per cui non si fa imparare alla rete direttamente i pesi che permettono di ottenere quel risultato è dovuto al fatto che in questo caso stiamo approssimando la funzione di attivazione (per quanto l'obiezione rimane valida in parte).
 
 ## Divisione del Modello
-Si possono sfruttare le Functional API di Keras (https://gist.github.com/martinsbruveris/1ce43d4fe36f40e29e1f69fd036f1626).
 ```python
 model = build_model()
 
@@ -39,9 +40,74 @@ cut_layer = model.get_layer(name="fc2")
 model_a = Model(model.inputs, cut_layer.output)
 model_b = Model(cut_layer.output, model.outputs)
 ```
-Il problema qui è che si dovrebbe spezzare il modello:
-* Come spezzo il modello se un layer ha molti input
-* Problema di livelli non validi
+Prendendo il layer tramite il suo nome e passando gli input e gli output del layer nelle divisioni del modello, si ottengono dei sotto modelli del modello originale che fanno la computazione solo di quel pezzo.
+Considerazioni :
+- Gestione dei nodi di fork e join
+	- Se abbiamo delle pipeline parallele all'interno del modello, bisogna fare attenzione a dove vengono messi i nodi di fork e di join: se il subModel comincia con il nodo di fork e finisce con il nodo di join, tutto ciò che è intermedio viene inserito nel sotto modello.
+	- Si potrebbe in realtà riuscire a fare una divisione abbastanza tranquilla in ogni punto della rete: supposto che i nodi di fork e join siano in server diversi, quando il fork esegue invia il suo input al join e alla parte di esecuzione dell'altro; quando il join riceve, deve aspettare prima la seconda parte di esecuzione, quindi ritorna null al nodo di fork; quando il join riceve la seconda parte di input allora emette il risultato e terminata l'esecuzione totale, il fork riceverà l'output dal secondo ramo.
+		- NOOOO. Questa cosa non funziona (vedere [[Split_On_Join.png]]): per arrivare all'output di *multiply* c'è bisogno dell'output di entrambi i rami, quindi se parto da *Conv2D*, keras mette in automatico anche tutto l'altro ramo che serve per arrivare all'iput per quello specifico livello
+		- Questa cosa funziona se si specificano come input del modello quelli provenienti da tutti i nodi di input e che non sono nel sotto modello (vedere [[Multi_Input_Variant.png]] e [[Multi_Input_Variant_Graph.png]]), ad esempio specifico come input sia l'output della relu (che diventa input della multiply) sia l'output dell'AvgPooling (che diventa inpur di Conv2D). 
+		- Allo stesso modo funziona se il livello di partenza è un livello di Join (vedere [[Starting_With_Join.png]]) quindi ad esempio parto dalla Multiply e vado alla BatchNormalization.
+- La gestione dei nodi che non sono layer (come per operazioni numpy) non dovrebbe più dare problemi: se si fa la divisione del modello usando SOLO i layers restituiti da *model.layers* quei nodi del grafo NON sono annoverato tra i layer quindi:
+	- lo split lì non si può fare. 
+	- Allo stesso tempo saranno considerati come parte della computazione per arrivare al nodo di output, quindi verranno presi in considerazione in automatico.
+
+| Fork & Join             | Split on Join senza input   |
+| ----------------------- | --------------------------- |
+| ![[Fork-Join.png\|300]] | ![[Split_On_Join.png\|300]] |
+
+```python
+subModel = keras.Model(
+	inputs=[
+		model.get_layer("expanded_conv_11_squeeze_excite_conv").input,
+		model.get_layer("activation_12").output],
+	outputs=model.get_layer("expanded_conv_11_squeeze_excite_mul").output,
+)
+```
+
+| Inizio con Nodo di Join     | Split on Join con Input aggiuntivi                     |
+| --------------------------- | ------------------------------------------------------ |
+| ![[Starting_With_Join.png]] | ![Variante Multi Input](Multi_Input_Variant_Graph.png) |
+
+Posto di fare molta attenzione a dove e come il modello viene tagliato e quali e quanti sono gli input che si aspetta di ricevere. 
+In linea di principio:
+- Se il sotto modello è sequenziale non ho problemi
+- Se il sotto modello contiene il fork ma non il join non ho problemi: devo inviare l'output del sotto modello a tutti i successori (che comunque devo di trovare)
+- Se il sotto modello contiene il join, ma non il fork devo fare attenzione a mettere nell'input del sotto modello gli output di tutti i rami che non sono compresi nel sotto modello (che comunque devo trovare)
+- Se il sotto modello contiene sia il fork sia il join corrispondente non ho problemi
+
+Devo comunque fare attenzione a ricostruire da quali livelli mi aspetto di ricevere l'input per poter recuperare le informazioni sui loro tensori, in particolare se il sotto modello contiene dei join.
+
+Pseudocodice
+```
+for layer in subModel:
+	layerInputs <- get input layers
+	for inputLayer in layerInputs:
+		if inputLayer in subModel:
+			continue
+		else:
+			add inputLayer.output as input of the submodel
+```
+
+Dato un nodo devo trovare i primi layer validi che lo precedono e che lo succedono.
+```
+### Cerco i nodi predecessori
+for layer in model:
+	inputOps <- get layer input ops
+	prevLayers = []
+	for op in inputOp:
+		if op is a layer:
+			prevLayers.append(op)
+		else :
+			opPrevLayers <- get op prev layers
+			prevLayers.append(opPrevLayers)
+		## Updating prev layers
+		layer.prevLayers = prevLayers
+		## Updating next layers
+		for otherLayer in prevLayers :
+			otherLayer.nextLayers.append(layer)
+	
+```
 
 ## Analisi di protocolli di Serializzazione usati da RPyC
 Formato usato *Brine*.
@@ -82,3 +148,4 @@ Rapporti
 | gRPC / Locale | RPyC / Locale |
 | ------------- | ------------- |
 | 2.6296        | 4.5065        |
+

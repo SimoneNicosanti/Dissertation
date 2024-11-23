@@ -4,7 +4,7 @@ import grpc
 import numpy as np
 import tensorflow as tf
 from proto import registry_pb2_grpc, server_pb2_grpc
-from proto.registry_pb2 import LayerInfo, LayerPosition
+from proto.registry_pb2 import LayerInfo, ServerInfo
 from proto.server_pb2 import LayerRequest, LayerResponse
 
 
@@ -62,12 +62,12 @@ class Service(server_pb2_grpc.ServerServicer):
                 processFunction: Callable = self._serveLayer
             else:
                 # print(f"Layer {nextLayerName} is in Remote")
-                nextLayerHost: LayerPosition = self.registry.getLayerPosition(
+                nextLayerHost: ServerInfo = self.registry.getLayerPosition(
                     LayerInfo(modelName="", layerName=nextLayerName)
                 )
 
                 nextHostChann = grpc.insecure_channel(
-                    f"{nextLayerHost.layerHost}:{nextLayerHost.layerPort}"
+                    f"{nextLayerHost.hostName}:{nextLayerHost.portNum}"
                 )
                 processFunction: Callable = server_pb2_grpc.ServerStub(
                     nextHostChann

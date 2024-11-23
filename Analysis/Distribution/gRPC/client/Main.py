@@ -6,7 +6,7 @@ import keras
 import numpy as np
 import tensorflow as tf
 from proto import registry_pb2_grpc, server_pb2_grpc
-from proto.registry_pb2 import LayerInfo, LayerPosition
+from proto.registry_pb2 import LayerInfo, ServerInfo
 from proto.server_pb2 import LayerRequest, LayerResponse
 
 TEST_NUM = 1
@@ -17,13 +17,13 @@ def remoteTest():
     timeArray = np.zeros(shape=TEST_NUM)
     with grpc.insecure_channel("registry:5000") as channel:
         stub = registry_pb2_grpc.RegisterStub(channel)
-        layerPosition: LayerPosition = stub.getLayerPosition(
+        layerPosition: ServerInfo = stub.getLayerPosition(
             LayerInfo(modelName="", layerName="input_layer")
         )
-        print(f"Received >>> {layerPosition.layerHost}:{layerPosition.layerPort}")
+        print(f"Received >>> {layerPosition.hostName}:{layerPosition.portNum}")
 
         with grpc.insecure_channel(
-            f"{layerPosition.layerHost}:{layerPosition.layerPort}"
+            f"{layerPosition.hostName}:{layerPosition.portNum}"
         ) as layerChannel:
             serverStub = server_pb2_grpc.ServerStub(layerChannel)
             for i in range(0, TEST_NUM):
