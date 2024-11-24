@@ -1,5 +1,5 @@
 
-## Analisi del Modello
+## Analisi del Modello MobileNetV3Large
 Analizzando l'attributo _config_ del modello (che restituisce un oggetto strutturato come un json che descrive il modello) sono riuscito a capire il problema relativo a quei livelli di Add e Multiply che, come mostrato in Netron, prendevano in input da un solo livello, cosa che risultava strana trattandosi di livelli aggreganti; il problema è che questi livelli in realtà prendono in input l'output di un livello precedente per poi eseguire un'operazione element-wise (appunto una somma o un prodotto) con una costante (nello specifico, per la somma la costante è sempre 3.0 mentre per la moltiplicazione è sempre 0.16 con 6 periodico). Quei livelli che venivano mostrati in netron in sostanza non sono affatto dei livelli (cioè istanziati in fase di costruzione del modello come dei keras.Layer), ma sono il risultato di operazioni del seguente tipo:  
 ```
 x1 = prevLayer(prevPrevOutput)  
@@ -32,7 +32,7 @@ e risulta pertanto abbastanza costosa dal punto di vista computazionale (https:/
 | ![[h-swish.png]]                         |
 Il motivo per cui non si fa imparare alla rete direttamente i pesi che permettono di ottenere quel risultato è dovuto al fatto che in questo caso stiamo approssimando la funzione di attivazione (per quanto l'obiezione rimane valida in parte).
 
-## Divisione del Modello
+## Divisione di Modello Generico (Focus su MobileNetV3)
 ```python
 model = build_model()
 
@@ -125,12 +125,28 @@ subModelInput += [
 
 | Output Sotto-Modello Precedente               | Input Sotto-Modello Successivo    |
 | --------------------------------------------- | --------------------------------- |
-| ![[Output Sotto Modello Precedente.png\|280]] | ![[Input Sotto Modello.png\|300]] |
+| ![[Output Sotto Modello Precedente.png\|280]] | ![[Input Sotto Modello.png\|307]] |
+Funziona ma parzialmente: bisogna fare in modo che gli input e gli output dei modelli siano dei tensori con nomi, in modo da poter raccordare l'output di un modello con l'input del modello successivo.
+RISOLTO: Creati dei dict per rappresentare input ed output e assegnati i nomi corrispondenti che servono.
 
 
+> [!Warning] Warning ricevuto nel Parsing
+> Durante il parsing del modello e la ricostruzione dei dizionari di input e di output viene ricevuto un Warning. In sostanza c'è una mancata corrispondenza tra i nomi dei tensori di input nel dizionario e le chiavi del dizionario stesso; comunque Keras sembra gestire la cosa abbastanza bene, ricostruendo il tutto correttamente.
+> La cosa strana è che se cerco di risolvere il problema impostando un nuovo tensore di input ho errore di operazione ripetuta.
+> 
+> Non so se potrebbe dare problemi in altri punti dell'esecuzione o nel parsing di modelli diversi.
+```
+### Warining
+/opt/conda/lib/python3.11/site-packages/keras/src/models/functional.py:106: UserWarning: When providing `inputs` as a dict, all keys in the dict must match the names of the corresponding tensors. Received key 'activation_18' mapping to value <KerasTensor shape=(None, None, None, 960), dtype=float32, sparse=False, name=keras_tensor_188> which has name 'keras_tensor_188'. Change the tensor name to 'activation_18' (via `Input(..., name='activation_18')`)
+
+#############
+
+ValueError: The name "expanded_conv_3_expand" is used 2 times in the model. All operation names should be unique.
+
+```
 
 
-## Analisi di protocolli di Serializzazione usati da RPyC
+## Protocollo di Serializzazione usato da RPyC
 Formato usato *Brine*.
 
 > [!Note] Brine
@@ -140,6 +156,7 @@ Formato usato *Brine*.
 Potrebbe non essere adatto al trasferimento di dati complessi perché c'è il doppio passaggio, uno per serializzare e altro per convertire in Brine.
 
 ## Implementazione distribuzione con gRPC
+### Distribuzione per Livello Singolo
 Controllare l'articolo per vedere le differenze nell'uso del JSON e di protocol buffer
 https://medium.com/@avidaneran/tensorflow-serving-rest-vs-grpc-e8cef9d4ff62
 
@@ -150,7 +167,6 @@ https://medium.com/@avidaneran/tensorflow-serving-rest-vs-grpc-e8cef9d4ff62
 > In gRPC si deve specificare il numero di thread che possono eseguire un certo servizio. Se sono meno del numero di layer gestiti da un'istanza di servizio si rischia il blocco. Questo aspetto deve essere gestito in qualche modo.
 
 
-
 Per risolvere il secondo problema si potrebbero usare delle chiamate non bloccanti, oppure si fa tornare l'output parziale al front-end che poi lo invia al prossimo layer (troppo passaggio dati e troppa latenza forse...). Altrimenti si potrebbe fare implementando delle call asincrone implementazione di call asincrone
 
 Contesto di esecuzione: 
@@ -159,14 +175,12 @@ Contesto di esecuzione:
 
 Nel complesso i tempi di esecuzione sembrano migliori rispetto ad un'esecuzione con RPyC: tempi di esecuzione per 50 esecuzioni.
 
-|         | Senza Distribuzione | gRPC                | RPyC               |
-| ------- | ------------------- | ------------------- | ------------------ |
-| Mean    | 0.5486299920082093  | 1.4203560161590576  | 2.472412314414978  |
-| Std Dev | 0.04414955138328341 | 0.12214391166816921 | 0.6125166100820715 |
+|            | Locale     | gRPC       | RPyC       |
+| ---------- | ---------- | ---------- | ---------- |
+| Mean       | 0.54862999 | 1.42035601 | 2.47241231 |
+| Std Dev    | 0.04414955 | 0.12214391 | 0.61251661 |
+| x / Locale | 1          | 2.6296     | 4.5065     |
 
-Rapporti
-
-| gRPC / Locale | RPyC / Locale |
-| ------------- | ------------- |
-| 2.6296        | 4.5065        |
+### Distribuzione per Sotto Modelli
+Implementazione del servizio con gRPC e per sotto modelli (invece che per singolo livello).
 
