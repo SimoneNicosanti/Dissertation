@@ -79,7 +79,7 @@ In linea di principio:
 Devo comunque fare attenzione a ricostruire da quali livelli mi aspetto di ricevere l'input per poter recuperare le informazioni sui loro tensori, in particolare se il sotto modello contiene dei join.
 
 Pseudocodice
-```
+```python
 for layer in subModel:
 	layerInputs <- get input layers
 	for inputLayer in layerInputs:
@@ -90,8 +90,8 @@ for layer in subModel:
 ```
 
 Dato un nodo devo trovare i primi layer validi che lo precedono e che lo succedono.
-```
-### Cerco i nodi predecessori
+```python
+### Cerco i nodi predecessori e successori
 for layer in model:
 	inputOps <- get layer input ops
 	prevLayers = []
@@ -108,6 +108,27 @@ for layer in model:
 			otherLayer.nextLayers.append(layer)
 	
 ```
+
+La divisione del modello fatta in questo modo funziona!!!
+
+Bisogna un attimo ricostruire però il rapporto tra nomi dei tensori di input e nomi dei tensori di output. Il codice di seguito crea un raccordo tra nome del livello precedente e nomi dei tensori in input al sotto modello da quegli stessi livelli.
+```python
+subModelInput += [
+	keras.Input(
+		shape=prevLayerOut[i].shape[1:],
+		tensor=prevLayerOut[i],
+		name=prevLayer,
+		) 
+	for i in range(0, len(prevLayerOut))
+	]
+```
+
+| Output Sotto-Modello Precedente               | Input Sotto-Modello Successivo    |
+| --------------------------------------------- | --------------------------------- |
+| ![[Output Sotto Modello Precedente.png\|280]] | ![[Input Sotto Modello.png\|300]] |
+
+
+
 
 ## Analisi di protocolli di Serializzazione usati da RPyC
 Formato usato *Brine*.

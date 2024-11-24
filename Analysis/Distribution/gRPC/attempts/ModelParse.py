@@ -1,63 +1,76 @@
+import pickle
+
 import keras
-import keras.src
-import keras.src.ops.numpy
+import tensorflow as tf
 
 
-def modelParse_1(model: keras.Model):
-    pass
+def findLayersConnections(model: keras.Model):
+    config = model.get_config()
+    opsList = config["layers"]
+    opsConfigDict = {}
+    for opConfig in opsList:
+        opName = opConfig["name"]
+        opsConfigDict[opName] = opConfig
+
+    layerNames = [layer.name for layer in model.layers]
+
+    prevOpsDict = {}
+    nextOpsDict = {}
+    for layerName in layerNames:
+        prevOpsDict[layerName] = []
+        nextOpsDict[layerName] = []
+
+    for layerName in layerNames:
+        currConfig = opsConfigDict[layerName]
+        prevLayers = findPrevLayersFromConfig(currConfig, opsConfigDict, layerNames)
+
+        prevOpsDict[layerName] = prevLayers
+
+        for prevLayer in prevLayers:
+            nextOpsDict[prevLayer].append(layerName)
+
+    return prevOpsDict, nextOpsDict
 
 
 def modelParse(model: keras.Model):
-    config = model.get_config()
-    layersList = config["layers"]
-    opsInfoDict = {}
-    for layerInfo in layersList:
-        layerName = layerInfo["name"]
-        opsInfoDict[layerName] = layerInfo
+    prevOpsDict, nextOpsDict = findLayersConnections(model)
 
-    allOps = []
-    queue = [x for x in model.output_names]
-    nextOpsDict = {}
-    prevOpsDict = {}
+    maxLayerNum = 30
+    modelIdx = 0
+    for i in range(0, len(model.layers), maxLayerNum):
+        subLayers = model.layers[i : min(len(model.layers), i + maxLayerNum)]
+        subLayersNames = [x.name for x in subLayers]
 
-    while queue:
-        currOp = queue.pop(0)
+        subModelInput = buildSubModelInput(
+            subLayers, subLayersNames, model, prevOpsDict
+        )
+        subModelOutput = buildSubModelOutput(
+            subLayers, subLayersNames, model, nextOpsDict
+        )
 
-        if currOp not in prevOpsDict:
-            prevOpsDict[currOp] = set()
-        if currOp not in nextOpsDict:
-            nextOpsDict[currOp] = set()
+        subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
+        subModel.save(f"./models/SubModel_{modelIdx}.keras")
+        with open(f"./models/SubModel_{modelIdx}.json", "w") as f:
+            f.write(str(subModel.get_config()))
 
-        if currOp not in allOps:
-            allOps.append(currOp)
-            ## Find prev ops
-            currInfo = opsInfoDict[currOp]
-            inboundNodes = currInfo["inbound_nodes"]
-            histories = []
-            ## For each input node find its hisyory
-            for inboundNode in inboundNodes:
-                findHistoryInDepth(inboundNode, histories)
+        modelIdx += 1
 
-            ## Updating Nodes connections for next hop
-            ## This is actually a layer, so can add it to connections
-            for hist in histories:
-                prevOpsDict[currOp].add(hist)
 
-                if hist not in nextOpsDict:
-                    nextOpsDict[hist] = set()
-                nextOpsDict[hist].add(currOp)
+def findPrevLayersFromConfig(currConfig, configDict, layerNames):
+    prevOpsNames = []
+    prevLayers = []
+    findHistoryInDepth(currConfig["inbound_nodes"], prevOpsNames)
+    for opName in prevOpsNames:
+        if opName in layerNames:
+            ## It is a valid layer --> Append to prev Layers
+            prevLayers.append(opName)
+        else:
+            ## It is other operation --> Find first valid prev layer
+            opConfig = configDict[opName]
+            opPrevLayers = findPrevLayersFromConfig(opConfig, configDict, layerNames)
+            prevLayers += opPrevLayers
 
-            ## Updating Parsing Queue
-            for hist in histories:
-                if hist not in queue:
-                    queue.append(hist)
-
-    # for key in allOps:
-    #     print(f"{prevOpsDict[key]} >>> {key} >>> {nextOpsDict[key]}")
-
-    # print(len(allOps), len(prevOpsDict), len(nextOpsDict))
-
-    return prevOpsDict, nextOpsDict
+    return prevLayers
 
 
 def findHistoryInDepth(node, histories: list):
@@ -76,14 +89,69 @@ def findHistoryInDepth(node, histories: list):
     return
 
 
-def main():
-    model = keras.applications.MobileNetV3Large()
-    prevOpsDict, nextOpsDict = modelParse(model)
+def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
+    subModelInput = []
+    for layer in subLayers:
+        if len(prevOpsDict[layer.name]) == 0:
+            ## Input Layer
+            subModelInput.append(layer.output)
+        else:
+            for prevLayer in prevOpsDict[layer.name]:
+                if prevLayer not in subLayersNames:
+                    prevLayerOut = model.get_layer(prevLayer).output
+                    if isinstance(prevLayerOut, list):
+                        subModelInput += [
+                            keras.Input(
+                                shape=prevLayerOut[i].shape[1:],
+                                tensor=prevLayerOut[i],
+                                name=prevLayer,
+                            )
+                            for i in range(0, len(prevLayerOut))
+                        ]
+                    else:
+                        subModelInput.append(
+                            keras.Input(
+                                shape=prevLayerOut.shape[1:],
+                                tensor=prevLayerOut,
+                                name=prevLayer,
+                            )
+                        )
+    return subModelInput if len(subModelInput) > 1 else subModelInput[0]
 
-    for layer in model.layers:
-        print(
-            f"{prevOpsDict[layer.name]} >>> {layer.name} >>> {nextOpsDict[layer.name]}"
-        )
+
+def buildSubModelOutput(subLayers, subLayersNames, model, nextOpsDict):
+    subModelOutput = []
+    for layer in subLayers:
+        if len(nextOpsDict[layer.name]) == 0:
+            ## Output Layer
+            subModelOutput.append(layer.output)
+        else:
+            for nextLayer in nextOpsDict[layer.name]:
+                if nextLayer not in subLayersNames:
+                    nextLayerIn = model.get_layer(layer.name).output
+                    if isinstance(nextLayerIn, list):
+                        subModelOutput += nextLayerIn
+                    else:
+                        subModelOutput.append(nextLayerIn)
+    return subModelOutput if len(subModelOutput) > 1 else subModelOutput[0]
+
+
+def main():
+    model: keras.Model = keras.applications.MobileNetV3Large()
+    modelParse(model)
+    loadedModel_0: keras.Model = keras.saving.load_model("./models/SubModel_0.keras")
+    loadedModel_1: keras.Model = keras.saving.load_model("./models/SubModel_1.keras")
+    loadedModel_2: keras.Model = keras.saving.load_model("./models/SubModel_2.keras")
+
+    testElem = readTestElem()
+
+
+def readTestElem():
+    testElem = None
+    with open("boef_pre.pkl", "rb") as f:
+        testElem = pickle.load(f)
+
+    return tf.convert_to_tensor(value=testElem)
 
 
 if __name__ == "__main__":
