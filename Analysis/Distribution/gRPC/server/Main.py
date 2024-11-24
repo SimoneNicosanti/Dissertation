@@ -5,7 +5,7 @@ import grpc
 import keras
 import psutil
 from proto import registry_pb2_grpc, server_pb2_grpc
-from proto.registry_pb2 import RegisterResponse, ServerInfo
+from proto.registry_pb2 import LayerPosition, RegisterResponse, ServerInfo
 from Service import Service
 
 
@@ -34,33 +34,24 @@ def main():
         portNum = 9000
 
         serverInfo: ServerInfo = ServerInfo(hostName=addresses[0], portNum=portNum)
-        registerResponse: RegisterResponse = registry.registerServer(serverInfo)
+        resp: RegisterResponse = registry.registerServer(serverInfo)
 
-        callables = loadLayers(registerResponse.layers.layers)
-        prevOps = {
-            op: registerResponse.prevLayers[op].layers
-            for op in registerResponse.prevLayers
-        }
-        nextOps = {
-            op: registerResponse.nextLayers[op].layers
-            for op in registerResponse.nextLayers
-        }
+        subModel: keras.Model = keras.saving.load_model(
+            f"/models/SubModel_{resp.subModelIdx}.keras"
+        )
+        layers = [inputLayer for inputLayer in subModel.input]
+        layersPosition = LayerPosition(
+            modelName="", layers=layers, serverInfo=serverInfo
+        )
+        registry.registerLayer(layersPosition)
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=30))
-        service = Service(callables, prevOps, nextOps)
+        service = Service(subModel)
         server_pb2_grpc.add_ServerServicer_to_server(service, server)
         server.add_insecure_port(f"[::]:{portNum}")
         server.start()
         print("SERVER STARTED")
         server.wait_for_termination()
-
-
-def loadLayers(layerList: list[str]):
-    callables = []
-    for layerName in layerList:
-        layer = keras.saving.load_model(f"/callables/{layerName}.keras")
-        callables.append(layer)
-    return callables
 
 
 if __name__ == "__main__":

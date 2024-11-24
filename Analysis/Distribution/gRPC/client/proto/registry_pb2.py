@@ -24,33 +24,23 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eregistry.proto\"\x07\n\x05\x45mpty\"\x9a\x02\n\x10RegisterResponse\x12\x1a\n\x06layers\x18\x01 \x01(\x0b\x32\n.LayerList\x12\x35\n\nprevLayers\x18\x02 \x03(\x0b\x32!.RegisterResponse.PrevLayersEntry\x12\x35\n\nnextLayers\x18\x03 \x03(\x0b\x32!.RegisterResponse.NextLayersEntry\x1a=\n\x0fPrevLayersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x19\n\x05value\x18\x02 \x01(\x0b\x32\n.LayerList:\x02\x38\x01\x1a=\n\x0fNextLayersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x19\n\x05value\x18\x02 \x01(\x0b\x32\n.LayerList:\x02\x38\x01\"\x1b\n\tLayerList\x12\x0e\n\x06layers\x18\x01 \x03(\t\"/\n\nServerInfo\x12\x10\n\x08hostName\x18\x01 \x01(\t\x12\x0f\n\x07portNum\x18\x02 \x01(\x05\"1\n\tLayerInfo\x12\x11\n\tmodelName\x18\x01 \x01(\t\x12\x11\n\tlayerName\x18\x02 \x01(\t\"\x1a\n\x05Model\x12\x11\n\tmodelName\x18\x01 \x01(\t2i\n\x08Register\x12\x30\n\x0eregisterServer\x12\x0b.ServerInfo\x1a\x11.RegisterResponse\x12+\n\x10getLayerPosition\x12\n.LayerInfo\x1a\x0b.ServerInfob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eregistry.proto\"\x07\n\x05\x45mpty\"\'\n\x10RegisterResponse\x12\x13\n\x0bsubModelIdx\x18\x01 \x01(\x05\"/\n\nServerInfo\x12\x10\n\x08hostName\x18\x01 \x01(\t\x12\x0f\n\x07portNum\x18\x02 \x01(\x05\"S\n\rLayerPosition\x12\x11\n\tmodelName\x18\x01 \x01(\t\x12\x0e\n\x06layers\x18\x02 \x03(\t\x12\x1f\n\nserverInfo\x18\x03 \x01(\x0b\x32\x0b.ServerInfo\"1\n\tLayerInfo\x12\x11\n\tmodelName\x18\x01 \x01(\t\x12\x11\n\tlayerName\x18\x02 \x01(\t2\x92\x01\n\x08Register\x12\x30\n\x0eregisterServer\x12\x0b.ServerInfo\x1a\x11.RegisterResponse\x12\'\n\rregisterLayer\x12\x0e.LayerPosition\x1a\x06.Empty\x12+\n\x10getLayerPosition\x12\n.LayerInfo\x1a\x0b.ServerInfob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'registry_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_REGISTERRESPONSE_PREVLAYERSENTRY']._loaded_options = None
-  _globals['_REGISTERRESPONSE_PREVLAYERSENTRY']._serialized_options = b'8\001'
-  _globals['_REGISTERRESPONSE_NEXTLAYERSENTRY']._loaded_options = None
-  _globals['_REGISTERRESPONSE_NEXTLAYERSENTRY']._serialized_options = b'8\001'
   _globals['_EMPTY']._serialized_start=18
   _globals['_EMPTY']._serialized_end=25
-  _globals['_REGISTERRESPONSE']._serialized_start=28
-  _globals['_REGISTERRESPONSE']._serialized_end=310
-  _globals['_REGISTERRESPONSE_PREVLAYERSENTRY']._serialized_start=186
-  _globals['_REGISTERRESPONSE_PREVLAYERSENTRY']._serialized_end=247
-  _globals['_REGISTERRESPONSE_NEXTLAYERSENTRY']._serialized_start=249
-  _globals['_REGISTERRESPONSE_NEXTLAYERSENTRY']._serialized_end=310
-  _globals['_LAYERLIST']._serialized_start=312
-  _globals['_LAYERLIST']._serialized_end=339
-  _globals['_SERVERINFO']._serialized_start=341
-  _globals['_SERVERINFO']._serialized_end=388
-  _globals['_LAYERINFO']._serialized_start=390
-  _globals['_LAYERINFO']._serialized_end=439
-  _globals['_MODEL']._serialized_start=441
-  _globals['_MODEL']._serialized_end=467
-  _globals['_REGISTER']._serialized_start=469
-  _globals['_REGISTER']._serialized_end=574
+  _globals['_REGISTERRESPONSE']._serialized_start=27
+  _globals['_REGISTERRESPONSE']._serialized_end=66
+  _globals['_SERVERINFO']._serialized_start=68
+  _globals['_SERVERINFO']._serialized_end=115
+  _globals['_LAYERPOSITION']._serialized_start=117
+  _globals['_LAYERPOSITION']._serialized_end=200
+  _globals['_LAYERINFO']._serialized_start=202
+  _globals['_LAYERINFO']._serialized_end=251
+  _globals['_REGISTER']._serialized_start=254
+  _globals['_REGISTER']._serialized_end=400
 # @@protoc_insertion_point(module_scope)

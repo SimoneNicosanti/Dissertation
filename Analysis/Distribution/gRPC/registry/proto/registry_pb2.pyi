@@ -10,34 +10,10 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class RegisterResponse(_message.Message):
-    __slots__ = ("layers", "prevLayers", "nextLayers")
-    class PrevLayersEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: LayerList
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[LayerList, _Mapping]] = ...) -> None: ...
-    class NextLayersEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: LayerList
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[LayerList, _Mapping]] = ...) -> None: ...
-    LAYERS_FIELD_NUMBER: _ClassVar[int]
-    PREVLAYERS_FIELD_NUMBER: _ClassVar[int]
-    NEXTLAYERS_FIELD_NUMBER: _ClassVar[int]
-    layers: LayerList
-    prevLayers: _containers.MessageMap[str, LayerList]
-    nextLayers: _containers.MessageMap[str, LayerList]
-    def __init__(self, layers: _Optional[_Union[LayerList, _Mapping]] = ..., prevLayers: _Optional[_Mapping[str, LayerList]] = ..., nextLayers: _Optional[_Mapping[str, LayerList]] = ...) -> None: ...
-
-class LayerList(_message.Message):
-    __slots__ = ("layers",)
-    LAYERS_FIELD_NUMBER: _ClassVar[int]
-    layers: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, layers: _Optional[_Iterable[str]] = ...) -> None: ...
+    __slots__ = ("subModelIdx",)
+    SUBMODELIDX_FIELD_NUMBER: _ClassVar[int]
+    subModelIdx: int
+    def __init__(self, subModelIdx: _Optional[int] = ...) -> None: ...
 
 class ServerInfo(_message.Message):
     __slots__ = ("hostName", "portNum")
@@ -47,6 +23,16 @@ class ServerInfo(_message.Message):
     portNum: int
     def __init__(self, hostName: _Optional[str] = ..., portNum: _Optional[int] = ...) -> None: ...
 
+class LayerPosition(_message.Message):
+    __slots__ = ("modelName", "layers", "serverInfo")
+    MODELNAME_FIELD_NUMBER: _ClassVar[int]
+    LAYERS_FIELD_NUMBER: _ClassVar[int]
+    SERVERINFO_FIELD_NUMBER: _ClassVar[int]
+    modelName: str
+    layers: _containers.RepeatedScalarFieldContainer[str]
+    serverInfo: ServerInfo
+    def __init__(self, modelName: _Optional[str] = ..., layers: _Optional[_Iterable[str]] = ..., serverInfo: _Optional[_Union[ServerInfo, _Mapping]] = ...) -> None: ...
+
 class LayerInfo(_message.Message):
     __slots__ = ("modelName", "layerName")
     MODELNAME_FIELD_NUMBER: _ClassVar[int]
@@ -54,9 +40,3 @@ class LayerInfo(_message.Message):
     modelName: str
     layerName: str
     def __init__(self, modelName: _Optional[str] = ..., layerName: _Optional[str] = ...) -> None: ...
-
-class Model(_message.Message):
-    __slots__ = ("modelName",)
-    MODELNAME_FIELD_NUMBER: _ClassVar[int]
-    modelName: str
-    def __init__(self, modelName: _Optional[str] = ...) -> None: ...

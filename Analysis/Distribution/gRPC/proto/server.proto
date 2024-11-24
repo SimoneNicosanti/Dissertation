@@ -6,17 +6,18 @@ package server;
 
 service Server {
     // (Method definitions not shown)
-    rpc serveLayer(LayerRequest) returns (LayerResponse) {}
+    rpc serveModel(ModelInput) returns (ModelOutput) {}
 }
 
-message LayerRequest {
-    string modelName = 1;
-    string layerName = 2;
-    int32 requestId = 3;
+message ModelInput {
+    int32 requestId = 1;
+
+    string modelName = 2;
+    string layerName = 3;
     tensorflow.TensorProto tensor = 4;
 }
 
-message LayerResponse {
+message ModelOutput {
     bool hasValue = 1;
-    tensorflow.TensorProto result = 2;
+    map<string, tensorflow.TensorProto> result = 2;
 }

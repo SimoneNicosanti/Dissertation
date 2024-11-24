@@ -34,17 +34,17 @@ class ServerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.serveLayer = channel.unary_unary(
-                '/server.Server/serveLayer',
-                request_serializer=server__pb2.LayerRequest.SerializeToString,
-                response_deserializer=server__pb2.LayerResponse.FromString,
+        self.serveModel = channel.unary_unary(
+                '/server.Server/serveModel',
+                request_serializer=server__pb2.ModelInput.SerializeToString,
+                response_deserializer=server__pb2.ModelOutput.FromString,
                 _registered_method=True)
 
 
 class ServerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def serveLayer(self, request, context):
+    def serveModel(self, request, context):
         """(Method definitions not shown)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -54,10 +54,10 @@ class ServerServicer(object):
 
 def add_ServerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'serveLayer': grpc.unary_unary_rpc_method_handler(
-                    servicer.serveLayer,
-                    request_deserializer=server__pb2.LayerRequest.FromString,
-                    response_serializer=server__pb2.LayerResponse.SerializeToString,
+            'serveModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.serveModel,
+                    request_deserializer=server__pb2.ModelInput.FromString,
+                    response_serializer=server__pb2.ModelOutput.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -71,7 +71,7 @@ class Server(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def serveLayer(request,
+    def serveModel(request,
             target,
             options=(),
             channel_credentials=None,
@@ -84,9 +84,9 @@ class Server(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/server.Server/serveLayer',
-            server__pb2.LayerRequest.SerializeToString,
-            server__pb2.LayerResponse.FromString,
+            '/server.Server/serveModel',
+            server__pb2.ModelInput.SerializeToString,
+            server__pb2.ModelOutput.FromString,
             options,
             channel_credentials,
             insecure,

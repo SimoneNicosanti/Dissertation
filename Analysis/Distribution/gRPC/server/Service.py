@@ -1,46 +1,43 @@
 from typing import Callable
 
 import grpc
+import keras
 import numpy as np
 import tensorflow as tf
 from proto import registry_pb2_grpc, server_pb2_grpc
 from proto.registry_pb2 import LayerInfo, ServerInfo
-from proto.server_pb2 import LayerRequest, LayerResponse
+from proto.server_pb2 import ModelInput, ModelOutput
 
 
 class RequestPool:
 
     def __init__(self):
-        self.requestMap: dict[tuple[str, int], list] = (
+        self.requestMap: dict[int, dict[str]] = (
             {}
         )  ## Maps (Layer Name, requestId) --> list of inputs
 
     def addRequest(self, layerName, requestId, input):
-        key = (layerName, requestId)
+        key = requestId
         if key not in self.requestMap:
-            self.requestMap[key] = []
-        self.requestMap[key].append(input)
+            self.requestMap[key] = {}
+        self.requestMap[key][layerName] = input
 
-    def getRequestInfo(self, layerName, requestId):
-        key = (layerName, requestId)
+    def getRequestInfo(self, requestId):
+        key = requestId
         return self.requestMap[key]
 
-    def removeRequestInfo(self, layerName, requestId):
-        key = (layerName, requestId)
+    def removeRequestInfo(self, requestId):
+        key = requestId
         self.requestMap.pop(key)
 
 
 class Service(server_pb2_grpc.ServerServicer):
     def __init__(
         self,
-        ops: dict[str, Callable],
-        prevOps: dict[str, set[str]],
-        nextOps: dict[str, set[str]],
+        model: keras.Model,
     ) -> None:
         super().__init__()
-        self.ops: dict[str, Callable] = ops
-        self.prevOps: dict[str, set[str]] = prevOps
-        self.nextOps: dict[str, set[str]] = nextOps
+        self.model: keras.Model = model
         self.requestPool = RequestPool()
 
         channel = grpc.insecure_channel("registry:5000")
@@ -48,76 +45,57 @@ class Service(server_pb2_grpc.ServerServicer):
             channel
         )
 
-    def sendToNextLayer(self, opName: str, layerResult, requestId) -> LayerResponse:
-        convertedResult = tf.make_tensor_proto(layerResult)
-        currNextLayers = self.nextOps[opName]
-        # print(f"{layerName} Sending to >>> {currNextLayers}")
-        if len(currNextLayers) == 0:
-            ## This is the last layer of the network
-            return LayerResponse(hasValue=True, result=convertedResult)
-
-        for nextLayerName in currNextLayers:
-            if nextLayerName in self.ops:
-                # print(f"Layer {nextLayerName} is in Local")
-                processFunction: Callable = self._serveLayer
-            else:
-                # print(f"Layer {nextLayerName} is in Remote")
-                nextLayerHost: ServerInfo = self.registry.getLayerPosition(
-                    LayerInfo(modelName="", layerName=nextLayerName)
+    def sendToNextLayer(self, modelOutput: dict, requestId: int) -> ModelOutput:
+        for nextLayerName in self.model.output:
+            ## TODO MANAGE MODEL OUTPUT CASE !!!
+            if nextLayerName == "predictions":
+                return ModelOutput(
+                    hasValue=True,
+                    result={
+                        key: tf.make_tensor_proto(modelOutput[key])
+                        for key in modelOutput
+                    },
                 )
 
-                nextHostChann = grpc.insecure_channel(
-                    f"{nextLayerHost.hostName}:{nextLayerHost.portNum}"
-                )
-                processFunction: Callable = server_pb2_grpc.ServerStub(
-                    nextHostChann
-                ).serveLayer
-
-            nextLayerRequest: LayerRequest = LayerRequest(
+            subResult = modelOutput[nextLayerName]
+            nextInput = ModelInput(
+                requestId=requestId,
                 modelName="",
                 layerName=nextLayerName,
-                requestId=requestId,
-                tensor=convertedResult,
+                tensor=tf.make_tensor_proto(subResult),
             )
-            returnedValue: LayerResponse = processFunction(nextLayerRequest)
 
-            # if returnedValue.hasValue:
-            ## Next Layer has all its inputs and has returned a valid value
+            nextLayerHost: ServerInfo = self.registry.getLayerPosition(
+                LayerInfo(modelName="", layerName=nextLayerName)
+            )
+            nextHostChann = grpc.insecure_channel(
+                f"{nextLayerHost.hostName}:{nextLayerHost.portNum}"
+            )
+            serverStub: server_pb2_grpc.ServerStub = server_pb2_grpc.ServerStub(
+                nextHostChann
+            )
+            returnedValue: ModelOutput = serverStub.serveModel(nextInput)
+
         return returnedValue
 
-    def _serveLayer(self, request: LayerRequest) -> LayerResponse:
-        opName: str = request.layerName
+    def _serveModel(self, request: ModelInput) -> ModelOutput:
+        inputLayer: str = request.layerName
         requestId: int = request.requestId
         convertedInput: tf.Tensor = tf.make_ndarray(request.tensor)
 
-        # print(f"{opName} Processing >>> {convertedInput.shape} {convertedInput.dtype}")
+        self.requestPool.addRequest(inputLayer, requestId, convertedInput)
+        collectedInputs = self.requestPool.getRequestInfo(requestId)
 
-        # convertedInput = np.frombuffer(input, dtype=dtype).reshape(shape)
-
-        currOp: Callable = self.ops[opName]
-        layerInputNum: int = len(self.prevOps[opName])
-        if layerInputNum == 0:
-            ## This is the input layer --> Forward directly to next layer
-            return self.sendToNextLayer(opName, convertedInput, requestId)
-
-        self.requestPool.addRequest(opName, requestId, convertedInput)
-        collectedInputs = self.requestPool.getRequestInfo(opName, requestId)
-
-        if layerInputNum == len(collectedInputs):
+        if len(self.model.input) == len(collectedInputs):
             ## We have collected all the inputs for the layer --> Process and send to next
-            if layerInputNum == 1:
-                layerResult = currOp(collectedInputs[0])
-            else:
-                layerResult = currOp(collectedInputs)
-            self.requestPool.removeRequestInfo(opName, requestId)
+            modelOutput = self.model(collectedInputs)
+            self.requestPool.removeRequestInfo(requestId)
 
-            return self.sendToNextLayer(opName, layerResult, requestId)
+            return self.sendToNextLayer(modelOutput, requestId)
 
         else:
-            ## We have to wait for other inputs for this layer --> We wait for them and return empty response
-            return LayerResponse(
-                hasValue=False, result=tf.make_tensor_proto(np.zeros(shape=(1)))
-            )
+            ## We have to wait for other inputs for this sub model --> We wait for them and return empty response
+            return ModelOutput(hasValue=False, result={})
 
-    def serveLayer(self, request: LayerRequest, context) -> LayerResponse:
-        return self._serveLayer(request)
+    def serveModel(self, request: ModelInput, context) -> ModelOutput:
+        return self._serveModel(request)

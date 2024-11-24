@@ -25,17 +25,21 @@ _sym_db = _symbol_database.Default()
 from tensorflow.core.framework import tensor_pb2 as tensorflow_dot_core_dot_framework_dot_tensor__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cserver.proto\x12\x06server\x1a&tensorflow/core/framework/tensor.proto\"p\n\x0cLayerRequest\x12\x11\n\tmodelName\x18\x01 \x01(\t\x12\x11\n\tlayerName\x18\x02 \x01(\t\x12\x11\n\trequestId\x18\x03 \x01(\x05\x12\'\n\x06tensor\x18\x04 \x01(\x0b\x32\x17.tensorflow.TensorProto\"J\n\rLayerResponse\x12\x10\n\x08hasValue\x18\x01 \x01(\x08\x12\'\n\x06result\x18\x02 \x01(\x0b\x32\x17.tensorflow.TensorProto2E\n\x06Server\x12;\n\nserveLayer\x12\x14.server.LayerRequest\x1a\x15.server.LayerResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cserver.proto\x12\x06server\x1a&tensorflow/core/framework/tensor.proto\"n\n\nModelInput\x12\x11\n\trequestId\x18\x01 \x01(\x05\x12\x11\n\tmodelName\x18\x02 \x01(\t\x12\x11\n\tlayerName\x18\x03 \x01(\t\x12\'\n\x06tensor\x18\x04 \x01(\x0b\x32\x17.tensorflow.TensorProto\"\x98\x01\n\x0bModelOutput\x12\x10\n\x08hasValue\x18\x01 \x01(\x08\x12/\n\x06result\x18\x02 \x03(\x0b\x32\x1f.server.ModelOutput.ResultEntry\x1a\x46\n\x0bResultEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.tensorflow.TensorProto:\x02\x38\x01\x32\x41\n\x06Server\x12\x37\n\nserveModel\x12\x12.server.ModelInput\x1a\x13.server.ModelOutput\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'server_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_LAYERREQUEST']._serialized_start=64
-  _globals['_LAYERREQUEST']._serialized_end=176
-  _globals['_LAYERRESPONSE']._serialized_start=178
-  _globals['_LAYERRESPONSE']._serialized_end=252
-  _globals['_SERVER']._serialized_start=254
-  _globals['_SERVER']._serialized_end=323
+  _globals['_MODELOUTPUT_RESULTENTRY']._loaded_options = None
+  _globals['_MODELOUTPUT_RESULTENTRY']._serialized_options = b'8\001'
+  _globals['_MODELINPUT']._serialized_start=64
+  _globals['_MODELINPUT']._serialized_end=174
+  _globals['_MODELOUTPUT']._serialized_start=177
+  _globals['_MODELOUTPUT']._serialized_end=329
+  _globals['_MODELOUTPUT_RESULTENTRY']._serialized_start=259
+  _globals['_MODELOUTPUT_RESULTENTRY']._serialized_end=329
+  _globals['_SERVER']._serialized_start=331
+  _globals['_SERVER']._serialized_end=396
 # @@protoc_insertion_point(module_scope)

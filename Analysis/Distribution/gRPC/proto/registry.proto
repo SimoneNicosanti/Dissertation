@@ -3,23 +3,15 @@ syntax = "proto3";
 service Register {
     rpc registerServer(ServerInfo) returns (RegisterResponse) ;
 
-    //rpc registerLayer(LayerPosition) returns (Empty) ;
+    rpc registerLayer(LayerPosition) returns (Empty) ;
 
     rpc getLayerPosition(LayerInfo) returns (ServerInfo) ;
 }
 
-message Empty {
-
-}
+message Empty {}
 
 message RegisterResponse {
-    LayerList layers = 1;
-    map<string, LayerList> prevLayers = 2;
-    map<string, LayerList> nextLayers = 3;
-}
-
-message LayerList {
-    repeated string layers = 1;
+    int32 subModelIdx = 1;
 }
 
 message ServerInfo {
@@ -27,11 +19,13 @@ message ServerInfo {
     int32 portNum = 2 ;
 }
 
+message LayerPosition {
+    string modelName = 1;
+    repeated string layers = 2;
+    ServerInfo serverInfo = 3;
+}
+
 message LayerInfo {
     string modelName = 1;
     string layerName = 2;
-}
-
-message Model {
-    string modelName = 1;
 }

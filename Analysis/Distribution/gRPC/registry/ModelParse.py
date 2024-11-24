@@ -1,62 +1,72 @@
-from typing import Callable
-
 import keras
-import keras.src
-import keras.src.ops.numpy
+
+MAX_LAYER_NUM = 40
 
 
 def modelParse(model: keras.Model):
+    prevOpsDict, nextOpsDict = findLayersConnections(model)
+
+    modelIdx = 0
+    for i in range(0, len(model.layers), MAX_LAYER_NUM):
+        subLayers = model.layers[i : min(len(model.layers), i + MAX_LAYER_NUM)]
+        subLayersNames = [x.name for x in subLayers]
+
+        subModelInput = buildSubModelInput(
+            subLayers, subLayersNames, model, prevOpsDict
+        )
+        subModelOutput = buildSubModelOutput(
+            subLayers, subLayersNames, model, nextOpsDict
+        )
+
+        subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
+        subModel.save(f"/models/SubModel_{modelIdx}.keras")
+
+        modelIdx += 1
+
+
+def findLayersConnections(model: keras.Model):
     config = model.get_config()
-    layersList = config["layers"]
-    opsInfoDict = {}
-    for layerInfo in layersList:
-        layerName = layerInfo["name"]
-        opsInfoDict[layerName] = layerInfo
+    opsList = config["layers"]
+    opsConfigDict = {}
+    for opConfig in opsList:
+        opName = opConfig["name"]
+        opsConfigDict[opName] = opConfig
 
-    allOps = []
-    queue = [x for x in model.output_names]
-    nextOpsDict = {}
+    layerNames = [layer.name for layer in model.layers]
+
     prevOpsDict = {}
+    nextOpsDict = {}
+    for layerName in layerNames:
+        prevOpsDict[layerName] = []
+        nextOpsDict[layerName] = []
 
-    while queue:
-        currOp = queue.pop(0)
+    for layerName in layerNames:
+        currConfig = opsConfigDict[layerName]
+        prevLayers = findPrevLayersFromConfig(currConfig, opsConfigDict, layerNames)
 
-        if currOp not in prevOpsDict:
-            prevOpsDict[currOp] = set()
-        if currOp not in nextOpsDict:
-            nextOpsDict[currOp] = set()
+        prevOpsDict[layerName] = prevLayers
 
-        if currOp not in allOps:
-            allOps.append(currOp)
-            ## Find prev ops
-            currInfo = opsInfoDict[currOp]
-            inboundNodes = currInfo["inbound_nodes"]
-            histories = []
-            ## For each input node find its hisyory
-            for inboundNode in inboundNodes:
-                findHistoryInDepth(inboundNode, histories)
+        for prevLayer in prevLayers:
+            nextOpsDict[prevLayer].append(layerName)
 
-            ## Updating Nodes connections for next hop
-            ## This is actually a layer, so can add it to connections
-            if currInfo["module"] == "keras.layers":
-                for hist in histories:
-                    prevOpsDict[currOp].add(hist)
+    return prevOpsDict, nextOpsDict
 
-                    if hist not in nextOpsDict:
-                        nextOpsDict[hist] = set()
-                    nextOpsDict[hist].add(currOp)
 
-            ## Updating Parsing Queue
-            for hist in histories:
-                if hist not in queue:
-                    queue.append(hist)
+def findPrevLayersFromConfig(currConfig, configDict, layerNames):
+    prevOpsNames = []
+    prevLayers = []
+    findHistoryInDepth(currConfig["inbound_nodes"], prevOpsNames)
+    for opName in prevOpsNames:
+        if opName in layerNames:
+            ## It is a valid layer --> Append to prev Layers
+            prevLayers.append(opName)
+        else:
+            ## It is other operation --> Find first valid prev layer
+            opConfig = configDict[opName]
+            opPrevLayers = findPrevLayersFromConfig(opConfig, configDict, layerNames)
+            prevLayers += opPrevLayers
 
-    # for key in allOps:
-    #     print(f"{prevOpsDict[key]} >>> {key} >>> {nextOpsDict[key]}")
-
-    # print(len(allOps), len(prevOpsDict), len(nextOpsDict))
-
-    return allOps, opsInfoDict, prevOpsDict, nextOpsDict
+    return prevLayers
 
 
 def findHistoryInDepth(node, histories: list):
@@ -75,33 +85,34 @@ def findHistoryInDepth(node, histories: list):
     return
 
 
-def saveCallables(callables: dict[str, Callable]):
-    for opName in callables:
-
-        layer: keras.Layer = callables[opName]
-        if isinstance(layer, keras.layers.InputLayer):
-            # layerInput = keras.Input(shape=layer.output)
-            continue  ## Handle this case
-        elif isinstance(layer, OperationWrapper):
-            layerInput = layer.getInput()
+def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
+    subModelInput = {}
+    for layer in subLayers:
+        if len(prevOpsDict[layer.name]) == 0:
+            ## Input Layer
+            subModelInput[layer.name] = layer.output
         else:
-            layerInput = layer.input
-        layerWrapper = keras.Model(inputs=layerInput, outputs=layer(layerInput))
-        keras.saving.save_model(
-            layerWrapper,
-            f"/callables/{layer.name}.keras",
-        )
+            for prevLayerName in prevOpsDict[layer.name]:
+                prevLayerOut = model.get_layer(prevLayerName).output
+                # print(prevLayerOut)
+                if prevLayerName not in subLayersNames:
+                    subModelInput[prevLayerName] = keras.Input(
+                        shape=prevLayerOut.shape[1:],
+                        tensor=prevLayerOut,
+                        name=prevLayerName,
+                    )
+    return subModelInput
 
 
-def buildCallables(
-    opsList: list[str], opsInfoDict: dict, model: keras.Model, validLayersName: str
-):
-    callables = {}
-    for op in opsList:
-        if op in validLayersName:
-            callables[op] = model.get_layer(op)
+def buildSubModelOutput(subLayers, subLayersNames, model, nextOpsDict):
+    subModelOutput = {}
+    for layer in subLayers:
+        layerOutput = layer.output
+        if len(nextOpsDict[layer.name]) == 0:
+            ## Output Layer
+            subModelOutput[layer.name] = layerOutput
         else:
-            ## It is other type of operation
-            callables[op] = OperationWrapper(opsInfoDict[op])
-
-    return callables
+            for nextLayer in nextOpsDict[layer.name]:
+                if nextLayer not in subLayersNames:
+                    subModelOutput[layer.name] = layerOutput
+    return subModelOutput  # if len(subModelOutput) > 1 else subModelOutput[0]

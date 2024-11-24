@@ -6,12 +6,11 @@ services:
   server:
     build:
       dockerfile: ./node.dockerfile
-    container_name: server
     tty: true
     stdin_open: true
     volumes:
       - ./server:/server
-      - ../../../models/callables:/callables
+      - ./models:/models
     networks:
       - my_network
     working_dir: /server
@@ -26,7 +25,7 @@ services:
     stdin_open: true
     volumes:
       - ./registry:/registry
-      - ../../../models/callables:/callables
+      - ./models:/models
     networks:
       - my_network
     working_dir: /registry

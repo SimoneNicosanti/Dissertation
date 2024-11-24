@@ -7,9 +7,9 @@ import numpy as np
 import tensorflow as tf
 from proto import registry_pb2_grpc, server_pb2_grpc
 from proto.registry_pb2 import LayerInfo, ServerInfo
-from proto.server_pb2 import LayerRequest, LayerResponse
+from proto.server_pb2 import ModelInput, ModelOutput
 
-TEST_NUM = 1
+TEST_NUM = 100
 
 
 def remoteTest():
@@ -28,19 +28,21 @@ def remoteTest():
             serverStub = server_pb2_grpc.ServerStub(layerChannel)
             for i in range(0, TEST_NUM):
                 print(f"Iteration >>> {i}")
-                layerRequest: LayerRequest = LayerRequest(
+                modelInput: ModelInput = ModelInput(
                     modelName="",
                     layerName="input_layer",
                     requestId=0,
                     tensor=tf.make_tensor_proto(inputTensor),
                 )
                 start = time.time()
-                result: LayerResponse = serverStub.serveLayer(layerRequest)
+                modelOutput: ModelOutput = serverStub.serveModel(modelInput)
                 end = time.time()
                 timeArray[i] = end - start
-            tensorResult = tf.convert_to_tensor(tf.make_ndarray(result.result))
-            for i in range(0, len(tensorResult)):
-                print(f"Predicted Class >>> {np.argmax(tensorResult[i])}")
+
+                tensorResult = tf.make_ndarray(modelOutput.result["predictions"])
+                for i in range(0, len(tensorResult)):
+                    predClass = np.argmax(tensorResult[i])
+                    assert predClass == 644
             print(
                 f"Avg Remote Time >>> {timeArray.mean()} // Remote Time Std dev {timeArray.std()}"
             )

@@ -39,6 +39,11 @@ class RegisterStub(object):
                 request_serializer=registry__pb2.ServerInfo.SerializeToString,
                 response_deserializer=registry__pb2.RegisterResponse.FromString,
                 _registered_method=True)
+        self.registerLayer = channel.unary_unary(
+                '/Register/registerLayer',
+                request_serializer=registry__pb2.LayerPosition.SerializeToString,
+                response_deserializer=registry__pb2.Empty.FromString,
+                _registered_method=True)
         self.getLayerPosition = channel.unary_unary(
                 '/Register/getLayerPosition',
                 request_serializer=registry__pb2.LayerInfo.SerializeToString,
@@ -55,10 +60,14 @@ class RegisterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def getLayerPosition(self, request, context):
-        """rpc registerLayer(LayerPosition) returns (Empty) ;
+    def registerLayer(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
-        """
+    def getLayerPosition(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -70,6 +79,11 @@ def add_RegisterServicer_to_server(servicer, server):
                     servicer.registerServer,
                     request_deserializer=registry__pb2.ServerInfo.FromString,
                     response_serializer=registry__pb2.RegisterResponse.SerializeToString,
+            ),
+            'registerLayer': grpc.unary_unary_rpc_method_handler(
+                    servicer.registerLayer,
+                    request_deserializer=registry__pb2.LayerPosition.FromString,
+                    response_serializer=registry__pb2.Empty.SerializeToString,
             ),
             'getLayerPosition': grpc.unary_unary_rpc_method_handler(
                     servicer.getLayerPosition,
@@ -104,6 +118,33 @@ class Register(object):
             '/Register/registerServer',
             registry__pb2.ServerInfo.SerializeToString,
             registry__pb2.RegisterResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def registerLayer(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/Register/registerLayer',
+            registry__pb2.LayerPosition.SerializeToString,
+            registry__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
