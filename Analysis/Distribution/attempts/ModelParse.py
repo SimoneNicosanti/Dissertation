@@ -36,7 +36,7 @@ def findLayersConnections(model: keras.Model):
 def modelParse(model: keras.Model):
     prevOpsDict, nextOpsDict = findLayersConnections(model)
 
-    maxLayerNum = 1
+    maxLayerNum = 40
     modelIdx = 0
     for i in range(0, len(model.layers), maxLayerNum):
         subLayers = model.layers[i : min(len(model.layers), i + maxLayerNum)]
@@ -51,6 +51,8 @@ def modelParse(model: keras.Model):
 
         subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
         subModel.save(f"./models/SubModel_{modelIdx}.keras")
+
+        subModel.export(f"./models/SubModel_{modelIdx}")
 
         modelIdx += 1
 
@@ -93,17 +95,27 @@ def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
     for layer in subLayers:
         if len(prevOpsDict[layer.name]) == 0:
             ## Input Layer
-            subModelInput[layer.name] = layer.output
+            newInput = keras.Input(
+                shape=layer.output.shape[1:],
+                tensor=layer.output,
+                name=layer.name,
+            )
+            newInput.name = layer.name
+            subModelInput[layer.name] = newInput
         else:
             for prevLayerName in prevOpsDict[layer.name]:
                 prevLayerOut = model.get_layer(prevLayerName).output
                 # print(prevLayerOut)
                 if prevLayerName not in subLayersNames:
-                    subModelInput[prevLayerName] = keras.Input(
+                    # newInput = keras.Input(tensor=prevLayerOut)
+                    newInput = keras.Input(
                         shape=prevLayerOut.shape[1:],
                         tensor=prevLayerOut,
                         name=prevLayerName,
                     )
+                    newInput.name = prevLayerName
+                    subModelInput[prevLayerName] = newInput
+
     return subModelInput
 
 
@@ -125,10 +137,13 @@ def main():
     model: keras.Model = keras.applications.MobileNetV3Large()
     modelParse(model)
     testElem = readTestElem()
+
     x = {"input_layer": testElem}
-    for i in range(0, len(model.layers)):
-        loadedModel = keras.saving.load_model(f"./models/SubModel_{i}.keras")
-        x = loadedModel(x)
+    for i in range(0, 5):
+        loadedModel = tf.saved_model.load(f"./models/SubModel_{i}")
+        # loadedModel = keras.saving.load_model(f"./models/SubModel_{i}.keras")
+        signature = loadedModel.signatures["serve"]
+        x = signature(**x)
 
     predictions = x["predictions"]
     for row in predictions:
@@ -140,7 +155,7 @@ def readTestElem():
     with open("boef_pre.pkl", "rb") as f:
         testElem = pickle.load(f)
 
-    return tf.convert_to_tensor(value=testElem)
+    return tf.convert_to_tensor(value=testElem, dtype=tf.float32)
 
 
 if __name__ == "__main__":

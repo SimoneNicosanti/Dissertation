@@ -1,28 +1,5 @@
 import keras
 
-MAX_LAYER_NUM = 40
-
-
-def modelParse(model: keras.Model):
-    prevOpsDict, nextOpsDict = findLayersConnections(model)
-
-    modelIdx = 0
-    for i in range(0, len(model.layers), MAX_LAYER_NUM):
-        subLayers = model.layers[i : min(len(model.layers), i + MAX_LAYER_NUM)]
-        subLayersNames = [x.name for x in subLayers]
-
-        subModelInput = buildSubModelInput(
-            subLayers, subLayersNames, model, prevOpsDict
-        )
-        subModelOutput = buildSubModelOutput(
-            subLayers, subLayersNames, model, nextOpsDict
-        )
-
-        subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
-        subModel.save(f"/models/SubModel_{modelIdx}.keras")
-
-        modelIdx += 1
-
 
 def findLayersConnections(model: keras.Model):
     config = model.get_config()
@@ -50,6 +27,30 @@ def findLayersConnections(model: keras.Model):
             nextOpsDict[prevLayer].append(layerName)
 
     return prevOpsDict, nextOpsDict
+
+
+def modelParse(model: keras.Model):
+    prevOpsDict, nextOpsDict = findLayersConnections(model)
+
+    maxLayerNum = 40
+    modelIdx = 0
+    for i in range(0, len(model.layers), maxLayerNum):
+        subLayers = model.layers[i : min(len(model.layers), i + maxLayerNum)]
+        subLayersNames = [x.name for x in subLayers]
+
+        subModelInput = buildSubModelInput(
+            subLayers, subLayersNames, model, prevOpsDict
+        )
+        subModelOutput = buildSubModelOutput(
+            subLayers, subLayersNames, model, nextOpsDict
+        )
+
+        subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
+        subModel.save(f"/models/SubModel_{modelIdx}.keras")
+
+        # subModel.export(f"./models/SubModel_{modelIdx}")
+
+        modelIdx += 1
 
 
 def findPrevLayersFromConfig(currConfig, configDict, layerNames):
@@ -90,17 +91,27 @@ def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
     for layer in subLayers:
         if len(prevOpsDict[layer.name]) == 0:
             ## Input Layer
-            subModelInput[layer.name] = layer.output
+            newInput = keras.Input(
+                shape=layer.output.shape[1:],
+                tensor=layer.output,
+                name=layer.name,
+            )
+            newInput.name = layer.name
+            subModelInput[layer.name] = newInput
         else:
             for prevLayerName in prevOpsDict[layer.name]:
                 prevLayerOut = model.get_layer(prevLayerName).output
                 # print(prevLayerOut)
                 if prevLayerName not in subLayersNames:
-                    subModelInput[prevLayerName] = keras.Input(
+                    # newInput = keras.Input(tensor=prevLayerOut)
+                    newInput = keras.Input(
                         shape=prevLayerOut.shape[1:],
                         tensor=prevLayerOut,
                         name=prevLayerName,
                     )
+                    newInput.name = prevLayerName
+                    subModelInput[prevLayerName] = newInput
+
     return subModelInput
 
 
@@ -115,4 +126,4 @@ def buildSubModelOutput(subLayers, subLayersNames, model, nextOpsDict):
             for nextLayer in nextOpsDict[layer.name]:
                 if nextLayer not in subLayersNames:
                     subModelOutput[layer.name] = layerOutput
-    return subModelOutput  # if len(subModelOutput) > 1 else subModelOutput[0]
+    return subModelOutput

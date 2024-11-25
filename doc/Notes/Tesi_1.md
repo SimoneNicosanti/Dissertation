@@ -33,6 +33,7 @@ e risulta pertanto abbastanza costosa dal punto di vista computazionale (https:/
 Il motivo per cui non si fa imparare alla rete direttamente i pesi che permettono di ottenere quel risultato è dovuto al fatto che in questo caso stiamo approssimando la funzione di attivazione (per quanto l'obiezione rimane valida in parte).
 
 ## Divisione di Modello Generico (Focus su MobileNetV3)
+Riferimento al link https://gist.github.com/martinsbruveris/1ce43d4fe36f40e29e1f69fd036f1626.
 ```python
 model = build_model()
 
@@ -130,11 +131,17 @@ Funziona ma parzialmente: bisogna fare in modo che gli input e gli output dei mo
 RISOLTO: Creati dei dict per rappresentare input ed output e assegnati i nomi corrispondenti che servono.
 
 
-> [!Warning] Warning ricevuto nel Parsing
-> Durante il parsing del modello e la ricostruzione dei dizionari di input e di output viene ricevuto un Warning. In sostanza c'è una mancata corrispondenza tra i nomi dei tensori di input nel dizionario e le chiavi del dizionario stesso; comunque Keras sembra gestire la cosa abbastanza bene, ricostruendo il tutto correttamente.
-> La cosa strana è che se cerco di risolvere il problema impostando un nuovo tensore di input ho errore di operazione ripetuta.
+> [!Done] Risolto
+> Risolto creando prima il nuovo oggetto di tipo keras.Input partendo dal tensore output del livello precedente e poi modificandone il nome con *obj.name*.
+> > [!Warning] Warning ricevuto nel Parsing
+> > Durante il parsing del modello e la ricostruzione dei dizionari di input e di output viene ricevuto un Warning. In sostanza c'è una mancata corrispondenza tra i nomi dei tensori di input nel dizionario e le chiavi del dizionario stesso; comunque Keras sembra gestire la cosa abbastanza bene, ricostruendo il tutto correttamente.
+> > La cosa strana è che se cerco di risolvere il problema impostando un nuovo tensore di input ho errore di operazione ripetuta.
+> > 
+> > Non so se potrebbe dare problemi in altri punti dell'esecuzione o nel parsing di modelli diversi.
+> > Comunque sì: c'era un problema nel nome dell'input quando il sotto modello era esportato come saved_model.
 > 
-> Non so se potrebbe dare problemi in altri punti dell'esecuzione o nel parsing di modelli diversi.
+> Con questa soluzione sembra funzionare sia per formato .keras sia per formato saved_model
+
 ```
 ### Warining
 /opt/conda/lib/python3.11/site-packages/keras/src/models/functional.py:106: UserWarning: When providing `inputs` as a dict, all keys in the dict must match the names of the corresponding tensors. Received key 'activation_18' mapping to value <KerasTensor shape=(None, None, None, 960), dtype=float32, sparse=False, name=keras_tensor_188> which has name 'keras_tensor_188'. Change the tensor name to 'activation_18' (via `Input(..., name='activation_18')`)
@@ -145,8 +152,32 @@ ValueError: The name "expanded_conv_3_expand" is used 2 times in the model. All 
 
 ```
 
+Codice che risolve il problema
+```python
+if len(prevOpsDict[layer.name]) == 0:
+	## Input Layer
+	newInput = keras.Input(
+		shape=layer.output.shape[1:],
+		tensor=layer.output,
+		name=layer.name,
+	)
+	newInput.name = layer.name
+	subModelInput[layer.name] = newInput
+else:
+	for prevLayerName in prevOpsDict[layer.name]:
+		prevLayerOut = model.get_layer(prevLayerName).output
+		if prevLayerName not in subLayersNames:
+			newInput = keras.Input(
+				shape=prevLayerOut.shape[1:],
+				tensor=prevLayerOut,
+				name=prevLayerName,
+			)
+			newInput.name = prevLayerName
+		subModelInput[prevLayerName] = newInput
+```
 
-> [!NOTE] Distribuzione per Livello
+
+> [!NOTE] Distribuzione per Livello Singolo
 > Notare che questa stessa distribuzione si può fare nello stesso modo se si vuole dividere il modello per livelli singoli: è sufficiente mettere 1 come size massima della sotto lista di layers.
 
 
@@ -215,7 +246,7 @@ Contesto di esecuzione:
 - 5 Server, ognuno con una porzione del modello diversa
 - Unico client (senza richieste concorrenti)
 - Niente GPU
-- Flusso completamente delegato ai server
+- Flusso completamente delegato ai server (le risposte non tornano indietro al client ma sono i server che si passano il risultato intermedio della computazione)
 
 | Dati su 100 Run | Niente  | gRPC    |
 | --------------- | ------- | ------- |
@@ -239,3 +270,9 @@ Aspetti da considerare:
 	- Si potrebbe creare una componente di ricezione dell'input che aspetta di ricevere l'input completo del sotto modello per poi chiamare TF Serving che lo esegue
 - L'output del sotto modello non viene inviato subito al sotto modello successivo, ma torna al chiamante
 	- A meno di non gestire in queste componenti di arrivo anche l'aspetto di invio dell'output ai sotto modelli successivi
+
+Per mandare in esecuzione un modello i parametri significativi sono:
+- port (x servizio gRPC)
+- rest_api_port
+- model_name
+- model_base_path
