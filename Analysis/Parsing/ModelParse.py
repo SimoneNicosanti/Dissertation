@@ -48,11 +48,11 @@ def findPrevLayers(
                 findPrevLayers(opInputs, prevLayers, layerNames)
 
 
-def modelParse(model: keras.Model):
+def modelParse(model: keras.Model, parts=2) -> list[keras.Model]:
     prevOpsDict, nextOpsDict = findLayersConnections(model)
 
-    maxLayerNum = 40
-    modelIdx = 0
+    maxLayerNum = len(model.layers) // 2
+    subModels = []
     for i in range(0, len(model.layers), maxLayerNum):
         subLayers = model.layers[i : min(len(model.layers), i + maxLayerNum)]
         subLayersNames = [x.name for x in subLayers]
@@ -65,11 +65,9 @@ def modelParse(model: keras.Model):
         )
 
         subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
-        subModel.save(f"./models/SubModel_{modelIdx}.keras")
+        subModels.append(subModel)
 
-        subModel.export(f"./models/SubModel_{modelIdx}")
-
-        modelIdx += 1
+    return subModels
 
 
 def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):

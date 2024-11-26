@@ -189,7 +189,53 @@ else:
 >> kerasTensor._keras_history.operation ## Gets list of previous operations
 >> model.output._keras_history.operation.input ## Gets operation input (it is a keras tensor!!)
 >> ```
->Funziona decisamente meglio e non dovrebbe dare problemi di parsing del config
+>
+>Funziona decisamente meglio e non dovrebbe dare problemi di parsing del config qualora ci fossero modelli con config non standard
+
+
+> [!bug]
+> Per modelli più complessi l'output di un layer potrebbe essere una lista o un dizionario: in questo caso bisogna gestire vedendo quale output di questo livello viene ricevuto come input del livello corrente. Potrebbero esserci altri problemi dovuti ai nomi di questi input però...
+> Vedere esempio fatto con KerasCV e YoloV8.
+> 
+> C'è differenza tra un layer che dà il suo output a più di un livello successivo e un livello che ha proprio più input. In questo caso il Parsing fatto non funziona perché assume un unico output
+
+| Errore in caso di livello con più Keras Tensors di output |
+| --------------------------------------------------------- |
+| ![[Problema Livello Con Multi Output.png]]                |
+Si può gestire la cosa nel seguente modo:
+1. Per ogni output del layer
+	1. Per ogni next layer
+		1. Se il next layer vuole quell'output e sta fuori dal sotto modello
+			1. Aggiungo quell'output all'output del sottomodello
+Questo va bene ma bisogna cambiare un po' le nomenclature: i nomi degli input e degli output del modello devono diventare quelli dei keras tensors corrispondenti in modo da avere più flessibilità; se un sotto modello ha come input due dei tre input di un livello di un altro sotto modello devo essere in grado di distinguere quale di questi sta aspettando.
+
+NOOOO. Ho sempre il problema dei livelli fantasma di keras... Posso fare un ragionamento sui keras tensor:
+1. Per ogni livello
+	1. Per ogni tensore di input, trovo:
+		1. Primo livello precedente da cui questo tensore deriva
+		2. Tensori di questo livello precedente da cui questo tensore deriva
+Avrei più mapping:
+- Layer --> Layer Successivi
+- Layer --> Layer Precedenti
+- Tensore --> Tensori Precedenti
+- Tensore --> Tensori Successivi
+La cosa quindi diventa:
+```
+### Find Model Inputs
+for layer in subModel:
+	for inputLayer of layer:
+		if (inputLayer not in subModel):
+			outputTensors = inputLayer.outputs
+			for inputTensor of layer :
+				for outputTensor in outputTensors :
+					add tensor to inputs
+
+### Find Model Outputs
+for layer in subModel:
+	for output
+```
+NON POSSO FARLO!!! Dato un keras tensor posso solo risalire all'operazione precedente e a TUTTI i suoi output, non a quello specifico da cui questo deriva!!
+
 
 ## Protocollo di Serializzazione usato da RPyC
 Formato usato *Brine*.
@@ -273,6 +319,11 @@ L'impatto della distribuzione è nel complesso molto minore rispetto all'impleme
 > Lo potrei aggiungere in dei metadati del modello che viene preso in carico da un certo server.
 
 
+> [!Warning] Da aggiungere
+> Aggiungere il fatto che il registry gestisce una delle liste per quanto riguarda gli input attesi. Dato un input di un sotto modello possono esserci più sotto modelli che lo aspettano.
+
+
+
 ### Distribuzione per Sotto Modelli con TF Serving
 Se tutto ha senso come dovrebbe, si potrebbe fare anche la divisione e far gestire ogni sotto modello a dei TF Server.
 Aspetti da considerare:
@@ -291,9 +342,86 @@ tensorflow_model_serving --port={x gRPC} --rest_api_port={} --model_name={} --mo
 ## Conversione da Torch a Keras
 Esiste una versione di YOLOv8 già offerta in keras (https://keras.io/api/keras_cv/models/tasks/yolo_v8_detector/).
 
+### Analisi libreria onnx2tf
 Oltre a questo la libreria *onnx2tf* permette contestualmente di:
 - Creare un saved_model con dentro diversi .tflite corrispondenti 
 - Ritornare un istanza di tf_keras.Model
 In questo caso non abbiamo propriamente un keras.Model, ma la versione di Model del modulo Keras di tensorflow.
-BISOGNA VEDERE SE SI RIESCE A CONVERTIRE QUESTA IN un keras.Model
+BISOGNA VEDERE SE SI RIESCE A CONVERTIRE QUESTA IN un 
+
+Nel modello convertito da onnx alcuni parametri sono presi come *args* altri come *kwargs*, ma nell'input al layer sono elencati solo quelli che sono passati come *args*, quindi i collegamenti tra layer non sono ricostruiti correttamente; per accedere all'elenco completo degli argomenti si può fare così:
+```
+for elem in currLayer._inbound_nodes :
+	currLayer._inbound_nodes[0]._flat_arguments
+```
+
+> [!Error] Versioning
+> Il problema che c'è nell'uso di onnx2tf è che ritorna un modello tf_keras che corrisponde alla versione 2 di keras, non alla versione 3.
+> Quando si cerca quindi di fare il parsing (con l'implementazione già usata) le strutture sono completamente diverse
+
+> [!Quote] Dalla documentazione di Keras
+> Starting with TensorFlow 2.16, doing `pip install tensorflow` will install Keras 3. When you have TensorFlow >= 2.16 and Keras 3, then by default `from tensorflow import keras` ([`tf.keras`](https://www.tensorflow.org/api_docs/python/tf/keras)) will be Keras 3.
+> 
+> Meanwhile, the legacy Keras 2 package is still being released regularly and is available on PyPI as `tf_keras` (or equivalently `tf-keras` – note that `-` and `_` are equivalent in PyPI package names). To use it, you can install it via `pip install tf_keras` then import it via `import tf_keras as keras`.
+
+Il problema quindi sta nelle diverse versioni di Keras: si potrebbe valutare il downgrade alla versione precedente di Keras...
+
+
+### Analisi Libreria nobuco
+Anche lei usa la versione 2 di keras
+
+
+
+## Calcolo dei FLOPS
+Riferimento al link (https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/profiler/g3doc/python_api.md)
+
+
+Il calcolo dei FLOPS per modello si può fare con il seguente:
+```python
+input_signature =[
+				  tf.TensorSpec(shape=(1, 32, 32, 3), dtype=params.dtype, name=params.name)
+	
+	for params in model.inputs
+]
+
+forward_graph = tf.function(model, input_signature).get_concrete_function().graph
+options = option_builder.ProfileOptionBuilder.float_operation()
+
+graph_info: GraphNodeProto = model_analyzer.profile(forward_graph,
+													options=options)
+flops = graph_info.total_float_ops
+
+print(f"TOTAL MODEL FLOPS >>> {flops}")
+```
+IMPORTANTE!! Aggiungere le dimensioni del tensore, altrimenti si ottiene un valore diverso che non so quanto senso abbia.
+
+Nel report che viene stampato, vengono stampate informazioni relative ad ogni livello e alle operazioni singole che sono fatte in quel livello: ad esempio la convoluzione è considerata come operazione unica, mentre la Activation e la Batch Normalization vengono viste come operazioni composte
+
+| Convoluzione Singola    | ![[Schermata del 2024-11-26 18-42-37.png\|500]] |
+| ----------------------- | ----------------------------------------------- |
+| **Attivazione Singola** | ![[Schermata del 2024-11-26 18-43-33 1.png]]    |
+| **Batch Normalization** | ![[Schermata del 2024-11-26 18-46-33.png]]      |
+
+> [!Warning] Assenza Re_Lu
+> Nel caso di MobileNetV3Large le Re_Lu non sono considerate
+
+
+Abbiamo che *graph_info* è un oggetto .proto con un campo repeated di di nome children; accedendo a questi children, iterando e prendendo la seconda parte della stringa (splittata sullo /) si ottengono i flops per operazione; si somma sul totale del livello.
+```python
+opsDict = {}
+## graph_info.children è un repeated di oggetto Proto
+for child in graph_info.children:
+	childName: str = child.name
+	childNameParts: list = childName.split("/") ## First Part is model name
+	levelName: str = childNameParts[1]
+	if levelName not in opsDict:
+		opsDict[levelName] = 0
+		opsDict[levelName] += child.total_float_ops
+```
+
+
+> [!Warning] Attenzione
+> Queste sono le operazioni in virgola mobile, non i FLOPS: per ottenere i FLOPS si dovrebbe dividere per il tempo di esecuzione.
+> Fatto in questo modo quindi posso recuperare i FLOPS per il modello ma non per il singolo livello/operazione che viene eseguita.
+
 
