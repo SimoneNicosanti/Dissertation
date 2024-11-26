@@ -181,6 +181,16 @@ else:
 > Notare che questa stessa distribuzione si può fare nello stesso modo se si vuole dividere il modello per livelli singoli: è sufficiente mettere 1 come size massima della sotto lista di layers.
 
 
+> [!Done] Nuova Divisione del Modello
+> Piuttosto che fare la divisione partendo dal *config* del modello (in caso di modelli strani / complessi il config viene esportato in modo strano quindi non funziona), uso direttamente gli attributi degli oggetti keras!!
+> Posso trovare i livelli validi predecessori del modello direttamente partendo dai kerasTensor e dalle loro History
+>> ```python
+>> kerasTensor._keras_history ## Gets its operation history
+>> kerasTensor._keras_history.operation ## Gets list of previous operations
+>> model.output._keras_history.operation.input ## Gets operation input (it is a keras tensor!!)
+>> ```
+>Funziona decisamente meglio e non dovrebbe dare problemi di parsing del config
+
 ## Protocollo di Serializzazione usato da RPyC
 Formato usato *Brine*.
 
@@ -271,8 +281,19 @@ Aspetti da considerare:
 - L'output del sotto modello non viene inviato subito al sotto modello successivo, ma torna al chiamante
 	- A meno di non gestire in queste componenti di arrivo anche l'aspetto di invio dell'output ai sotto modelli successivi
 
-Per mandare in esecuzione un modello i parametri significativi sono:
-- port (x servizio gRPC)
-- rest_api_port
-- model_name
-- model_base_path
+Comando per lanciare il TF Serving
+```shell
+tensorflow_model_serving --port={x gRPC} --rest_api_port={} --model_name={} --model_base_path={}
+
+```
+
+
+## Conversione da Torch a Keras
+Esiste una versione di YOLOv8 già offerta in keras (https://keras.io/api/keras_cv/models/tasks/yolo_v8_detector/).
+
+Oltre a questo la libreria *onnx2tf* permette contestualmente di:
+- Creare un saved_model con dentro diversi .tflite corrispondenti 
+- Ritornare un istanza di tf_keras.Model
+In questo caso non abbiamo propriamente un keras.Model, ma la versione di Model del modulo Keras di tensorflow.
+BISOGNA VEDERE SE SI RIESCE A CONVERTIRE QUESTA IN un keras.Model
+

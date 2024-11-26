@@ -65,9 +65,9 @@ def modelParse(model: keras.Model):
         )
 
         subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
-        subModel.save(f"/models/SubModel_{modelIdx}.keras")
+        subModel.save(f"./models/SubModel_{modelIdx}.keras")
 
-        # subModel.export(f"./models/SubModel_{modelIdx}")
+        subModel.export(f"./models/SubModel_{modelIdx}")
 
         modelIdx += 1
 
@@ -113,3 +113,32 @@ def buildSubModelOutput(subLayers, subLayersNames, model, nextOpsDict):
                 if nextLayer not in subLayersNames:
                     subModelOutput[layer.name] = layerOutput
     return subModelOutput  # if len(subModelOutput) > 1 else subModelOutput[0]
+
+
+def main():
+    model: keras.Model = keras.applications.MobileNetV3Large()
+    modelParse(model)
+    testElem = readTestElem()
+
+    x = {"input_layer": testElem}
+    for i in range(0, 5):
+        loadedModel = tf.saved_model.load(f"./models/SubModel_{i}")
+        # loadedModel = keras.saving.load_model(f"./models/SubModel_{i}.keras")
+        signature = loadedModel.signatures["serve"]
+        x = signature(**x)
+
+    predictions = x["predictions"]
+    for row in predictions:
+        print(f"Predicted Class >>> {np.argmax(row)}")
+
+
+def readTestElem():
+    testElem = None
+    with open("boef_pre.pkl", "rb") as f:
+        testElem = pickle.load(f)
+
+    return tf.convert_to_tensor(value=testElem, dtype=tf.float32)
+
+
+if __name__ == "__main__":
+    main()

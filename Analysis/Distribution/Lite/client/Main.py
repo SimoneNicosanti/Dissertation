@@ -9,7 +9,7 @@ from proto import registry_pb2_grpc, server_pb2_grpc
 from proto.registry_pb2 import LayerInfo, ServerInfo
 from proto.server_pb2 import ModelInput, ModelOutput
 
-TEST_NUM = 1
+TEST_NUM = 100
 
 
 def remoteTest():
@@ -42,7 +42,7 @@ def remoteTest():
                 tensorResult = tf.make_ndarray(modelOutput.result["predictions"])
                 for i in range(0, len(tensorResult)):
                     predClass = np.argmax(tensorResult[i])
-                    print(f"Predicted >>> {predClass}")
+                    assert predClass == 644
             print(
                 f"Avg Remote Time >>> {timeArray.mean()} // Remote Time Std dev {timeArray.std()}"
             )

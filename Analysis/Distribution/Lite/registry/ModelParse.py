@@ -1,51 +1,32 @@
-import pickle
-
 import keras
-import numpy as np
-import tensorflow as tf
 
 
 def findLayersConnections(model: keras.Model):
+    config = model.get_config()
+    opsList = config["layers"]
+    opsConfigDict = {}
+    for opConfig in opsList:
+        opName = opConfig["name"]
+        opsConfigDict[opName] = opConfig
 
     layerNames = [layer.name for layer in model.layers]
 
-    prevLayersDict = {layer.name: [] for layer in model.layers}
-    nextLayersDict = {layer.name: [] for layer in model.layers}
+    prevOpsDict = {}
+    nextOpsDict = {}
+    for layerName in layerNames:
+        prevOpsDict[layerName] = []
+        nextOpsDict[layerName] = []
 
-    for currLayer in model.layers:
-        currLayerInputs = (
-            currLayer.input if isinstance(currLayer.input, list) else [currLayer.input]
-        )
-        prevLayers = []
-        findPrevLayers(currLayerInputs, prevLayers, layerNames)
+    for layerName in layerNames:
+        currConfig = opsConfigDict[layerName]
+        prevLayers = findPrevLayersFromConfig(currConfig, opsConfigDict, layerNames)
 
-        prevLayersDict[currLayer.name] = prevLayers
+        prevOpsDict[layerName] = prevLayers
 
         for prevLayer in prevLayers:
-            nextLayersDict[prevLayer].append(currLayer.name)
+            nextOpsDict[prevLayer].append(layerName)
 
-    return prevLayersDict, nextLayersDict
-
-
-def findPrevLayers(
-    currLayerInputs: list[keras.KerasTensor], prevLayers: list, layerNames: list
-):
-    for layerInput in currLayerInputs:
-        kerasHistory = getattr(layerInput, "_keras_history", None)
-        if kerasHistory is not None:
-            operation = kerasHistory.operation
-            operationName = kerasHistory.operation.name
-            if operationName in layerNames:
-                ## The operation is a layer
-                prevLayers.append(operationName)
-            else:
-                ## The operation is not a layer --> Find the first valid layer before
-                opInputs = (
-                    operation.input
-                    if isinstance(operation.input, list)
-                    else [operation.input]
-                )
-                findPrevLayers(opInputs, prevLayers, layerNames)
+    return prevOpsDict, nextOpsDict
 
 
 def modelParse(model: keras.Model):
@@ -65,11 +46,42 @@ def modelParse(model: keras.Model):
         )
 
         subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
-        subModel.save(f"/models/SubModel_{modelIdx}.keras")
-
-        # subModel.export(f"./models/SubModel_{modelIdx}")
+        subModel.export(f"/models/SubModel_{modelIdx}")
 
         modelIdx += 1
+
+
+def findPrevLayersFromConfig(currConfig, configDict, layerNames):
+    prevOpsNames = []
+    prevLayers = []
+    findHistoryInDepth(currConfig["inbound_nodes"], prevOpsNames)
+    for opName in prevOpsNames:
+        if opName in layerNames:
+            ## It is a valid layer --> Append to prev Layers
+            prevLayers.append(opName)
+        else:
+            ## It is other operation --> Find first valid prev layer
+            opConfig = configDict[opName]
+            opPrevLayers = findPrevLayersFromConfig(opConfig, configDict, layerNames)
+            prevLayers += opPrevLayers
+
+    return prevLayers
+
+
+def findHistoryInDepth(node, histories: list):
+    if isinstance(node, dict):
+        ## Check if key is present
+        if "keras_history" in node:
+            histories.append(node["keras_history"][0])  ## Takes operation name
+        else:
+            for key in node:
+                findHistoryInDepth(node[key], histories)
+    elif isinstance(node, list) or isinstance(node, tuple):
+        ## Check each elem for the key
+        for elem in node:
+            findHistoryInDepth(elem, histories)
+
+    return
 
 
 def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
@@ -112,4 +124,4 @@ def buildSubModelOutput(subLayers, subLayersNames, model, nextOpsDict):
             for nextLayer in nextOpsDict[layer.name]:
                 if nextLayer not in subLayersNames:
                     subModelOutput[layer.name] = layerOutput
-    return subModelOutput  # if len(subModelOutput) > 1 else subModelOutput[0]
+    return subModelOutput
