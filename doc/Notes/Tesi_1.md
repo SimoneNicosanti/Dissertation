@@ -131,16 +131,19 @@ Funziona ma parzialmente: bisogna fare in modo che gli input e gli output dei mo
 RISOLTO: Creati dei dict per rappresentare input ed output e assegnati i nomi corrispondenti che servono.
 
 
-> [!Done] Risolto
-> Risolto creando prima il nuovo oggetto di tipo keras.Input partendo dal tensore output del livello precedente e poi modificandone il nome con *obj.name*.
-> > [!Warning] Warning ricevuto nel Parsing
-> > Durante il parsing del modello e la ricostruzione dei dizionari di input e di output viene ricevuto un Warning. In sostanza c'è una mancata corrispondenza tra i nomi dei tensori di input nel dizionario e le chiavi del dizionario stesso; comunque Keras sembra gestire la cosa abbastanza bene, ricostruendo il tutto correttamente.
-> > La cosa strana è che se cerco di risolvere il problema impostando un nuovo tensore di input ho errore di operazione ripetuta.
+> [!Bug] Non era risolto in realtà...
+> > [!Done] Risolto
+> > Risolto creando prima il nuovo oggetto di tipo keras.Input partendo dal tensore output del livello precedente e poi modificandone il nome con *obj.name*.
+> > > [!Warning] Warning ricevuto nel Parsing
+> > > Durante il parsing del modello e la ricostruzione dei dizionari di input e di output viene ricevuto un Warning. In sostanza c'è una mancata corrispondenza tra i nomi dei tensori di input nel dizionario e le chiavi del dizionario stesso; comunque Keras sembra gestire la cosa abbastanza bene, ricostruendo il tutto correttamente.
+> > > La cosa strana è che se cerco di risolvere il problema impostando un nuovo tensore di input ho errore di operazione ripetuta.
+> > > 
+> > > Non so se potrebbe dare problemi in altri punti dell'esecuzione o nel parsing di modelli diversi.
+> > > Comunque sì: c'era un problema nel nome dell'input quando il sotto modello era esportato come saved_model.
 > > 
-> > Non so se potrebbe dare problemi in altri punti dell'esecuzione o nel parsing di modelli diversi.
-> > Comunque sì: c'era un problema nel nome dell'input quando il sotto modello era esportato come saved_model.
+> > Con questa soluzione sembra funzionare sia per formato .keras sia per formato saved_model
 > 
-> Con questa soluzione sembra funzionare sia per formato .keras sia per formato saved_model
+> Quando si crea una nuova lista con i diversi modelli veniva dato un errore al salvataggio del modello. Probabilmente era dovuto al fatto che quel tensore veniva trasformato in un placeholder.
 
 ```
 ### Warining
@@ -151,35 +154,56 @@ RISOLTO: Creati dei dict per rappresentare input ed output e assegnati i nomi co
 ValueError: The name "expanded_conv_3_expand" is used 2 times in the model. All operation names should be unique.
 
 ```
+Il secondo errore qui era dovuto al fatto che in realtà il modello non era diviso correttamente, ma ripartiva da capo tutte le volte, portando quindi a ripetizione delle operazioni.
 
-Codice che risolve il problema
+> [!Bug] In realtà non risolveva il problema
+> Codice che risolve il problema
+> ```python
+> if len(prevOpsDict[layer.name]) == 0:
+> 	## Input Layer
+> 	newInput = keras.Input(
+> 		shape=layer.output.shape[1:],
+> 		tensor=layer.output,
+> 		name=layer.name,
+> 	)
+> 	newInput.name = layer.name
+> 	subModelInput[layer.name] = newInput
+> else:
+> 	for prevLayerName in prevOpsDict[layer.name]:
+> 		prevLayerOut = model.get_layer(prevLayerName).output
+> 		if prevLayerName not in subLayersNames:
+> 			newInput = keras.Input(
+> 				shape=prevLayerOut.shape[1:],
+> 				tensor=prevLayerOut,
+> 				name=prevLayerName,
+> 			)
+> 			newInput.name = prevLayerName
+> 		subModelInput[prevLayerName] = newInput
+> ```
+
+Per adesso risolto così, ma il warning rimane, anche se non dovrebbe dare problemi.
 ```python
-if len(prevOpsDict[layer.name]) == 0:
-	## Input Layer
-	newInput = keras.Input(
-		shape=layer.output.shape[1:],
-		tensor=layer.output,
-		name=layer.name,
-	)
-	newInput.name = layer.name
-	subModelInput[layer.name] = newInput
-else:
-	for prevLayerName in prevOpsDict[layer.name]:
-		prevLayerOut = model.get_layer(prevLayerName).output
-		if prevLayerName not in subLayersNames:
-			newInput = keras.Input(
-				shape=prevLayerOut.shape[1:],
-				tensor=prevLayerOut,
-				name=prevLayerName,
+subModelInput = {}
+for layer in subLayers:
+	if len(prevOpsDict[layer.name]) == 0:
+		subModelInput["input"] = layer.output
+	else:
+		for prevLayerName in prevOpsDict[layer.name]:
+			prevLayer = model.get_layer(prevLayerName)
+			prevLayerOut = (
+				prevLayer.output
+				if isinstance(prevLayer.output, list)
+				else [prevLayer.output]
 			)
-			newInput.name = prevLayerName
-		subModelInput[prevLayerName] = newInput
+			if prevLayerName not in subLayersNames:
+				for _, out in enumerate(prevLayerOut):
+				# newInput = keras.Input(tensor=prevLayerOut)
+					subModelInput[out.name] = out
+return subModelInput
 ```
-
 
 > [!NOTE] Distribuzione per Livello Singolo
 > Notare che questa stessa distribuzione si può fare nello stesso modo se si vuole dividere il modello per livelli singoli: è sufficiente mettere 1 come size massima della sotto lista di layers.
-
 
 > [!Done] Nuova Divisione del Modello
 > Piuttosto che fare la divisione partendo dal *config* del modello (in caso di modelli strani / complessi il config viene esportato in modo strano quindi non funziona), uso direttamente gli attributi degli oggetti keras!!
@@ -202,39 +226,7 @@ else:
 | Errore in caso di livello con più Keras Tensors di output |
 | --------------------------------------------------------- |
 | ![[Problema Livello Con Multi Output.png]]                |
-Si può gestire la cosa nel seguente modo:
-1. Per ogni output del layer
-	1. Per ogni next layer
-		1. Se il next layer vuole quell'output e sta fuori dal sotto modello
-			1. Aggiungo quell'output all'output del sottomodello
-Questo va bene ma bisogna cambiare un po' le nomenclature: i nomi degli input e degli output del modello devono diventare quelli dei keras tensors corrispondenti in modo da avere più flessibilità; se un sotto modello ha come input due dei tre input di un livello di un altro sotto modello devo essere in grado di distinguere quale di questi sta aspettando.
-
-NOOOO. Ho sempre il problema dei livelli fantasma di keras... Posso fare un ragionamento sui keras tensor:
-1. Per ogni livello
-	1. Per ogni tensore di input, trovo:
-		1. Primo livello precedente da cui questo tensore deriva
-		2. Tensori di questo livello precedente da cui questo tensore deriva
-Avrei più mapping:
-- Layer --> Layer Successivi
-- Layer --> Layer Precedenti
-- Tensore --> Tensori Precedenti
-- Tensore --> Tensori Successivi
-La cosa quindi diventa:
-```
-### Find Model Inputs
-for layer in subModel:
-	for inputLayer of layer:
-		if (inputLayer not in subModel):
-			outputTensors = inputLayer.outputs
-			for inputTensor of layer :
-				for outputTensor in outputTensors :
-					add tensor to inputs
-
-### Find Model Outputs
-for layer in subModel:
-	for output
-```
-NON POSSO FARLO!!! Dato un keras tensor posso solo risalire all'operazione precedente e a TUTTI i suoi output, non a quello specifico da cui questo deriva!!
+Modificato il parsing in modo che supporti delle liste
 
 
 ## Protocollo di Serializzazione usato da RPyC
@@ -406,7 +398,7 @@ Nel report che viene stampato, vengono stampate informazioni relative ad ogni li
 > Nel caso di MobileNetV3Large le Re_Lu non sono considerate
 
 
-Abbiamo che *graph_info* è un oggetto .proto con un campo repeated di di nome children; accedendo a questi children, iterando e prendendo la seconda parte della stringa (splittata sullo /) si ottengono i flops per operazione; si somma sul totale del livello.
+*graph_info* è un oggetto .proto con un campo repeated di di nome children; accedendo a questi children, iterando e prendendo la seconda parte della stringa (splittata sullo /) si ottengono i flops per operazione; si somma sul totale del livello.
 ```python
 opsDict = {}
 ## graph_info.children è un repeated di oggetto Proto
@@ -418,7 +410,6 @@ for child in graph_info.children:
 		opsDict[levelName] = 0
 		opsDict[levelName] += child.total_float_ops
 ```
-
 
 > [!Warning] Attenzione
 > Queste sono le operazioni in virgola mobile, non i FLOPS: per ottenere i FLOPS si dovrebbe dividere per il tempo di esecuzione.
