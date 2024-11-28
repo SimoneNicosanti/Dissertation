@@ -51,7 +51,7 @@ def findPrevLayers(
 def modelParse(model: keras.Model, maxLayerNum=1) -> list[keras.Model]:
     prevOpsDict, nextOpsDict = findLayersConnections(model)
     subModels = []
-    # modIdx = 0
+    modIdx = 0
     for i in range(0, len(model.layers), maxLayerNum):
         subLayers = model.layers[i : min(len(model.layers), i + maxLayerNum)]
         subLayersNames = [x.name for x in subLayers]
@@ -65,6 +65,8 @@ def modelParse(model: keras.Model, maxLayerNum=1) -> list[keras.Model]:
 
         subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
         subModels.append(subModel)
+
+        modIdx += 1
 
     return subModels
 

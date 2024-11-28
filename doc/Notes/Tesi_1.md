@@ -229,6 +229,8 @@ return subModelInput
 Modificato il parsing in modo che supporti delle liste, ma per adesso se un layer ha più di un output non posso recuperare quale output di quel layer sia usato come input del layer corrente.
 
 
+NOTA!!! AGGIORNARE LA MODIFICA FATTA SU Conversions In Parsing
+
 ## Protocollo di Serializzazione usato da RPyC
 Formato usato *Brine*.
 
@@ -390,11 +392,15 @@ Nel report che viene stampato, vengono stampate informazioni relative ad ogni li
 
 | Convoluzione Singola    | ![[Schermata del 2024-11-26 18-42-37.png\|500]] |
 | ----------------------- | ----------------------------------------------- |
-| **Attivazione Singola** | ![[Schermata del 2024-11-26 18-43-33 1.png]]    |
-| **Batch Normalization** | ![[Schermata del 2024-11-26 18-46-33.png]]      |
+| **Attivazione Singola** | ![[FLOPS_Activation.png]]    |
+| **Batch Normalization** | ![[FLOPS_Expanded_Conv.png]]      |
+|                         |                                                 |
+|                         |                                                 |
 
-> [!Warning] Assenza Re_Lu
-> Nel caso di MobileNetV3Large le Re_Lu non sono considerate
+> [!Done]
+> In realtà non è un problema vero e proprio... la re_lu non fa delle vere e proprie operazioni aritmetiche, ma controlla che un elemento sia $\geq 0$, quindi non si tratta di prodotti o somme o operazioni che ha senso contare come operazioni floating points. 
+> > [!Warning] Assenza Re_Lu
+> > Nel caso di MobileNetV3Large le Re_Lu non sono considerate
 
 
 *graph_info* è un oggetto .proto con un campo repeated di di nome children; accedendo a questi children, iterando e prendendo la seconda parte della stringa (splittata sullo /) si ottengono i flops per operazione; si somma sul totale del livello.
@@ -415,12 +421,21 @@ for child in graph_info.children:
 > Fatto in questo modo quindi posso recuperare i FLOPS per il modello ma non per il singolo livello/operazione che viene eseguita.
 
 
+In alternativa, si può fare il calcolo dei FLOPS usando il parsing del modello: per si crea un sotto modello per ogni livello del modello originale, si calcola il suo tempo di esecuzione e si fa il monitoring sulle sue operazioni floating point. In questo caso escono fuori delle ReLU che hanno delle operazioni floating point, ma in realtà si tratta di quelle ReLU che vengono accorpate con i livelli fantasma di Add e Multiply, quindi le operazioni contate sono quelle relative a questi livelli.
+
+| ReLU con Add       | ![[ReLU_FLOPS.png\|400]] |
+| ------------------ | ----------------------------------------------- |
+| **ReLU senza Add** | ![[ReLU_No_FLOPS.png\|400]] |
+A questo punto credo che l'opzione migliore e più comoda sia l'altra: anche se questa permette di fare tutto in un modo, è un po' troppo macchinosa.
 
 ## Analisi di Keras_CV
+Ha anche YoloV8 pre implementato (https://keras.io/examples/vision/yolov8/)
+
 Si basa su delle classi Backbone che rappresentano le strutture di altre reti.
 
 Danno alcuni problemi con la suddivisione dei modelli: si tratta proprio di due modelli diversi, infatti hanno anche un numero diverso di layers.
 
 | Numeri di Layers per BackBone e senza      |
 | ------------------------------------------ |
-| ![[Schermata del 2024-11-28 12-52-20.png]] |
+| ![[Numero Livelli Tra MobileNet KerasCV e Keras.png]] |
+
