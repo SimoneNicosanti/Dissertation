@@ -1,6 +1,6 @@
 
 ## Analisi del Modello MobileNetV3Large
-Analizzando l'attributo _config_ del modello (che restituisce un oggetto strutturato come un json che descrive il modello) sono riuscito a capire il problema relativo a quei livelli di Add e Multiply che, come mostrato in Netron, prendevano in input da un solo livello, cosa che risultava strana trattandosi di livelli aggreganti; il problema è che questi livelli in realtà prendono in input l'output di un livello precedente per poi eseguire un'operazione element-wise (appunto una somma o un prodotto) con una costante (nello specifico, per la somma la costante è sempre 3.0 mentre per la moltiplicazione è sempre 0.16 con 6 periodico). Quei livelli che venivano mostrati in netron in sostanza non sono affatto dei livelli (cioè istanziati in fase di costruzione del modello come dei keras.Layer), ma sono il risultato di operazioni del seguente tipo:  
+Analizzando l'attributo _config_ del modello (che restituisce un oggetto strutturato come un json che descrive il modello) sono riuscito a capire il problema relativo a quei livelli di Add e Multiply che, come mostrato in Netron, prendevano in input da un solo livello, cosa che risultava strana trattandosi di livelli aggreganti; il problema è che questi livelli in realtà prendono in input l'output di un livello precedente per poi eseguire un'operazione element-wise (appunto una somma o un prodotto) con una costante (nello specifico, per la somma la costante è sempre 3.0 mentre per la moltiplicazione è sempre 0.16 con 6 periodico). Quei livelli che venivano mostrati in netron in sostanza non sono affatto dei livelli (cioè istanziati in fase di costruzione del modello com[[Colloquio_1 (2024-11-19)]]e dei keras.Layer), ma sono il risultato di operazioni del seguente tipo:  
 ```
 x1 = prevLayer(prevPrevOutput)  
 x2 = x1 + 3  
@@ -226,7 +226,7 @@ return subModelInput
 | Errore in caso di livello con più Keras Tensors di output |
 | --------------------------------------------------------- |
 | ![[Problema Livello Con Multi Output.png]]                |
-Modificato il parsing in modo che supporti delle liste
+Modificato il parsing in modo che supporti delle liste, ma per adesso se un layer ha più di un output non posso recuperare quale output di quel layer sia usato come input del layer corrente.
 
 
 ## Protocollo di Serializzazione usato da RPyC
@@ -358,7 +358,6 @@ for elem in currLayer._inbound_nodes :
 
 Il problema quindi sta nelle diverse versioni di Keras: si potrebbe valutare il downgrade alla versione precedente di Keras...
 
-
 ### Analisi Libreria nobuco
 Anche lei usa la versione 2 di keras
 
@@ -416,3 +415,12 @@ for child in graph_info.children:
 > Fatto in questo modo quindi posso recuperare i FLOPS per il modello ma non per il singolo livello/operazione che viene eseguita.
 
 
+
+## Analisi di Keras_CV
+Si basa su delle classi Backbone che rappresentano le strutture di altre reti.
+
+Danno alcuni problemi con la suddivisione dei modelli: si tratta proprio di due modelli diversi, infatti hanno anche un numero diverso di layers.
+
+| Numeri di Layers per BackBone e senza      |
+| ------------------------------------------ |
+| ![[Schermata del 2024-11-28 12-52-20.png]] |

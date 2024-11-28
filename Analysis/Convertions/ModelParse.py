@@ -64,8 +64,6 @@ def modelParse(model: keras.Model, maxLayerNum=1) -> list[keras.Model]:
         )
 
         subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
-        for key in subModel.input:
-            subModel.input[key].name = key
         subModels.append(subModel)
 
     return subModels
@@ -77,15 +75,13 @@ def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
         if len(prevOpsDict[layer.name]) == 0:
             ## Input Layer
             # layer.output.name = "input"
-            subModelInput["input"] = layer.output
+            layerOutputs = convertToList(layer.output)
+            for i, inp in enumerate(layerOutputs):
+                subModelInput[f"input_{i}"] = inp
         else:
             for prevLayerName in prevOpsDict[layer.name]:
                 prevLayer = model.get_layer(prevLayerName)
-                prevLayerOut = (
-                    prevLayer.output
-                    if isinstance(prevLayer.output, list)
-                    else [prevLayer.output]
-                )
+                prevLayerOut = convertToList(prevLayer.output)
                 # print(prevLayerOut)
                 if prevLayerName not in subLayersNames:
                     for _, out in enumerate(prevLayerOut):
@@ -94,10 +90,20 @@ def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
     return subModelInput
 
 
+def convertToList(inOut) -> list[keras.KerasTensor]:
+    if isinstance(inOut, keras.KerasTensor):
+        return [inOut]
+    if isinstance(inOut, list):
+        return inOut
+    if isinstance(inOut, dict):
+        return [inOut[key] for key in inOut]
+
+
 def buildSubModelOutput(subLayers, subLayersNames, model, nextOpsDict):
     subModelOutput = {}
     for layer in subLayers:
-        layerOutput = layer.output if isinstance(layer.output, list) else [layer.output]
+        layerOutput = convertToList(layer.output)
+        # print(layerOutput)
         if len(nextOpsDict[layer.name]) == 0:
             ## Output Layer
             for i, out in enumerate(layerOutput):
