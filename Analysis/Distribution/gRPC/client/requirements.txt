@@ -1,0 +1,4 @@
+tensorflow
+grpcio
+keras
+numpy

@@ -1,7 +1,13 @@
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -21,7 +27,9 @@ class ServerInfo(_message.Message):
     PORTNUM_FIELD_NUMBER: _ClassVar[int]
     hostName: str
     portNum: int
-    def __init__(self, hostName: _Optional[str] = ..., portNum: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, hostName: _Optional[str] = ..., portNum: _Optional[int] = ...
+    ) -> None: ...
 
 class LayerPosition(_message.Message):
     __slots__ = ("modelName", "layers", "serverInfo")
@@ -31,7 +39,12 @@ class LayerPosition(_message.Message):
     modelName: str
     layers: _containers.RepeatedScalarFieldContainer[str]
     serverInfo: ServerInfo
-    def __init__(self, modelName: _Optional[str] = ..., layers: _Optional[_Iterable[str]] = ..., serverInfo: _Optional[_Union[ServerInfo, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        modelName: _Optional[str] = ...,
+        layers: _Optional[_Iterable[str]] = ...,
+        serverInfo: _Optional[_Union[ServerInfo, _Mapping]] = ...,
+    ) -> None: ...
 
 class LayerInfo(_message.Message):
     __slots__ = ("modelName", "layerName")
@@ -39,4 +52,6 @@ class LayerInfo(_message.Message):
     LAYERNAME_FIELD_NUMBER: _ClassVar[int]
     modelName: str
     layerName: str
-    def __init__(self, modelName: _Optional[str] = ..., layerName: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, modelName: _Optional[str] = ..., layerName: _Optional[str] = ...
+    ) -> None: ...

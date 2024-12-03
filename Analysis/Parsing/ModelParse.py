@@ -5,24 +5,38 @@ import numpy as np
 import tensorflow as tf
 
 
-def findLayersConnections(model: keras.Model):
+def findAllLayersRecursive(model: keras.Model, layerList: list):
+    for layer in model.layers:
+        if isinstance(layer, keras.Model):
+            findAllLayersRecursive(layer, layerList)
+        elif isinstance(layer, keras.Layer):
+            layerList.append(layer)
 
-    layerNames = [layer.name for layer in model.layers]
 
-    prevLayersDict = {layer.name: [] for layer in model.layers}
-    nextLayersDict = {layer.name: [] for layer in model.layers}
+def findLayerFromName(allLayerList: list[keras.Layer], layerName: str):
+    for layer in allLayerList:
+        if layer.name == layerName:
+            return layer
+    return None
 
-    for currLayer in model.layers:
+
+def findLayersConnections(allLayerList: list[keras.Layer]):
+    layerNames = [layer.name for layer in allLayerList]
+
+    prevLayersDict = {layer.name: set() for layer in allLayerList}
+    nextLayersDict = {layer.name: set() for layer in allLayerList}
+
+    for currLayer in allLayerList:
         currLayerInputs = (
             currLayer.input if isinstance(currLayer.input, list) else [currLayer.input]
         )
         prevLayers = []
         findPrevLayers(currLayerInputs, prevLayers, layerNames)
 
-        prevLayersDict[currLayer.name] = prevLayers
+        prevLayersDict[currLayer.name] = set(prevLayers)
 
         for prevLayer in prevLayers:
-            nextLayersDict[prevLayer].append(currLayer.name)
+            nextLayersDict[prevLayer].add(currLayer.name)
 
     return prevLayersDict, nextLayersDict
 
@@ -49,43 +63,44 @@ def findPrevLayers(
 
 
 def modelParse(model: keras.Model, maxLayerNum=1) -> list[keras.Model]:
-    prevOpsDict, nextOpsDict = findLayersConnections(model)
+    allLayerList = []
+    findAllLayersRecursive(model, allLayerList)
+
+    prevOpsDict, nextOpsDict = findLayersConnections(allLayerList)
     subModels = []
-    # modIdx = 0
-    for i in range(0, len(model.layers), maxLayerNum):
-        subLayers = model.layers[i : min(len(model.layers), i + maxLayerNum)]
+    modIdx = 0
+    for i in range(0, len(allLayerList), maxLayerNum):
+        subLayers = allLayerList[i : min(len(allLayerList), i + maxLayerNum)]
         subLayersNames = [x.name for x in subLayers]
 
         subModelInput = buildSubModelInput(
-            subLayers, subLayersNames, model, prevOpsDict
+            subLayers, subLayersNames, allLayerList, prevOpsDict
         )
-        subModelOutput = buildSubModelOutput(
-            subLayers, subLayersNames, model, nextOpsDict
-        )
+        subModelOutput = buildSubModelOutput(subLayers, subLayersNames, nextOpsDict)
 
         subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
-        for key in subModel.input:
-            subModel.input[key].name = key
         subModels.append(subModel)
+
+        modIdx += 1
 
     return subModels
 
 
-def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
+def buildSubModelInput(
+    subLayers, subLayersNames, allLayerList: list[keras.Layer], prevOpsDict
+):
     subModelInput = {}
     for layer in subLayers:
         if len(prevOpsDict[layer.name]) == 0:
             ## Input Layer
             # layer.output.name = "input"
-            subModelInput["input"] = layer.output
+            layerOutputs = convertToList(layer.output)
+            for i, inp in enumerate(layerOutputs):
+                subModelInput[f"input_{i}"] = inp
         else:
             for prevLayerName in prevOpsDict[layer.name]:
-                prevLayer = model.get_layer(prevLayerName)
-                prevLayerOut = (
-                    prevLayer.output
-                    if isinstance(prevLayer.output, list)
-                    else [prevLayer.output]
-                )
+                prevLayer = findLayerFromName(allLayerList, prevLayerName)
+                prevLayerOut = convertToList(prevLayer.output)
                 # print(prevLayerOut)
                 if prevLayerName not in subLayersNames:
                     for _, out in enumerate(prevLayerOut):
@@ -94,10 +109,20 @@ def buildSubModelInput(subLayers, subLayersNames, model, prevOpsDict):
     return subModelInput
 
 
-def buildSubModelOutput(subLayers, subLayersNames, model, nextOpsDict):
+def convertToList(inOut) -> list[keras.KerasTensor]:
+    if isinstance(inOut, keras.KerasTensor):
+        return [inOut]
+    if isinstance(inOut, list):
+        return inOut
+    if isinstance(inOut, dict):
+        return [inOut[key] for key in inOut]
+
+
+def buildSubModelOutput(subLayers, subLayersNames, nextOpsDict):
     subModelOutput = {}
     for layer in subLayers:
-        layerOutput = layer.output if isinstance(layer.output, list) else [layer.output]
+        layerOutput = convertToList(layer.output)
+        # print(layerOutput)
         if len(nextOpsDict[layer.name]) == 0:
             ## Output Layer
             for i, out in enumerate(layerOutput):
@@ -122,7 +147,7 @@ def main():
         subMod.save(f"./models/SubModel_{modIdx}.keras")
         modIdx += 1
 
-    x = {"input": readTestElem()}
+    x = {"input_0": readTestElem()}
     for i in range(0, 5):
         # loadedModel = tf.saved_model.load(f"./models/SubModel_{i}")
         loadedModel = keras.saving.load_model(f"./models/SubModel_{i}.keras")
