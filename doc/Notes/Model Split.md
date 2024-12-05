@@ -264,3 +264,37 @@ Ricapitolando:
 	1. Di conseguenza le keras_history e gli outbound_nodes sono tracciati considerando questo sotto modello come un livello unico
 
 TODO. Rivedere il parsing nel complesso: ho bisogno anche di sapere da quale tensore di output del livello precedente deriva (questo succede se il livello precedente è a sua volta un keras.Model)
+
+
+Ricostruzione di un modello unico:
+```python
+nextOpsDict
+inputList <- init with input info
+outputList <- init with output info
+
+opQueue = []
+opQueue <- init with entry info
+
+while opQueue :
+	currOp <- queue.getNext()
+	if currOp is Model:
+		## Manage Model
+		subModelConns, subModelInputs, subModelOutputs <- recursive call
+		
+		Unify nextOpsDict and subModelsConns
+		
+		for elem in subModelOutpus:
+			set next as next of currOp in main model
+		
+	else :
+		## Manage Op
+		get outbound nodes
+		for elem in outbound_nodes :
+			if elem is a subModel:
+				change with identity layer with same name as sub model input layer
+			else :
+				add normal input
+		update nextOpsDict
+		
+		
+```

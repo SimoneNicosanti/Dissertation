@@ -9,7 +9,6 @@ Oltre a questo la libreria _onnx2tf_ permette contestualmente di:
 - Creare un saved_model con dentro diversi .tflite corrispondenti
 - Ritornare un istanza di tf_keras.Model
   In questo caso non abbiamo propriamente un keras.Model, ma la versione di Model del modulo Keras di tensorflow.
-  BISOGNA VEDERE SE SI RIESCE A CONVERTIRE QUESTA IN un
 
 Nel modello convertito da onnx alcuni parametri sono presi come _args_ altri come _kwargs_, ma nell'input al layer sono elencati solo quelli che sono passati come _args_, quindi i collegamenti tra layer non sono ricostruiti correttamente; per accedere all'elenco completo degli argomenti si può fare così:
 
