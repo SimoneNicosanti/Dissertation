@@ -280,8 +280,8 @@ def main():
 
     # print(unpackedModel.outputs)
 
-    pred_1 = mainMod(x_train)
-    pred_2 = unpackedModel(x_train)
+    pred_1 = mainMod.predict(x_train)
+    pred_2 = unpackedModel.predict(x_train)
     print(pred_1, pred_2)
     print(np.array_equal(pred_1, pred_2))
 
@@ -349,11 +349,15 @@ def main_1():
     # print(model.output_names)
     # print(unpackedModel.output_names)
 
-    pred_1 = model(images)
-    pred_2 = unpackedModel(images)
-    print(pred_1["boxes"])
-    print(pred_2[0])
-    print(np.array_equal(pred_1["boxes"], pred_2[0]))
+    pred_1 = model.predict(images)
+    pred_2 = unpackedModel.predict(images)
+    pred_2 = {"boxes": pred_2[0], "classes": pred_2[1]}
+
+    decoded = model.decode_predictions(pred_2, images)
+
+    # print(pred_1["boxes"])
+    # print(pred_2[0])
+    print(np.array_equal(pred_1["classes"], decoded["classes"]))
 
 
 if __name__ == "__main__":
