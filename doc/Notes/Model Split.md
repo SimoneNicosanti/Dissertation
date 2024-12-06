@@ -298,3 +298,49 @@ while opQueue :
 		
 		
 ```
+Problema con:
+- Possibili operazioni non commutative
+- Operazioni con costanti non accettate nell'input
+
+Altro modo per gestire questi aspetti:
+```python
+def unwrapModel(model) :
+	allOps <- findAllOps(model)
+	executedOps : set[opNames] = {}
+	tensorNamesMap
+	for op in allOps :
+		for prevOp in op.prevOps :
+			if prevOp not in executedOps:
+				call exec op on prevOp
+		
+		inputs = op._inbound_nodes[0].
+		arguments._flat_arguments
+		## This gives back a list of arguments
+		newInputs = []
+		for inp in inputs :
+			if inp is kerasTensor :
+				## All Predecessors have been computed yet
+				newInputs.append(producedOutputs[inp])
+			else :
+				## Constant or something else --> Same
+				newInputs.append(inp)
+		opOutput = op.call(*newInputs)
+		for elem, i in op.output:
+			tensorNamesMap[elem.name] = opOutput[i]
+		producedOutputs[opName] = opOutput	
+		
+```
+Per fare questo mi serve:
+- mappa kerasTensorName -> Operazione che lo genera
+- mappa original keras tensor name -> new keras tensor
+	- Quando lo rieseguo vengono prodotti dei nuovi nomi
+
+CONTROLLARE CHE:
+- \_inbound_nodes sia sempre ad un elemento
+- Possibile problema con gli IdentityLayer inseriti per sostituire gli input layer del sotto modello
+	- Loro non sanno il nome originale del tensore di output del livello di input che stanno sostituendo
+	- Inoltre non sono mai stati chiamati, quindi non hanno degli inbound nodes!!
+		- Posso fare un check per vedere se hanno gli attributi che sto cercando
+
+Per accedere ai predecessori del sub model NON SO PERCHé, ma input non funziona, però
+`_inbound_nodes[0].arguments._flat_arguments` sembra contenerli...
