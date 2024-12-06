@@ -4,6 +4,7 @@ from typing import Callable
 import keras
 import keras.src
 import keras.src.ops.function
+import keras.src.ops.numpy
 import keras_cv
 import numpy as np
 import tensorflow as tf
@@ -33,7 +34,7 @@ def findPrevConnections(nextConnectionsDict: dict[str, set[str]]):
 
 
 def findNextConnections(model: keras.Model):
-    nextOpsDict: dict[str, set[str]] = {}
+    nextOpsDict: dict[str, list[str]] = {}
     inputOpsList: list[str] = []
     outputOpsList: list[str] = []
     allOpsDict: dict[str, Callable] = {}
@@ -60,22 +61,34 @@ def findNextConnections(model: keras.Model):
             )
 
             ## Unify ops dicts
+            idx = 0
             for subOpName in subAllOpsDict.keys():
                 if subOpName not in subInputOps:
                     ## Add directly the Operation
                     allOpsDict[subOpName] = subAllOpsDict[subOpName]
                 else:
                     ## It is an input layer --> Change it with Identity
-                    allOpsDict[subOpName] = OperationWrapper(
-                        keras.layers.Identity(name=subOpName),
-                        currOp._inbound_nodes[0].arguments._flat_arguments,
-                        currOp._inbound_nodes[0].arguments.args,
-                        currOp._inbound_nodes[0].arguments.kwargs,
-                    )
+                    for arg in currOp._inbound_nodes[0].arguments.args:
+                        if isinstance(arg, list):
+                            allOpsDict[subOpName] = OperationWrapper(
+                                keras.layers.Identity(name=subOpName),
+                                [arg[idx]],
+                                [arg[idx]],
+                                [arg[idx]],
+                            )
+                            idx += 1
+                        else:
+                            allOpsDict[subOpName] = OperationWrapper(
+                                keras.layers.Identity(name=subOpName),
+                                [arg],
+                                [arg],
+                                [arg],
+                            )
 
             ## Unify next conns dict
             for subOpName in subNextConns.keys():
-                nextOpsDict[subOpName] = subNextConns[subOpName]
+                nextOpsDict.setdefault(subOpName, [])
+                nextOpsDict[subOpName].extend(subNextConns[subOpName])
 
             ## Adding sub model place holder
             allOpsDict[currOp.name] = OperationWrapper(
@@ -87,7 +100,8 @@ def findNextConnections(model: keras.Model):
 
             ## Connecting sub model output to sub model Identity placeholder
             for subOutOpName in subOutputOps:
-                nextOpsDict[subOutOpName] = set([currOp.name])
+                nextOpsDict.setdefault(subOutOpName, [])
+                nextOpsDict[subOutOpName].extend([currOp.name])
 
         else:
             ## It is a normal layer
@@ -99,20 +113,44 @@ def findNextConnections(model: keras.Model):
             )
 
         ## Common management!! If it is a sub model we added a placeholder with the same name
-        nextOpsDict[currOp.name] = set()
+        # nextOpsDict[currOp.name] = set()
 
         currOpNextOps = [node.operation for node in currOp._outbound_nodes]
-
+        nextOpsDict.setdefault(currOp.name, [])
         for nextOp in currOpNextOps:
             if not isinstance(nextOp, keras.Model):
-                nextOpsDict[currOp.name].add(nextOp.name)
+                nextOpsDict[currOp.name].append(nextOp.name)
             else:
-                for layer in nextOp.layers:
-                    if isinstance(layer, keras.layers.InputLayer):
-                        nextOpsDict[currOp.name].add(layer.name)
+                nextOpsDict[currOp.name].extend(
+                    findSubModelCorrespondingInputLayer(nextOp, currOp.name)
+                )
+
             ## If is a keras model I will find its connections when parsing sub model
 
-    return allOpsDict, nextOpsDict, inputOpsList, outputOpsList
+    convertedNextOpsDicts: dict[str, set[str]] = {}
+    for key in nextOpsDict:
+        convertedNextOpsDicts[key] = set(nextOpsDict[key])
+
+    return allOpsDict, convertedNextOpsDicts, inputOpsList, outputOpsList
+
+
+def findSubModelCorrespondingInputLayer(
+    subModel: keras.Model, currOpName: str
+) -> list[str]:
+    layerInputs = subModel._inbound_nodes[0].arguments._flat_arguments
+    layerInputsPrevNames = [
+        inp._keras_history.operation.name
+        for inp in layerInputs
+        if isinstance(inp, keras.KerasTensor)
+    ]
+    subModInputs = subModel.inputs
+    subModelInputLayers = [inp._keras_history.operation.name for inp in subModInputs]
+
+    correspondingLayers = []
+    for idx, elem in enumerate(layerInputsPrevNames):
+        if elem == currOpName:
+            correspondingLayers.append(subModelInputLayers[idx])
+    return correspondingLayers
 
 
 def subModel_1():
@@ -129,8 +167,8 @@ def subModel():
     x1 = keras.layers.Dense(units=32)(inp)
     x2 = keras.layers.Dense(units=32)(inp)
     x3 = subModel_1()([x1, x2])
-    x3 = keras.layers.Dense(units=32)(x3)
-    mod_1 = keras.Model(inputs=inp, outputs=[x1, x2, x3])
+    x4 = keras.layers.Dense(units=32)(x3)
+    mod_1 = keras.Model(inputs=inp, outputs=[x1, x2, x4])
     return mod_1
 
 
@@ -162,16 +200,15 @@ def convertToList(opOutput):
 
 
 def runOperation(opName: str, allOpsDict, prevOpsDict, producedOutputs):
-
     for prevOpName in prevOpsDict[opName]:
         if prevOpName not in producedOutputs:
             runOperation(prevOpName, allOpsDict, prevOpsDict, producedOutputs)
-
     operationWrapper: OperationWrapper = allOpsDict[opName]
     operation = operationWrapper.operation
     opInput = unpackArguments(operationWrapper.args, producedOutputs)
-    print(opName)
-    print("Op Input >>> ", opInput)
+    if opName == "get_item_1":
+        print("ITEM ARGS >>> ", type(operationWrapper.args[1][0]))
+    print(opName, opInput)
     opOutput = operation(*opInput)
     producedOutputs[opName] = convertToList(opOutput)
 
@@ -181,7 +218,7 @@ def unpackModel(allOpsDict, prevOpsDict, nextOpsDict, inputOpsList, outputOpsLis
     for inpLayerName in inputOpsList:
         outputList = convertToList(allOpsDict[inpLayerName].operation.output)
         producedOutputs[inpLayerName] = outputList
-        print("Produced >>> ", producedOutputs[inpLayerName])
+        # print("Produced >>> ", producedOutputs[inpLayerName])
 
     for opName in allOpsDict:
         if opName not in producedOutputs:
@@ -220,24 +257,37 @@ def main():
     # Fit the model with 1 sample
     mainMod.fit(x=x_train, y=y_train, epochs=1)
 
-    mainMod.save("Model.keras")
+    mainMod.save("./models/Model.keras")
 
-    # arguments: SymbolicArguments = mainMod.get_layer("add")._inbound_nodes[0].arguments
+    print(
+        mainMod.get_layer("functional_1")
+        .get_layer("functional")
+        ._inbound_nodes[0]
+        .arguments.args
+    )
 
     allOpsDict, nextOpsDict, inputOpsList, outputOpsList = findNextConnections(mainMod)
     prevOpsDict = findPrevConnections(nextOpsDict)
 
+    print(nextOpsDict)
+    print()
+    print(prevOpsDict)
+
     unpackedModel = unpackModel(
         allOpsDict, prevOpsDict, nextOpsDict, inputOpsList, outputOpsList
     )
-    unpackedModel.save("./Unpacked.keras")
+    unpackedModel.save("./models/Unpacked.keras")
 
-    print(unpackedModel.outputs)
+    # print(unpackedModel.outputs)
 
-    loaded = keras.saving.load_model("./Unpacked.keras")
+    pred_1 = mainMod(x_train)
+    pred_2 = unpackedModel(x_train)
+    print(pred_1, pred_2)
+    print(np.array_equal(pred_1, pred_2))
 
 
 def main_1():
+    keras.src.ops.numpy.GetItem()
     images = tf.ones(shape=(1, 512, 512, 3))
     labels = {
         "boxes": tf.constant(
@@ -253,10 +303,12 @@ def main_1():
         "classes": tf.constant([[1, 1, 1]], dtype=tf.int64),
     }
 
+    model = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_m_backbone_coco")
+
     model = keras_cv.models.YOLOV8Detector(
         num_classes=20,
         bounding_box_format="xywh",
-        backbone=keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_m_backbone_coco"),
+        backbone=model,
         fpn_depth=2,
     )
 
@@ -264,30 +316,44 @@ def main_1():
     model(images)
 
     # Train model
-    model.compile(
-        classification_loss="binary_crossentropy",
-        box_loss="ciou",
-        optimizer=tf.optimizers.SGD(global_clipnorm=10.0),
-        jit_compile=False,
-    )
+    # model.compile(
+    #     classification_loss="binary_crossentropy",
+    #     box_loss="ciou",
+    #     optimizer=tf.optimizers.SGD(global_clipnorm=10.0),
+    #     jit_compile=False,
+    # )
     # model.fit(images, labels)
 
     allOpsDict, nextOpsDict, inputOpsList, outputOpsList = findNextConnections(model)
     prevOpsDict = findPrevConnections(nextOpsDict)
 
+    print(model.output)
+
     unpackedModel = unpackModel(
         allOpsDict, prevOpsDict, nextOpsDict, inputOpsList, outputOpsList
     )
-    unpackedModel.save("./Unpacked.keras")
+    unpackedModel.save("./models/Unpacked.keras")
 
-    print(model.output_names)
-    print(unpackedModel.output_names)
+    # for op in model.operations:
+    #     if op.name == "get_item":
+    #         print(op.output)
+    #         break
 
-    pred_1 = model.predict(images)
-    pred_2 = unpackedModel.predict(images)
+    # for op in unpackedModel.operations:
+    #     if op.name == "get_item":
+    #         print(op.output)
+    #         break
 
-    print(len(pred_1))
-    print(len(pred_2))
+    # loaded = keras.models.load_model("./models/Unpacked.keras")
+
+    # print(model.output_names)
+    # print(unpackedModel.output_names)
+
+    pred_1 = model(images)
+    pred_2 = unpackedModel(images)
+    print(pred_1["boxes"])
+    print(pred_2[0])
+    print(np.array_equal(pred_1["boxes"], pred_2[0]))
 
 
 if __name__ == "__main__":
