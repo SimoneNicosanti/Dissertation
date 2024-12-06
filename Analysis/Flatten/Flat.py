@@ -70,6 +70,8 @@ def findNextConnections(model: keras.Model):
                     ## It is an input layer --> Change it with Identity
                     for arg in currOp._inbound_nodes[0].arguments.args:
                         if isinstance(arg, list):
+                            ## Multiple inputs to the model
+                            ## Each input layer has one input tensor --> Take them in order
                             allOpsDict[subOpName] = OperationWrapper(
                                 keras.layers.Identity(name=subOpName),
                                 [arg[idx]],
@@ -78,6 +80,7 @@ def findNextConnections(model: keras.Model):
                             )
                             idx += 1
                         else:
+                            ## Only one input
                             allOpsDict[subOpName] = OperationWrapper(
                                 keras.layers.Identity(name=subOpName),
                                 [arg],
@@ -121,6 +124,7 @@ def findNextConnections(model: keras.Model):
             if not isinstance(nextOp, keras.Model):
                 nextOpsDict[currOp.name].append(nextOp.name)
             else:
+                ## Need to find the input layer corresponding as next for the current node
                 nextOpsDict[currOp.name].extend(
                     findSubModelCorrespondingInputLayer(nextOp, currOp.name)
                 )
@@ -151,25 +155,6 @@ def findSubModelCorrespondingInputLayer(
         if elem == currOpName:
             correspondingLayers.append(subModelInputLayers[idx])
     return correspondingLayers
-
-
-def subModel_1():
-    inp_1 = keras.layers.Input(shape=(32,))
-    inp_2 = keras.layers.Input(shape=(32,))
-    x1 = keras.layers.Dense(units=32)(inp_1)
-    x2 = keras.layers.Dense(units=32)(inp_2)
-    x3 = x1 + x2
-    return keras.Model(inputs=[inp_1, inp_2], outputs=x3)
-
-
-def subModel():
-    inp = keras.layers.Input(shape=(32,))
-    x1 = keras.layers.Dense(units=32)(inp)
-    x2 = keras.layers.Dense(units=32)(inp)
-    x3 = subModel_1()([x1, x2])
-    x4 = keras.layers.Dense(units=32)(x3)
-    mod_1 = keras.Model(inputs=inp, outputs=[x1, x2, x4])
-    return mod_1
 
 
 def unpackArguments(args, producedOutputs):
@@ -206,14 +191,12 @@ def runOperation(opName: str, allOpsDict, prevOpsDict, producedOutputs):
     operationWrapper: OperationWrapper = allOpsDict[opName]
     operation = operationWrapper.operation
     opInput = unpackArguments(operationWrapper.args, producedOutputs)
-    if opName == "get_item_1":
-        print("ITEM ARGS >>> ", type(operationWrapper.args[1][0]))
-    print(opName, opInput)
+    print(f"Processing {opName} || Input >>> {opInput}")
     opOutput = operation(*opInput)
     producedOutputs[opName] = convertToList(opOutput)
 
 
-def unpackModel(allOpsDict, prevOpsDict, nextOpsDict, inputOpsList, outputOpsList):
+def reconstructModel(allOpsDict, prevOpsDict, inputOpsList, outputOpsList):
     producedOutputs = {}
     for inpLayerName in inputOpsList:
         outputList = convertToList(allOpsDict[inpLayerName].operation.output)
@@ -235,130 +218,16 @@ def unpackModel(allOpsDict, prevOpsDict, nextOpsDict, inputOpsList, outputOpsLis
     return newModel
 
 
-def main():
-
-    inp_1 = keras.Input(shape=(32,))
-    x = subModel()(inp_1)
-    x0 = keras.layers.Dense(units=1)(x[0])
-    x1 = keras.layers.Dense(units=1)(x[1])
-    x2 = keras.layers.Dense(units=1)(x[2])
-    x = keras.layers.Add()([x0, x1]) + x2
-
-    mainMod = keras.Model(inputs=inp_1, outputs=x)
-
-    mainMod.compile(optimizer="adam", loss="mse")
-
-    # Example input (1 sample with 32 features)
-    x_train = np.random.random(size=(1, 32))  # Shape (1, 32)
-
-    # Example target (1 sample, single output value)
-    y_train = np.random.random(size=(1,))  # Shape (1,)
-
-    # Fit the model with 1 sample
-    mainMod.fit(x=x_train, y=y_train, epochs=1)
-
-    mainMod.save("./models/Model.keras")
-
-    print(
-        mainMod.get_layer("functional_1")
-        .get_layer("functional")
-        ._inbound_nodes[0]
-        .arguments.args
-    )
-
-    allOpsDict, nextOpsDict, inputOpsList, outputOpsList = findNextConnections(mainMod)
-    prevOpsDict = findPrevConnections(nextOpsDict)
-
-    print(nextOpsDict)
-    print()
-    print(prevOpsDict)
-
-    unpackedModel = unpackModel(
-        allOpsDict, prevOpsDict, nextOpsDict, inputOpsList, outputOpsList
-    )
-    unpackedModel.save("./models/Unpacked.keras")
-
-    # print(unpackedModel.outputs)
-
-    pred_1 = mainMod.predict(x_train)
-    pred_2 = unpackedModel.predict(x_train)
-    print(pred_1, pred_2)
-    print(np.array_equal(pred_1, pred_2))
-
-
-def main_1():
-    keras.src.ops.numpy.GetItem()
-    images = tf.ones(shape=(1, 512, 512, 3))
-    labels = {
-        "boxes": tf.constant(
-            [
-                [
-                    [0, 0, 100, 100],
-                    [100, 100, 200, 200],
-                    [300, 300, 100, 100],
-                ]
-            ],
-            dtype=tf.float32,
-        ),
-        "classes": tf.constant([[1, 1, 1]], dtype=tf.int64),
-    }
-
-    model = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_m_backbone_coco")
-
-    model = keras_cv.models.YOLOV8Detector(
-        num_classes=20,
-        bounding_box_format="xywh",
-        backbone=model,
-        fpn_depth=2,
-    )
-
-    # Evaluate model without box decoding and NMS
-    model(images)
-
-    # Train model
-    # model.compile(
-    #     classification_loss="binary_crossentropy",
-    #     box_loss="ciou",
-    #     optimizer=tf.optimizers.SGD(global_clipnorm=10.0),
-    #     jit_compile=False,
-    # )
-    # model.fit(images, labels)
-
+def findConnections(model: keras.Model):
     allOpsDict, nextOpsDict, inputOpsList, outputOpsList = findNextConnections(model)
     prevOpsDict = findPrevConnections(nextOpsDict)
 
-    print(model.output)
-
-    unpackedModel = unpackModel(
-        allOpsDict, prevOpsDict, nextOpsDict, inputOpsList, outputOpsList
-    )
-    unpackedModel.save("./models/Unpacked.keras")
-
-    # for op in model.operations:
-    #     if op.name == "get_item":
-    #         print(op.output)
-    #         break
-
-    # for op in unpackedModel.operations:
-    #     if op.name == "get_item":
-    #         print(op.output)
-    #         break
-
-    # loaded = keras.models.load_model("./models/Unpacked.keras")
-
-    # print(model.output_names)
-    # print(unpackedModel.output_names)
-
-    pred_1 = model.predict(images)
-    pred_2 = unpackedModel.predict(images)
-    pred_2 = {"boxes": pred_2[0], "classes": pred_2[1]}
-
-    decoded = model.decode_predictions(pred_2, images)
-
-    # print(pred_1["boxes"])
-    # print(pred_2[0])
-    print(np.array_equal(pred_1["classes"], decoded["classes"]))
+    return allOpsDict, prevOpsDict, inputOpsList, outputOpsList
 
 
-if __name__ == "__main__":
-    main_1()
+def unpackModel(model: keras.Model) -> keras.Model:
+    allOpsDict, prevOpsDict, inputOpsList, outputOpsList = findConnections(model)
+
+    newModel = reconstructModel(allOpsDict, prevOpsDict, inputOpsList, outputOpsList)
+
+    return newModel
