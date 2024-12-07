@@ -1,8 +1,8 @@
 import keras
 
 
-def findAllOps(model: keras.Model) -> dict[str, keras.Operation]:
-    allOpsDict: dict[str, keras.Operation] = {}
+def findAllOpsList(model: keras.Model) -> list[keras.Operation]:
+    allOpsList: list[keras.Operation] = []
 
     opsQueue: list[keras.Operation] = model.operations
 
@@ -10,10 +10,17 @@ def findAllOps(model: keras.Model) -> dict[str, keras.Operation]:
         currOp: keras.Operation = opsQueue.pop(0)
 
         if isinstance(currOp, keras.Model):
-            subAllOps: dict[str, keras.Operation] = findAllOps(currOp)
-            allOpsDict.update(subAllOps)
+            subAllOps: list[keras.Operation] = findAllOpsList(currOp)
+            allOpsList.extend(subAllOps)
 
-        allOpsDict[currOp.name] = currOp
+        allOpsList.append(currOp)
+
+    return allOpsList
+
+
+def findAllOpsDict(model: keras.Model) -> dict[str, keras.Operation]:
+    allOpsList: list[keras.Operation] = findAllOpsList(model)
+    allOpsDict: dict[str, keras.Operation] = {op.name: op for op in allOpsList}
 
     return allOpsDict
 
@@ -95,6 +102,15 @@ def findSubModelCorrespondingInputLayer(
         if elem == currOpName:
             correspondingLayers.append(subModelInputLayers[idx])
     return correspondingLayers
+
+
+def convertToList(anyValue):
+    if isinstance(anyValue, list):
+        return anyValue
+    elif isinstance(anyValue, dict):
+        return anyValue.values()
+    else:
+        return [anyValue]
 
 
 def findPrevConnections(model: keras.Model, nextOpsDict=None):

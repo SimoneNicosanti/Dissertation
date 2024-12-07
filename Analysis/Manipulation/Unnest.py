@@ -1,9 +1,4 @@
-from typing import Callable
-
 import keras
-import keras.src
-import keras.src.ops.function
-import keras.src.ops.numpy
 import Utils
 
 
@@ -37,15 +32,6 @@ def unpackArguments(args, producedOutputs):
         else:
             opInput.append(arg)
     return opInput
-
-
-def convertToList(anyValue):
-    if isinstance(anyValue, list):
-        return anyValue
-    elif isinstance(anyValue, dict):
-        return anyValue.values()
-    else:
-        return [anyValue]
 
 
 def wrapOperation(operation: keras.Operation) -> keras.Operation:
@@ -115,7 +101,7 @@ def runOperation(
     opInput = unpackArguments(callArgs, producedOutputs)
     print(f"Processing {opName} || Input >>> {opInput}")
     opOutput = toCall(*opInput)
-    producedOutputs[opName] = convertToList(opOutput)
+    producedOutputs[opName] = Utils.convertToList(opOutput)
 
 
 def reconstructModel(
@@ -127,7 +113,7 @@ def reconstructModel(
 ):
     producedOutputs: dict[str, list[keras.KerasTensor]] = {}
     for inpLayerName in inputOpsList:
-        outputList = convertToList(allOpsDict[inpLayerName].output)
+        outputList = Utils.convertToList(allOpsDict[inpLayerName].output)
         producedOutputs[inpLayerName] = outputList
         # print("Produced >>> ", producedOutputs[inpLayerName])
 
@@ -148,7 +134,7 @@ def reconstructModel(
 
 def unnestModel(model: keras.Model) -> keras.Model:
     prevOpsDict: dict[str, set[str]] = Utils.findPrevConnections(model)
-    allOpsDict: dict[str, keras.Operation] = Utils.findAllOps(model)
+    allOpsDict: dict[str, keras.Operation] = Utils.findAllOpsDict(model)
     inputOpsList: list[str] = Utils.findInputLayers(model)
     outputOpsList: list[str] = model.output_names
     allSubModels: list[keras.Model] = findSubModels(model)
