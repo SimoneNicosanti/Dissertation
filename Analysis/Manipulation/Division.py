@@ -80,14 +80,16 @@ def buildSubModelOutput(
     nextOpsDict: dict[str, set[str]],
 ):
     subModelOutput = {}
+    idx = 0
     for opName in subOpsNames:
         currOp: keras.Operation = allOpsDict[opName]
         layerOutput = Utils.convertToList(currOp.output)
 
         if len(nextOpsDict[opName]) == 0:
             ## Output Layer
-            for i, out in enumerate(layerOutput):
-                subModelOutput[f"output_{i}"] = out
+            for _, out in enumerate(layerOutput):
+                subModelOutput[f"output_{idx}"] = out
+                idx += 1
         else:
             for nextOpName in nextOpsDict[opName]:
                 if nextOpName not in subOpsNames:
