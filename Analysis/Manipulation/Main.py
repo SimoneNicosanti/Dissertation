@@ -2,7 +2,9 @@ import keras
 import keras_cv
 import numpy as np
 import tensorflow as tf
-from Flat import unpackModel
+import Utils
+from ModelParse import modelParse
+from Unnest import unnestModel
 
 
 def subModel_1():
@@ -47,14 +49,13 @@ def main():
     mainMod.fit(x=x_train, y=y_train, epochs=1)
 
     mainMod.save("./models/Model.keras")
+    # print(Utils.findNextConnections(mainMod))
 
-    unpackedModel = unpackModel(mainMod)
-    unpackedModel.save("./models/Unpacked.keras")
-
-    # print(unpackedModel.outputs)
+    unnestedModel = unnestModel(mainMod)
+    unnestedModel.save("./models/Unpacked.keras")
 
     pred_1 = mainMod.predict(x_train)
-    pred_2 = unpackedModel.predict(x_train)
+    pred_2 = unnestedModel.predict(x_train)
     print(pred_1, pred_2)
     print(np.array_equal(pred_1, pred_2))
 
@@ -76,7 +77,7 @@ def main_1():
         "classes": tf.constant([[1, 1, 1]], dtype=tf.int64),
     }
 
-    model = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_m_backbone_coco")
+    model = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_l_backbone_coco")
 
     model = keras_cv.models.YOLOV8Detector(
         num_classes=20,
@@ -88,13 +89,17 @@ def main_1():
     # Evaluate model without box decoding and NMS
     model(images)
 
-    unpackedModel: keras.Model = unpackModel(model)
-    unpackedModel.save("./models/Unpacked.keras")
+    unnestedModel: keras.Model = unnestModel(model)
+    unnestedModel.save("./models/UnpackedYolo.keras")
+
+    # subModels = modelParse(unnestedModel, 50)
+    # for idx, mod in enumerate(subModels):
+    #     mod.save(f"./models/SubMod_{idx}.keras")
 
     ## The differences in the outputs of predict
-    # is because predict in YoloPredictor decodifies automatically
+    ##is because predict in YoloPredictor decodifies automatically
     pred_1 = model(images)
-    pred_2 = unpackedModel(images)
+    pred_2 = unnestedModel(images)
 
     print(np.array_equal(pred_1["boxes"], pred_2[0]))
 

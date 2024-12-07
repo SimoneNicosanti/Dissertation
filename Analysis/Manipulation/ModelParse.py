@@ -63,8 +63,7 @@ def findPrevLayers(
 
 
 def modelParse(model: keras.Model, maxLayerNum=1) -> list[keras.Model]:
-    allLayerList = []
-    findAllLayersRecursive(model, allLayerList)
+    allLayerList = model.layers
 
     prevOpsDict, nextOpsDict = findLayersConnections(allLayerList)
     subModels = []
@@ -78,9 +77,12 @@ def modelParse(model: keras.Model, maxLayerNum=1) -> list[keras.Model]:
         )
         subModelOutput = buildSubModelOutput(subLayers, subLayersNames, nextOpsDict)
 
-        subModel = keras.Model(inputs=subModelInput, outputs=subModelOutput)
+        print(subLayers)
+        subModel = keras.Model(
+            inputs=subModelInput, outputs=subModelOutput, name=f"SubMod_{modIdx}"
+        )
         subModels.append(subModel)
-
+        print(subModel.name)
         modIdx += 1
 
     return subModels
