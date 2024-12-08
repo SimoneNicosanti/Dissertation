@@ -344,3 +344,7 @@ CONTROLLARE CHE:
 
 Per accedere ai predecessori del sub model NON SO PERCHé, ma input non funziona, però
 `_inbound_nodes[0].arguments._flat_arguments` sembra contenerli...
+
+
+## Split del Modello (Post Unnest)
+Alla luce di quanto capito del funzionamento di keras con l'unnest si è modificato lo split del modello.

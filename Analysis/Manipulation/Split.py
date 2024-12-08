@@ -1,10 +1,26 @@
-import pickle
-
 import keras
-import Utils
+from Manipulation import Utils
 
 
-def modelParse(model: keras.Model, maxLayerNum: int) -> list[keras.Model]:
+def buildSubModel(
+    subOpsNames: list[str],
+    allOpsDict: dict[str, keras.Operation],
+    prevOpsDict: dict[str, set[str]],
+    nextOpsDict: dict[str, set[str]],
+    subModIdx: int,
+) -> keras.Model:
+    subModelInput = buildSubModelInput(subOpsNames, allOpsDict, prevOpsDict)
+    subModelOutput = buildSubModelOutput(subOpsNames, allOpsDict, nextOpsDict)
+
+    # print(subOps)
+    subModel = keras.Model(
+        inputs=subModelInput, outputs=subModelOutput, name=f"SubMod_{subModIdx}"
+    )
+
+    return subModel
+
+
+def modelSplit(model: keras.Model, maxLayerNum: int) -> list[keras.Model]:
     allOpsList: list[keras.Operation] = Utils.findAllOpsList(model)
     allOpsDict: dict[str, keras.Operation] = Utils.findAllOpsDict(model)
 
@@ -15,15 +31,11 @@ def modelParse(model: keras.Model, maxLayerNum: int) -> list[keras.Model]:
         subOps = allOpsList[i : min(len(allOpsList), i + maxLayerNum)]
         subOpsNames = [x.name for x in subOps]
 
-        subModelInput = buildSubModelInput(subOpsNames, allOpsDict, prevOpsDict)
-        subModelOutput = buildSubModelOutput(subOpsNames, allOpsDict, nextOpsDict)
-
-        print(subOps)
-        subModel = keras.Model(
-            inputs=subModelInput, outputs=subModelOutput, name=f"SubMod_{modIdx}"
+        subModel: keras.Model = buildSubModel(
+            subOpsNames, allOpsDict, prevOpsDict, nextOpsDict, modIdx
         )
+
         subModels.append(subModel)
-        print(subModel.name)
         modIdx += 1
 
     return subModels
@@ -33,7 +45,7 @@ def buildSubModelInput(
     subOpsNames: list[str],
     allOpsDict: dict[str, keras.Operation],
     prevOpsDict: dict[str, set[str]],
-):
+) -> dict[str, keras.KerasTensor]:
     subModelInput = {}
     for opName in subOpsNames:
         currOp: keras.Operation = allOpsDict[opName]
@@ -78,7 +90,7 @@ def buildSubModelOutput(
     subOpsNames: list[str],
     allOpsDict: dict[str, keras.Operation],
     nextOpsDict: dict[str, set[str]],
-):
+) -> dict[str, keras.KerasTensor]:
     subModelOutput = {}
     idx = 0
     for opName in subOpsNames:

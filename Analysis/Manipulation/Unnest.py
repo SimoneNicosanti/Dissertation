@@ -1,5 +1,5 @@
 import keras
-import Utils
+from Manipulation import Utils
 
 
 def findSubModels(model: keras.Model) -> list[keras.Model]:
@@ -144,6 +144,6 @@ def unnestModel(model: keras.Model) -> keras.Model:
     )
 
     for op in newModel.operations:
-        op.name = f"unpacked_{op.name}"
+        op.name = f"unnested_{op.name}"
 
     return newModel
