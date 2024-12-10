@@ -89,7 +89,7 @@ def main_3():
     unnestedModel.save("./models/UnpackedYolo.keras")
 
     unnestedModel = keras.saving.load_model("./models/UnpackedYolo.keras")
-    subModels = Split.modelParse(unnestedModel, maxLayerNum=50)
+    subModels = Split.modelSplit(unnestedModel, maxLayerNum=50)
     for idx, mod in enumerate(subModels):
         mod.save(f"./models/YoloSubMod_{idx}.keras")
 
@@ -101,10 +101,5 @@ def main_3():
     # print(np.array_equal(pred_1["boxes"], pred_2[0]))
 
 
-def main_2():
-    model: keras.Model = keras.saving.load_model("./models/UnpackedYolo.keras")
-    splitModel = Split.modelSplit(model, 1)
-
-
 if __name__ == "__main__":
-    main_2()
+    main_3()

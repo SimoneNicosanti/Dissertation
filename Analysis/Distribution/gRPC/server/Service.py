@@ -48,7 +48,7 @@ class Service(server_pb2_grpc.ServerServicer):
     def sendToNextLayer(self, modelOutput: dict, requestId: int) -> ModelOutput:
         for nextLayerName in self.model.output:
             ## TODO MANAGE MODEL OUTPUT CASE !!!
-            if nextLayerName == "predictions":
+            if nextLayerName.startswith("output"):
                 return ModelOutput(
                     hasValue=True,
                     result={

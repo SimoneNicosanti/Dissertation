@@ -26,6 +26,7 @@ services:
     volumes:
       - ./registry:/registry
       - ./models:/models
+      - ../../Manipulation:/registry/Manipulation
     networks:
       - my_network
     working_dir: /registry
@@ -38,6 +39,7 @@ services:
     stdin_open: true
     volumes:
       - ./client:/client
+      - ./models:/models
     networks:
       - my_network
     working_dir: /client

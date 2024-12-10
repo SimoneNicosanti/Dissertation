@@ -18,7 +18,7 @@ def remoteTest():
     with grpc.insecure_channel("registry:5000") as channel:
         stub = registry_pb2_grpc.RegisterStub(channel)
         layerPosition: ServerInfo = stub.getLayerPosition(
-            LayerInfo(modelName="", layerName="input_layer")
+            LayerInfo(modelName="", layerName="input_0")
         )
         print(f"Received >>> {layerPosition.hostName}:{layerPosition.portNum}")
 
@@ -30,7 +30,7 @@ def remoteTest():
                 print(f"Iteration >>> {i}")
                 modelInput: ModelInput = ModelInput(
                     modelName="",
-                    layerName="input_layer",
+                    layerName="input_0",
                     requestId=0,
                     tensor=tf.make_tensor_proto(inputTensor),
                 )
@@ -39,10 +39,12 @@ def remoteTest():
                 end = time.time()
                 timeArray[i] = end - start
 
-                tensorResult = tf.make_ndarray(modelOutput.result["predictions"])
-                for i in range(0, len(tensorResult)):
-                    predClass = np.argmax(tensorResult[i])
-                    print(f"Predicted >>> {predClass}")
+                print(modelOutput.result)
+
+                # tensorResult = tf.make_ndarray(modelOutput.result["predictions"])
+                # for i in range(0, len(tensorResult)):
+                #     predClass = np.argmax(tensorResult[i])
+                #     print(f"Predicted >>> {predClass}")
             print(
                 f"Avg Remote Time >>> {timeArray.mean()} // Remote Time Std dev {timeArray.std()}"
             )
@@ -73,4 +75,4 @@ def readTestElem():
 
 if __name__ == "__main__":
     remoteTest()
-    localTest()
+    # localTest()

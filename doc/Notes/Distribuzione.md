@@ -104,3 +104,7 @@ Comando per lanciare il TF Serving
 tensorflow_model_serving --port={x gRPC} --rest_api_port={} --model_name={} --model_base_path={}
 
 ```
+
+
+
+## Con YoloV8

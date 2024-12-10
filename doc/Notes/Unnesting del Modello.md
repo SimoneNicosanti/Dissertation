@@ -179,5 +179,3 @@ Si vede che:
 | Identity InputLayer BackBone                    | Identity Output BackBone                        |
 | ----------------------------------------------- | ----------------------------------------------- |
 | ![[Schermata del 2024-12-07 23-27-39.png\|300]] | ![[Schermata del 2024-12-07 23-29-03.png\|300]] |
-
-![[Notes/Untitled Diagram.svg]]

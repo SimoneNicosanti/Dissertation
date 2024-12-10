@@ -348,3 +348,18 @@ Per accedere ai predecessori del sub model NON SO PERCHé, ma input non funziona
 
 ## Split del Modello (Post Unnest)
 Alla luce di quanto capito del funzionamento di keras con l'unnest si è modificato lo split del modello.
+
+Questo pezzo per la ricerca dell'output del modello non funziona: un livello potrebbe essere di output anche se ha dei successori!!
+```python
+if len(nextOpsDict[opName]) == 0:
+## Output Layer
+	for _, out in enumerate(layerOutput):
+		subModelOutput[f"output_{idx}"] = out
+		idx += 1
+
+### CORRECT TO
+
+if opName in model.output_names: ### List of output layers for the model
+	find the tensor that is output of the model
+	set it as model output
+```

@@ -39,7 +39,7 @@ def computeFloatOperationsPerOperation(
     model: keras.Model, inputShape: tuple
 ) -> dict[str, float]:
 
-    shapeTrackers: dict[str, ShapeTracker] = ExecTrackers.prepareForTracking(
+    shapeTrackers: dict[str, ShapeTracker] = ExecTrackers.prepareForTrack(
         model, ShapeTracker
     )
 
@@ -57,13 +57,12 @@ def computeFloatOperationsPerOperation(
             inputSignature = shapeTrackers[op.name].trackedShape
 
             try:
-                func = tf.function(lambda x: op.call(x[0], *x[1], **x[2]))
+                ## Defining a tf funcion for the current operation
+                func = tf.function(lambda x, op=op: op.call(x[0], *x[1], **x[2]))
                 concrete_func = func.get_concrete_function(inputSignature)
-
-                # Convert the concrete function to a frozen graph
                 graph = concrete_func.graph
 
-                # Profile the graph to calculate FLOPs
+                ## Profiling
                 opts = option_builder.ProfileOptionBuilder.float_operation()
                 graph_info = model_analyzer.profile(graph, options=opts)
                 flops = graph_info.total_float_ops
@@ -87,7 +86,7 @@ def computeRunningTimes(
 
     x = tf.random.uniform(shape=inputShape)
 
-    timeTrackers: dict[str, TimeTracker] = ExecTrackers.prepareForTracking(
+    timeTrackers: dict[str, TimeTracker] = ExecTrackers.prepareForTrack(
         model, TimeTracker
     )
 
@@ -119,7 +118,6 @@ def computeFlopsPerOp(
     )
 
     _, avgTimesPerOp = computeRunningTimes(model, inputShape, testNums)
-    print(avgTimesPerOp)
 
     flopsPerOp = {}
 

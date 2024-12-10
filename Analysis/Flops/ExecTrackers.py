@@ -42,7 +42,7 @@ class TimeTracker(Tracker):
         return result
 
 
-def prepareForTracking(model: keras.Model, trackerClass):
+def prepareForTrack(model: keras.Model, trackerClass):
 
     trackers = {}
     for op in model.operations:

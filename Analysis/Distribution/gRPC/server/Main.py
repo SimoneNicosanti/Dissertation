@@ -36,10 +36,12 @@ def main():
         serverInfo: ServerInfo = ServerInfo(hostName=addresses[0], portNum=portNum)
         resp: RegisterResponse = registry.registerServer(serverInfo)
 
+        print("Index ", resp.subModelIdx)
         subModel: keras.Model = keras.saving.load_model(
             f"/models/SubModel_{resp.subModelIdx}.keras"
         )
         layers = [inputLayer for inputLayer in subModel.input]
+        print("Input Layers >>> ", layers)
         layersPosition = LayerPosition(
             modelName="", layers=layers, serverInfo=serverInfo
         )

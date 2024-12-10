@@ -86,3 +86,60 @@ In alternativa, si può fare il calcolo dei FLOPS usando il parsing del modello:
 | **ReLU senza Add** | ![[ReLU_No_FLOPS.png\|400]] |
 
 A questo punto credo che l'opzione migliore e più comoda sia l'altra: anche se questa permette di fare tutto in un modo, è un po' troppo macchinosa.
+
+## Calcolo dei FLOPS Con Classe Tracker
+Per tracciare l'esecuzione dei tempi avevo usato una callback che faceva il wrap della funzione di call per ogni operazione in un'altra funzione.
+
+Il problema è che poi la funzione di call viene modificata in modo irreversibile: anche se reimpostato con il metodo *on_predict_end* non si riesce a reimpostare la call originale!! Il motivo è che la predict fa passare il modello ad uno stato in cui gli attributi del modello sono immodificabili e quindi non si può reimpostare la call originale anche se salvata.
+
+Visto che le callback si possono impostare solo nei metodi di *predict* o di *fit*, continuare ad usare le callback non è fattibile.
+
+Altro problema dell'implementazione precedente nel calcolo dei FLOPS era che i nomi delle operazioni non sempre coincidevano, quindi non si riusciva a mappare dato il nome dell'operazione sui rispettivi FLOPS e tempi di esecuzione.
+
+### Calcolo dei Tempi di Esecuzione
+Procediamo in questo modo:
+```python
+for op in model.operations:
+	timeTracker <- create TimeTracker from op
+	op.call = timeTracker.track
+	map op.name on timeTracker
+
+run model(input)
+
+for op in model.operations :
+	op.call <- tracker.originalCall
+
+```
+
+All'interno della classe Tracker teniamo traccia di:
+- funzione di call originale
+- nome dell'operazione
+- tempi di esecuzione
+Quando facciamo la call sull'operazione, salviamo il tempo di esecuzione.
+
+Il metodo track ha la stessa segnatura della call dell'operazione: all'interno della track:
+1. Prendiamo istante di start
+2. eseguiamo
+3. Prendiamo istante di stop e calcoliamo il tempo di esecuzione
+4. Salviamo il tempo di esecuzione in una lista della classe Tracker
+
+In questo modo, non usando la predict riusciamo a ripristinare la funzione di call originale.
+
+### Calcolo delle Float Operations
+Dato uno specifico input, ci serve sapere per ogni operazione quale è l'input che riceverebbe come conseguenza di quell'esecuzione. Se io mando un input di shape (1, 64, 64, 3) al modello, un'operazione intermedia riceve un input di shape conseguente all'esecuzione che è stata fatta su questo input. 
+
+Dato l'input al modello, dobbiamo trovare PER OGNI operazione quale è l'input che riceve in conseguenza di quell'input. Possiamo quindi fare la stessa cosa che abbiamo fatto con i tempi ma facendo uno ShapeTracker.
+
+Il metodo *track* dello ShapeTracker si segna, alla chiamata dell'operazione, quale è l'input che sta ricevendo: questo ci permette di ricostruire le shape degli input di tutte le operazioni conseguenti ad un certo input del modello.
+
+Per trovare il numero di operazioni float point per ogni operazione, non potendo usare il profile del modello completo (perché ho discrepanza tra i nomi), si fa una cosa diversa.
+Per ogni operazione si fa il wrap di questa operazione in una tf.function e si fa il profile dei flops della tf.function costruita in questo modo: così sono sicuro di poter ricostruire le corrispondenze dei nomi che altrimenti erano sballate.
+
+Questo approccio ha un problema: ci sono alcuni tipi che non sono accettati come input di una tf.function (come slice per fare i tagli dei tensori), quindi viene sollevato errore: considerando che queste operazioni sono rare (solo 2 in YOLOv8) e che tendenzialmente hanno un numero di Float Operations nullo, si considerano i loro FLOPS nulli per default.
+
+> [!Tip] Altro Approccio
+> Un alternativa potrebbe essere, per avere una stima forse più accurata:
+> - prendere i flops per operazione e le operazioni su cui non si possono calcolare
+> - prendere i flops per modello (che posso calcolare sempre)
+> - Faccio la differenza dei totali e se c'è avanzo ripartisco l'avanzo tra le operazioni per cui non posso calcolare direttamente i flops
+
