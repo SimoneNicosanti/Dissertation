@@ -48,7 +48,6 @@ I pro di questi approcci sono:
 
 ### Edge Computing
 
-
 ### Image Compression and Object Detection
 
 Le prestazioni dei modelli si abbassano quando gli viene dato un input che è stato compresso con un algoritmo di compressione di immagini: serve quindi un compromesso tra prestazioni e dati trasferiti.

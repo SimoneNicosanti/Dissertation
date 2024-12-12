@@ -39,9 +39,8 @@ def remoteTest():
                 end = time.time()
                 timeArray[i] = end - start
 
-                print(modelOutput.result)
-
-                # tensorResult = tf.make_ndarray(modelOutput.result["predictions"])
+                tensorResult = tf.make_ndarray(modelOutput.result["output_0"])
+                return tensorResult
                 # for i in range(0, len(tensorResult)):
                 #     predClass = np.argmax(tensorResult[i])
                 #     print(f"Predicted >>> {predClass}")
@@ -52,17 +51,14 @@ def remoteTest():
 
 def localTest():
     testElem = readTestElem()
-    model = keras.applications.MobileNetV3Large()
+    model = keras.saving.load_model("/models/UnpackedYolo.keras")
     timeArray = np.zeros(shape=TEST_NUM)
     for i in range(0, TEST_NUM):
         start = time.time()
-        predictions = model(testElem)
+        predictions = model(testElem)[0]
         end = time.time()
         timeArray[i] = end - start
-    print(
-        f"Avg Local Time >>> {timeArray.mean()} // Remote Time Std dev {timeArray.std()}"
-    )
-    print(f"Predicted >>> {np.argmax(predictions)}")
+    return predictions
 
 
 def readTestElem():
@@ -74,5 +70,6 @@ def readTestElem():
 
 
 if __name__ == "__main__":
-    remoteTest()
-    # localTest()
+    remRes = remoteTest()
+    locRes = localTest()
+    print(np.array_equal(remRes, locRes))

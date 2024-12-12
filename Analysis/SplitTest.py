@@ -85,13 +85,26 @@ def main_3():
     # Evaluate model without box decoding and NMS
     model(images)
 
-    unnestedModel: keras.Model = Unnest.unnestModel(model)
-    unnestedModel.save("./models/UnpackedYolo.keras")
+    # unnestedModel: keras.Model = Unnest.unnestModel(model)
+    # unnestedModel.save("./models/UnpackedYolo.keras")
 
     unnestedModel = keras.saving.load_model("./models/UnpackedYolo.keras")
     subModels = Split.modelSplit(unnestedModel, maxLayerNum=50)
     for idx, mod in enumerate(subModels):
         mod.save(f"./models/YoloSubMod_{idx}.keras")
+
+    outputsDict: dict[str] = {}
+    outputsDict["input_0"] = images
+    for subMod in subModels:
+        currInput = {}
+        for inpName in subMod.input.keys():
+            currInput[inpName] = outputsDict[inpName]
+
+        currOutput = subMod(currInput)
+        for outName in currOutput:
+            outputsDict[outName] = currOutput[outName]
+
+    print(np.array_equal(currOutput["output_0"], unnestedModel(images)[0]))
 
     # ## The differences in the outputs of predict
     # ##is because predict in YoloPredictor decodifies automatically

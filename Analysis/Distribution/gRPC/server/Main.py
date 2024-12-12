@@ -25,6 +25,7 @@ def get_all_ip_addresses():
 
 def main():
     addresses = get_all_ip_addresses()
+    print(addresses)
 
     with grpc.insecure_channel("registry:5000") as registryChann:
         registry: registry_pb2_grpc.RegisterStub = registry_pb2_grpc.RegisterStub(

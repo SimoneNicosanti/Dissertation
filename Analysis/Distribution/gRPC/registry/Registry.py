@@ -17,6 +17,7 @@ class Registry(registry_pb2_grpc.RegisterServicer):
         self.partsNum = partsNum
 
     def getLayerPosition(self, request: LayerInfo, context):
+        print(f"Request For {request.layerName}")
         key = (request.modelName, request.layerName)
         layerPosition = self.layersPositions[key][
             0

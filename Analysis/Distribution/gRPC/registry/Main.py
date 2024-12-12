@@ -11,7 +11,7 @@ def main():
     # model: keras.Model = keras.applications.MobileNetV3Large()
     model: keras.Model = keras.saving.load_model("/models/UnpackedYolo.keras")
 
-    subModels: list[keras.Model] = Split.modelSplit(model, 100)
+    subModels: list[keras.Model] = Split.modelSplit(model, 1000)
     for i, mod in enumerate(subModels):
         mod.save(f"/models/SubModel_{i}.keras")
 
