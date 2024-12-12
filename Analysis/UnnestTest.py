@@ -2,7 +2,7 @@ import keras
 import keras_cv
 import numpy as np
 import tensorflow as tf
-import Unnest
+from Manipulation import Unnest
 
 
 def subModel_1():
@@ -87,11 +87,7 @@ def main_1():
     model(images)
 
     unnestedModel: keras.Model = Unnest.unnestModel(model)
-    unnestedModel.save("./models/UnpackedYolo.keras")
-
-    # subModels = modelParse(unnestedModel, 50)
-    # for idx, mod in enumerate(subModels):
-    #     mod.save(f"./models/SubMod_{idx}.keras")
+    unnestedModel.save("./models/UnnestedYolo.keras")
 
     ## The differences in the outputs of predict
     ##is because predict in YoloPredictor decodifies automatically

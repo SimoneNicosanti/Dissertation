@@ -1,5 +1,4 @@
 import keras
-import keras_cv
 import numpy as np
 import tensorflow as tf
 from Manipulation import Split, Unnest
@@ -59,59 +58,26 @@ def main_2():
 
 def main_3():
     images = tf.ones(shape=(1, 512, 512, 3))
-    # labels = {
-    #     "boxes": tf.constant(
-    #         [
-    #             [
-    #                 [0, 0, 100, 100],
-    #                 [100, 100, 200, 200],
-    #                 [300, 300, 100, 100],
-    #             ]
-    #         ],
-    #         dtype=tf.float32,
-    #     ),
-    #     "classes": tf.constant([[1, 1, 1]], dtype=tf.int64),
-    # }
 
-    model = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_l_backbone_coco")
+    model = keras.saving.load_model("./models/UnnestedYolo.keras")
+    wholeModelOutput = model(images)
 
-    model = keras_cv.models.YOLOV8Detector(
-        num_classes=20,
-        bounding_box_format="xywh",
-        backbone=model,
-        fpn_depth=2,
-    )
+    subModels: list[keras.Model] = Split.modelSplit(model, maxLayerNum=50)
+    producedOutputs: dict[str] = {}
+    producedOutputs["input_0"] = images
 
-    # Evaluate model without box decoding and NMS
-    model(images)
+    for idx, subMod in enumerate(subModels):
+        print(f"Running Part >>> {idx}")
+        subModInput: dict[str] = {}
+        for inputName in subMod.input:
+            subModInput[inputName] = producedOutputs[inputName]
 
-    # unnestedModel: keras.Model = Unnest.unnestModel(model)
-    # unnestedModel.save("./models/UnpackedYolo.keras")
+        subModOut: dict[str] = subMod(subModInput)
+        for outName in subModOut:
+            producedOutputs[outName] = subModOut[outName]
 
-    unnestedModel = keras.saving.load_model("./models/UnpackedYolo.keras")
-    subModels = Split.modelSplit(unnestedModel, maxLayerNum=50)
-    for idx, mod in enumerate(subModels):
-        mod.save(f"./models/YoloSubMod_{idx}.keras")
-
-    outputsDict: dict[str] = {}
-    outputsDict["input_0"] = images
-    for subMod in subModels:
-        currInput = {}
-        for inpName in subMod.input.keys():
-            currInput[inpName] = outputsDict[inpName]
-
-        currOutput = subMod(currInput)
-        for outName in currOutput:
-            outputsDict[outName] = currOutput[outName]
-
-    print(np.array_equal(currOutput["output_0"], unnestedModel(images)[0]))
-
-    # ## The differences in the outputs of predict
-    # ##is because predict in YoloPredictor decodifies automatically
-    # pred_1 = model(images)
-    # pred_2 = unnestedModel(images)
-
-    # print(np.array_equal(pred_1["boxes"], pred_2[0]))
+    areEqual = np.array_equal(producedOutputs["output_0"], wholeModelOutput[0])
+    print(f"Same Outputs >>> {areEqual}")
 
 
 if __name__ == "__main__":
