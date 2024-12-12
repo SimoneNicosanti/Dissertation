@@ -23,7 +23,8 @@
         "zxh404.vscode-proto3",
         "vincent-templier.vscode-netron",
         "eamodio.gitlens",
-        "trunk.io"
+        "trunk.io",
+        "GrapeCity.gc-excelviewer"
       ]
     }
   }
