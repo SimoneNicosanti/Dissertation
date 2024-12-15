@@ -363,3 +363,20 @@ if opName in model.output_names: ### List of output layers for the model
 	find the tensor that is output of the model
 	set it as model output
 ```
+
+
+Per risolvere il problema dei nomi degli InputLayer dei sotto modelli creati, è stato inserito questo blocco post creazione del modello. Questo ci permette di rimuovere i suffissi CLONE che vengono aggiunti in automatico da Keras.
+```python
+for op in subModel.operations:
+	opName: str = op.name
+	if opName.endswith("CLONE"):
+		opName = opName.removesuffix("CLONE")
+	elif opName.endswith("clone"):
+		opName = opName.removesuffix("clone")
+	op.name = opName
+```
+
+
+| Pre Blocco      | ![[Schermata del 2024-12-14 19-08-58.png]] |
+| --------------- | ------------------------------------------ |
+| **Post Blocco** | ![[Schermata del 2024-12-14 19-09-50.png]] |

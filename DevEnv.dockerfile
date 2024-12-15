@@ -1,8 +1,13 @@
 FROM python:3.10-slim
 
-## Python Dependencies
+## TensorFlow Dependencies
 RUN pip install ai-edge-litert
 RUN pip install tensorflow
+RUN pip install keras_cv
+## For compatibility we need numpy 1.x
+RUN pip install 'numpy<2'
+
+## Other Python requirements
 RUN pip install psutil
 RUN pip install pandas
 RUN pip install matplotlib
@@ -20,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ## GLP Cli
-RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
+RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz \
 RUN tar -xf google-cloud-cli-linux-x86_64.tar.gz
 RUN ./google-cloud-sdk/install.sh --usage-reporting false --path-update true
 ENV PATH="/google-cloud-sdk/bin:$PATH"

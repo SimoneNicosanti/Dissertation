@@ -59,20 +59,7 @@ def main():
 
 
 def main_1():
-    images = tf.ones(shape=(1, 512, 512, 3))
-    # labels = {
-    #     "boxes": tf.constant(
-    #         [
-    #             [
-    #                 [0, 0, 100, 100],
-    #                 [100, 100, 200, 200],
-    #                 [300, 300, 100, 100],
-    #             ]
-    #         ],
-    #         dtype=tf.float32,
-    #     ),
-    #     "classes": tf.constant([[1, 1, 1]], dtype=tf.int64),
-    # }
+    images = tf.ones(shape=(5, 512, 512, 3))
 
     model = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_l_backbone_coco")
 
@@ -94,7 +81,7 @@ def main_1():
     pred_1 = model(images)
     pred_2 = unnestedModel(images)
 
-    print(np.array_equal(pred_1["boxes"], pred_2[0]))
+    print(np.array_equal(pred_1["boxes"], pred_2["box"]))
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+import inspect
+
 import keras
 import numpy as np
 import tensorflow as tf
@@ -21,6 +23,14 @@ def subModel():
     x4 = keras.layers.Dense(units=32)(x3)
     mod_1 = keras.Model(inputs=inp, outputs=[x1, x2, x4])
     return mod_1
+
+
+def main_1():
+    model = keras.saving.load_model("./models/UnnestedYolo.keras")
+
+    subModels: list[keras.Model] = Split.modelSplit(model, maxLayerNum=50)
+    for idx, subMod in enumerate(subModels):
+        subMod.save(f"./models/SubYolo_{idx}.keras")
 
 
 def main_2():
@@ -49,7 +59,8 @@ def main_2():
 
     unnestedModel = keras.saving.load_model("./models/Unnested.keras")
 
-    subModels = Split.modelParse(unnestedModel, maxLayerNum=9)
+    subModels = Split.modelSplit(unnestedModel, maxLayerNum=10)
+    subMod: keras.Model
     for idx, subMod in enumerate(subModels):
         subMod.save(f"./models/SubMod_{idx}.keras")
 
@@ -63,11 +74,14 @@ def main_3():
     wholeModelOutput = model(images)
 
     subModels: list[keras.Model] = Split.modelSplit(model, maxLayerNum=50)
+    for idx, subMod in enumerate(subModels):
+        subMod.save(f"./models/SubYolo_{idx}.keras")
+
     producedOutputs: dict[str] = {}
     producedOutputs["input_0"] = images
 
     for idx, subMod in enumerate(subModels):
-        print(f"Running Part >>> {idx}")
+        print(f"Running Model Part >>> {idx}")
         subModInput: dict[str] = {}
         for inputName in subMod.input:
             subModInput[inputName] = producedOutputs[inputName]
@@ -76,9 +90,26 @@ def main_3():
         for outName in subModOut:
             producedOutputs[outName] = subModOut[outName]
 
-    areEqual = np.array_equal(producedOutputs["output_0"], wholeModelOutput[0])
+    areEqual = np.array_equal(producedOutputs["output_0"], wholeModelOutput["box"])
     print(f"Same Outputs >>> {areEqual}")
 
 
+def testSavedModel():
+    kerasModel = keras.saving.load_model("./models/UnnestedYolo.keras")
+    subModels: list[keras.Model] = Split.modelSplit(kerasModel, maxLayerNum=50)
+
+    for idx, subMod in enumerate(subModels):
+        subMod.save(f"./models/SubYolo_{idx}.keras")
+
+    for idx in range(0, 9):
+        loadedModel: keras.Model = keras.saving.load_model(
+            f"./models/SubYolo_{idx}.keras"
+        )
+        print("Inputs >>> ", loadedModel.input)
+
+    # print(loadedModel.signatures)
+
+
 if __name__ == "__main__":
-    main_3()
+    # main_3()
+    testSavedModel()

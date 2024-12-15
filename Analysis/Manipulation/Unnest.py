@@ -121,12 +121,20 @@ def reconstructModel(
         if opName not in producedOutputs:
             runOperation(opName, allOpsDict, prevOpsDict, producedOutputs, allSubModels)
 
-    newModelInput = []
-    for inp in [producedOutputs[inputName] for inputName in inputOpsList]:
-        newModelInput.extend(inp)
-    newModelOutput = []
-    for out in [producedOutputs[outputName] for outputName in outputOpsList]:
-        newModelOutput.extend(out)
+    newModelInput = {}
+    for inpIdx, inpLayerName in enumerate(inputOpsList):
+        newModelInput[f"input_{inpIdx}"] = producedOutputs[inpLayerName]
+
+    ## TODO Check if this handling of multiple outputs of layer is enough
+    newModelOutput = {}
+    for _, outLayerName in enumerate(outputOpsList):
+        outLayerResult: list = producedOutputs[outLayerName]
+        if len(outLayerResult) == 1:
+            newModelOutput[outLayerName] = outLayerResult[0]
+        else:
+            for idx, out in enumerate(outLayerResult):
+                newModelOutput[f"{outLayerName}_{idx}"] = out
+
     newModel = keras.Model(inputs=newModelInput, outputs=newModelOutput)
 
     return newModel
@@ -143,7 +151,7 @@ def unnestModel(model: keras.Model) -> keras.Model:
         allOpsDict, prevOpsDict, inputOpsList, outputOpsList, allSubModels
     )
 
-    for op in newModel.operations:
-        op.name = f"unnested_{op.name}"
+    # for op in newModel.operations:
+    #     op.name = f"unnested_{op.name}"
 
     return newModel

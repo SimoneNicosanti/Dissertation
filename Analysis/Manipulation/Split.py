@@ -22,6 +22,23 @@ def buildSubModel(
         inputs=subModelInput, outputs=subModelOutput, name=f"SubMod_{subModIdx}"
     )
 
+    print("Inputs >>> ", subModel.input)
+    # print("Input_2 >>> ", subModel.inputs)
+
+    for op in subModel.operations:
+        opName: str = op.name
+        opName = opName.removesuffix("CLONE").removesuffix("clone")
+        op.name = opName
+
+    # for inp in Utils.convertToList(subModel.input):
+    #     inp.name = inp.name.removesuffix("CLONE").removesuffix("clone")
+
+    inpLayers = Utils.findInputLayers(subModel)
+    print("Input Layers >>> ", inpLayers)
+    print("Inputs >>> ", subModel.input)
+    print("Input_2 >>> ", subModel.inputs)
+    print()
+
     return subModel
 
 
@@ -82,10 +99,14 @@ def buildSubModelInput(
                     neededInputs: list[keras.KerasTensor] = (
                         findPrevOperationNeededOutput(currOp, prevOp)
                     )
-
-                    for inpTensor in neededInputs:
-                        # newInput._keras_history = tensor._keras_history
-                        subModelInput[inpTensor.name] = inpTensor
+                    subModelInput[prevOpName] = neededInputs
+                    # for idx, inpTensor in enumerate(neededInputs):
+                    #     # newInput._keras_history = tensor._keras_history
+                    #     subModelInput[f"{prevOpName}_{idx}"] = keras.layers.Input(
+                    #         shape=inpTensor.shape[1:],
+                    #         tensor=inpTensor,
+                    #         name=f"{prevOpName}_{idx}",
+                    #     )
     return subModelInput
 
 

@@ -1,0 +1,8 @@
+{
+  "pinned": [
+    "editor:insert-callout",
+    "editor:insert-codeblock",
+    "editor:toggle-code",
+    "editor:insert-table"
+  ]
+}
