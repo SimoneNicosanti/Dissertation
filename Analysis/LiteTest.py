@@ -64,8 +64,8 @@ def testYolo():
     images = tf.random.uniform(shape=(1, 512, 512, 3))
     result_1, result_2 = general_comparison(kerasModel, liteModel, images)
 
-    compareResults(result_1["box"], result_2["box"], "Box")
-    compareResults(result_1["class"], result_2["class"], "Class")
+    compareResults(result_1["box_0"], result_2["box_0"], "Box")
+    compareResults(result_1["class_0"], result_2["class_0"], "Class")
 
 
 def compareResults(res_1, res_2, outName):
@@ -115,10 +115,9 @@ def testMixed():
     producedOutputs = {}
     images = tf.random.uniform(shape=(1, 512, 512, 3))
 
-    producedOutputs["input_0"] = images
-    producedOutputs["input_layer_1"] = images
+    producedOutputs["input_layer_1_0"] = images
+    producedOutputs["input_layer_1_0_0"] = images
     for idx in range(0, 9):
-        keras.backend.clear_session()
         print(f"Running Model {idx}")
         subMod: keras.Model = keras.saving.load_model(
             f"./models/SubYolo_{idx}.keras", compile=False
@@ -151,6 +150,13 @@ def testMixed():
         for outName in subOut:
             producedOutputs[outName] = subOut[outName]
 
+    wholeModel = keras.saving.load_model("./models/UnnestedYolo.keras")
+    wholeModelOutput = wholeModel(images)
+
+    print()
+    compareResults(wholeModelOutput["box_0"], producedOutputs["box_0"], "Box")
+    compareResults(wholeModelOutput["class_0"], producedOutputs["class_0"], "Class")
+
 
 def readTestElem():
     testElem = None
@@ -161,7 +167,8 @@ def readTestElem():
 
 
 if __name__ == "__main__":
-    testYolo()
+    # testYolo()
     # testMobileNet()
     # testSubYolo()
+    testMixed()
     # testMixed_1()

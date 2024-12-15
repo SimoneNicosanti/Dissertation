@@ -1,5 +1,76 @@
 import keras
-from Manipulation import Utils
+from Manipulation import Reconstruct, Utils
+
+
+def findPrevOperationNeededOutput(
+    currOp: keras.Operation, prevOp: keras.Operation
+) -> list[int]:
+    currOpInputList = Utils.convertToList(currOp.input)
+
+    neededTensorIdxs = []
+
+    for currOpInput in currOpInputList:
+        inputHist = currOpInput._keras_history
+        inputOriginOpName, tensorIndex = (
+            inputHist.operation.name,
+            inputHist.tensor_index,
+        )
+
+        if inputOriginOpName == prevOp.name:
+            neededTensorIdxs.append(tensorIndex)
+
+    return neededTensorIdxs
+
+
+def findInputOpsList(
+    subOpsNames: list[str],
+    allOpsDict: dict[str, keras.KerasTensor],
+    prevOpsDict: dict[str, set[str]],
+) -> dict[str, set[int]]:
+
+    inputOpsDict: dict[str, list[int]] = {}
+    for opName in subOpsNames:
+        prevOpsNameList: list[str] = prevOpsDict[opName]
+        if len(prevOpsNameList) == 0:
+            ## Input Layer
+            inputOpsDict.setdefault(opName, [])
+            inputOpsDict[opName].extend([0])
+        else:
+            for prevOpName in prevOpsNameList:
+                if prevOpName not in subOpsNames:
+                    inputOpsDict.setdefault(prevOpName, [])
+                    tensorIdxs = findPrevOperationNeededOutput(
+                        allOpsDict[opName], allOpsDict[prevOpName]
+                    )
+                    inputOpsDict[prevOpName].extend(tensorIdxs)
+
+    return {opName: set(inputOpsDict[opName]) for opName in inputOpsDict.keys()}
+
+
+def findOutputOpsList(
+    subOpsNames: list[str],
+    allOpsDict: dict[str, keras.Operation],
+    nextOpsDict: dict[str, set[str]],
+    modelOutputNames: list[str],
+) -> dict[str, set[int]]:
+    outputOpsDict: dict[str, list[int]] = {}
+    for opName in subOpsNames:
+        nextOpsNamesList: list[str] = nextOpsDict[opName]
+
+        if opName in modelOutputNames or len(nextOpsNamesList) == 0:
+            ## This is an output layer of the model
+            outputList = Utils.convertToList(allOpsDict[opName].output)
+            outputOpsDict.setdefault(opName, [])
+            outputOpsDict[opName].extend([x for x in range(0, len(outputList))])
+        else:
+            for nextOpName in nextOpsNamesList:
+                if nextOpName not in subOpsNames:
+                    outputOpsDict.setdefault(opName, [])
+                    tensorIdxs = findPrevOperationNeededOutput(
+                        allOpsDict[nextOpName], allOpsDict[opName]
+                    )
+                    outputOpsDict[opName].extend(tensorIdxs)
+    return {opName: set(outputOpsDict[opName]) for opName in outputOpsDict.keys()}
 
 
 def buildSubModel(
@@ -11,33 +82,23 @@ def buildSubModel(
     outputLayerNames: list[str],
     subModIdx: int,
 ) -> keras.Model:
-    subModelInput = buildSubModelInput(
-        subOpsNames, inputLayarNames, allOpsDict, prevOpsDict
-    )
-    subModelOutput = buildSubModelOutput(
-        subOpsNames, outputLayerNames, allOpsDict, nextOpsDict
-    )
 
-    subModel = keras.Model(
-        inputs=subModelInput, outputs=subModelOutput, name=f"SubMod_{subModIdx}"
+    print(f"Processing {subModIdx}")
+    inputOpsDict: dict[str, set[int]] = findInputOpsList(
+        subOpsNames, allOpsDict, prevOpsDict
+    )
+    outputOpsDict: dict[str, set[int]] = findOutputOpsList(
+        subOpsNames, allOpsDict, nextOpsDict, outputLayerNames
     )
 
-    print("Inputs >>> ", subModel.input)
-    # print("Input_2 >>> ", subModel.inputs)
-
-    for op in subModel.operations:
-        opName: str = op.name
-        opName = opName.removesuffix("CLONE").removesuffix("clone")
-        op.name = opName
-
-    # for inp in Utils.convertToList(subModel.input):
-    #     inp.name = inp.name.removesuffix("CLONE").removesuffix("clone")
-
-    inpLayers = Utils.findInputLayers(subModel)
-    print("Input Layers >>> ", inpLayers)
-    print("Inputs >>> ", subModel.input)
-    print("Input_2 >>> ", subModel.inputs)
-    print()
+    subModel = Reconstruct.reconstructModel(
+        subOpsNames,
+        allOpsDict,
+        prevOpsDict,
+        inputOpsDict,
+        outputOpsDict,
+        [],  ## Assuming Unnested Model
+    )
 
     return subModel
 
@@ -70,93 +131,3 @@ def modelSplit(model: keras.Model, maxLayerNum: int) -> list[keras.Model]:
         modIdx += 1
 
     return subModels
-
-
-def buildSubModelInput(
-    subOpsNames: list[str],
-    inputLayersNames: list[str],
-    allOpsDict: dict[str, keras.Operation],
-    prevOpsDict: dict[str, set[str]],
-) -> dict[str, keras.KerasTensor]:
-    subModelInput = {}
-
-    for opName in subOpsNames:
-        currOp: keras.Operation = allOpsDict[opName]
-
-        if opName in inputLayersNames:
-            ## Is an input layer
-            inputIdx: int = inputLayersNames.index(opName)
-            subModelInput[f"input_{inputIdx}"] = currOp.output
-
-        else:
-            prevOpsNames: set[str] = prevOpsDict[opName]
-            ## Other Operation
-            ## Needs Output from other layer
-            for prevOpName in prevOpsNames:
-                prevOp: keras.Operation = allOpsDict[prevOpName]
-                if prevOpName not in subOpsNames:
-                    ## Needs Input from other sub model
-                    neededInputs: list[keras.KerasTensor] = (
-                        findPrevOperationNeededOutput(currOp, prevOp)
-                    )
-                    subModelInput[prevOpName] = neededInputs
-                    # for idx, inpTensor in enumerate(neededInputs):
-                    #     # newInput._keras_history = tensor._keras_history
-                    #     subModelInput[f"{prevOpName}_{idx}"] = keras.layers.Input(
-                    #         shape=inpTensor.shape[1:],
-                    #         tensor=inpTensor,
-                    #         name=f"{prevOpName}_{idx}",
-                    #     )
-    return subModelInput
-
-
-def findPrevOperationNeededOutput(
-    currOp: keras.Operation, prevOp: keras.Operation
-) -> list[keras.KerasTensor]:
-    prevOpOutputList = Utils.convertToList(prevOp.output)
-    currOpInputList = Utils.convertToList(currOp.input)
-
-    prevNeededOutputs = []
-
-    for currOpInput in currOpInputList:
-        inputHist = currOpInput._keras_history
-        inputOriginOpName, tensorIndex = (
-            inputHist.operation.name,
-            inputHist.tensor_index,
-        )
-
-        if inputOriginOpName == prevOp.name:
-            tensor: keras.KerasTensor = prevOpOutputList[tensorIndex]
-            prevNeededOutputs.append(tensor)
-
-    return prevNeededOutputs
-
-
-def buildSubModelOutput(
-    subOpsNames: list[str],
-    outputLayersNames: list[str],
-    allOpsDict: dict[str, keras.Operation],
-    nextOpsDict: dict[str, set[str]],
-) -> dict[str, keras.KerasTensor]:
-    subModelOutput = {}
-
-    for opName in subOpsNames:
-        currOp: keras.Operation = allOpsDict[opName]
-
-        if opName in outputLayersNames:
-            ## Is Model Output Layer --> Set its output as output model
-            ## TODO This may give problems if the operation has more than one output ??
-            outIdx = outputLayersNames.index(opName)
-            subModelOutput[f"output_{outIdx}"] = currOp.output
-
-        nextOpsNames: set[str] = nextOpsDict[opName]
-        for nextOpName in nextOpsNames:
-            nextOp: keras.Operation = allOpsDict[nextOpName]
-            if nextOpName not in subOpsNames:
-                producedOutputs: list[tuple[keras.KerasTensor, int]] = (
-                    findPrevOperationNeededOutput(nextOp, currOp)
-                )
-                for outTensor in producedOutputs:
-                    subModelOutput[outTensor.name] = outTensor
-
-    return subModelOutput

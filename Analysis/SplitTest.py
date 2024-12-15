@@ -1,5 +1,3 @@
-import inspect
-
 import keras
 import numpy as np
 import tensorflow as tf
@@ -78,10 +76,11 @@ def main_3():
         subMod.save(f"./models/SubYolo_{idx}.keras")
 
     producedOutputs: dict[str] = {}
-    producedOutputs["input_0"] = images
+    producedOutputs["input_layer_1_0_0"] = images
 
     for idx, subMod in enumerate(subModels):
         print(f"Running Model Part >>> {idx}")
+        # print(subMod.input)
         subModInput: dict[str] = {}
         for inputName in subMod.input:
             subModInput[inputName] = producedOutputs[inputName]
@@ -90,7 +89,7 @@ def main_3():
         for outName in subModOut:
             producedOutputs[outName] = subModOut[outName]
 
-    areEqual = np.array_equal(producedOutputs["output_0"], wholeModelOutput["box"])
+    areEqual = np.array_equal(producedOutputs["box_0"], wholeModelOutput["box_0"])
     print(f"Same Outputs >>> {areEqual}")
 
 
@@ -102,14 +101,18 @@ def testSavedModel():
         subMod.save(f"./models/SubYolo_{idx}.keras")
 
     for idx in range(0, 9):
-        loadedModel: keras.Model = keras.saving.load_model(
-            f"./models/SubYolo_{idx}.keras"
-        )
-        print("Inputs >>> ", loadedModel.input)
+        print("Loaded ", idx)
+        keras.saving.load_model(f"./models/SubYolo_{idx}.keras")
+
+    # for idx in range(0, 9):
+    #     loadedModel: keras.Model = keras.saving.load_model(
+    #         f"./models/SubYolo_{idx}.keras"
+    #     )
+    #     print("Inputs >>> ", loadedModel.input)
 
     # print(loadedModel.signatures)
 
 
 if __name__ == "__main__":
-    # main_3()
-    testSavedModel()
+    main_3()
+    # testSavedModel()

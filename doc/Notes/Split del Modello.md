@@ -380,3 +380,85 @@ for op in subModel.operations:
 | Pre Blocco      | ![[Schermata del 2024-12-14 19-08-58.png]] |
 | --------------- | ------------------------------------------ |
 | **Post Blocco** | ![[Schermata del 2024-12-14 19-09-50.png]] |
+
+## Bug Implementazione
+Purtroppo c'è un problema.
+
+Se c'è un'operazione che :
+- riceve come input da più output di una stessa operazione precedente 
+- e questa operazione sta fuori dal modello corrente
+Viene costruito un modello keras scorretto: in particolare una volta salvato il modello, keras sembra non essere in grado di ricaricarlo e si blocca proprio su quel punto.
+
+| Keras bloccato sul caricamento di SubYolo_2 con maxLayerNum=50 |
+| -------------------------------------------------------------- |
+| ![[Schermata del 2024-12-15 19-27-47.png]]                     |
+
+L'esempio in questo caso è quello che segue:
+
+| Concatenate che riceve due input dall'operazione Split |
+| ------------------------------------------------------ |
+| ![[Schermata del 2024-12-15 19-26-02.png]]             |
+
+In questo caso il modello viene ricostruito nel modo seguente
+
+| Ricostruzione buggata                      |
+| ------------------------------------------ |
+| ![[Schermata del 2024-12-15 19-25-07.png]] |
+In questo caso otteniamo un InputLayer che dovrebbe dare due valori invece di due input layer diversi che danno in output ognuno il suo.
+
+Per risolvere questa cosa possiamo sfruttare la ricostruzione del modello come già fatta nel caso dell'unnest, ma con delle piccole varianti che altro non fanno che adattare a questo caso.
+
+
+> [!Note] Costo Computazionale
+> Il costo computazionale di ricostruzione non dovrebbe essere troppo alto: quello che si sta facendo è una visita del grafo ad alto livello fatta per ricostruire le History dei tensori.
+> Sicuro keras sotto il cofano fa anche altro, ma non dovrebbe essere nulla di troppo costoso.
+
+
+### Bug Fix
+Per risolvere il bug si parte dalle funzioni di reconstruct costruite per lo l'unnest del modello. In realtà funziona tutto anche abbastanza correttamente, ma bisogna aggiungere alcuni accorgimenti:
+- Passare alla funzione i nomi delle sotto operazioni (nel caso dell'unnest sono i nomi di tutte le operazioni)
+	- Questo perché comunque si tratta di un sotto insieme di operazioni del modello
+	- Non posso passare un sotto dizionario di *allOpsDict* perché mi servono le operazioni da cui viene preso l'input
+- Per ricostruire l'input si consideri il codice che segue; questo viene usato per inizializzare *producedOutputs* da cui poi parte la ricostruzione del modello nel suo complesso
+	- In particolare l'input viene impostato come quello di un input layer ex novo; i motivi sono
+		- Non si può semplicemente creare un tensore perché altrimenti c'è un errore dovuto al fatto che quel tensore non ha una history
+		- Se metto come produced semplicemente l'output dell'operazione precedente sto punto e a capo: la history rimane sempre quella precedente che crea questa discrepanza nella ricostruzione dell'input all'atto del salvataggio
+
+```python
+for inpLayerName in inputOpsList:
+	outputList = Utils.convertToList(allOpsDict[inpLayerName].output)
+	producedOutputs[inpLayerName] = [
+		keras.layers.InputLayer(
+			shape=out.shape[1:], 
+			dtype=out.dtype, 
+			name=f"{inpLayerName}_{idx}"
+		).output
+		for idx, out in enumerate(outputList)
+	]
+```
+
+In figura si vede come adesso l'operazione in questione riceve effettivamente input da tutti i precedenti in modo corretto. Inoltre quando si prova a caricare il modello con `keras.saving.load_model` il caricamento non va in blocco.
+
+| Bug Risolto: Concatenate con 8 input e dal livello di split |
+| ----------------------------------------------------------- |
+| ![[Schermata del 2024-12-15 20-07-18.png]]                  |
+Anche il test fatto sull'esecuzione sembra tornare:
+
+| Stesso risultato: Modello Intero VS Modello Diviso |
+| -------------------------------------------------- |
+| ![[Schermata del 2024-12-15 20-29-01.png]]         |
+
+Per ridurre il numero di dati che vengono trasferiti si è aggiunta un'accortezza:
+```python
+newModelInput = {}
+for inpLayerName in inputOpsDict.keys():
+	tensorIdxs = inputOpsDict[inpLayerName]
+	for idx in tensorIdxs:
+		newModelInput[f"{inpLayerName}_{idx}"] = producedOutputs[inpLayerName][idx]
+```
+Per ogni input layer del modello, si precalcolano e si mettono in inputOpsDict i tensor index che servono come input: questi indici rappresentano gli indici dell'array degli output dell'operazione precedente che sono necessari come input. In questo modo si riduce il numero di output, altrimenti prima si prendevano tutti gli output dell'operazione precedente. La cosa speculare si fanno per gli output.
+L'unica cosa "antipatica" di questo è che se il processo viene fatto due volte sullo stesso modello (ad esempio una volta per l'unnest e una per la divisione), si potrebbe avere una sovrapposizione degli *idx*; in figura successiva questo aspetto:
+
+| Sovrapposizione di Indici                  |
+| ------------------------------------------ |
+| ![[Schermata del 2024-12-15 22-48-17.png]] |

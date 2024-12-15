@@ -74,6 +74,7 @@ def main_1():
     model(images)
 
     unnestedModel: keras.Model = Unnest.unnestModel(model)
+    print(unnestedModel.output)
     unnestedModel.save("./models/UnnestedYolo.keras")
 
     ## The differences in the outputs of predict
@@ -81,7 +82,7 @@ def main_1():
     pred_1 = model(images)
     pred_2 = unnestedModel(images)
 
-    print(np.array_equal(pred_1["boxes"], pred_2["box"]))
+    print("Same Outputs >>> ", np.array_equal(pred_1["boxes"], pred_2["box_0"]))
 
 
 if __name__ == "__main__":
