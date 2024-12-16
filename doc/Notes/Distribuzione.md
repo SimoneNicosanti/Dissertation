@@ -106,5 +106,47 @@ tensorflow_model_serving --port={x gRPC} --rest_api_port={} --model_name={} --mo
 ```
 
 
-
 ## Con YoloV8
+Il blocco che c'era prima con YoloV8 era principalmente dovuto al problema del caricamento come spiegato in [[Split del Modello]]; risolto questo sembra caricarsi tutto come deve e tutti i server sembrano reagire in modo corretto all'inizializzazione.
+
+Per distinguere quale è l'output del modello complessivo è stato aggiunto un valore alla risposta data dal registry in fase di inizializzazione: oltre a dire l'indice del sotto modello, comunica anche i nomi degli output del modello complessivo.
+
+> [!TODO] TODO - Gestione Output
+> La gestione dell'output deve essere assolutamente rifatta e rivalutata: non posso solo vedere il nome e fare la richiesta ricorsiva. Potrebbero esserci dei sotto modelli che non sono l'ultimo e che hanno output: in questo caso la richiesta ricorsiva fallisce.
+
+Tempi di esecuzione su 100 Run:
+
+| Dati su 100 Run | Niente  | gRPC con Keras |
+| --------------- | ------- | -------------- |
+| Mean            | 1.38612 | 1.87552        |
+| Std Dev         | 0.25337 | 0.05377        |
+| x / Locale      | 1.0     | 1.35307        |
+
+## LiteRT
+Implementata versione alternativa usando l'inferenza con LiteRT piuttosto che con Keras.
+Da tenere in considerazione qui c'è il fatto che per mantenere la coerenza con l'altra implementazione e soprattutto con il proto bisogna fare diverse conversioni da e verso tensorflow (stiamo inviando usando i TensorProto).
+
+> [!Warning] 
+> Comunque i TensorProto sono comodi perché permettono di inviare shape e dtype tutto insieme. Il problema è che serve tensorflow per usarlo e TF è pesante in termini di memoria e utilizzo. 
+> Potrebbe convenire usare un altro formato, come ad esempio inviare:
+> - bytes dell'array
+> - shape dell'array
+> - dtype dell'array
+> E ricostruire il tutto usando:
+> - `array.tobytes()` per serializzare
+> - `np.frombuffer()` per deserializzare in un array unidimensionale
+> - `array.reshape()` per reinterpretarlo come tensore numpy 
+
+
+| Dati su 100 Run | Niente  | gRPC con LiteRT |
+| --------------- | ------- | --------------- |
+| Mean            | 1.33849 | 2.07183         |
+| Std Dev         | 0.25908 | 0.14428         |
+| x / Locale      | 1.0     | 1.54788         |
+
+Usare `allocate_tensor()` porta al sollevamento del seguente errore:
+![[Schermata del 2024-12-16 17-34-40.png|Errore con Allocate Tensor]]
+Probabilmente il motivo è che oltre ad essere allocati i tensori vanno anche impostati (per lo meno credo).
+
+Per quanto riguarda l'errore compiuto da LiteRT siamo sempre bassi.
+![[Schermata del 2024-12-16 18-10-09.png|Errore Esecuzione LiteRT]]

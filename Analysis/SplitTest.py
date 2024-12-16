@@ -75,10 +75,14 @@ def main_3():
     for idx, subMod in enumerate(subModels):
         subMod.save(f"./models/SubYolo_{idx}.keras")
 
+    loadedModels = []
+    for idx in range(0, 9):
+        loadedModels.append(keras.saving.load_model(f"./models/SubYolo_{idx}.keras"))
+
     producedOutputs: dict[str] = {}
     producedOutputs["input_layer_1_0_0"] = images
 
-    for idx, subMod in enumerate(subModels):
+    for idx, subMod in enumerate(loadedModels):
         print(f"Running Model Part >>> {idx}")
         # print(subMod.input)
         subModInput: dict[str] = {}

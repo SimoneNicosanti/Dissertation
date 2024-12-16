@@ -31,9 +31,7 @@ swish(x)=x * \sigma(x)
 $$
 
 e risulta pertanto abbastanza costosa dal punto di vista computazionale (https://towardsdatascience.com/everything-you-need-to-know-about-mobilenetv3-and-its-comparison-with-previous-versions-a5d5e5a6eeaa). La _hard_sigmoid_ permette di approssimarla (grafico) con un costo computazionale minore, che in questo tipo di modello è importante.
+![[h-swish.png|Funzione H-Sigmoid e sua Approssimazione]]
 
-| Funzione H-Sigmoid e sua Approssimazione |
-| ---------------------------------------- |
-| ![[h-swish.png]]                         |
 
 Il motivo per cui non si fa imparare alla rete direttamente i pesi che permettono di ottenere quel risultato è dovuto al fatto che in questo caso stiamo approssimando la funzione di attivazione (per quanto l'obiezione rimane valida in parte).

@@ -137,6 +137,9 @@ Per ogni operazione si fa il wrap di questa operazione in una tf.function e si f
 
 Questo approccio ha un problema: ci sono alcuni tipi che non sono accettati come input di una tf.function (come slice per fare i tagli dei tensori), quindi viene sollevato errore: considerando che queste operazioni sono rare (solo 2 in YOLOv8) e che tendenzialmente hanno un numero di Float Operations nullo, si considerano i loro FLOPS nulli per default.
 
+![[Schermata del 2024-12-16 15-37-45.png|Errore Sollevato Con La Slice]]
+
+
 > [!Tip] Altro Approccio
 > Un alternativa potrebbe essere, per avere una stima forse più accurata:
 > - prendere i flops per operazione e le operazioni su cui non si possono calcolare

@@ -1,0 +1,4 @@
+/* Reduce the space above tables */
+.markdown-preview-view table {
+  margin-top: 0px; /* Adjust this value as needed */
+}

@@ -1,5 +1,3 @@
-from typing import Callable
-
 import grpc
 import keras
 import numpy as np
@@ -31,13 +29,11 @@ class RequestPool:
         self.requestMap.pop(key)
 
 
-class Service(server_pb2_grpc.ServerServicer):
-    def __init__(
-        self,
-        model: keras.Model,
-    ) -> None:
+class ServiceKeras(server_pb2_grpc.ServerServicer):
+    def __init__(self, model: keras.Model, outputNames: list[str]) -> None:
         super().__init__()
         self.model: keras.Model = model
+        self.outputNames: list[str] = outputNames
         self.requestPool = RequestPool()
 
         channel = grpc.insecure_channel("registry:5000")
@@ -46,10 +42,9 @@ class Service(server_pb2_grpc.ServerServicer):
         )
 
     def sendToNextLayer(self, modelOutput: dict, requestId: int) -> ModelOutput:
-        print(self.model.output)
-        for nextLayerName in self.model.output:
-            ## TODO MANAGE MODEL OUTPUT CASE !!!
-            if nextLayerName.startswith("output"):
+
+        for outName in modelOutput.keys():
+            if outName in self.outputNames:
                 return ModelOutput(
                     hasValue=True,
                     result={
@@ -57,38 +52,39 @@ class Service(server_pb2_grpc.ServerServicer):
                         for key in modelOutput
                     },
                 )
+            else:
 
-            subResult = modelOutput[nextLayerName]
-            nextInput = ModelInput(
-                requestId=requestId,
-                modelName="",
-                layerName=nextLayerName,
-                tensor=tf.make_tensor_proto(subResult),
-            )
+                subResult = modelOutput[outName]
+                nextInput = ModelInput(
+                    requestId=requestId,
+                    modelName="",
+                    layerName=outName,
+                    tensor=tf.make_tensor_proto(subResult),
+                )
 
-            nextLayerHost: ServerInfo = self.registry.getLayerPosition(
-                LayerInfo(modelName="", layerName=nextLayerName)
-            )
-            nextHostChann = grpc.insecure_channel(
-                f"{nextLayerHost.hostName}:{nextLayerHost.portNum}"
-            )
-            serverStub: server_pb2_grpc.ServerStub = server_pb2_grpc.ServerStub(
-                nextHostChann
-            )
-            returnedValue: ModelOutput = serverStub.serveModel(nextInput)
+                nextLayerHost: ServerInfo = self.registry.getLayerPosition(
+                    LayerInfo(modelName="", layerName=outName)
+                )
+                nextHostChann = grpc.insecure_channel(
+                    f"{nextLayerHost.hostName}:{nextLayerHost.portNum}"
+                )
+                serverStub: server_pb2_grpc.ServerStub = server_pb2_grpc.ServerStub(
+                    nextHostChann
+                )
+                returnedValue: ModelOutput = serverStub.serveModel(nextInput)
 
         return returnedValue
 
     def _serveModel(self, request: ModelInput) -> ModelOutput:
         inputLayer: str = request.layerName
         requestId: int = request.requestId
-        convertedInput: tf.Tensor = tf.make_ndarray(request.tensor)
+        convertedInput: np.ndarray = tf.make_ndarray(request.tensor)
 
         self.requestPool.addRequest(inputLayer, requestId, convertedInput)
         collectedInputs = self.requestPool.getRequestInfo(requestId)
 
         if len(self.model.input) == len(collectedInputs):
-            ## We have collected all the inputs for the layer --> Process and send to next
+            ## We have collected all the inputs for the sub model --> We can process the sub model
             modelOutput = self.model(collectedInputs)
             self.requestPool.removeRequestInfo(requestId)
 

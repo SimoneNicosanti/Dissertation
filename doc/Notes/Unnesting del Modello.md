@@ -163,10 +163,9 @@ Per ogni argomento nell'args che ho ricostruito:
 
 ## Risultato
 ### Modello Giocattolo
+![[Schermata del 2024-12-07 23-20-38.png|Modello Unnested]]
 
-| Modello Unnested                                |
-| ----------------------------------------------- |
-| ![[Schermata del 2024-12-07 23-20-38.png\|350]] |
+
 Come si vede dalla foto i livelli identità sostituiscono gli input_layer e i sub model layers che erano invece nei modelli precedenti.
 L'identity_layer che corrisponde a functional_1 ad esempio riceve proprio l'input dagli stessi livelli che prima erano output del sotto modello.
 

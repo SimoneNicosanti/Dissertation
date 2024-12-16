@@ -5,7 +5,7 @@ from Flops import ComputeFlops
 
 
 def main():
-    model: keras.Model = keras.saving.load_model("./models/UnpackedYolo.keras")
+    model: keras.Model = keras.saving.load_model("./models/UnnestedYolo.keras")
 
     # ComputeFlops.computeRunningTimes(model, (1, 64, 64, 3), 10)
     # ComputeFlops.computeFloatOperationsPerOperation(model, (1, 64, 64, 3))
@@ -38,4 +38,4 @@ def main_1():
 
 
 if __name__ == "__main__":
-    main_1()
+    main()

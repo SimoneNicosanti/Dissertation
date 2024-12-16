@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "3063a09a2cb891f1",
+        "id": "b0864b2e6ec42acd",
         "type": "tabs",
         "children": [
           {
-            "id": "1ef081dbbf3afd08",
+            "id": "18ea285eacfd2fe0",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -155,35 +155,37 @@
       "canvas:Crea nuova lavagna": false,
       "daily-notes:Apri nota del giorno": false,
       "templates:Inserisci modello": false,
-      "command-palette:Apri riquadro comandi": false
+      "command-palette:Apri riquadro comandi": false,
+      "callout-manager:Insert Callout": false
     }
   },
-  "active": "1ef081dbbf3afd08",
+  "active": "18ea285eacfd2fe0",
   "lastOpenFiles": [
-    "Schermata del 2024-12-15 22-48-17.png",
-    "Schermata del 2024-12-15 20-29-01.png",
-    "Notes/Images/Schermata del 2024-12-15 19-25-07.png",
-    "Notes/Split del Modello.md",
-    "Notes/Images/Schermata del 2024-12-15 20-07-18.png",
-    "Notes/Images/Schermata del 2024-12-15 19-26-02.png",
-    "Notes/Images/Schermata del 2024-12-15 19-27-47.png",
-    "Notes/MobileNetV3Large.md",
     "Notes/LiteRT.md",
-    "Notes/Architettura/Diagram_1.svg",
-    "Notes/Unnesting del Modello.md",
-    "Notes/Yolo.md",
-    "Notes/Images/Schermata del 2024-12-14 18-24-21.png",
-    "Notes/Images/Schermata del 2024-12-14 19-14-19.png",
-    "Notes/Images/Schermata del 2024-12-14 19-08-58.png",
-    "Notes/Images/Schermata del 2024-12-14 19-09-50.png",
+    "Notes/Distribuzione.md",
     "Notes/Calcolo FLOPS.md",
+    "Notes/Images/Pasted image 20241216182115.png",
+    "Notes/Images/Schermata del 2024-12-16 18-10-09.png",
+    "Notes/Images/Schermata del 2024-12-16 17-34-40.png",
+    "Notes/Colloqui/2024-11-19.md",
+    "Notes/Yolo.md",
+    "Notes/Images/Pasted image 20241216154328.png",
+    "Notes/Images/Schermata del 2024-12-16 15-37-45.png",
+    "Schermata.md",
+    "Notes/Images/Pasted image 20241216154350.png",
+    "Notes/Unnesting del Modello.md",
+    "Notes/Split del Modello.md",
+    "Notes/MobileNetV3Large.md",
+    "Notes/Images/Schermata del 2024-12-16 11-46-00.png",
+    "Notes/Images/Schermata del 2024-12-16 08-23-35.png",
+    "Notes/Images/Schermata del 2024-12-16 11-52-02.png",
+    "Notes/Images/Schermata del 2024-12-15 20-29-01.png",
     "Notes/Architettura/Architettura.md",
     "Paper/Jellyfish/Jellyfish - Notes.md",
     "Paper/Jellyfish/Jellyfish.pdf",
     "Paper/Gillis/Gillis - Notes.md",
     "Paper/Furcifer/Furcifer - Notes.md",
     "Paper/Furcifer/Furcifer_PerCom24.pdf",
-    "Paper/CoEdge/CoEdge.pdf",
-    "Notes/Distribuzione.md"
+    "Paper/CoEdge/CoEdge.pdf"
   ]
 }

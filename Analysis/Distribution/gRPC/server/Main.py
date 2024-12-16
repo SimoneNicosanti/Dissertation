@@ -4,9 +4,11 @@ from concurrent import futures
 import grpc
 import keras
 import psutil
+from ai_edge_litert.interpreter import Interpreter, SignatureRunner
 from proto import registry_pb2_grpc, server_pb2_grpc
 from proto.registry_pb2 import LayerPosition, RegisterResponse, ServerInfo
-from Service import Service
+from ServiceKeras import ServiceKeras
+from ServiceLite import ServiceLite
 
 
 ## Ricerca del prossimo livello della rete
@@ -38,23 +40,44 @@ def main():
         resp: RegisterResponse = registry.registerServer(serverInfo)
 
         print("Index ", resp.subModelIdx)
-        subModel: keras.Model = keras.saving.load_model(
-            f"/models/SubModel_{resp.subModelIdx}.keras"
-        )
-        layers = [inputLayer for inputLayer in subModel.input]
-        print("Input Layers >>> ", layers)
-        layersPosition = LayerPosition(
-            modelName="", layers=layers, serverInfo=serverInfo
-        )
-        registry.registerLayer(layersPosition)
+        print(f"Main Model Name >> {resp.mainModelName}")
+        print(f"Output Names >> {resp.outputsNames}")
+
+        # service = buildServiceKeras(resp, serverInfo, registry)
+        service = buildServiceLite(resp, serverInfo, registry)
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=30))
-        service = Service(subModel)
+
         server_pb2_grpc.add_ServerServicer_to_server(service, server)
         server.add_insecure_port(f"[::]:{portNum}")
         server.start()
         print("SERVER STARTED")
         server.wait_for_termination()
+
+
+def buildServiceKeras(resp, serverInfo, registry):
+    subModel: keras.Model = keras.saving.load_model(
+        f"/models/SubModel_{resp.subModelIdx}.keras"
+    )
+    layers = [inputLayer for inputLayer in subModel.input]
+    layersPosition = LayerPosition(modelName="", layers=layers, serverInfo=serverInfo)
+    registry.registerLayer(layersPosition)
+
+    return ServiceKeras(subModel, resp.outputsNames)
+
+
+def buildServiceLite(resp, serverInfo, registry):
+    interpreter: Interpreter = Interpreter(
+        model_path=f"/models/SubModel_{resp.subModelIdx}.tflite"
+    )
+    signatureRunner: SignatureRunner = interpreter.get_signature_runner(
+        "serving_default"
+    )
+    layers = list(signatureRunner.get_input_details().keys())
+    layersPosition = LayerPosition(modelName="", layers=layers, serverInfo=serverInfo)
+    registry.registerLayer(layersPosition)
+
+    return ServiceLite(interpreter, resp.outputsNames)
 
 
 if __name__ == "__main__":

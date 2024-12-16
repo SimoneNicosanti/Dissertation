@@ -7,4 +7,3 @@ docker exec -it -d grpc-server-6 sh -c ./Run.sh
 docker exec -it -d grpc-server-7 sh -c ./Run.sh
 docker exec -it -d grpc-server-8 sh -c ./Run.sh
 docker exec -it -d grpc-server-9 sh -c ./Run.sh
-docker exec -it -d grpc-server-10 sh -c ./Run.sh

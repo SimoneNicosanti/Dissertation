@@ -98,29 +98,45 @@ def testSubYolo():
     print("Output Signature >>> ", liteModel.get_output_details())
 
 
-def testMixed_1():
-    for idx in range(0, 9):
-        keras.backend.clear_session()
-        print(f"Running Model {idx}")
-        # subMod: keras.Model = keras.saving.load_model(
-        #     f"./models/SubYolo_{idx}.keras", compile=False
-        # )
+def saved_model_convertion(kerasModel: keras.Model):
 
-        loaded = tf.saved_model.load(f"./models/SubYolo_{idx}")
-        print(loaded.signatures)
-        print()
+    archive = keras.export.ExportArchive()
+    archive.track(kerasModel)
+
+    inputs = {}
+    for key in kerasModel.input:
+        inpTens = kerasModel.input[key]
+        inputs[key] = tf.TensorSpec(
+            shape=inpTens.shape, dtype=inpTens.dtype, name=inpTens.name
+        )
+    archive.add_endpoint(
+        name="serve",
+        fn=kerasModel.call,
+        input_signature=[inputs],
+    )
+    archive.write_out(f"./models/{kerasModel.name}")
+
+    converter = tf.lite.TFLiteConverter.from_saved_model(f"./models/{kerasModel.name}")
+    converter.target_spec.supported_ops = [
+        tf.lite.OpsSet.TFLITE_BUILTINS,  # Operazioni TFLite
+        tf.lite.OpsSet.SELECT_TF_OPS,  # Fallback ai kernel TensorFlow
+    ]
+    tflite_model = converter.convert()
+    print("Model Converted")
+
+    return tflite_model
 
 
 def testMixed():
     producedOutputs = {}
-    images = tf.random.uniform(shape=(1, 512, 512, 3))
+    images = tf.ones(shape=(1, 512, 512, 3))
 
     producedOutputs["input_layer_1_0"] = images
     producedOutputs["input_layer_1_0_0"] = images
     for idx in range(0, 9):
         print(f"Running Model {idx}")
         subMod: keras.Model = keras.saving.load_model(
-            f"./models/SubYolo_{idx}.keras", compile=False
+            f"./models/SubYolo_{idx}.keras", compile=True
         )
         randInt: int = np.random.randint(0, 2)
         if randInt == 0:
@@ -130,22 +146,25 @@ def testMixed():
             for inpName in subMod.input:
                 subInp[inpName] = producedOutputs[inpName]
 
-            subOut = subMod(subInp)
+            subOut: dict[str, tf.Tensor] = subMod(subInp)
+            for key in subOut.keys():
+                subOut[key] = subOut[key].numpy()
         else:
             print("Running with LiteRT")
             ## Lite Exec
-            liteModContent = general_convertion(subMod, None)
+            liteModContent = saved_model_convertion(subMod)
             interpreter = Interpreter(model_content=liteModContent)
+            print("Signatures >>> ", interpreter.get_signature_list())
             interpreter.allocate_tensors()
             liteModel: SignatureRunner = interpreter.get_signature_runner(
                 "serving_default"
             )
-
+            print(liteModel.get_input_details())
             subInp = {}
             for inpName in liteModel.get_input_details():
                 subInp[inpName] = producedOutputs[inpName]
 
-            subOut = liteModel(**subInp)
+            subOut: dict[str, np.ndarray] = liteModel(**subInp)
 
         for outName in subOut:
             producedOutputs[outName] = subOut[outName]

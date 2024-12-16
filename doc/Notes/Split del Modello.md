@@ -388,22 +388,15 @@ Se c'è un'operazione che :
 - riceve come input da più output di una stessa operazione precedente 
 - e questa operazione sta fuori dal modello corrente
 Viene costruito un modello keras scorretto: in particolare una volta salvato il modello, keras sembra non essere in grado di ricaricarlo e si blocca proprio su quel punto.
-
-| Keras bloccato sul caricamento di SubYolo_2 con maxLayerNum=50 |
-| -------------------------------------------------------------- |
-| ![[Schermata del 2024-12-15 19-27-47.png]]                     |
+![[Schermata del 2024-12-15 19-27-47.png|Keras bloccato sul caricamento di SubYolo_2 con maxLayerNum=50]]
 
 L'esempio in questo caso è quello che segue:
-
-| Concatenate che riceve due input dall'operazione Split |
-| ------------------------------------------------------ |
-| ![[Schermata del 2024-12-15 19-26-02.png]]             |
+![[Schermata del 2024-12-15 19-26-02.png|Concatenate che riceve due input dall'operazione Split]]
 
 In questo caso il modello viene ricostruito nel modo seguente
+![[Pasted image 20241216154328.png|Ricostruzione buggata]]
 
-| Ricostruzione buggata                      |
-| ------------------------------------------ |
-| ![[Schermata del 2024-12-15 19-25-07.png]] |
+
 In questo caso otteniamo un InputLayer che dovrebbe dare due valori invece di due input layer diversi che danno in output ognuno il suo.
 
 Per risolvere questa cosa possiamo sfruttare la ricostruzione del modello come già fatta nel caso dell'unnest, ma con delle piccole varianti che altro non fanno che adattare a questo caso.
@@ -438,15 +431,12 @@ for inpLayerName in inputOpsList:
 ```
 
 In figura si vede come adesso l'operazione in questione riceve effettivamente input da tutti i precedenti in modo corretto. Inoltre quando si prova a caricare il modello con `keras.saving.load_model` il caricamento non va in blocco.
+![[Pasted image 20241216154350.png|Bug Risolto: Concatenate con 8 input e dal livello di split]]
 
-| Bug Risolto: Concatenate con 8 input e dal livello di split |
-| ----------------------------------------------------------- |
-| ![[Schermata del 2024-12-15 20-07-18.png]]                  |
+
 Anche il test fatto sull'esecuzione sembra tornare:
+![[Schermata del 2024-12-15 20-29-01.png|Stesso risultato: Modello Intero VS Modello Diviso]]
 
-| Stesso risultato: Modello Intero VS Modello Diviso |
-| -------------------------------------------------- |
-| ![[Schermata del 2024-12-15 20-29-01.png]]         |
 
 Per ridurre il numero di dati che vengono trasferiti si è aggiunta un'accortezza:
 ```python
@@ -458,7 +448,6 @@ for inpLayerName in inputOpsDict.keys():
 ```
 Per ogni input layer del modello, si precalcolano e si mettono in inputOpsDict i tensor index che servono come input: questi indici rappresentano gli indici dell'array degli output dell'operazione precedente che sono necessari come input. In questo modo si riduce il numero di output, altrimenti prima si prendevano tutti gli output dell'operazione precedente. La cosa speculare si fanno per gli output.
 L'unica cosa "antipatica" di questo è che se il processo viene fatto due volte sullo stesso modello (ad esempio una volta per l'unnest e una per la divisione), si potrebbe avere una sovrapposizione degli *idx*; in figura successiva questo aspetto:
+![[Schermata del 2024-12-15 22-48-17.png|Sovrapposizione di Indici]]
 
-| Sovrapposizione di Indici                  |
-| ------------------------------------------ |
-| ![[Schermata del 2024-12-15 22-48-17.png]] |
+

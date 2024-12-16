@@ -1,0 +1,20 @@
+{
+  "callouts": {
+    "custom": [],
+    "settings": {
+      "todo": [
+        {
+          "changes": {
+            "icon": "lucide-list-todo",
+            "color": "208, 181, 48"
+          }
+        }
+      ]
+    }
+  },
+  "calloutDetection": {
+    "obsidian": true,
+    "theme": true,
+    "snippet": true
+  }
+}

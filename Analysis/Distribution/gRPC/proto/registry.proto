@@ -11,7 +11,9 @@ service Register {
 message Empty {}
 
 message RegisterResponse {
-    int32 subModelIdx = 1;
+    string mainModelName = 1;
+    int32 subModelIdx = 2;
+    repeated string outputsNames = 3;
 }
 
 message ServerInfo {

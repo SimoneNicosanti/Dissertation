@@ -55,7 +55,7 @@ def main():
     pred_1 = mainMod.predict(x_train)
     pred_2 = unnestedModel.predict(x_train)
     print(pred_1, pred_2)
-    print(np.array_equal(pred_1, pred_2))
+    print(np.array_equal(pred_1, pred_2["add_2_0"]))
 
 
 def main_1():

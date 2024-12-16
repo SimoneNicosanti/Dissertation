@@ -10,11 +10,12 @@ from proto.registry_pb2 import (
 
 class Registry(registry_pb2_grpc.RegisterServicer):
 
-    def __init__(self, partsNum: int) -> None:
+    def __init__(self, partsNum: int, outputsNames: list[str]) -> None:
         super().__init__()
         self.layersPositions: dict[tuple, list[ServerInfo]] = {}
         self.nextServerIdx = 0
         self.partsNum = partsNum
+        self.outputsNames: list[str] = outputsNames
 
     def getLayerPosition(self, request: LayerInfo, context):
         print(f"Request For {request.layerName}")
@@ -36,12 +37,15 @@ class Registry(registry_pb2_grpc.RegisterServicer):
                 self.layersPositions[key] = []
             self.layersPositions[key].append(serverInfo)
 
-        print(self.layersPositions)
-
         return Empty()
 
     def registerServer(self, request: ServerInfo, context) -> RegisterResponse:
         print(f"Sending Index >>> {self.nextServerIdx}")
-        response = RegisterResponse(subModelIdx=self.nextServerIdx)
+        # response = RegisterResponse(subModelIdx=self.nextServerIdx)
+        response = RegisterResponse(
+            mainModelName="",
+            subModelIdx=self.nextServerIdx,
+            outputsNames=self.outputsNames,
+        )
         self.nextServerIdx = (self.nextServerIdx + 1) % self.partsNum
         return response
