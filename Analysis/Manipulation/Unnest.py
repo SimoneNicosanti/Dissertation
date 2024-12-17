@@ -4,7 +4,7 @@ from Manipulation import Reconstruct, Utils
 
 def findSubModels(model: keras.Model) -> list[keras.Model]:
     subModels: list[keras.Model] = []
-    opsQueue: list[keras.Operation] = model.operations
+    opsQueue: list[keras.Operation] = Utils.getModelOperations(model)
 
     while opsQueue:
         currOp: keras.Operation = opsQueue.pop()
@@ -18,12 +18,12 @@ def findSubModels(model: keras.Model) -> list[keras.Model]:
 
 def unnestModel(model: keras.Model) -> keras.Model:
     prevOpsDict: dict[str, set[str]] = Utils.findPrevConnections(model)
-    allOpsDict: dict[str, keras.Operation] = Utils.findAllOpsDict(model)
+    allOpsDict: dict[str, keras.Operation] = Utils.findOpsDictRecursively(model)
 
-    inputOpsList: list[str] = Utils.findInputLayers(model)
+    inputOpsList: list[str] = Utils.getInputLayersNames(model)
     inputOpsDict = {opName: set([0]) for opName in inputOpsList}
 
-    outputOpsList: list[str] = model.output_names
+    outputOpsList: list[str] = Utils.getModelOutputNames(model)
     outputOpsDict = {}
     for outName in outputOpsList:
         outOp: keras.Operation = allOpsDict[outName]

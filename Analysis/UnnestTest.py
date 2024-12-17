@@ -14,13 +14,25 @@ def subModel_1():
     return keras.Model(inputs=[inp_1, inp_2], outputs=x3)
 
 
+def subModel_2():
+    return keras.Sequential(
+        layers=[
+            keras.layers.Input(shape=(32,)),
+            keras.layers.Dense(units=32),
+            keras.layers.Dense(units=32),
+            keras.layers.Dense(units=32),
+        ]
+    )
+
+
 def subModel():
     inp = keras.layers.Input(shape=(32,))
     x1 = keras.layers.Dense(units=32)(inp)
     x2 = keras.layers.Dense(units=32)(inp)
     x3 = subModel_1()([x1, x2])
-    x4 = keras.layers.Dense(units=32)(x3)
-    mod_1 = keras.Model(inputs=inp, outputs=[x1, x2, x4])
+    x4 = subModel_2()(x3)
+    x5 = keras.layers.Dense(units=32)(x4)
+    mod_1 = keras.Model(inputs=inp, outputs=[x1, x2, x5])
     return mod_1
 
 
@@ -45,12 +57,17 @@ def main():
 
     # Fit the model with 1 sample
     mainMod.fit(x=x_train, y=y_train, epochs=1)
+    seqInpLayer = (
+        mainMod.get_layer("functional_2")
+        .get_layer("sequential")
+        .layers[0]
+        .input._keras_history.operation
+    )
 
-    mainMod.save("./models/Model.keras")
     # print(Utils.findNextConnections(mainMod))
 
     unnestedModel = Unnest.unnestModel(mainMod)
-    unnestedModel.save("./models/Unpacked.keras")
+    unnestedModel.save("./models/UnnestedToy.keras")
 
     pred_1 = mainMod.predict(x_train)
     pred_2 = unnestedModel.predict(x_train)
@@ -86,4 +103,4 @@ def main_1():
 
 
 if __name__ == "__main__":
-    main_1()
+    main()

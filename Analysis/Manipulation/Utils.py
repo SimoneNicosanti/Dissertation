@@ -1,16 +1,50 @@
 import keras
 
 
-def findAllOpsList(model: keras.Model) -> list[keras.Operation]:
+def getModelOperations(model):
+    if isinstance(model, keras.Sequential):
+        hiddenInputLayer = model.layers[0].input._keras_history.operation
+        allLayers = [hiddenInputLayer]
+        allLayers.extend(model.layers)
+        print("All Layers >> ", allLayers)
+        return allLayers
+    elif isinstance(model, keras.Model):
+        return model.operations
+    else:
+        raise ValueError("The Model Is Not A Valid Instance")
+
+
+def getModelOutputNames(model):
+    if isinstance(model, keras.Sequential):
+        return [model.layers[-1].name]
+    elif isinstance(model, keras.Model):
+        return model.output_names
+    else:
+        raise ValueError("The Model Is Not A Valid Instance")
+
+
+def getInputLayersNames(model: keras.Model | keras.Sequential) -> list[str]:
+    if isinstance(model, keras.Sequential):
+        hiddenLayer = model.layers[0].input._keras_history.operation
+        return [hiddenLayer.name]
+
+    inputLayerNames = []
+    for layer in model.layers:
+        if isinstance(layer, keras.layers.InputLayer):
+            inputLayerNames.append(layer.name)
+    return inputLayerNames
+
+
+def findOpsListRecursively(model: keras.Model) -> list[keras.Operation]:
     allOpsList: list[keras.Operation] = []
 
-    opsQueue: list[keras.Operation] = model.operations
+    opsQueue: list[keras.Operation] = getModelOperations(model)
 
     while opsQueue:
         currOp: keras.Operation = opsQueue.pop(0)
 
         if isinstance(currOp, keras.Model):
-            subAllOps: list[keras.Operation] = findAllOpsList(currOp)
+            subAllOps: list[keras.Operation] = findOpsListRecursively(currOp)
             allOpsList.extend(subAllOps)
 
         allOpsList.append(currOp)
@@ -18,19 +52,11 @@ def findAllOpsList(model: keras.Model) -> list[keras.Operation]:
     return allOpsList
 
 
-def findAllOpsDict(model: keras.Model) -> dict[str, keras.Operation]:
-    allOpsList: list[keras.Operation] = findAllOpsList(model)
+def findOpsDictRecursively(model: keras.Model) -> dict[str, keras.Operation]:
+    allOpsList: list[keras.Operation] = findOpsListRecursively(model)
     allOpsDict: dict[str, keras.Operation] = {op.name: op for op in allOpsList}
 
     return allOpsDict
-
-
-def findInputLayers(model: keras.Model) -> list[str]:
-    inputLayerNames = []
-    for layer in model.layers:
-        if isinstance(layer, keras.layers.InputLayer):
-            inputLayerNames.append(layer.name)
-    return inputLayerNames
 
 
 def findConnections(model: keras.Model):
@@ -42,8 +68,7 @@ def findConnections(model: keras.Model):
 
 def findNextConnections(model: keras.Model) -> dict[str, set[str]]:
     nextOpsDict: dict[str, list[str]] = {}
-
-    opsStack: list[keras.Operation] = model.operations
+    opsStack = getModelOperations(model)
 
     while opsStack:
         currOp = opsStack.pop()
@@ -59,7 +84,7 @@ def findNextConnections(model: keras.Model) -> dict[str, set[str]]:
                 nextOpsDict.setdefault(subOpName, [])
                 nextOpsDict[subOpName].extend(subNextConns[subOpName])
 
-                if subOpName in currOp.output_names:
+                if subOpName in getModelOutputNames(currOp):
                     nextOpsDict[subOpName].append(currOp.name)
 
         currOpNextOps = [node.operation for node in currOp._outbound_nodes]
@@ -116,6 +141,7 @@ def convertToList(anyValue):
 def findPrevConnections(model: keras.Model, nextOpsDict=None):
     if nextOpsDict is None:
         nextOpsDict = findNextConnections(model)
+    print(nextOpsDict)
 
     prevOpsDict: dict[str, set[str]] = {}
     for opName in nextOpsDict.keys():

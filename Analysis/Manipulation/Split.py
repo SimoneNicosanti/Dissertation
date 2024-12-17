@@ -104,11 +104,11 @@ def buildSubModel(
 
 
 def modelSplit(model: keras.Model, maxLayerNum: int) -> list[keras.Model]:
-    allOpsList: list[keras.Operation] = Utils.findAllOpsList(model)
-    allOpsDict: dict[str, keras.Operation] = Utils.findAllOpsDict(model)
+    allOpsList: list[keras.Operation] = Utils.findOpsListRecursively(model)
+    allOpsDict: dict[str, keras.Operation] = Utils.findOpsDictRecursively(model)
 
-    inputLayersNames: list[str] = Utils.findInputLayers(model)
-    outputLayerNames: list[str] = model.output_names
+    inputLayersNames: list[str] = Utils.getInputLayersNames(model)
+    outputLayerNames: list[str] = Utils.getModelOutputNames(model)
 
     prevOpsDict, nextOpsDict = Utils.findConnections(model)
     subModels = []

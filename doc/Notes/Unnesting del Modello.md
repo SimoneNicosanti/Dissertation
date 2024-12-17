@@ -178,3 +178,20 @@ Si vede che:
 | Identity InputLayer BackBone                    | Identity Output BackBone                        |
 | ----------------------------------------------- | ----------------------------------------------- |
 | ![[Schermata del 2024-12-07 23-27-39.png\|300]] | ![[Schermata del 2024-12-07 23-29-03.png\|300]] |
+
+
+## Bug - Sequential Nested
+Le istanze di *Sequential*, anche se l'input_layer viene inserito in modo esplicito non hanno InputLayer all'inizio, quindi il parsing non si può fare sulla base della presenza degli input_layer.
+![[Schermata del 2024-12-17 15-12-01.png | Sequential Model]]
+
+Inoltre le istanze di Sequential non hanno gli attributi:
+- *operations*
+- *output_names*
+![[Schermata del 2024-12-17 15-18-32.png|Assenza *operations*]]![[Schermata del 2024-12-17 15-19-11.png|Assenza *output_names*]]
+Questi tre aspetti portano l'Unnest a non funzionare se abbiamo delle classi Sequential innestate.
+
+### Bug Fix
+Per risolvere questo si astraggono questi attributi in funzioni che distinguono a seconda del tipo:
+![[Schermata del 2024-12-17 16-23-25.png|Funzioni per Trovare le Info Necessarie]]
+
+Fare questo permette di risolvere il problema ed estendere anche a modelli sequenziali.

@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "b0864b2e6ec42acd",
+        "id": "b48a3621bb79e787",
         "type": "tabs",
         "children": [
           {
-            "id": "18ea285eacfd2fe0",
+            "id": "864ce08cbcddc3b0",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Split del Modello.md",
+                "file": "Notes/Colloqui/2024-12-17.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Split del Modello"
+              "title": "2024-12-17"
             }
           }
         ]
@@ -77,7 +77,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -159,28 +159,30 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "18ea285eacfd2fe0",
+  "active": "864ce08cbcddc3b0",
   "lastOpenFiles": [
+    "Notes/Unnesting del Modello.md",
+    "Schermata del 2024-12-17 16-23-25.png",
+    "Schermata del 2024-12-17 15-19-11.png",
+    "Schermata del 2024-12-17 15-18-32.png",
+    "Schermata del 2024-12-17 15-12-01.png",
+    "Notes/Split del Modello.md",
     "Notes/LiteRT.md",
-    "Notes/Distribuzione.md",
     "Notes/Calcolo FLOPS.md",
+    "Notes/MobileNetV3Large.md",
+    "Notes/Distribuzione.md",
+    "Notes/Yolo.md",
+    "Notes/Colloqui/2024-12-17.md",
+    "Notes/Architettura/Architettura.md",
+    "Notes/Architettura/Diagram_1.svg",
+    "Paper/Learning Optimal Partition/Splitting_2.pdf",
+    "Notes/Colloqui/2024-11-19.md",
     "Notes/Images/Pasted image 20241216182115.png",
     "Notes/Images/Schermata del 2024-12-16 18-10-09.png",
     "Notes/Images/Schermata del 2024-12-16 17-34-40.png",
-    "Notes/Colloqui/2024-11-19.md",
-    "Notes/Yolo.md",
     "Notes/Images/Pasted image 20241216154328.png",
     "Notes/Images/Schermata del 2024-12-16 15-37-45.png",
     "Schermata.md",
-    "Notes/Images/Pasted image 20241216154350.png",
-    "Notes/Unnesting del Modello.md",
-    "Notes/Split del Modello.md",
-    "Notes/MobileNetV3Large.md",
-    "Notes/Images/Schermata del 2024-12-16 11-46-00.png",
-    "Notes/Images/Schermata del 2024-12-16 08-23-35.png",
-    "Notes/Images/Schermata del 2024-12-16 11-52-02.png",
-    "Notes/Images/Schermata del 2024-12-15 20-29-01.png",
-    "Notes/Architettura/Architettura.md",
     "Paper/Jellyfish/Jellyfish - Notes.md",
     "Paper/Jellyfish/Jellyfish.pdf",
     "Paper/Gillis/Gillis - Notes.md",

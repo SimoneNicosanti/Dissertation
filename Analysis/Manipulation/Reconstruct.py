@@ -107,7 +107,7 @@ def wrapOperation(operation: keras.Operation) -> keras.Operation:
 
 
 def findArguments(operation: keras.Operation, allSubModels: list[keras.Model]) -> list:
-
+    print(operation.name)
     if isinstance(operation, keras.Model):
         ## It is a sub model
         ## We change the sub model with an Identity Layer
@@ -120,7 +120,7 @@ def findArguments(operation: keras.Operation, allSubModels: list[keras.Model]) -
         opSubModel: keras.Model = None
         inputIdx: int = None
         for subMod in allSubModels:
-            subModInputs: list[str] = Utils.findInputLayers(subMod)
+            subModInputs: list[str] = Utils.getInputLayersNames(subMod)
             if operation.name in subModInputs:
                 inputIdx = subModInputs.index(operation.name)
                 opSubModel = subMod
