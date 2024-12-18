@@ -129,11 +129,14 @@ def findSubModelCorrespondingInputLayer(
     return correspondingLayers
 
 
-def convertToList(anyValue):
+def convertToList(anyValue : list[keras.KerasTensor] | dict[str, keras.KerasTensor]):
     if isinstance(anyValue, list):
+        sortedList = sorted(anyValue, key = lambda x : x.name)
         return anyValue
     elif isinstance(anyValue, dict):
-        return anyValue.values()
+        valueList : list[keras.KerasTensor] = list(anyValue.values())
+        sortedList = sorted(valueList, key = lambda x : x.name)
+        return sortedList
     else:
         return [anyValue]
 

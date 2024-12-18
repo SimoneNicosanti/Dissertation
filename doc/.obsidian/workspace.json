@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Segmenter.md",
+                "file": "Notes/Colloqui/2024-12-17.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Segmenter"
+              "title": "2024-12-17"
             }
           }
         ],
@@ -176,19 +176,21 @@
   },
   "active": "4f65356a7b92f651",
   "lastOpenFiles": [
-    "Notes/Colloqui/2024-12-17.md",
-    "Notes/Segmenter.md",
+    "Notes/Segmentation.md",
+    "Notes/Split del Modello.md",
     "Notes/Unnesting del Modello.md",
+    "Notes/Yolo.md",
+    "Notes/MobileNetV3Large.md",
+    "Schermata del 2024-12-18 17-34-44.png",
+    "Schermata del 2024-12-18 17-25-22.png",
+    "Notes/Colloqui/2024-12-17.md",
     "Schermata del 2024-12-17 16-23-25.png",
     "Schermata del 2024-12-17 15-19-11.png",
     "Schermata del 2024-12-17 15-18-32.png",
     "Schermata del 2024-12-17 15-12-01.png",
-    "Notes/Split del Modello.md",
     "Notes/LiteRT.md",
     "Notes/Calcolo FLOPS.md",
-    "Notes/MobileNetV3Large.md",
     "Notes/Distribuzione.md",
-    "Notes/Yolo.md",
     "Notes/Architettura/Architettura.md",
     "Notes/Architettura/Diagram_1.svg",
     "Paper/Learning Optimal Partition/Splitting_2.pdf",
@@ -196,8 +198,6 @@
     "Notes/Images/Pasted image 20241216182115.png",
     "Notes/Images/Schermata del 2024-12-16 18-10-09.png",
     "Notes/Images/Schermata del 2024-12-16 17-34-40.png",
-    "Notes/Images/Pasted image 20241216154328.png",
-    "Notes/Images/Schermata del 2024-12-16 15-37-45.png",
     "Schermata.md",
     "Paper/Jellyfish/Jellyfish - Notes.md",
     "Paper/Jellyfish/Jellyfish.pdf",

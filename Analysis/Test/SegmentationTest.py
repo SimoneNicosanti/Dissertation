@@ -1,4 +1,5 @@
 import keras
+import keras_cv
 import keras_hub
 import matplotlib.pyplot as plt
 import numpy as np
@@ -45,19 +46,21 @@ def main():
 
     cmap = plt.get_cmap("tab20").colors  # Extract colors from a predefined colormap
     colors = list(cmap[:21])
-
-    plot_segmentation(image, preds_1, cmap, "./other/orig_segm.png")
-    plot_segmentation(image, preds_2, cmap, "./other/unnest_segm.png")
+    plot_segmentation(image, preds_1, colors, "./other/orig_segm.png")
+    plot_segmentation(image, preds_2, colors, "./other/unnest_segm.png")
 
 
 def main_1():
-    filepath = "./output/dog.png"
+    filepath = "./other/dog.png"
     image = keras.utils.load_img(filepath)
     image = np.array(image)
     image = keras.ops.expand_dims(np.array(image), axis=0)
 
-    segmenter = keras_hub.models.SAMImageSegmenter.from_preset("sam_huge_sa1b")
+    segmenter = keras_hub.models.SAMImageSegmenter.from_preset("sam_base_sa1b")
     segmenter.summary(expand_nested=True)
+
+    return
+
     encoderLayer: keras.layers.Layer = segmenter.get_layer("sam_mask_decoder")
 
     print(encoderLayer._inbound_nodes[0].arguments.args)
@@ -84,5 +87,26 @@ def main_1():
     # plot_segmentation(image, preds_2, cmap, "./output/unnest_segm.png")
 
 
+def main_2():
+    filepath = "./other/dog.png"
+    image = keras.utils.load_img(filepath)
+    image = np.array(image)
+    image = keras.ops.expand_dims(np.array(image), axis=0)
+
+    segmenter = keras_cv.models.SegFormer.from_preset("segformer_b5", num_classes=21)
+    out_1 = segmenter(image)
+
+    unnestedSegmenter = Unnest.unnestModel(segmenter)
+    unnestedSegmenter.save("./models/UnnestedSegformer.keras")
+    out_2 = unnestedSegmenter(image)["resizing_4_0"]
+
+    print("Are Equal >> ", np.array_equal(out_1, out_2))
+
+    cmap = plt.get_cmap("tab20").colors  # Extract colors from a predefined colormap
+    colors = list(cmap[:22])
+    plot_segmentation(image, out_1, colors, "./other/orig_segm.png")
+    plot_segmentation(image, out_2, colors, "./other/unnest_segm.png")
+
+
 if __name__ == "__main__":
-    main()
+    main_1()

@@ -195,3 +195,29 @@ Per risolvere questo si astraggono questi attributi in funzioni che distinguono 
 ![[Schermata del 2024-12-17 16-23-25.png|Funzioni per Trovare le Info Necessarie]]
 
 Fare questo permette di risolvere il problema ed estendere anche a modelli sequenziali.
+
+
+## Bug - Input Order
+Ci sono dei casi in cui ci sono delle discrepanze tra l'ordine con cui il livello (o il sotto modello) manda fuori il suo output e i tensor_index della KerasHistory.
+
+La KerasHistory è formata da tre parti:
+- Operation
+- Node Index
+- Tensor Index
+
+In particolare sembra che:
+- Node Index corrisponda all'indice dalla lista di inbound_nodes `operation._inbound_nodes[node_idx]`
+- Dato un inbound_node, questo presenta tra i suoi attributi:
+	- arguments
+		- Usato per ricostruire gli argomeni
+	- outputs / output_tensors
+		- Che contiene i tensori dati in output dall'operazione in question
+		- Nello specifico il tensor_idx sembra riferirsi proprio all'output come rappresentato in questa lista, quindi corrisponde a `operation._inbound_nodes[node_idx].outputs[tensor_idx]`
+		- Questa lista di output sembra essere ordinata per `kerasTensor.name`
+
+### Bug Fix
+Per risolvere il bug, visto l'apparente ordinamento della lista di outputs, una volta che viene fatta la `opOutput = toCall(*args, **kwargs)`, la `opOutput` viene convertita in una lista ordinata di KerasTensor, dove l'ordinamento è fatto proprio per `kerasTensor.name`; questo viene inserito all'interno della funzione `convertToList`.
+![[Schermata del 2024-12-18 17-34-44.png|*convertToList* Modificata]]
+
+> [!NOTE] 
+> Questa aggiunta sembra risolvere il problema indicato, ma ci sono dei modelli di Segmentation per cui non è sufficiente, come ad esempio SAM. In questo caso bisogna ancora capire un attimo cosa sta succedendo e il motivo per cui il modello non funziona come dovrebbe.

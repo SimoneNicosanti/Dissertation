@@ -70,20 +70,20 @@ def runOperation(
 
     call_args = unpack_args(args, producedOutputs)
     call_kwargs = unpack_kwargs(kwargs, producedOutputs)
+    #logReconstruct(toCall, call_args, call_kwargs)
 
-    logReconstruct(toCall, call_args, call_kwargs)
-    # print(f"Processing {opName} || Input >>> {opInput}")
+    if len(toCall._inbound_nodes) > 0 :
+        print("Inbound Out >> ", toCall._inbound_nodes[0].output_tensors)
     opOutput = toCall(*call_args, **call_kwargs)
+    print("Call Out >> ", opOutput)
+    print()
+
     producedOutputs[opName] = Utils.convertToList(opOutput)
 
 def logReconstruct(toCall : keras.Operation, call_args : list, call_kwargs : dict) :
     print(f"Running >> {toCall.name}")
-    print(f"args >> ")
-    for arg in call_args :
-        print(f"\t{arg}")
-    print(f"kwargs >> ")
-    for key in call_kwargs.keys() :
-        print(f"\t{key} > {call_kwargs[key]}")
+    print(f"\targs >> {call_args}")
+    print(f"\tkwargs >> {call_kwargs}")
     print()
 
 
