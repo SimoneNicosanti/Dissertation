@@ -66,16 +66,29 @@ def runOperation(
             )
 
     toCall: keras.Operation = wrapOperation(allOpsDict[opName])
-    callArgs: list = findArguments(allOpsDict[opName], allSubModels)
+    args, kwargs = findArguments(allOpsDict[opName], allSubModels)
 
-    opInput = unpackArguments(callArgs, producedOutputs)
+    call_args = unpack_args(args, producedOutputs)
+    call_kwargs = unpack_kwargs(kwargs, producedOutputs)
+
+    logReconstruct(toCall, call_args, call_kwargs)
     # print(f"Processing {opName} || Input >>> {opInput}")
-    opOutput = toCall(*opInput)
+    opOutput = toCall(*call_args, **call_kwargs)
     producedOutputs[opName] = Utils.convertToList(opOutput)
 
+def logReconstruct(toCall : keras.Operation, call_args : list, call_kwargs : dict) :
+    print(f"Running >> {toCall.name}")
+    print(f"args >> ")
+    for arg in call_args :
+        print(f"\t{arg}")
+    print(f"kwargs >> ")
+    for key in call_kwargs.keys() :
+        print(f"\t{key} > {call_kwargs[key]}")
+    print()
 
-def unpackArguments(args, producedOutputs):
-    opInput = []
+
+def unpack_args(args, producedOutputs):
+    op_args = []
     for arg in args:
         if arg is None:
             continue
@@ -84,12 +97,30 @@ def unpackArguments(args, producedOutputs):
             hist = arg._keras_history
             prevOpName, tensorIndex = hist.operation.name, hist.tensor_index
             prevOpOutputs = producedOutputs[prevOpName]
-            opInput.append(prevOpOutputs[tensorIndex])
+            op_args.append(prevOpOutputs[tensorIndex])
         elif isinstance(arg, list):
-            opInput.append(unpackArguments(arg, producedOutputs))
+            op_args.append(unpack_args(arg, producedOutputs))
         else:
-            opInput.append(arg)
-    return opInput
+            op_args.append(arg)
+    return op_args
+
+def unpack_kwargs(kwargs, producedOutputs):
+    op_kwargs = {}
+    for key in kwargs.keys():
+        arg = kwargs[key]
+        if arg is None:
+            continue
+
+        if isinstance(arg, keras.KerasTensor):
+            hist = arg._keras_history
+            prevOpName, tensorIndex = hist.operation.name, hist.tensor_index
+            prevOpOutputs = producedOutputs[prevOpName]
+            op_kwargs[key] = prevOpOutputs[tensorIndex]
+        elif isinstance(arg, list):
+            op_kwargs[key] = unpack_args(arg, producedOutputs)
+        else:
+            op_kwargs[key] = arg
+    return op_kwargs
 
 
 def wrapOperation(operation: keras.Operation) -> keras.Operation:
@@ -106,13 +137,12 @@ def wrapOperation(operation: keras.Operation) -> keras.Operation:
     return newOperation
 
 
-def findArguments(operation: keras.Operation, allSubModels: list[keras.Model]) -> list:
-    print(operation.name)
+def findArguments(operation: keras.Operation, allSubModels: list[keras.Model]) -> tuple[list, dict]:
     if isinstance(operation, keras.Model):
         ## It is a sub model
         ## We change the sub model with an Identity Layer
         ## returning the same output as the sub model itself
-        return [operation.outputs]
+        return [operation.outputs], {}
     elif isinstance(operation, keras.layers.InputLayer):
         ## It is input layer of sub model
         ## We chnage it with an Identity layer returning
@@ -129,11 +159,11 @@ def findArguments(operation: keras.Operation, allSubModels: list[keras.Model]) -
         ## TODO >> Check this if is enough general
         for argElem in opSubModel._inbound_nodes[0].arguments.args:
             if isinstance(argElem, list):
-                return [argElem[inputIdx]]
+                return [argElem[inputIdx]], {}
             else:
-                return [argElem]
+                return [argElem], {}
 
     else:
         ## Simple operation
         ## Return its args
-        return operation._inbound_nodes[0].arguments.args
+        return operation._inbound_nodes[0].arguments.args, operation._inbound_nodes[0].arguments.kwargs

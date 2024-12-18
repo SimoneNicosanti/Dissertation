@@ -15,6 +15,7 @@ RUN pip install prettytable
 RUN pip install imageio
 RUN pip install grpcio
 RUN pip install grpcio-tools
+RUN pip install keras-hub
 
 ## Terraform
 RUN apt-get update && apt-get install -y \
@@ -25,7 +26,7 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ## GLP Cli
-RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz \
+RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz 
 RUN tar -xf google-cloud-cli-linux-x86_64.tar.gz
 RUN ./google-cloud-sdk/install.sh --usage-reporting false --path-update true
 ENV PATH="/google-cloud-sdk/bin:$PATH"

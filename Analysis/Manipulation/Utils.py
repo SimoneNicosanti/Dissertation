@@ -141,7 +141,6 @@ def convertToList(anyValue):
 def findPrevConnections(model: keras.Model, nextOpsDict=None):
     if nextOpsDict is None:
         nextOpsDict = findNextConnections(model)
-    print(nextOpsDict)
 
     prevOpsDict: dict[str, set[str]] = {}
     for opName in nextOpsDict.keys():
