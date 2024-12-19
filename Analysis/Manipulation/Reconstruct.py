@@ -70,17 +70,14 @@ def runOperation(
 
     call_args = unpack_args(args, producedOutputs)
     call_kwargs = unpack_kwargs(kwargs, producedOutputs)
-    #logReconstruct(toCall, call_args, call_kwargs)
+    logReconstruct(toCall, call_args, call_kwargs)
 
-    if len(toCall._inbound_nodes) > 0 :
-        print("Inbound Out >> ", toCall._inbound_nodes[0].output_tensors)
     opOutput = toCall(*call_args, **call_kwargs)
-    print("Call Out >> ", opOutput)
-    print()
 
     producedOutputs[opName] = Utils.convertToList(opOutput)
 
-def logReconstruct(toCall : keras.Operation, call_args : list, call_kwargs : dict) :
+
+def logReconstruct(toCall: keras.Operation, call_args: list, call_kwargs: dict):
     print(f"Running >> {toCall.name}")
     print(f"\targs >> {call_args}")
     print(f"\tkwargs >> {call_kwargs}")
@@ -103,6 +100,7 @@ def unpack_args(args, producedOutputs):
         else:
             op_args.append(arg)
     return op_args
+
 
 def unpack_kwargs(kwargs, producedOutputs):
     op_kwargs = {}
@@ -137,7 +135,9 @@ def wrapOperation(operation: keras.Operation) -> keras.Operation:
     return newOperation
 
 
-def findArguments(operation: keras.Operation, allSubModels: list[keras.Model]) -> tuple[list, dict]:
+def findArguments(
+    operation: keras.Operation, allSubModels: list[keras.Model]
+) -> tuple[list, dict]:
     if isinstance(operation, keras.Model):
         ## It is a sub model
         ## We change the sub model with an Identity Layer
@@ -166,4 +166,7 @@ def findArguments(operation: keras.Operation, allSubModels: list[keras.Model]) -
     else:
         ## Simple operation
         ## Return its args
-        return operation._inbound_nodes[0].arguments.args, operation._inbound_nodes[0].arguments.kwargs
+        return (
+            operation._inbound_nodes[0].arguments.args,
+            operation._inbound_nodes[0].arguments.kwargs,
+        )

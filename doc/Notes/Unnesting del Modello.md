@@ -215,9 +215,25 @@ In particolare sembra che:
 		- Nello specifico il tensor_idx sembra riferirsi proprio all'output come rappresentato in questa lista, quindi corrisponde a `operation._inbound_nodes[node_idx].outputs[tensor_idx]`
 		- Questa lista di output sembra essere ordinata per `kerasTensor.name`
 
+In figura abbiamo due ordini diversi tra:
+- InboundOut: qui si vede come i tensori dell'output sono ordinati per name
+- CallOut
+![[Schermata del 2024-12-18 21-12-47 1.png|Esempio del Bug]]
+
+![[Pasted image 20241218212058.png|Differenza tra Input voluto e ricostruito]]
+
 ### Bug Fix
 Per risolvere il bug, visto l'apparente ordinamento della lista di outputs, una volta che viene fatta la `opOutput = toCall(*args, **kwargs)`, la `opOutput` viene convertita in una lista ordinata di KerasTensor, dove l'ordinamento è fatto proprio per `kerasTensor.name`; questo viene inserito all'interno della funzione `convertToList`.
 ![[Schermata del 2024-12-18 17-34-44.png|*convertToList* Modificata]]
 
 > [!NOTE] 
 > Questa aggiunta sembra risolvere il problema indicato, ma ci sono dei modelli di Segmentation per cui non è sufficiente, come ad esempio SAM. In questo caso bisogna ancora capire un attimo cosa sta succedendo e il motivo per cui il modello non funziona come dovrebbe.
+
+## Bug - Riuso di Input Layers
+Ci sono dei modelli (vedere [[Segmentation]]) in cui alcuni InputLayer vengono riutilizzati come input layer dei sotto modelli: questo porta alla rottura dell'unnest che si basa sull'unicità dei nomi dei livelli.
+![[Schermata del 2024-12-18 22-30-28.png|Successori Ricorsivi]]
+
+### Bug Fix
+Per risolvere questo problema si possono costruire dei Wrapper per le operazioni; a questi Wrapper vengono poi associati dei nomi unici in formato di path (ad esempio "/mainMod/subMod_1/subMod_2/layerName").
+In questo modo, anche se il layer è stato riutilizzato, il suo nome sarà unico.
+A questo punto quando creo l'IdentityLayer associato a questo InputLayer lo creerò con il nome nuovo ma con la stessa funzionalità: questo IdentityLayer quindi prenderà in input l'output dell'InputLayer originario. Questo in teoria dovrebbe bastare a risolvere il conflitto.

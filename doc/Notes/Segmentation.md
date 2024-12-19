@@ -11,6 +11,10 @@ Non sembrano esserci implementazioni di Yolo che supportino anche ImageSegmentat
 ![[Schermata del 2024-12-18 17-25-22.png|Esempio di nomi ripetuti]]
 
 Questa cosa è abbastanza strana perché Keras non dovrebbe permettere che ci siano dei nomi di livelli ripetuti all'interno del modello, anche se ci sono dei sotto-modelli.
+![[Schermata del 2024-12-18 22-07-06.png|Erreri sugli InputLayer in SAM_Base]]
+
+Il problema che porta la ripetizione del livello è il seguente. Il livello *boxes* viene usato come input layer del modello generale e poi riusato come input layer di uno dei sottomodelli (sequenziali mi sembra di capire); quello che succede quindi è che quando elaboro *boxes* nella ricerca dei nodi successori del grafo, trovo il sub model di cui prendo gli input layer e tra questi input layer c'è proprio *boxes* stesso, portando a ripetizione ricorsiva.
+![[Schermata del 2024-12-18 22-30-28.png|Successori Ricorsivi]]
 
 
 ## Altri Modelli

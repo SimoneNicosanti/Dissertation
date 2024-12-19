@@ -51,22 +51,26 @@ def main():
 
 
 def main_1():
-    filepath = "./other/dog.png"
-    image = keras.utils.load_img(filepath)
-    image = np.array(image)
-    image = keras.ops.expand_dims(np.array(image), axis=0)
-
+    image_size = 128
+    batch_size = 2
+    input_data = {
+        "images": np.ones(
+            (batch_size, image_size, image_size, 3),
+            dtype="float32",
+        ),
+        "points": np.ones((batch_size, 1, 2), dtype="float32"),
+        "labels": np.ones((batch_size, 1), dtype="float32"),
+        "boxes": np.ones((batch_size, 1, 2, 2), dtype="float32"),
+        "masks": np.zeros((batch_size, 0, image_size, image_size, 1)),
+    }
     segmenter = keras_hub.models.SAMImageSegmenter.from_preset("sam_base_sa1b")
+    segmenter.summary()
     segmenter.summary(expand_nested=True)
-
-    return
-
-    encoderLayer: keras.layers.Layer = segmenter.get_layer("sam_mask_decoder")
-
-    print(encoderLayer._inbound_nodes[0].arguments.args)
-    print(encoderLayer._inbound_nodes[0].arguments.kwargs)
-    print(encoderLayer._inbound_nodes[0].arguments._flat_arguments)
-    print(encoderLayer._inbound_nodes[0].arguments.keras_tensors)
+    print(segmenter.get_layer("images")._inbound_nodes[0].arguments.args)
+    # seq = segmenter.get_layer("sam_backbone").get_layer("sequential_12")
+    # print(segmenter.get_layer("boxes")._outbound_nodes)
+    # outputs = segmenter.predict(input_data)
+    # print(outputs)
     # preds_1 = segmenter(image, training=False)
     # print(preds_1.shape)
     # return
@@ -93,7 +97,7 @@ def main_2():
     image = np.array(image)
     image = keras.ops.expand_dims(np.array(image), axis=0)
 
-    segmenter = keras_cv.models.SegFormer.from_preset("segformer_b5", num_classes=21)
+    segmenter = keras_cv.models.SegFormer.from_preset("segformer_b5", num_classes=10)
     out_1 = segmenter(image)
 
     unnestedSegmenter = Unnest.unnestModel(segmenter)
@@ -103,10 +107,9 @@ def main_2():
     print("Are Equal >> ", np.array_equal(out_1, out_2))
 
     cmap = plt.get_cmap("tab20").colors  # Extract colors from a predefined colormap
-    colors = list(cmap[:22])
+    colors = list(cmap[:11])
     plot_segmentation(image, out_1, colors, "./other/orig_segm.png")
     plot_segmentation(image, out_2, colors, "./other/unnest_segm.png")
-
 
 if __name__ == "__main__":
     main_1()
