@@ -1,58 +1,5 @@
 import keras
 
-
-class OperationWrapper:
-    def __init__(
-        self, operation: keras.Operation, model: keras.Model, operationPath: str
-    ):
-        self.wrappedOperation = operation
-        self.model = model
-        self.name = operationPath
-        self.callOp = self.build_call_op(operation, operationPath)
-        self.args, self.kwargs = self.build_args_and_kwargs(operation, model)
-
-    def build_call_op(self, operation: keras.Operation, operationPath: str):
-        ## In order to keep the model original struct, we change both
-        ## input layers and layers representing sub models with IdentityLayers
-        newOperation: keras.Operation = None
-        if isinstance(operation, keras.Model) or isinstance(
-            operation, keras.layers.InputLayer
-        ):
-            newOperation = keras.layers.Identity(name=operationPath)
-        else:
-            newOperation = operation
-        return newOperation
-
-    def build_args_and_kwargs(self, operation: keras.Operation, model: keras.Model):
-        if isinstance(operation, keras.Model):
-            ## It is a sub model
-            ## We change the sub model with an Identity Layer
-            ## returning the same output as the sub model itself
-            return [operation.outputs], {}
-        elif isinstance(operation, keras.layers.InputLayer):
-            ## It is input layer of sub model
-            ## We chnage it with an Identity layer returning
-            ## the same output as the sub model
-            opSubModel: keras.Model = None
-            subModInputs: list[str] = getInputLayersNames(model)
-            inputIdx = subModInputs.index(operation.name)
-
-            ## TODO >> Check this if is enough general
-            for argElem in opSubModel._inbound_nodes[0].arguments.args:
-                if isinstance(argElem, list):
-                    return [argElem[inputIdx]], {}
-                else:
-                    return [argElem], {}
-
-        else:
-            ## Simple operation
-            ## Return its args
-            return (
-                operation._inbound_nodes[0].arguments.args,
-                operation._inbound_nodes[0].arguments.kwargs,
-            )
-
-
 def getModelOperations(model):
     if isinstance(model, keras.Sequential):
         hiddenInputLayer = model.layers[0].input._keras_history.operation

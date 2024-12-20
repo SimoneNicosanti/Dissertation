@@ -2,7 +2,8 @@ import keras
 import keras_cv
 import numpy as np
 import tensorflow as tf
-from Manipulation import Unnest
+from Manipulation import Unnest, Unnester
+from Manipulation.ModelGraph import ModelGraph
 
 
 def subModel_1():
@@ -46,6 +47,7 @@ def main():
     x = keras.layers.Add()([x0, x1]) + x2
 
     mainMod = keras.Model(inputs=inp_1, outputs=x)
+    mainMod.save("./models/Toy.keras")
 
     mainMod.compile(optimizer="adam", loss="mse")
 
@@ -57,22 +59,16 @@ def main():
 
     # Fit the model with 1 sample
     mainMod.fit(x=x_train, y=y_train, epochs=1)
-    seqInpLayer = (
-        mainMod.get_layer("functional_2")
-        .get_layer("sequential")
-        .layers[0]
-        .input._keras_history.operation
-    )
 
     # print(Utils.findNextConnections(mainMod))
 
-    unnestedModel = Unnest.unnestModel(mainMod)
+    unnestedModel = Unnester.unnestModel(mainMod)
     unnestedModel.save("./models/UnnestedToy.keras")
 
-    pred_1 = mainMod.predict(x_train)
-    pred_2 = unnestedModel.predict(x_train)
-    print(pred_1, pred_2)
-    print(np.array_equal(pred_1, pred_2["add_2_0"]))
+    # pred_1 = mainMod.predict(x_train)
+    # pred_2 = unnestedModel.predict(x_train)
+    # print(pred_1, pred_2)
+    # print(np.array_equal(pred_1, pred_2["add_2_0"]))
 
 
 def main_1():
@@ -89,14 +85,15 @@ def main_1():
 
     # Evaluate model without box decoding and NMS
     model(images)
+    pred_1 = model(images)
 
-    unnestedModel: keras.Model = Unnest.unnestModel(model)
+    unnestedModel: keras.Model = Unnester.unnestModel(model)
     print(unnestedModel.output)
     unnestedModel.save("./models/UnnestedYolo.keras")
 
     ## The differences in the outputs of predict
     ##is because predict in YoloPredictor decodifies automatically
-    pred_1 = model(images)
+
     pred_2 = unnestedModel(images)
 
     print("Same Outputs >>> ", np.array_equal(pred_1["boxes"], pred_2["box_0"]))

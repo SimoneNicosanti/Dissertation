@@ -237,3 +237,18 @@ Ci sono dei modelli (vedere [[Segmentation]]) in cui alcuni InputLayer vengono r
 Per risolvere questo problema si possono costruire dei Wrapper per le operazioni; a questi Wrapper vengono poi associati dei nomi unici in formato di path (ad esempio "/mainMod/subMod_1/subMod_2/layerName").
 In questo modo, anche se il layer è stato riutilizzato, il suo nome sarà unico.
 A questo punto quando creo l'IdentityLayer associato a questo InputLayer lo creerò con il nome nuovo ma con la stessa funzionalità: questo IdentityLayer quindi prenderà in input l'output dell'InputLayer originario. Questo in teoria dovrebbe bastare a risolvere il conflitto.
+
+Questo problema in realtà si può ripetere anche per altri tipi di livello: Keras permette il riutilizzo di un modello all'interno dello stesso modello e in suoi sotto modelli.
+All'interno di `operation._inbound_nodes` sono presenti le istanze di nodes dell'operazione: significa che se all'interno del modello quel livello viene usato tre volte, all'interno della lista ritornata ci saranno tre istanze della classe Node, ognuna corrispondente ad un nodo con cui quel livello compare nel grafo di computazione del modello.
+
+Quando accediamo alla KerasHistory di un tensor, questa History contiene:
+- Operation
+- NodeIndex : rappresenta l'indice del nodo all'interno della lista di _inbound_nodes
+- TensorIndex: rappresenta l'indice dell'output dato in risultato dall'operazione in questione
+Questo perché anche se l'operazione è la stessa i KerasTensor che sono prodotti sono diversi perché prodotti in due fasi diverse e con input diversi! In sostanza abbiamo una matrice indicizzata da (nodeIdx, tensorIdx) e che mi permette di ottenere l'output dato da quel nodo.
+
+Per gestire questi casi più complessi quindi, non è sufficiente accedere all'indice 0 della lista di _inboun_nodes_, ma è necessario accedere indicizzando per nodeIdx.
+
+Un'altro aspetto da considerare è quello delle connessioni: nell'andare avanti (sfruttando quindi gli outbound_nodes) non è scontato che si possa capire a quale istanza di Node si fa riferimento per quella operazione; andando indietro invece (sfruttando gli inbound_nodes) si può farlo usando appunto le keras_history.
+
+A questo punto credo che tutto debba essere fatto ragionando per Node: in questo senso quindi, quando 

@@ -4,7 +4,7 @@ import keras_hub
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from Manipulation import Unnest
+from Manipulation import Unnest, Unnester, Utils
 
 
 def plot_segmentation(original_image, preds, colormap, outPath):
@@ -34,9 +34,14 @@ def main():
     segmenter = keras_hub.models.DeepLabV3ImageSegmenter.from_preset(
         "deeplab_v3_plus_resnet50_pascalvoc"
     )
+    segmenter.summary(expand_nested=True)
+    print(segmenter.get_layer("inputs")._outbound_nodes)
+    print(Utils.getInputLayersNames(segmenter.get_layer("deep_lab_v3_backbone")))
+
+
     preds_1 = segmenter(image, training=False)
 
-    unnestedSegmenter = Unnest.unnestModel(segmenter)
+    unnestedSegmenter = Unnester.unnestModel(segmenter)
     unnestedSegmenter.save("./models/UnnestedSegmenter.keras")
     preds_2 = unnestedSegmenter({"inputs_0": image}, training=False)[
         "segmentation_output_0"
@@ -66,7 +71,9 @@ def main_1():
     segmenter = keras_hub.models.SAMImageSegmenter.from_preset("sam_base_sa1b")
     segmenter.summary()
     segmenter.summary(expand_nested=True)
-    print(segmenter.get_layer("images")._inbound_nodes[0].arguments.args)
+    print(segmenter.get_layer("sam_backbone").get_layer("images").output._keras_history)
+    print(segmenter.get_layer("images").output._keras_history)
+    print(segmenter.get_layer("images")._inbound_nodes)
     # seq = segmenter.get_layer("sam_backbone").get_layer("sequential_12")
     # print(segmenter.get_layer("boxes")._outbound_nodes)
     # outputs = segmenter.predict(input_data)
@@ -75,7 +82,7 @@ def main_1():
     # print(preds_1.shape)
     # return
 
-    unnestedSegmenter = Unnest.unnestModel(segmenter)
+    unnestedSegmenter = Unnester.unnestModel(segmenter)
     unnestedSegmenter.save("./models/UnnestedSAM.keras")
     # return
     # preds_2 = unnestedSegmenter({"inputs_0": image}, training=False)[
