@@ -2,8 +2,11 @@ import keras
 import keras_cv
 import numpy as np
 import tensorflow as tf
-from Manipulation import Unnest, Unnester
+from Manipulation import Unnester
+
+# from Manipulation import Unnest, Unnester
 from Manipulation.ModelGraph import ModelGraph
+from Manipulation.NodeWrapper import NodePool, NodeWrapper
 
 
 def subModel_1():
@@ -60,15 +63,13 @@ def main():
     # Fit the model with 1 sample
     mainMod.fit(x=x_train, y=y_train, epochs=1)
 
-    # print(Utils.findNextConnections(mainMod))
-
     unnestedModel = Unnester.unnestModel(mainMod)
     unnestedModel.save("./models/UnnestedToy.keras")
 
-    # pred_1 = mainMod.predict(x_train)
-    # pred_2 = unnestedModel.predict(x_train)
-    # print(pred_1, pred_2)
-    # print(np.array_equal(pred_1, pred_2["add_2_0"]))
+    pred_1 = mainMod.predict(x_train)
+    pred_2 = unnestedModel.predict(x_train)
+    print(pred_1, pred_2)
+    print(np.array_equal(pred_1, pred_2["add_2_0"]))
 
 
 def main_1():

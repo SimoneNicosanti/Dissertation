@@ -1,6 +1,6 @@
 import keras
 from Manipulation import PathGenerator, Utils
-from Manipulation.OperationWrapper import OperationWrapper
+from Manipulation.NodeWrapper import NodePool, NodeWrapper, PrevFinder, NodeKey
 
 
 class ModelGraph:
@@ -8,22 +8,25 @@ class ModelGraph:
     def __init__(self, model: keras.Model):
         self.model: keras.Model = model
 
+        # # Dict Mapping operationPath to its OperationInfo
+        self.nodePool: NodePool = NodePool()
+        self.initNodePool(self.model)
+
         ## InputLayerPath --> List of elems like modelName/input_layer_name
-        self.inputOpsList: list[str] = self.findInputPaths(model)
+        self.inputOpsKeys: list[str] = self.nodePool.findInputNodesKeys(model)
 
         ## InputLayerPath --> List of elems like modelName/output_layer_name
-        self.outputOpsList: list[str] = self.findOutputPaths(model)
+        self.outputOpsKeys: list[str] = self.nodePool.findOutputNodesKeys(model)
 
-        # ## Dict Mapping operationPath to its OperationInfo
-        self.allOpsDict: dict[str, OperationWrapper] = self.findAllOpsDict(
-            model, model.name
-        )
+        # # ## Dict Mapping operationPath to its followers
+        # self.nextOpsDict: dict[str, set[str]] = self.findNextConns(self.allOpsDict)
 
-        # ## Dict Mapping operationPath to its followers
-        self.nextOpsDict: dict[str, set[str]] = self.findNextConns(self.allOpsDict)
+        # # ## Dict Mapping operationPath to its predecessors
+        self.prevConns: dict[NodeKey, set[NodeKey]] = {}
+        self.findPrevConns(self.model)
 
-        # ## Dict Mapping operationPath to its predecessors
-        self.prevOpsDict: dict[str, set[str]] = self.findPrevConns()
+    def getNodePool(self) -> NodePool:
+        return self.nodePool
 
     def findInputPaths(self, model: keras.Model) -> list[str]:
         inputNames: list[str] = Utils.getInputLayersNames(model)
@@ -39,122 +42,51 @@ class ModelGraph:
             pathList.append(PathGenerator.generatePath(model.name, name))
         return pathList
 
-    def findAllOpsDict(
-        self, model: keras.Model, path: str
-    ) -> dict[str, OperationWrapper]:
-        allOpsDict: dict[str, OperationWrapper] = {}
-
+    def initNodePool(self, model: keras.Model) -> None:
         opsQueue: list[keras.Operation] = Utils.getModelOperations(model)
 
         while opsQueue:
             currOp: keras.Operation = opsQueue.pop(0)
-            currOpPath = PathGenerator.generatePath(path, currOp.name)
-            currOpWrap: OperationWrapper = OperationWrapper(currOp, model, currOpPath)
+            self.nodePool.addNodesFromOperation(currOp, model)
+            oneNodeWrap: NodeWrapper = self.nodePool.getNodesFromOpName(currOp.name)[0]
 
-            if currOpWrap.isKerasModel():
-                ## It is a sub Model --> Getting its operations
-                subAllOps: dict[str, keras.Operation] = self.findAllOpsDict(
-                    currOp, currOpPath
+            if oneNodeWrap.isKerasModel():
+                ## It is a sub Model --> Getting its Nodes
+                self.initNodePool(oneNodeWrap.getOperation())
+
+    def findPrevConns(self, model: keras.Model) -> None:
+        nodeKeyQueue: list[NodeKey] = self.nodePool.getAllKeys()
+
+        while nodeKeyQueue:
+            currKey: NodeKey = nodeKeyQueue.pop()
+            currNode: NodeWrapper = self.nodePool.getNodeFromKey(currKey)
+            currNodePrevs: set[NodeKey] = set()
+
+            if currNode.isKerasModel():
+                ## Handle Model Case
+                ## Predecessors for this node have to be set as the sub model output nodes
+                parentWrapList: list[NodeWrapper] = PrevFinder.getPrevsForModelNode(
+                    currNode, self.nodePool
                 )
-                allOpsDict.update(subAllOps)
 
-            allOpsDict[currOpPath] = currOpWrap
-
-        return allOpsDict
-
-    def findSubModelOps(
-        self, model: keras.Model, allOpsDict: dict[str, OperationWrapper]
-    ) -> dict[str, OperationWrapper]:
-        subAllOpsDict: dict[str, OperationWrapper] = {}
-        for key in allOpsDict.keys():
-            if allOpsDict[key].belongsToModel(model):
-                subAllOpsDict[key] = allOpsDict[key]
-
-        return subAllOpsDict
-
-    def findNextConns(self, allOpsDict: dict[str, OperationWrapper]):
-        nextOpsDict: dict[str, list[str]] = {}
-        opsQueue = list(allOpsDict.keys())
-
-        while opsQueue:
-            currOpName: str = opsQueue.pop()
-            currOpWrap: OperationWrapper = self.allOpsDict[currOpName]
-
-            nextOpsDict.setdefault(currOpName, [])
-
-            if currOpWrap.isKerasModel():
-                ## It is a SubModel
-                print(f"Sub Model > {currOpWrap.getOp().name}")
-
-                ## Find Sub Models Ops
-                subAllOpsDict: dict[str, OperationWrapper] = self.findSubModelOps(
-                    currOpWrap.getOp(), allOpsDict
-                )
-                ## Find Internal Connections
-                subNextConns: dict[str, set[str]] = self.findNextConns(subAllOpsDict)
-
-                ## If a layer is an output layer --> Connect it to the name of the curr layer
-                ## If a layer is on input layer --> Handled correctly (we are looking for nexts nodes)
-                for subOpName in subNextConns.keys():
-                    subOpWrap: OperationWrapper = allOpsDict[subOpName]
-                    nextOpsDict.setdefault(subOpName, [])
-
-                    nextOpsDict[subOpName].extend(subNextConns[subOpName])
-
-                    if subOpWrap.isOutputOp():
-                        nextOpsDict[subOpName].append(currOpName)
-
-            currOpNextOpsNames: list[keras.Operation] = currOpWrap.getNextOpsPaths()
-            for nextOpName in currOpNextOpsNames:
-                nextOpWrap: OperationWrapper = allOpsDict.get(nextOpName, None)
-
-                ## TODO CHECK THIS!!!
-                if nextOpWrap is None :
-                    continue
-
-                if not nextOpWrap.isKerasModel():
-                    ## The next node is not a SubModel
-                    ## The next is just the the next operation we are iterating on
-                    nextOpsDict[currOpName].append(nextOpName)
-                else:
-                    ## The next node is a SubModel
-                    ## Need to find the input layer corresponding as next for the current node
-                    correspondingInputLayers: list[str] = (
-                        self.findSubModelCorrespondingInputLayer(nextOpWrap, currOpWrap)
+            elif currNode.isInput():
+                ## Handle Input Case
+                if not currNode.belongsToModel(model):
+                    ## Sub Model Input Layer --> Then its predecessors will be the nodes giving inputs to the sub model
+                    parentWrapList: list[NodeWrapper] = PrevFinder.getPrevsForInputNode(
+                        currNode, self.nodePool
                     )
-                    nextOpsDict[currOpName].extend(correspondingInputLayers)
+                else:
+                    ## Main Model Input Layer --> Ok
+                    parentWrapList = []
 
-        convNextOpsDict: dict[str, set[str]] = {}
-        for key in nextOpsDict.keys():
-            convNextOpsDict[key] = set(nextOpsDict[key])
+            else:
+                ## Just a Common Op
+                parentWrapList: list[NodeWrapper] = PrevFinder.getPrevsForNormalNode(
+                    currNode, self.nodePool
+                )
 
-        return convNextOpsDict
+            for parentWrap in parentWrapList:
+                currNodePrevs.add(parentWrap.getId())
 
-    def findPrevConns(self):
-        prevOpsDict: dict[str, set[str]] = {}
-        for opName in self.nextOpsDict.keys():
-            prevConnections = set()
-            for otherOpName in self.nextOpsDict.keys():
-                otherOpNexts = self.nextOpsDict[otherOpName]
-                if opName != otherOpName:
-                    for elem in otherOpNexts:
-                        if elem == opName:
-                            prevConnections.add(otherOpName)
-            prevOpsDict[opName] = prevConnections
-        return prevOpsDict
-
-    def findSubModelCorrespondingInputLayer(
-        self, subModelWrap: OperationWrapper, currOpWrap: OperationWrapper
-    ) -> list[str]:
-        ## Getting inputs as received by sub model layer
-        layerInputsPrevNames: list[str] = subModelWrap.getPrevLayersNames()
-
-        ## Getting inputs as received by sub model
-        subModelInputLayers = subModelWrap.getSubModelInputNames()
-
-        ## Find input layers corresponding to this operation
-        correspondingLayers = []
-        for idx, elem in enumerate(layerInputsPrevNames):
-            if elem == currOpWrap.getName():
-                correspondingLayers.append(subModelInputLayers[idx])
-        return correspondingLayers
+            self.prevConns[currKey] = currNodePrevs

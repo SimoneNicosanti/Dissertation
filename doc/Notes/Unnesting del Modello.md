@@ -229,7 +229,7 @@ Per risolvere il bug, visto l'apparente ordinamento della lista di outputs, una 
 > [!NOTE] 
 > Questa aggiunta sembra risolvere il problema indicato, ma ci sono dei modelli di Segmentation per cui non è sufficiente, come ad esempio SAM. In questo caso bisogna ancora capire un attimo cosa sta succedendo e il motivo per cui il modello non funziona come dovrebbe.
 
-## Bug - Riuso di Input Layers
+## Bug - Riuso di Layers
 Ci sono dei modelli (vedere [[Segmentation]]) in cui alcuni InputLayer vengono riutilizzati come input layer dei sotto modelli: questo porta alla rottura dell'unnest che si basa sull'unicità dei nomi dei livelli.
 ![[Schermata del 2024-12-18 22-30-28.png|Successori Ricorsivi]]
 
@@ -251,4 +251,37 @@ Per gestire questi casi più complessi quindi, non è sufficiente accedere all'i
 
 Un'altro aspetto da considerare è quello delle connessioni: nell'andare avanti (sfruttando quindi gli outbound_nodes) non è scontato che si possa capire a quale istanza di Node si fa riferimento per quella operazione; andando indietro invece (sfruttando gli inbound_nodes) si può farlo usando appunto le keras_history.
 
-A questo punto credo che tutto debba essere fatto ragionando per Node: in questo senso quindi, quando 
+A questo punto credo che tutto debba essere fatto ragionando per Node: in questo senso quindi, quando mi salvo un'operazione prendo anche il node_idx dato dalla keras history.
+
+
+## Post Scoperta Livelli Ripetuti
+Per rendere l'implementazione più tollerante alla ripetizione dei livelli ho costruito delle astrazioni che permettessero di gestire questo aspetto. Il wrap non è più fatto di Operazioni (che appunto possono essere ripetute all'interno del modello), ma di Nodes, che invece non vengono ripetuti.
+
+
+### NodeKey
+Rappresenta una chiave univoca associata al nodo. Questa classe quindi si occupa di fare il Wrap di una tupla che definisce il nodo in maniera univoca (o almeno dovrebbe): è stata creata un classe per avere più flessibilità al cambio della definizione della chiave.
+
+> [!Warning]
+> Per adesso è stata definita solo come una coppia (operationName, nodeIdx). Questa definizione in teoria non è sufficiente per gestire casi complessi di annidamento e ripetizione dell'operazione. 
+> 
+> In teoria dovrebbe essere costruita come una tupla che definisce una sorta di path all'interno del modello, del tipo (mainMod, subMod_1.name, subMod_1.idx, subMod_2.name, subMod_2.idx, op.name, op.idx). Una definizione di questo tipo ci permetterebbe di poter identificare un nodo in modo univoco all'interno del grafo.
+
+Supponiamo che vi sia un sotto modello *subMod* usato n volte e che l'operazione *op* sia all'interno di questo modello e sia usata una sola volta al suo interno. In questo caso, sebbene l'operazione sia di fatto usata più volte, perché eseguita n volte, c'è un unico inbound_node ad esso associato. Per poter distinguere quindi tra i path per arrivare al nodo della *op* nelle varie ripetizioni di *subMod*, è necessario tenere traccia dell'istanza di *subMod* a cui il nodo che stiamo considerando appartiene.
+In questo senso quindi una chiave definita come detto ci permette di definire un vero e proprio path e di creare dei NodeWrapper diversi.
+
+
+### NodeWrapper
+Fa il wrap di un Nodo del modello, permettendo di accedere ai vari attributi dei nodi, nascosti e non da un unico punto; in questo modo, qualora dovesse cambiare il modo in cui Keras definisce il suo grafo, si dovrebbe riuscire a gestire il cambiamento in modo più centralizzato.
+
+Tra le varie informazioni mantenute dalla classe abbiamo:
+- Node di cui fa il Wrap
+- NodeIdx, ovvero l'indice dell'inbound node
+- Model, ovvero il modello a cui il nodo corrente appartiene
+- 
+### NodePool
+Rappresenta una Pool di NodeWrapper.
+Si occupa di fare il wrap di un dizionario che mappa la NodeKey --> NodeWrapper.
+
+Affinché la NodeKey si potesse usare come chiave le è stato fatto implementare le funzioni di *hash* e *eq*. 
+
+Il m

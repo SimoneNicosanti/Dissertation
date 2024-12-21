@@ -1,29 +1,31 @@
 import keras
-from Manipulation.ModelGraph import ModelGraph
-from Manipulation.OperationWrapper import OperationWrapper
-from Manipulation import Utils
 from Manipulation import Reconstructor
+from Manipulation.ModelGraph import ModelGraph
+
+from Manipulation.NodeWrapper import NodePool, NodeWrapper, NodeKey
 
 
-def unnestModel(model : keras.Model) :
-    modelGraph : ModelGraph = ModelGraph(model)
+def unnestModel(model: keras.Model):
+    modelGraph: ModelGraph = ModelGraph(model)
 
-    prevOpsDict: dict[str, set[str]] = modelGraph.prevOpsDict
-    allOpsDict: dict[str, OperationWrapper] = modelGraph.allOpsDict
+    nodePool : NodePool = modelGraph.nodePool
 
-    inputOpsList: list[str] = modelGraph.inputOpsList
-    inputOpsDict = {opName: set([0]) for opName in inputOpsList}
+    prevOpsDict: dict[NodeKey, set[NodeKey]] = modelGraph.prevConns
 
-    outputOpsList: list[str] = modelGraph.outputOpsList
-    outputOpsDict = {}
-    for outName in outputOpsList:
-        outOp: OperationWrapper = allOpsDict[outName]
-        opOutputList = Utils.convertToList(outOp.getOpOutput())
-        outputOpsDict[outName] = set([x for x in range(0, len(opOutputList))])
+    inputOpsKeys: list[NodeKey] = modelGraph.inputOpsKeys
+    inputOpsDict = {opName: set([0]) for opName in inputOpsKeys}
+
+    outputOpsKeys: list[NodeKey] = modelGraph.outputOpsKeys
+    outputOpsDict : dict[NodeKey, set[int]] = {}
+    for outKey in outputOpsKeys:
+        outWrap: NodeWrapper = nodePool.getNodeFromKey(outKey)
+        opOutputList = outWrap.getOperationOutput()
+        outputOpsDict[outKey] = set([x for x in range(0, len(opOutputList))])
+
 
     newModel = Reconstructor.reconstructModel(
-        allOpsDict.keys(),
-        allOpsDict,
+        nodePool.getAllKeys(),
+        nodePool,
         prevOpsDict,
         inputOpsDict,
         outputOpsDict,

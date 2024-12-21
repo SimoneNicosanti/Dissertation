@@ -17,5 +17,9 @@ Il problema che porta la ripetizione del livello è il seguente. Il livello *box
 ![[Schermata del 2024-12-18 22-30-28.png|Successori Ricorsivi]]
 
 
+### Fix
+In realtà i due modelli sembrano dare gli stessi risultati
+
+
 ## Altri Modelli
 L'uso degli altri modelli non sembra dare problemi con l'Unnest e i risultati ottenuti sono gli stessi sia con il modello originale che non.

@@ -30,17 +30,27 @@ def subModel(myDense):
 
 
 myDense = keras.layers.Dense(units=32)
+subMod = subModel_2()
 
 inp_1 = keras.Input(shape=(32,))
 x = subModel(myDense)(inp_1)
-x = myDense(x)
-x = keras.layers.Dense(units=32)(x)
+x = subMod(x)
+x = subMod(x)
 x = myDense(x)
 
 model = keras.Model(inputs=inp_1, outputs=x)
+model.summary()
 model.save("./models/Toy_1.keras")
 
-print(model.operations)
-print(dir(model.get_layer("functional").get_layer("input_layer_1")))
-print(model.get_layer("functional").get_layer("dense_1")._inbound_nodes[0].outputs)
-print(model.get_layer("dense_2").input._keras_history.operation._inbound_nodes[1].outputs)
+print(model.get_layer("sequential")._inbound_nodes)
+print(model.get_layer("sequential")._inbound_nodes[0].input_tensors)
+print(model.get_layer("sequential")._inbound_nodes[0].operation.layers[0]._inbound_nodes[0].input_tensors)
+# print(model.operations)
+# print(dir(model.get_layer("functional").get_layer("dense")))
+# print(model.get_layer("functional").get_layer("dense")._path)
+# print(model.get_layer("dense_2").input._keras_history.operation._inbound_nodes[1].outputs)
+# hist = model.output._keras_history
+# operation, nodeIdx, tensIdx = hist.operation, hist.node_index, hist.tensor_index
+# print(hist)
+# prev = operation._inbound_nodes[nodeIdx].output_tensors[tensIdx]
+# print(prev)
