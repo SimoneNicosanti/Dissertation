@@ -3,13 +3,14 @@ from concurrent import futures
 import grpc
 import keras
 import tensorflow as tf
-from Manipulation import Split
 from proto import registry_pb2_grpc
 from Registry import Registry
 
+from Analysis.Manipulation import Splitter
+
 
 def prepareSubModel(model: keras.Model):
-    subModels: list[keras.Model] = Split.modelSplit(model, 50)
+    subModels: list[keras.Model] = Splitter.modelSplit(model, 50)
     for i, mod in enumerate(subModels):
         mod.save(f"/models/SubModel_{i}.keras")
 

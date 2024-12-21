@@ -1,14 +1,14 @@
 import keras
 from Manipulation import Reconstructor
 from Manipulation.ModelGraph import ModelGraph
-
-from Manipulation.NodeWrapper import NodePool, NodeWrapper, NodeKey
+from Manipulation.NodeWrapper import NodeKey, NodePool, NodeWrapper
 
 
 def unnestModel(model: keras.Model):
     modelGraph: ModelGraph = ModelGraph(model)
+    modelGraph.printConnections()
 
-    nodePool : NodePool = modelGraph.nodePool
+    nodePool: NodePool = modelGraph.nodePool
 
     prevOpsDict: dict[NodeKey, set[NodeKey]] = modelGraph.prevConns
 
@@ -16,12 +16,11 @@ def unnestModel(model: keras.Model):
     inputOpsDict = {opName: set([0]) for opName in inputOpsKeys}
 
     outputOpsKeys: list[NodeKey] = modelGraph.outputOpsKeys
-    outputOpsDict : dict[NodeKey, set[int]] = {}
+    outputOpsDict: dict[NodeKey, set[int]] = {}
     for outKey in outputOpsKeys:
         outWrap: NodeWrapper = nodePool.getNodeFromKey(outKey)
         opOutputList = outWrap.getOperationOutput()
         outputOpsDict[outKey] = set([x for x in range(0, len(opOutputList))])
-
 
     newModel = Reconstructor.reconstructModel(
         nodePool.getAllKeys(),

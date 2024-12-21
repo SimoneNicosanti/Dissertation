@@ -1,4 +1,5 @@
 import keras
+from Manipulation import Unnester
 
 
 def subModel_1():
@@ -39,12 +40,23 @@ x = subMod(x)
 x = myDense(x)
 
 model = keras.Model(inputs=inp_1, outputs=x)
-model.summary()
-model.save("./models/Toy_1.keras")
-
-print(model.get_layer("sequential")._inbound_nodes)
-print(model.get_layer("sequential")._inbound_nodes[0].input_tensors)
-print(model.get_layer("sequential")._inbound_nodes[0].operation.layers[0]._inbound_nodes[0].input_tensors)
+for x in model._nodes:
+    print(type(x))
+total = []
+for x in model._nodes_by_depth.values():
+    total.extend(x)
+model.summary(expand_nested=True)
+# model.save("./models/Toy_1.keras")
+print(
+    "Input Tensors >> ",
+    model.get_layer("dense")._inbound_nodes[0].input_tensors[0]._keras_history,
+)
+print(
+    "Input Tensors >> ",
+    model.get_layer("dense")._inbound_nodes[1].input_tensors[0]._keras_history,
+)
+unnestedModel = Unnester.unnestModel(model)
+unnestedModel.save("./models/Toy_1_Unnested.keras")
 # print(model.operations)
 # print(dir(model.get_layer("functional").get_layer("dense")))
 # print(model.get_layer("functional").get_layer("dense")._path)

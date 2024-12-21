@@ -4,10 +4,6 @@ import numpy as np
 import tensorflow as tf
 from Manipulation import Unnester
 
-# from Manipulation import Unnest, Unnester
-from Manipulation.ModelGraph import ModelGraph
-from Manipulation.NodeWrapper import NodePool, NodeWrapper
-
 
 def subModel_1():
     inp_1 = keras.layers.Input(shape=(32,))
@@ -89,7 +85,6 @@ def main_1():
     pred_1 = model(images)
 
     unnestedModel: keras.Model = Unnester.unnestModel(model)
-    print(unnestedModel.output)
     unnestedModel.save("./models/UnnestedYolo.keras")
 
     ## The differences in the outputs of predict

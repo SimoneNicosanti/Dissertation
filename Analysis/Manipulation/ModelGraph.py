@@ -1,6 +1,6 @@
 import keras
-from Manipulation import PathGenerator, Utils
-from Manipulation.NodeWrapper import NodePool, NodeWrapper, PrevFinder, NodeKey
+from Manipulation import Utils
+from Manipulation.NodeWrapper import NodeKey, NodePool, NodeWrapper, PrevFinder
 
 
 class ModelGraph:
@@ -10,13 +10,14 @@ class ModelGraph:
 
         # # Dict Mapping operationPath to its OperationInfo
         self.nodePool: NodePool = NodePool()
+        self.depthSortedKeys: list[NodeKey] = []
         self.initNodePool(self.model)
 
         ## InputLayerPath --> List of elems like modelName/input_layer_name
-        self.inputOpsKeys: list[str] = self.nodePool.findInputNodesKeys(model)
+        self.inputOpsKeys: list[NodeKey] = self.nodePool.findInputNodesKeys(model)
 
         ## InputLayerPath --> List of elems like modelName/output_layer_name
-        self.outputOpsKeys: list[str] = self.nodePool.findOutputNodesKeys(model)
+        self.outputOpsKeys: list[NodeKey] = self.nodePool.findOutputNodesKeys(model)
 
         # # ## Dict Mapping operationPath to its followers
         # self.nextOpsDict: dict[str, set[str]] = self.findNextConns(self.allOpsDict)
@@ -25,34 +26,35 @@ class ModelGraph:
         self.prevConns: dict[NodeKey, set[NodeKey]] = {}
         self.findPrevConns(self.model)
 
+        self.nextConns : dict[NodeKey, set[NodeKey]] = self.findNextConns(self.prevConns)
+        
+
     def getNodePool(self) -> NodePool:
         return self.nodePool
 
-    def findInputPaths(self, model: keras.Model) -> list[str]:
-        inputNames: list[str] = Utils.getInputLayersNames(model)
-        pathList = []
-        for name in inputNames:
-            pathList.append(PathGenerator.generatePath(model.name, name))
-        return pathList
+    def getInputOpsKeys(self) -> list[NodeKey]:
+        return self.inputOpsKeys
 
-    def findOutputPaths(self, model: keras.Model) -> list[str]:
-        outputNames: list[str] = Utils.getModelOutputNames(model)
-        pathList = []
-        for name in outputNames:
-            pathList.append(PathGenerator.generatePath(model.name, name))
-        return pathList
+    def getOutputOpsKeys(self) -> list[NodeKey]:
+        return self.outputOpsKeys
 
-    def initNodePool(self, model: keras.Model) -> None:
+    def initNodePool(self, model: keras.Model, modelKey: NodeKey = None) -> None:
         opsQueue: list[keras.Operation] = Utils.getModelOperations(model)
 
         while opsQueue:
             currOp: keras.Operation = opsQueue.pop(0)
-            self.nodePool.addNodesFromOperation(currOp, model)
-            oneNodeWrap: NodeWrapper = self.nodePool.getNodesFromOpName(currOp.name)[0]
+            addedKeys: list[NodeKey] = self.nodePool.addNodesFromOperation(
+                currOp, model, modelKey
+            )
+            self.depthSortedKeys.extend(addedKeys)
+            for key in addedKeys:
+                nodeWrap: NodeWrapper = self.nodePool.getNodeFromKey(key)
+                if nodeWrap.isKerasModel():
+                    ## It is a sub Model --> Getting its Nodes
+                    self.initNodePool(model=nodeWrap.getOperation(), modelKey=key)
 
-            if oneNodeWrap.isKerasModel():
-                ## It is a sub Model --> Getting its Nodes
-                self.initNodePool(oneNodeWrap.getOperation())
+    def getDepthSortedKeys(self) -> list[NodeKey]:
+        return self.depthSortedKeys
 
     def findPrevConns(self, model: keras.Model) -> None:
         nodeKeyQueue: list[NodeKey] = self.nodePool.getAllKeys()
@@ -71,7 +73,7 @@ class ModelGraph:
 
             elif currNode.isInput():
                 ## Handle Input Case
-                if not currNode.belongsToModel(model):
+                if not currNode.belongsToMainModel(model):
                     ## Sub Model Input Layer --> Then its predecessors will be the nodes giving inputs to the sub model
                     parentWrapList: list[NodeWrapper] = PrevFinder.getPrevsForInputNode(
                         currNode, self.nodePool
@@ -90,3 +92,21 @@ class ModelGraph:
                 currNodePrevs.add(parentWrap.getId())
 
             self.prevConns[currKey] = currNodePrevs
+
+    def findNextConns(self, prevConns : dict[NodeKey, set[NodeKey]]) -> dict[NodeKey, set[NodeKey]] :
+        nextConns : dict[NodeKey, set[NodeKey]] = {}
+        for dest, sources in prevConns.items():
+            for src in sources:
+                if src not in nextConns:
+                    nextConns[src] = set()
+                nextConns[src].add(dest)
+        
+        return nextConns
+                    
+
+
+    def printConnections(self) -> None:
+        for key in self.prevConns.keys():
+            print(f"{key}")
+            for prevKey in self.prevConns[key]:
+                print(f"\t{prevKey}")

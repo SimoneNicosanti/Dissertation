@@ -4,7 +4,7 @@ import keras_hub
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from Manipulation import Unnest, Unnester, Utils
+from Manipulation import Unnester
 
 
 def plot_segmentation(original_image, preds, colormap, outPath):
@@ -34,9 +34,6 @@ def main():
     segmenter = keras_hub.models.DeepLabV3ImageSegmenter.from_preset(
         "deeplab_v3_plus_resnet50_pascalvoc"
     )
-    segmenter.summary(expand_nested=True)
-    print(segmenter.get_layer("inputs")._outbound_nodes)
-    print(Utils.getInputLayersNames(segmenter.get_layer("deep_lab_v3_backbone")))
 
 
     preds_1 = segmenter(image, training=False)
@@ -88,19 +85,6 @@ def main_1():
 
     print(f"Norm of Difference >> {tf.norm(out_1['masks'] - out_2['sam_mask_decoder_1'])}")
 
-    
-    # return
-    # preds_2 = unnestedSegmenter({"inputs_0": image}, training=False)[
-    #     "segmentation_output_0"
-    # ]
-
-    # print(f"Norm Of Difference >>> {tf.norm(preds_1 - preds_2)}")
-
-    # cmap = plt.get_cmap("tab20").colors  # Extract colors from a predefined colormap
-    # colors = list(cmap[:21])
-
-    # plot_segmentation(image, preds_1, cmap, "./output/orig_segm.png")
-    # plot_segmentation(image, preds_2, cmap, "./output/unnest_segm.png")
 
 
 def main_2():
@@ -110,9 +94,10 @@ def main_2():
     image = keras.ops.expand_dims(np.array(image), axis=0)
 
     segmenter = keras_cv.models.SegFormer.from_preset("segformer_b5", num_classes=10)
+    segmenter.summary(expand_nested=True)
     out_1 = segmenter(image)
 
-    unnestedSegmenter = Unnest.unnestModel(segmenter)
+    unnestedSegmenter = Unnester.unnestModel(segmenter)
     unnestedSegmenter.save("./models/UnnestedSegformer.keras")
     out_2 = unnestedSegmenter(image)["resizing_4_0"]
 
@@ -124,4 +109,4 @@ def main_2():
     plot_segmentation(image, out_2, colors, "./other/unnest_segm.png")
 
 if __name__ == "__main__":
-    main_1()
+    main_2()

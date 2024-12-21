@@ -1,7 +1,7 @@
 import keras
 import numpy as np
 import tensorflow as tf
-from Manipulation import Split, Unnest
+from Manipulation import Splitter, Unnest
 
 
 def subModel_1():
@@ -26,7 +26,7 @@ def subModel():
 def main_1():
     model = keras.saving.load_model("./models/UnnestedYolo.keras")
 
-    subModels: list[keras.Model] = Split.modelSplit(model, maxLayerNum=50)
+    subModels: list[keras.Model] = Splitter.modelSplit(model, maxLayerNum=50)
     for idx, subMod in enumerate(subModels):
         subMod.save(f"./models/SubYolo_{idx}.keras")
 
@@ -57,7 +57,7 @@ def main_2():
 
     unnestedModel = keras.saving.load_model("./models/Unnested.keras")
 
-    subModels = Split.modelSplit(unnestedModel, maxLayerNum=10)
+    subModels = Splitter.modelSplit(unnestedModel, maxLayerNum=10)
     subMod: keras.Model
     for idx, subMod in enumerate(subModels):
         subMod.save(f"./models/SubMod_{idx}.keras")
@@ -71,7 +71,7 @@ def main_3():
     model = keras.saving.load_model("./models/UnnestedYolo.keras")
     wholeModelOutput = model(images)
 
-    subModels: list[keras.Model] = Split.modelSplit(model, maxLayerNum=50)
+    subModels: list[keras.Model] = Splitter.modelSplit(model, maxLayerNum=50)
     for idx, subMod in enumerate(subModels):
         subMod.save(f"./models/SubYolo_{idx}.keras")
 
@@ -99,7 +99,7 @@ def main_3():
 
 def testSavedModel():
     kerasModel = keras.saving.load_model("./models/UnnestedYolo.keras")
-    subModels: list[keras.Model] = Split.modelSplit(kerasModel, maxLayerNum=50)
+    subModels: list[keras.Model] = Splitter.modelSplit(kerasModel, maxLayerNum=50)
 
     for idx, subMod in enumerate(subModels):
         subMod.save(f"./models/SubYolo_{idx}.keras")

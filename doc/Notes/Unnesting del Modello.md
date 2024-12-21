@@ -277,7 +277,9 @@ Tra le varie informazioni mantenute dalla classe abbiamo:
 - Node di cui fa il Wrap
 - NodeIdx, ovvero l'indice dell'inbound node
 - Model, ovvero il modello a cui il nodo corrente appartiene
-- 
+	- Per comodità
+- modelKey, per rintracciare il nodo del modello in modo semplice e per costruire le chiavi in modo iterativo (qualora servisse)
+- nodeKey, identificatore univoco del node all'interno del grafo del modello
 ### NodePool
 Rappresenta una Pool di NodeWrapper.
 Si occupa di fare il wrap di un dizionario che mappa la NodeKey --> NodeWrapper.
