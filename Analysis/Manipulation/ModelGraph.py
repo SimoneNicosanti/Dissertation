@@ -13,16 +13,10 @@ class ModelGraph:
         self.depthSortedKeys: list[NodeKey] = []
         self.initNodePool(self.model)
 
-        ## InputLayerPath --> List of elems like modelName/input_layer_name
         self.inputOpsKeys: list[NodeKey] = self.nodePool.findInputNodesKeys(model)
 
-        ## InputLayerPath --> List of elems like modelName/output_layer_name
         self.outputOpsKeys: list[NodeKey] = self.nodePool.findOutputNodesKeys(model)
 
-        # # ## Dict Mapping operationPath to its followers
-        # self.nextOpsDict: dict[str, set[str]] = self.findNextConns(self.allOpsDict)
-
-        # # ## Dict Mapping operationPath to its predecessors
         self.prevConns: dict[NodeKey, set[NodeKey]] = {}
         self.findPrevConns(self.model)
 

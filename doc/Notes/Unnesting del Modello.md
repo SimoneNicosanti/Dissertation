@@ -286,4 +286,71 @@ Si occupa di fare il wrap di un dizionario che mappa la NodeKey --> NodeWrapper.
 
 Affinché la NodeKey si potesse usare come chiave le è stato fatto implementare le funzioni di *hash* e *eq*. 
 
-Il m
+Il metodo fondamentale del pool è il `addNodesFromOperation`: questo metodo permette di aggiungere tutti i nodi associati ad un'operazione e che fanno parte del sotto modello corrente. I parametri sono:
+- operation, l'operazione i cui nodi vogliamo aggiungere
+- model, il modello di cui l'operazione fa parte
+- modelKey, la chiave associata all'operazione del modello (per poter costruire le chiavi dei nodi dell'operazione corrente).
+Per prima cosa vengono presi tutti i nodi che appartengono al modello di appartenenza dell'operazione e, per ogni nodo in `_inbound_nodes` dell'operazione si vede se ricade in questi nodi: se ricade allora viene aggiunto al ModelPool qualora non sia ancora stato inserito.
+
+Gli altri due metodi significativi sono i `findInputNodesKeys` e `findOutputNodesKeys` che permettono di trovare gli input nodes e gli output nodes del main model; siamo interessati solo al main model perché di fatto stiamo costruendo il modello Unnested.
+
+### ModelGraph
+Costruisce il grafo del modello dato in input.
+
+L'inizializzazione della `NodePool` viene fatta in modo ricorsivo: per ogni operazione del modello si fa l'aggiunta alla nodePool; se il nodo aggiunto è associato ad un modello si fa la ricorsione su quello. Contestualmente viene anche inizializzata una lista di `depthSortedKeys` che ci ridà la chiavi aggiunte alla nodePool in ordine di tempo. 
+Per quanto riguarda la modelKey passata al metodo:
+- Quando chiamata all'inizio si passa None, assumendo che al modello base non sia necessario dare chiave
+- Quando chiamata sul sotto modello, si passa la chiave del sotto modello stesso, che conosciamo perché ritornata dall'aggiunta dei nodi nel nodePool.
+
+#### FindPrevConns
+Si tratta di uno dei metodi fondamentali: permette di ricostruire le connessioni del grafo. Anche in questo caso non lavoriamo per operazioni, ma per nodi nel grafo di computazione.
+
+Abbiamo tre casi, a seconda della natura del currentNode:
+- KerasModel.  In questo caso l'input viene ricevuto dai livelli di output del sotto modello stesso
+	1. Si prende l'output del sotto modello, ovvero i suoi tensori di output
+	2. Per ognuno di questi tensori, tramite keras_history, si vede qual è il nodo che li ha generati
+	3. Si costruisce la chiave di questi nodi
+		1. Notare che questa chiave sarà data da currentNodeKey + outNode.op.name + outNodeIdx. In particolare dobbiamo prendere come punto di partenza il currentNodeKey visto che il nodo i questione è in questo sotto modello
+	4. Prendiamo tutti i nodi associati alle chiavi che abbiamo costruito
+- InputLayer. In questo caso l'input viene ricevuto dai livelli che mandano l'input al nodo del sotto modello.
+	1. Si prende l'input del nodo associato al sotto modello ( i suoi tensori di input)
+	2. Tramite keras_history si ricostruiscono i nodi che hanno prodotto questi nodi
+		1. Questi nodi appartengono al modello che ha il sotto modello come appunto sotto livello, quindi la chiave che definisce questi nodi sarà generata con la  `ownerNode.getOwnerKey()` come punto di partenza.
+		   Supponiamo ad esempio di avere l'input layer del sotto modello con chiave `(subMod_1, 0, subMod_2, 0, subMod_3, 0, input_layer_1, 0)`; l'input che viene dato ad input_layer_1 proviene da un nodo che si trova in subMod_2, quindi la chiave di partenza deve essere `(subMod_1, 0, subMod_2, 0)`, ovvero proprio la chiave dell'owner dell'owner dell'input_layer_1.
+	3. Prendiamo i livelli di input del sotto modello
+	4. Cerchiamo la corrispondenza tramite indice (QUESTA COSA POTREBBE NON FUNZIONARE IN ALCUNI CASI)
+- OtherLayer
+	1. Prendiamo i tensori input dell'operazione corrente
+	2. Prendiamo i nodi generatori tramite keras_history
+	3. Costruiamo le chiavi
+	4. Prendiamo i Wrapper corrispondenti tramite nodePool
+
+### Reconstructor
+Funziona più o meno nello stesso modo di prima, solo che lavora per Nodi e non per operazioni.
+
+Procedimento:
+1. Inizializziamo gli output prodotti. Inseriamo dei tensori per gli input layer del modello
+2. Per ogni nodo
+	1. Eseguiamo i suoi nodi predecessori
+	2. Facciamo eventuale wrap dell'operazion
+		1. Se si tratta di un InputLayer o di un sub model lo sostituiamo con un identity layer avente per output l'input dell'operazione di cui facciamo il Wrap
+	3. Cerchiamo la chiave per i nodi che generano l'input per il nodo corrente
+		1. Se è un nodo normale, sarà un nodo nello stesso ownerModel, quindi è la chiave dell'ownerModel 
+		2. Se è un nodo di input sarà un nodo nell'owner dell'owner
+		3. Se è un nodi di Model sarà un nodo nel modello stesso, quindi è la chiave del nodo che stiamo elaborando
+	4. Facciamo l'unpack sia di *args* che di *kwargs*
+	5. Eseguiamo l'operazione
+	6. Salviamo l'output dell'operazione come una lista
+3. Costruiamo l'input e l'output del modello finale 
+	1. Costruiti tramite due dict, inputOpsDict e outputOpsDict. Ogni dizionario mappa, per un certo nodo/operazione, qual è l'indice del tensore di output che si vuole come input (per evitare di mandare in input/output tensori superflui).
+
+### Risultato
+Fatta in questo modo la ricostruzione riesce a gestire anche il riuso di layer all'interno del modello. Come si vede in figura il modello in questione presenta due volte il sotto modello sequential e un livello *dense* ripetuto una volta nel modello principale e una volta nel modello *functional_1*. L'implementazione sì fatta riesce a fare l'unnest del modello e ad ottenere due modelli equivalenti in termini di risultato.
+![[Schermata del 2024-12-22 19-09-28.png|Unnest su un modello con ripetizioni|400]]
+
+
+> [!Warning] 
+> Fare la ricostruzione del modello in questa maniera implica che vengono aggiunti dei nuovi nodi nel grafo originale... Infatti la \_\_call\_\_ che facciamo viene mappata su una *symbolic_call* internamente e questa call aggiunge dei nodi all'interno del grafo.
+> Comunque questo non sembra creare problemi: quando viene ricaricato il modello mantiene solo i suoi nodi e non altri.
+
+

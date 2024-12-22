@@ -4,88 +4,11 @@ import keras
 import numpy as np
 import tensorflow as tf
 from ai_edge_litert.interpreter import Interpreter, SignatureRunner
+import unittest
+from Manipulation import Unnester, Splitter
+import keras_cv
 
 
-def check_precision():
-    model: keras.Model = keras.saving.load_model("./models/UnnestedYolo.keras")
-
-    typesSet = set()
-    for layer in model.layers:
-        layer: keras.Layer = layer
-
-        weightList: np.ndarray
-        for weightList in layer.get_weights():
-            typesSet.add(weightList.dtype)
-
-    print(typesSet)
-
-
-def general_convertion(kerasModel: keras.Model, outputPath: str) -> object:
-    print("Converting Model")
-    converter = tf.lite.TFLiteConverter.from_keras_model(kerasModel)
-    print("Built Converter")
-    converter.target_spec.supported_ops = [
-        tf.lite.OpsSet.TFLITE_BUILTINS,  # Operazioni TFLite
-        tf.lite.OpsSet.SELECT_TF_OPS,  # Fallback ai kernel TensorFlow
-    ]
-    tflite_model = converter.convert()
-    print("Model Converted")
-
-    # Save the model.
-    if outputPath is not None:
-        with open(outputPath, "wb") as f:
-            f.write(tflite_model)
-
-    return tflite_model
-
-
-def general_comparison(
-    kerasModel: keras.Model, liteModel: SignatureRunner, images
-) -> tuple:
-
-    liteInput = {}
-    for key in liteModel.get_input_details().keys():
-        liteInput[key] = images
-
-    result_1 = kerasModel(images)
-    result_2 = liteModel(**liteInput)
-
-    return result_1, result_2
-
-
-def testYolo():
-    kerasModel = keras.saving.load_model("./models/UnnestedYolo.keras")
-    general_convertion(kerasModel, "./models/UnnestedYolo.tflite")
-
-    interpreter = Interpreter("./models/UnnestedYolo.tflite")
-    interpreter.allocate_tensors()
-    liteModel: SignatureRunner = interpreter.get_signature_runner("serving_default")
-
-    images = tf.random.uniform(shape=(1, 512, 512, 3))
-    result_1, result_2 = general_comparison(kerasModel, liteModel, images)
-
-    compareResults(result_1["box_0"], result_2["box_0"], "Box")
-    compareResults(result_1["class_0"], result_2["class_0"], "Class")
-
-
-def compareResults(res_1, res_2, outName):
-    print(f"Are Equal {outName} >>> {np.array_equal(res_1, res_2)}")
-    print(f"Norm Of Difference {outName} >>> {tf.norm(res_1 - res_2)}")
-    print()
-
-
-def testMobileNet():
-    kerasModel: keras.Model = keras.applications.MobileNetV3Large()
-    general_convertion(kerasModel, "./models/Lite_MobileLarge.tflite")
-
-    interpreter = Interpreter("./models/Lite_MobileLarge.tflite")
-    interpreter.allocate_tensors()
-    liteModel: SignatureRunner = interpreter.get_signature_runner("serving_default")
-
-    result_1, result_2 = general_comparison(kerasModel, liteModel, readTestElem())
-
-    compareResults(result_1, result_2["output_0"], "Output_0")
-    print(f"Predictions >>> ({np.argmax(result_1)}, {np.argmax(result_2['output_0'])})")
 
 
 def testSubYolo():
@@ -114,9 +37,23 @@ def saved_model_convertion(kerasModel: keras.Model):
         fn=kerasModel.call,
         input_signature=[inputs],
     )
-    archive.write_out(f"./models/{kerasModel.name}")
+    archive.write_out(f"/tmp/{kerasModel.name}")
 
-    converter = tf.lite.TFLiteConverter.from_saved_model(f"./models/{kerasModel.name}")
+    converter = tf.lite.TFLiteConverter.from_saved_model(f"/tmp/{kerasModel.name}")
+    converter.target_spec.supported_ops = [
+        tf.lite.OpsSet.TFLITE_BUILTINS,  # Operazioni TFLite
+        tf.lite.OpsSet.SELECT_TF_OPS,  # Fallback ai kernel TensorFlow
+    ]
+    tflite_model = converter.convert()
+    with open(f"/tmp/{kerasModel.name}.tflite", "wb") as f:
+        f.write(tflite_model)
+
+    return tflite_model
+
+def general_convertion(kerasModel: keras.Model, outputPath: str) -> object:
+    print("Converting Model")
+    converter = tf.lite.TFLiteConverter.from_keras_model(kerasModel)
+    print("Built Converter")
     converter.target_spec.supported_ops = [
         tf.lite.OpsSet.TFLITE_BUILTINS,  # Operazioni TFLite
         tf.lite.OpsSet.SELECT_TF_OPS,  # Fallback ai kernel TensorFlow
@@ -124,70 +61,140 @@ def saved_model_convertion(kerasModel: keras.Model):
     tflite_model = converter.convert()
     print("Model Converted")
 
+    # Save the model.
+    if outputPath is not None:
+        with open(outputPath, "wb") as f:
+            f.write(tflite_model)
+
     return tflite_model
 
+def executeBoth(
+    kerasModel: keras.Model, liteModel: SignatureRunner, images
+) -> tuple:
 
-def testMixed():
-    producedOutputs = {}
-    images = tf.ones(shape=(1, 512, 512, 3))
+    liteInput = {}
+    for key in liteModel.get_input_details().keys():
+        liteInput[key] = images
 
-    producedOutputs["input_layer_1_0"] = images
-    producedOutputs["input_layer_1_0_0"] = images
-    for idx in range(0, 9):
-        print(f"Running Model {idx}")
-        subMod: keras.Model = keras.saving.load_model(
-            f"./models/SubYolo_{idx}.keras", compile=True
+    result_1 = kerasModel(images)
+    result_2 = liteModel(**liteInput)
+
+    return result_1, result_2
+
+
+
+
+class LiteTest(unittest.TestCase) :
+
+    @classmethod
+    def setUp_Yolo(cls) :
+        backbone = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_l_backbone_coco")
+
+        yolo = keras_cv.models.YOLOV8Detector(
+            num_classes=20,
+            bounding_box_format="xywh",
+            backbone=backbone,
+            fpn_depth=2,
         )
-        randInt: int = np.random.randint(0, 2)
-        if randInt == 0:
-            print("Running with Keras")
-            ## Keras Exec
-            subInp = {}
-            for inpName in subMod.input:
-                subInp[inpName] = producedOutputs[inpName]
 
-            subOut: dict[str, tf.Tensor] = subMod(subInp)
-            for key in subOut.keys():
-                subOut[key] = subOut[key].numpy()
-        else:
-            print("Running with LiteRT")
-            ## Lite Exec
-            liteModContent = saved_model_convertion(subMod)
-            interpreter = Interpreter(model_content=liteModContent)
-            print("Signatures >>> ", interpreter.get_signature_list())
-            interpreter.allocate_tensors()
-            liteModel: SignatureRunner = interpreter.get_signature_runner(
-                "serving_default"
+        unnestedYolo : keras.Model = Unnester.unnestModel(yolo)
+        unnestedYolo.save("./models/UnnestedYolo.keras")
+
+        kerasModel = keras.saving.load_model("./models/UnnestedYolo.keras")
+        general_convertion(kerasModel, "/tmp/UnnestedYolo.tflite")
+
+        subModels = Splitter.modelSplit(kerasModel, maxLayerNum=50)
+        for idx, subMod in enumerate(subModels) :
+            subMod.save(f"./models/SubYolo_{idx}.keras")
+            saved_model_convertion(subMod)
+
+
+    @classmethod
+    def setUp_MobileNet(cls) :
+        kerasModel: keras.Model = keras.applications.MobileNetV3Large()
+        general_convertion(kerasModel, "/tmp/Lite_MobileLarge.tflite")
+
+    
+    @classmethod
+    def setUpClass(cls):
+        cls.setUp_Yolo()
+        cls.setUp_MobileNet()
+
+
+    def test_yolo(self) :
+        kerasModel = keras.saving.load_model("./models/UnnestedYolo.keras")
+
+        interpreter = Interpreter("/tmp/UnnestedYolo.tflite")
+        interpreter.allocate_tensors()
+        liteModel: SignatureRunner = interpreter.get_signature_runner("serving_default")
+
+        images = tf.ones(shape=(1, 512, 512, 3))
+        result_1, result_2 = executeBoth(kerasModel, liteModel, images)
+
+        diffNorm = tf.norm(result_1["box_0"] - result_2["box_0"])
+        self.assertAlmostEqual(diffNorm, 0, delta = 1.e-3)
+
+
+    def test_MobileNet(self):
+        kerasModel: keras.Model = keras.applications.MobileNetV3Large()
+
+        interpreter = Interpreter("/tmp/Lite_MobileLarge.tflite")
+        interpreter.allocate_tensors()
+        liteModel: SignatureRunner = interpreter.get_signature_runner("serving_default")
+
+        images = tf.ones(shape = (1, 512, 512, 3))
+
+        result_1, result_2 = executeBoth(kerasModel, liteModel, images)
+        
+        diffNorm = tf.norm(result_1 - result_2["output_0"])
+        self.assertAlmostEqual(diffNorm, 0, delta = 1.e-3)
+
+
+    def test_mixed(self):
+        producedOutputs = {}
+        images = tf.ones(shape=(1, 512, 512, 3))
+
+        producedOutputs["input_layer_1_0"] = images
+        producedOutputs["input_layer_1_0_0"] = images
+        for idx in range(0, 9):
+            print(f"Running Model {idx}")
+            subMod: keras.Model = keras.saving.load_model(
+                f"./models/SubYolo_{idx}.keras", compile=True
             )
-            print(liteModel.get_input_details())
-            subInp = {}
-            for inpName in liteModel.get_input_details():
-                subInp[inpName] = producedOutputs[inpName]
+            #randInt: int = np.random.randint(0, 2)
+            if idx % 2 == 1:
+                print("Running with Keras")
+                ## Keras Exec
+                subInp = {}
+                for inpName in subMod.input:
+                    subInp[inpName] = producedOutputs[inpName]
 
-            subOut: dict[str, np.ndarray] = liteModel(**subInp)
+                subOut: dict[str, tf.Tensor] = subMod(subInp)
+                for key in subOut.keys():
+                    subOut[key] = subOut[key].numpy()
+            else:
+                print("Running with LiteRT")
+                ## Lite Exec
+                interpreter = Interpreter(model_path=f"/tmp/{subMod.name}.tflite")
+                interpreter.allocate_tensors()
+                liteModel: SignatureRunner = interpreter.get_signature_runner(
+                    "serving_default"
+                )
+                subInp = {}
+                for inpName in liteModel.get_input_details():
+                    subInp[inpName] = producedOutputs[inpName]
 
-        for outName in subOut:
-            producedOutputs[outName] = subOut[outName]
+                subOut: dict[str, np.ndarray] = liteModel(**subInp)
 
-    wholeModel = keras.saving.load_model("./models/UnnestedYolo.keras")
-    wholeModelOutput = wholeModel(images)
+            for outName in subOut:
+                producedOutputs[outName] = subOut[outName]
 
-    print()
-    compareResults(wholeModelOutput["box_0"], producedOutputs["box_0"], "Box")
-    compareResults(wholeModelOutput["class_0"], producedOutputs["class_0"], "Class")
+        yolo = keras.saving.load_model("./models/UnnestedYolo.keras")
+        wholeModelOutput = yolo(images)
 
-
-def readTestElem():
-    testElem = None
-    with open("boef_pre.pkl", "rb") as f:
-        testElem = pickle.load(f)
-
-    return tf.convert_to_tensor(value=testElem, dtype=tf.float32)
+        diffNorm = tf.norm(wholeModelOutput["box_0"] - producedOutputs["box_0"])
+        self.assertAlmostEqual(diffNorm, 0, delta = 1.e-3)
 
 
 if __name__ == "__main__":
-    # testYolo()
-    # testMobileNet()
-    # testSubYolo()
-    testMixed()
-    # testMixed_1()
+    unittest.main()

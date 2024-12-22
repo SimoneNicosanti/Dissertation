@@ -3,6 +3,7 @@ from Manipulation import Utils
 from Manipulation.NodeWrapper import NodeKey, NodePool, NodeWrapper
 
 
+
 def initProducedOutputs(
     inputOpsDict: dict[NodeKey, set[int]], nodePool: NodePool
 ) -> dict[NodeKey, list[keras.KerasTensor]]:
@@ -23,8 +24,8 @@ def initProducedOutputs(
     return producedOutputs
 
 
-def logReconstruct(toCall: keras.Operation, call_args: list, call_kwargs: dict):
-    print(f"Running >> {toCall.name}")
+def logReconstruct(nodeKey: NodeKey, call_args: list, call_kwargs: dict):
+    print(f"Running >> {nodeKey}")
     print(f"\targs >> {call_args}")
     print(f"\tkwargs >> {call_kwargs}")
     print()
@@ -41,15 +42,15 @@ def runOperation(
         if prevOpKey not in producedOutputs:
             runOperation(prevOpKey, nodePool, prevOpsDict, producedOutputs)
 
-    opWrap: NodeWrapper = nodePool.getNodeFromKey(nodeKey)
-    toCall: keras.Operation = wrapOperation(opWrap)
-    args, kwargs = wrap_args_and_kwargs(opWrap)
+    nodeWrap: NodeWrapper = nodePool.getNodeFromKey(nodeKey)
+    toCall: keras.Operation = wrapOperation(nodeWrap)
+    args, kwargs = wrap_args_and_kwargs(nodeWrap, nodePool)
 
-    inputGeneratorKey: NodeKey = findInputGeneratorKey(opWrap, nodePool)
+    inputGeneratorKey: NodeKey = findInputGeneratorKey(nodeWrap, nodePool)
     call_args = unpack_args(inputGeneratorKey, args, producedOutputs)
     call_kwargs = unpack_kwargs(inputGeneratorKey, kwargs, producedOutputs)
-    logReconstruct(toCall, call_args, call_kwargs)
-
+    logReconstruct(nodeKey, call_args, call_kwargs)
+    
     opOutput = toCall(*call_args, **call_kwargs)
 
     producedOutputs[nodeKey] = Utils.convertToList(opOutput)
@@ -60,13 +61,13 @@ def wrapOperation(nodeWrap: NodeWrapper) -> keras.Operation:
     ## input layers and layers representing sub models with IdentityLayers
     newOperation: keras.Operation = None
     if nodeWrap.isKerasModel() or nodeWrap.isInput():
-        newOperation = keras.layers.Identity(name=str(nodeWrap.getId()))
+        newOperation = keras.layers.Identity(name=nodeWrap.getId().format())
     else:
         newOperation = nodeWrap.getOperation()
     return newOperation
 
 
-def wrap_args_and_kwargs(nodeWrap: NodeWrapper) -> tuple[list, dict]:
+def wrap_args_and_kwargs(nodeWrap: NodeWrapper, nodePool : NodePool) -> tuple[list, dict]:
     if nodeWrap.isKerasModel():
         ## It is a sub model
         ## We change the sub model with an Identity Layer
@@ -81,8 +82,10 @@ def wrap_args_and_kwargs(nodeWrap: NodeWrapper) -> tuple[list, dict]:
         )
         inputIdx: int = subModInputs.index(nodeWrap.getId().getOpName())
 
+        ownerKey : NodeKey = nodeWrap.getOwnerModelKey()
+        ownerNode : NodeWrapper = nodePool.getNodeFromKey(ownerKey)
         ## TODO >> Check this if is enough general
-        for argElem in nodeWrap.getOwnerModelArgs():  ## Super Model of Wrap
+        for argElem in ownerNode.getNodeArgs():  ## Super Model of Wrap
             if isinstance(argElem, list):
                 return [argElem[inputIdx]], {}
             elif isinstance(argElem, dict):

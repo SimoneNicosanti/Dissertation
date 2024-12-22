@@ -6,7 +6,7 @@ from Manipulation.NodeWrapper import NodeKey, NodePool, NodeWrapper
 
 def unnestModel(model: keras.Model):
     modelGraph: ModelGraph = ModelGraph(model)
-    modelGraph.printConnections()
+    #modelGraph.printConnections()
 
     nodePool: NodePool = modelGraph.nodePool
 

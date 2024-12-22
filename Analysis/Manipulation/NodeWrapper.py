@@ -90,17 +90,13 @@ class NodeWrapper:
     def getNodeKwargs(self) -> dict:
         return self.node.arguments.kwargs
 
-    def getOwnerModelArgs(self) -> dict:
-        ## TODO Will not work for reuse of the layer
-        return self.nodeModel._inbound_nodes[0].arguments.args
-
 
 class NodePool:
     def __init__(self):
-        self.perIdDict: dict[NodeKey, NodeWrapper] = {}
+        self.perKeyDict: dict[NodeKey, NodeWrapper] = {}
 
     def getAllKeys(self) -> list[NodeKey]:
-        return list(self.perIdDict.keys())
+        return list(self.perKeyDict.keys())
 
     def addNodesFromOperation(
         self, operation: keras.Operation, model: keras.Model, modelKey: NodeKey
@@ -122,33 +118,31 @@ class NodePool:
             if node in modelNodes:
                 newOpWrap: NodeWrapper = NodeWrapper(node, nodeIdx, model, modelKey)
                 newKey: NodeKey = newOpWrap.getId()
-                if newKey not in self.perIdDict:
-                    ## TODO This cannot handle the reuse case
-                    ## To do that should build unique keys for reused layers
+                if newKey not in self.perKeyDict:
                     addedKeys.append(newKey)
 
-                    self.perIdDict[newKey] = newOpWrap
+                    self.perKeyDict[newKey] = newOpWrap
 
         return addedKeys
 
     def getNodeFromKey(self, key: NodeKey) -> NodeWrapper:
-        wrap: NodeWrapper = self.perIdDict.get(key, None)
+        wrap: NodeWrapper = self.perKeyDict.get(key, None)
         if wrap is None:
             raise KeyError(f"Provided Key {key} Is Not Valid")
         return wrap
 
     def findInputNodesKeys(self, model: keras.Model) -> list[NodeKey]:
         keyList: list[NodeKey] = []
-        for key in self.perIdDict.keys():
-            nodeWrap: NodeWrapper = self.perIdDict[key]
+        for key in self.perKeyDict.keys():
+            nodeWrap: NodeWrapper = self.perKeyDict[key]
             if nodeWrap.isInput() and nodeWrap.belongsToMainModel(model):
                 keyList.append(key)
         return keyList
 
     def findOutputNodesKeys(self, model: keras.Model) -> list[NodeKey]:
         keyList: list[NodeKey] = []
-        for key in self.perIdDict.keys():
-            nodeWrap: NodeWrapper = self.perIdDict[key]
+        for key in self.perKeyDict.keys():
+            nodeWrap: NodeWrapper = self.perKeyDict[key]
             if nodeWrap.isOutput() and nodeWrap.belongsToMainModel(model):
                 keyList.append(key)
 

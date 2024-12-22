@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Unnesting del Modello.md",
+                "file": "Notes/MobileNetV3Large.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Unnesting del Modello"
+              "title": "MobileNetV3Large"
             }
           }
         ]
@@ -161,24 +161,24 @@
   },
   "active": "864ce08cbcddc3b0",
   "lastOpenFiles": [
-    "Notes/Segmentation.md",
+    "Notes/LiteRT.md",
     "Notes/Unnesting del Modello.md",
     "Notes/Colloqui/2024-12-17.md",
+    "Notes/Segmentation.md",
+    "Notes/Images/Schermata del 2024-12-18 22-07-06.png",
+    "Notes/Images/Schermata del 2024-12-22 19-29-56.png",
+    "Notes/Images/Schermata del 2024-12-22 19-28-44.png",
+    "Notes/Images/Schermata del 2024-12-22 19-24-56.png",
+    "Notes/Images/Schermata del 2024-12-22 19-24-15.png",
+    "Notes/Images/Schermata del 2024-12-22 19-09-28.png",
     "Notes/Colloqui/2024-11-19.md",
-    "Schermata del 2024-12-18 22-30-28.png",
-    "Schermata del 2024-12-18 22-07-06.png",
+    "Notes/Images/Schermata del 2024-12-18 22-30-28.png",
     "Notes/Images/Pasted image 20241218212058.png",
     "Notes/Images/Schermata del 2024-12-18 21-17-36.png",
     "Notes/Images/Schermata del 2024-12-18 21-12-47 1.png",
-    "Notes/Images/Schermata del 2024-12-18 21-12-47.png",
     "Notes/Split del Modello.md",
     "Notes/Yolo.md",
     "Notes/MobileNetV3Large.md",
-    "Notes/Images/Schermata del 2024-12-18 17-34-44.png",
-    "Notes/Images/Schermata del 2024-12-18 17-25-22.png",
-    "Notes/Images/Schermata del 2024-12-17 16-23-25.png",
-    "Notes/Images/Schermata del 2024-12-17 15-19-11.png",
-    "Notes/LiteRT.md",
     "Notes/Calcolo FLOPS.md",
     "Notes/Distribuzione.md",
     "Notes/Architettura/Architettura.md",

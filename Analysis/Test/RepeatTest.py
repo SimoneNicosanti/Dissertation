@@ -1,6 +1,9 @@
-import keras
-from Manipulation import Unnester
+import unittest
 
+import keras
+import tensorflow as tf
+from Manipulation import Unnester, Utils
+import numpy as np
 
 def subModel_1():
     inp_1 = keras.layers.Input(shape=(32,))
@@ -30,39 +33,40 @@ def subModel(myDense):
     return mod_1
 
 
-myDense = keras.layers.Dense(units=32)
-subMod = subModel_2()
+class RepeatTest(unittest.TestCase):
 
-inp_1 = keras.Input(shape=(32,))
-x = subModel(myDense)(inp_1)
-x = subMod(x)
-x = subMod(x)
-x = myDense(x)
+    def test_toy(self):
+        myDense = keras.layers.Dense(units=32)
+        subMod = subModel_2()
 
-model = keras.Model(inputs=inp_1, outputs=x)
-for x in model._nodes:
-    print(type(x))
-total = []
-for x in model._nodes_by_depth.values():
-    total.extend(x)
-model.summary(expand_nested=True)
-# model.save("./models/Toy_1.keras")
-print(
-    "Input Tensors >> ",
-    model.get_layer("dense")._inbound_nodes[0].input_tensors[0]._keras_history,
-)
-print(
-    "Input Tensors >> ",
-    model.get_layer("dense")._inbound_nodes[1].input_tensors[0]._keras_history,
-)
-unnestedModel = Unnester.unnestModel(model)
-unnestedModel.save("./models/Toy_1_Unnested.keras")
-# print(model.operations)
-# print(dir(model.get_layer("functional").get_layer("dense")))
-# print(model.get_layer("functional").get_layer("dense")._path)
-# print(model.get_layer("dense_2").input._keras_history.operation._inbound_nodes[1].outputs)
-# hist = model.output._keras_history
-# operation, nodeIdx, tensIdx = hist.operation, hist.node_index, hist.tensor_index
-# print(hist)
-# prev = operation._inbound_nodes[nodeIdx].output_tensors[tensIdx]
-# print(prev)
+        inp_1 = keras.Input(shape=(32,))
+        x = subModel(myDense)(inp_1)
+        x = subMod(x)
+        x = subMod(x)
+        x = myDense(x)
+
+        toy = keras.Model(inputs=inp_1, outputs=x)
+        toy.compile(optimizer="adam", loss="mse")
+
+        x_train = np.random.random(size=(1, 32))  # Shape (1, 32)
+        y_train = np.random.random(size=(1,))  # Shape (1,)
+        toy.fit(x=x_train, y=y_train, epochs=1)
+
+        toy.save("./models/RepeatedToy.keras")
+
+        test_elem = tf.ones(shape = (1, 32))
+        out_1 = toy(test_elem)
+        
+        unnestedModel = Unnester.unnestModel(toy)
+        unnestedModel.save("./models/UnnestedRepeatedToy.keras")
+
+        loadedModel = keras.saving.load_model("./models/UnnestedRepeatedToy.keras")
+        out_2 = loadedModel(test_elem)["dense_0"]
+
+        normDiff = tf.norm(out_1 - out_2)
+
+        self.assertAlmostEqual(normDiff, 0, delta = 1.e-3)
+
+
+if __name__ == "__main__" :
+    unittest.main()
