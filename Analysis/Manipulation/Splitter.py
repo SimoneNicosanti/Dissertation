@@ -4,102 +4,109 @@ from Manipulation.ModelGraph import ModelGraph
 from Manipulation.NodeWrapper import NodeKey, NodePool, NodeWrapper
 
 
-def findPrevOperationNeededOutput(
-    currOp: keras.Operation, prevOp: keras.Operation
-) -> list[int]:
-    currOpInputList = Utils.convertToList(currOp.input)
+def findPrevNodeNeededOutput(currNode: NodeWrapper, prevNode: NodeWrapper) -> list[int]:
+    inputTensors = Utils.convertToList(currNode.getOperationInput())
 
     neededTensorIdxs = []
 
-    for currOpInput in currOpInputList:
-        inputHist = currOpInput._keras_history
-        inputOriginOpName, tensorIndex = (
+    for inputTensor in inputTensors:
+        inputHist = inputTensor._keras_history
+        originNodeName, nodeIndex, tensorIndex = (
             inputHist.operation.name,
+            inputHist.node_index,
             inputHist.tensor_index,
         )
 
-        if inputOriginOpName == prevOp.name:
+        ## Assuming the model unnested, the source node will be in the same model
+        originKey: NodeKey = NodeKey(
+            currNode.getOwnerModelKey(), originNodeName, nodeIndex
+        )
+        if originKey == prevNode.getId():
             neededTensorIdxs.append(tensorIndex)
 
     return neededTensorIdxs
 
 
 def findInputOpsList(
-    subOpsNames: list[str],
-    allOpsDict: dict[str, keras.KerasTensor],
-    prevOpsDict: dict[str, set[str]],
-) -> dict[str, set[int]]:
+    subNodeKeys: list[NodeKey],
+    nodePool: NodePool,
+    prevOpsDict: dict[NodeKey, set[NodeKey]],
+) -> dict[NodeKey, set[int]]:
 
-    inputOpsDict: dict[str, list[int]] = {}
-    for opName in subOpsNames:
-        prevOpsNameList: list[str] = prevOpsDict[opName]
-        if len(prevOpsNameList) == 0:
+    inputOpsDict: dict[NodeKey, list[int]] = {}
+    for nodeKey in subNodeKeys:
+        prevNodeKeys: set[NodeKey] = prevOpsDict[nodeKey]
+        if len(prevNodeKeys) == 0:
             ## Input Layer
-            inputOpsDict.setdefault(opName, [])
-            inputOpsDict[opName].extend([0])
+            inputOpsDict.setdefault(nodeKey, [])
+            inputOpsDict[nodeKey].extend([0])
         else:
-            for prevOpName in prevOpsNameList:
-                if prevOpName not in subOpsNames:
-                    inputOpsDict.setdefault(prevOpName, [])
-                    tensorIdxs = findPrevOperationNeededOutput(
-                        allOpsDict[opName], allOpsDict[prevOpName]
+            for prevNodeKey in prevNodeKeys:
+                if prevNodeKey not in subNodeKeys:
+                    inputOpsDict.setdefault(prevNodeKey, [])
+                    tensorIdxs = findPrevNodeNeededOutput(
+                        currNode=nodePool.getNodeFromKey(nodeKey),
+                        prevNode=nodePool.getNodeFromKey(prevNodeKey),
                     )
-                    inputOpsDict[prevOpName].extend(tensorIdxs)
+                    inputOpsDict[prevNodeKey].extend(tensorIdxs)
 
-    return {opName: set(inputOpsDict[opName]) for opName in inputOpsDict.keys()}
+    return {nodeKey: set(inputOpsDict[nodeKey]) for nodeKey in inputOpsDict.keys()}
 
 
 def findOutputOpsList(
-    subOpsNames: list[str],
-    allOpsDict: dict[str, keras.Operation],
-    nextOpsDict: dict[str, set[str]],
-    modelOutputNames: list[str],
-) -> dict[str, set[int]]:
-    outputOpsDict: dict[str, list[int]] = {}
-    for opName in subOpsNames:
-        nextOpsNamesList: list[str] = nextOpsDict[opName]
+    subModelKeys: list[NodeKey],
+    nodePool: NodePool,
+    nextOpsDict: dict[NodeKey, set[NodeKey]],
+    modelOutputKeys: list[NodeKey],
+) -> dict[NodeKey, set[int]]:
 
-        if opName in modelOutputNames or len(nextOpsNamesList) == 0:
+    outputOpsDict: dict[NodeKey, list[int]] = {}
+    for nodeKey in subModelKeys:
+        nextNodeKeys: set[NodeKey] = nextOpsDict[nodeKey]
+
+        if nodeKey in modelOutputKeys or len(nextNodeKeys) == 0:
             ## This is an output layer of the model
-            outputList = Utils.convertToList(allOpsDict[opName].output)
-            outputOpsDict.setdefault(opName, [])
-            outputOpsDict[opName].extend([x for x in range(0, len(outputList))])
+            outputList = Utils.convertToList(
+                nodePool.getNodeFromKey(nodeKey).getOperationOutput()
+            )
+            outputOpsDict.setdefault(nodeKey, [])
+            outputOpsDict[nodeKey].extend([x for x in range(0, len(outputList))])
         else:
-            for nextOpName in nextOpsNamesList:
-                if nextOpName not in subOpsNames:
-                    outputOpsDict.setdefault(opName, [])
-                    tensorIdxs = findPrevOperationNeededOutput(
-                        allOpsDict[nextOpName], allOpsDict[opName]
+            for nextOpKey in nextNodeKeys:
+                if nextOpKey not in subModelKeys:
+                    outputOpsDict.setdefault(nodeKey, [])
+                    tensorIdxs = findPrevNodeNeededOutput(
+                        nodePool.getNodeFromKey(nextOpKey),
+                        nodePool.getNodeFromKey(nodeKey),
                     )
-                    outputOpsDict[opName].extend(tensorIdxs)
-    return {opName: set(outputOpsDict[opName]) for opName in outputOpsDict.keys()}
+                    outputOpsDict[nodeKey].extend(tensorIdxs)
+    return {nodeKey: set(outputOpsDict[nodeKey]) for nodeKey in outputOpsDict.keys()}
 
 
 def buildSubModel(
-    subOpsNames: list[NodeKey],
+    subNodeKeys: list[NodeKey],
     nodePool: NodePool,
     prevOpsDict: dict[NodeKey, set[NodeKey]],
     nextOpsDict: dict[NodeKey, set[NodeKey]],
-    inputLayerKeys: list[str],
-    outputLayerKeys: list[str],
+    outputLayerKeys: list[NodeKey],
     subModIdx: int,
 ) -> keras.Model:
 
-    print(f"Processing {subModIdx}")
-    inputOpsDict: dict[str, set[int]] = findInputOpsList(
-        subOpsNames, nodePool, prevOpsDict
+    print(f"Building Sub Model Of Index {subModIdx}")
+    inputOpsDict: dict[NodeKey, set[int]] = findInputOpsList(
+        subNodeKeys, nodePool, prevOpsDict
     )
-    outputOpsDict: dict[str, set[int]] = findOutputOpsList(
-        subOpsNames, nodePool, nextOpsDict, outputLayerKeys
+    outputOpsDict: dict[NodeKey, set[int]] = findOutputOpsList(
+        subNodeKeys, nodePool, nextOpsDict, outputLayerKeys
     )
 
+    ## Assuming Unnested Model
     subModel = Reconstructor.reconstructModel(
-        subOpsNames,
+        subNodeKeys,
         nodePool,
         prevOpsDict,
         inputOpsDict,
         outputOpsDict,
-        [],  ## Assuming Unnested Model
     )
 
     return subModel
@@ -108,24 +115,22 @@ def buildSubModel(
 def modelSplit(model: keras.Model, maxLayerNum: int) -> list[keras.Model]:
     modelGraph: ModelGraph = ModelGraph(model)
 
-    allNodes: list[NodeKey] = modelGraph.getDepthSortedKeys()
+    allNodeKeys: list[NodeKey] = modelGraph.getDepthSortedKeys()
     nodePool: dict[NodeKey, NodeWrapper] = modelGraph.getNodePool()
 
-    inputLayersKeys: list[NodeKey] = modelGraph.getInputOpsKeys()
     outputLayersKeys: list[NodeKey] = modelGraph.getOutputOpsKeys()
 
     prevConns, nextConns = modelGraph.prevConns, modelGraph.nextConns
     subModels = []
     modIdx = 0
-    for i in range(0, len(allNodes), maxLayerNum):
-        subKeys = allNodes[i : min(len(allNodes), i + maxLayerNum)]
+    for i in range(0, len(allNodeKeys), maxLayerNum):
+        subKeys = allNodeKeys[i : min(len(allNodeKeys), i + maxLayerNum)]
 
         subModel: keras.Model = buildSubModel(
             subKeys,
             nodePool,
             prevConns,
             nextConns,
-            inputLayersKeys,
             outputLayersKeys,
             modIdx,
         )

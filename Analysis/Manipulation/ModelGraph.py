@@ -26,8 +26,7 @@ class ModelGraph:
         self.prevConns: dict[NodeKey, set[NodeKey]] = {}
         self.findPrevConns(self.model)
 
-        self.nextConns : dict[NodeKey, set[NodeKey]] = self.findNextConns(self.prevConns)
-        
+        self.nextConns: dict[NodeKey, set[NodeKey]] = self.findNextConns(self.prevConns)
 
     def getNodePool(self) -> NodePool:
         return self.nodePool
@@ -93,17 +92,17 @@ class ModelGraph:
 
             self.prevConns[currKey] = currNodePrevs
 
-    def findNextConns(self, prevConns : dict[NodeKey, set[NodeKey]]) -> dict[NodeKey, set[NodeKey]] :
-        nextConns : dict[NodeKey, set[NodeKey]] = {}
+    def findNextConns(
+        self, prevConns: dict[NodeKey, set[NodeKey]]
+    ) -> dict[NodeKey, set[NodeKey]]:
+        nextConns: dict[NodeKey, set[NodeKey]] = {}
+        for nodeKey in self.depthSortedKeys:
+            nextConns.setdefault(nodeKey, set())
         for dest, sources in prevConns.items():
             for src in sources:
-                if src not in nextConns:
-                    nextConns[src] = set()
                 nextConns[src].add(dest)
-        
-        return nextConns
-                    
 
+        return nextConns
 
     def printConnections(self) -> None:
         for key in self.prevConns.keys():

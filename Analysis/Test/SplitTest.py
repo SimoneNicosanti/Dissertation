@@ -1,7 +1,7 @@
 import keras
 import numpy as np
 import tensorflow as tf
-from Manipulation import Splitter, Unnest
+from Manipulation import Splitter, Unnester
 
 
 def subModel_1():
@@ -52,7 +52,7 @@ def main_2():
     # Fit the model with 1 sample
     mainMod.fit(x=x_train, y=y_train, epochs=1)
 
-    unnestedModel = Unnest.unnestModel(mainMod)
+    unnestedModel = Unnester.unnestModel(mainMod)
     unnestedModel.save("./models/Unnested.keras")
 
     unnestedModel = keras.saving.load_model("./models/Unnested.keras")
@@ -107,14 +107,6 @@ def testSavedModel():
     for idx in range(0, 9):
         print("Loaded ", idx)
         keras.saving.load_model(f"./models/SubYolo_{idx}.keras")
-
-    # for idx in range(0, 9):
-    #     loadedModel: keras.Model = keras.saving.load_model(
-    #         f"./models/SubYolo_{idx}.keras"
-    #     )
-    #     print("Inputs >>> ", loadedModel.input)
-
-    # print(loadedModel.signatures)
 
 
 if __name__ == "__main__":
