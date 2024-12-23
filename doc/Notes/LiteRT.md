@@ -114,3 +114,65 @@ L'errore seguente dice che non si possono mischiare i due tipi di tensore nell'i
 
 ![[Schermata del 2024-12-16 08-23-35.png|Hello World]]
 
+
+## Quantizzazione
+L'abilitazione delle quantizzazioni sembra essere abbastanza facile: è sufficiente aggiungere un attributo al converter.
+
+Riferimento https://ai.google.dev/edge/litert/models/post_training_quantization
+![[Schermata del 2024-12-23 11-32-59.png|Tipi di Quantizzazione Offerti]]
+### Dynamic
+
+> [!Quote] Title
+> Dynamic range quantization provides reduced memory usage and faster computation without you having to provide a representative dataset for calibration. This type of quantization, statically quantizes only the weights from floating point to integer at conversion time, which provides 8-bits of precision.
+> 
+> To further reduce latency during inference, "dynamic-range" operators dynamically quantize activations based on their range to 8-bits and perform computations with 8-bit weights and activations. This optimization provides latencies close to fully fixed-point inferences. However, the outputs are still stored using floating point so the increased speed of dynamic-range ops is less than a full fixed-point computation.
+
+In questo caso quindi:
+- Parametri salvati come interi a 8bit
+- Attivazioni convertite a precisione ad 8 bit
+
+### Full Integer
+Servono delle inferenze di prova per calibrare al meglio i pesi che vengono usati.
+
+### Float16
+
+> [!Quote] 
+> The advantages of float16 quantization are as follows:
+>- It reduces model size by up to half (since all weights become half of their original size).
+>- It causes minimal loss in accuracy.
+>- It supports some delegates (e.g. the GPU delegate) which can operate directly on float16 data, resulting in faster execution than float32 computations.
+>
+>The disadvantages of float16 quantization are as follows:
+>- It does not reduce latency as much as a quantization to fixed point math.
+> - By default, a float16 quantized model will "dequantize" the weights values to float32 when run on the CPU. (Note that the GPU delegate will not perform this dequantization, since it can operate on float16 data.)
+
+https://ai.google.dev/edge/litert/models/post_training_float16_quant
+
+> [!Quote] 
+> LiteRT supports converting weights to 16-bit floating point values during model conversion from TensorFlow to LiteRT's flat buffer format. This results in a 2x reduction in model size. 
+> 
+> Some hardware, like GPUs, can compute natively in this reduced precision arithmetic, realizing a speedup over traditional floating point execution. The LiteRT GPU delegate can be configured to run in this way. 
+> 
+> However, a model converted to float16 weights can still run on the CPU without additional modification: the float16 weights are upsampled to float32 prior to the first inference. This permits a significant reduction in model size in exchange for a minimal impacts to latency and accuracy.
+
+Quindi questa quantizzazione è significativa in termini di latenza solo se si ha a disposizione una GPU che supporta Float16; negli altri casi si ritorna a Float32.
+
+
+### Risultati
+Per quanto riguarda il tempo di conversione, la conversione a Full Integer richiede un tempo maggiore, probabilmente a causa della calibrazione.
+
+Precisione e tempi di esecuzione (in locale) al variare delle quantizzazioni. Notiamo che le quantizzazioni che apportano maggiore beneficio, a scapito di una certa approssimazione, sono la Dynamic e la Full Integer; La Float16 non sembra dare beneficio in termini di tempo, ma questo è probabilmente dovuto alla mancata configurazione della GPU.
+
+|                                   | No Quant    | Dynamic    | Full Integer | Float16     |
+| --------------------------------- | ----------- | ---------- | ------------ | ----------- |
+| Norma Infinito Differenza         | 1.09896e-07 | 0.00344    | 0.006...     | 8.72351e-05 |
+| Tempo di Esecuzione (ns) (25 Run) | 3469235878  | 2526344940 | 2535534742   | 3607644266  |
+
+Un'altra cosa interessante è la possibilità di mescolare i diversi tipi di quantizzazione. Di seguito il test eseguito su un modello Yolo con:
+- Massimo numero di livelli per partizione pari a 20
+- Tre tipi di quantizzazioni alternate: Nessuna, Dynamic e Float16
+Otteniamo un risultato per la norma infinito della differenza di circa 0.00197058. Vediamo che l'errore è più basso del solo Dynamic, probabilmente perché l'effetto delle parti calcolate con dynamic è attenuato dalle altre quantizzazioni
+![[Schermata del 2024-12-23 12-46-37.png|Errore con 3 Varianti di Quantizzazione]]
+
+Eseguendo invece con due tipi di quantizzazione, alternando modello non quantizzato e modello con Float16, otteniamo il seguente errore. Anche in questo caso è più basso della sola quantizzazione Float16 (in effetti è circa la metà, cosa che ha senso visto che alterniamo con la variante senza quantizzazione).
+![[Schermata del 2024-12-23 12-50-57.png|Errore con 2 Varianti di Quantizzazione]]

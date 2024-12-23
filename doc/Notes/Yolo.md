@@ -56,3 +56,10 @@ Nel modello che si crea a partire dalla backbone, la backbone viene inclusa come
 | Output di Test sul Modello Completo        |
 | ------------------------------------------ |
 | ![[Schermata del 2024-11-29 15-47-25.png]] |
+### Decoding
+Il decoding in Yolo viene fatto solo nel caso in cui venga chiamata la `predict` e non se viene chiamata la semplice call.
+
+Provare ad integrare il decoding direttamente nel modello solleva un errore relativo all'impossibilità di calcolare la dimensione di Output del modello. Infatti anche la stessa implementazione di Yolo non lo integra nel modello, ma lo chiama con una funzione a parte a valle della predizione dei valori non decodificati.
+![[Schermata del 2024-12-23 16-55-44.png|Errore ricevuto all'integrazione del decoding]]
+
+Una possibile alternativa in questo senso è quella di creare al pari del modello principale una funzione di Utility che fa la decodifica, copiandola dall'implementazione originaria.

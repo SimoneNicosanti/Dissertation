@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/MobileNetV3Large.md",
+                "file": "Notes/Colloqui/2024-12-17.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "MobileNetV3Large"
+              "title": "2024-12-17"
             }
           }
         ]
@@ -159,26 +159,27 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "864ce08cbcddc3b0",
+  "active": "2026b6711c0dedcf",
   "lastOpenFiles": [
-    "Notes/LiteRT.md",
-    "Notes/Unnesting del Modello.md",
+    "Notes/Yolo.md",
+    "Notes/Decoding.md",
+    "Notes/Images/Schermata del 2024-12-23 16-55-44.png",
     "Notes/Colloqui/2024-12-17.md",
+    "Notes/Images/Schermata del 2024-12-23 11-32-59.png",
+    "Notes/LiteRT.md",
+    "Notes/Images/Schermata del 2024-12-23 13-05-38.png",
+    "Notes/Images/Schermata del 2024-12-23 13-03-47.png",
+    "Notes/Images/Schermata del 2024-12-23 13-03-20.png",
+    "Notes/Images/Schermata del 2024-12-23 12-50-57.png",
+    "Notes/Images/Schermata del 2024-12-23 12-46-37.png",
+    "Notes/MobileNetV3Large.md",
+    "Notes/Unnesting del Modello.md",
     "Notes/Segmentation.md",
     "Notes/Images/Schermata del 2024-12-18 22-07-06.png",
     "Notes/Images/Schermata del 2024-12-22 19-29-56.png",
     "Notes/Images/Schermata del 2024-12-22 19-28-44.png",
-    "Notes/Images/Schermata del 2024-12-22 19-24-56.png",
-    "Notes/Images/Schermata del 2024-12-22 19-24-15.png",
-    "Notes/Images/Schermata del 2024-12-22 19-09-28.png",
     "Notes/Colloqui/2024-11-19.md",
-    "Notes/Images/Schermata del 2024-12-18 22-30-28.png",
-    "Notes/Images/Pasted image 20241218212058.png",
-    "Notes/Images/Schermata del 2024-12-18 21-17-36.png",
-    "Notes/Images/Schermata del 2024-12-18 21-12-47 1.png",
     "Notes/Split del Modello.md",
-    "Notes/Yolo.md",
-    "Notes/MobileNetV3Large.md",
     "Notes/Calcolo FLOPS.md",
     "Notes/Distribuzione.md",
     "Notes/Architettura/Architettura.md",
