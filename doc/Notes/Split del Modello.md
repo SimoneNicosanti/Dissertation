@@ -102,7 +102,6 @@ subModelInput += [
 | --------------------------------------------- | --------------------------------- |
 | ![[Output Sotto Modello Precedente.png\|280]] | ![[Input Sotto Modello.png\|307]] |
 
-
 Funziona ma parzialmente: bisogna fare in modo che gli input e gli output dei modelli siano dei tensori con nomi, in modo da poter raccordare l'output di un modello con l'input del modello successivo.
 RISOLTO: Creati dei dict per rappresentare input ed output e assegnati i nomi corrispondenti che servono.
 
@@ -208,13 +207,14 @@ return subModelInput
 | ![[Problema Livello Con Multi Output.png]]                |
 
 Modificato il parsing in modo che supporti delle liste, ma per adesso se un layer ha più di un output non posso recuperare quale output di quel layer sia usato come input del layer corrente.
-All'interno dell'oggetto KerasHistory c'è l'attributo *tensor_index* che potrebbe rappresentare l'indice del tensore di output dell'operazione precedente... (per adesso è solo una supposizione).
+All'interno dell'oggetto KerasHistory c'è l'attributo _tensor_index_ che potrebbe rappresentare l'indice del tensore di output dell'operazione precedente... (per adesso è solo una supposizione).
 
 | KerasHistory e TensorIndex                 |
 | ------------------------------------------ |
 | ![[Schermata del 2024-11-29 13-42-00.png]] |
+
 Conferma di questo!!
-Il ripercorrendo la storia del livello tre fino a *concatenate_5* troviamo functional con indici 0 e 1; se vediamo la keras_history il tensor_index è proprio lo stesso!! Quindi se il sotto modello ha più di un output possiamo trovare a quale tensore corrisponde prendendo il tensor_index nella history. Posso convertire il dict in una list ed indicizzare tramite il tensor index
+Il ripercorrendo la storia del livello tre fino a _concatenate_5_ troviamo functional con indici 0 e 1; se vediamo la keras_history il tensor_index è proprio lo stesso!! Quindi se il sotto modello ha più di un output possiamo trovare a quale tensore corrisponde prendendo il tensor_index nella history. Posso convertire il dict in una list ed indicizzare tramite il tensor index
 
 | Summary       | ![[Schermata del 2024-12-02 16-06-28.png]] |
 | ------------- | ------------------------------------------ |
@@ -227,14 +227,13 @@ Da provare se l'accesso in figura successiva funziona
 | ------------------------------------------ |
 | ![[Schermata del 2024-12-02 17-18-28.png]] |
 
-
 ### Gestione di Sotto Modelli
+
 In alcuni casi un layer potrebbe non essere un layer in senso stretto, ma potrebbe essere un sotto modello inserito all'interno di un altro modello. In questo caso la ricostruzione dei livelli precedenti tramite keras_history si rompe.
 
 Per provare a risolvere la cosa si cercano prima tutti i livelli in modo ricorsivo e costruendo una lista con tutti i livelli effettivi del modello. Tutte le operazioni che prima si facevano sul model.layers adesso si devono spostare su questa lista di livelli.
 
 Se il modello non ha dei sotto modelli il problema non si pone perché la lista ottenuta sarà uguale a quella che si otterrebbe con model.layers.
-
 
 > [!Warning] Dipendenze
 > Bisogna fare attenzione ad eventuali dipendenze cicliche che si potrebbero introdurre dividendo il modello
@@ -244,29 +243,32 @@ Se un livello riceve l'output di un sotto modello, l'input ricevuto non ha come 
 | Differenza tra input e output del sotto modello |
 | ----------------------------------------------- |
 | ![[Schermata del 2024-12-02 13-29-13.png]]      |
+
 Possibile Gestione:
+
 - Si potrebbe dire che se un livello è un sotto modello, allora si prende il suo output come input
 - Si considera come predecessore più prossimo l'output del sotto modello e si procede con la ricerca della history
 - Si considera il sotto modello separatamente dal modello principale: si dividono i sotto modelli e il modello grande prende come input l'output dei sotto livelli
 
-- \_inbound\_nodes
-- \_input\_spec
+- \_inbound_nodes
+- \_input_spec
 - input_spec
 - input
-- _outbound_nodes
+- \_outbound_nodes
 
-Usando \_outbound\_nodes sembra possibile accedere alle operazioni anche quando queste non appartengono al sotto modello. Posso ripercorrere il grafo al contrario (dall'input all'output).
+Usando \_outbound_nodes sembra possibile accedere alle operazioni anche quando queste non appartengono al sotto modello. Posso ripercorrere il grafo al contrario (dall'input all'output).
 In realtà il problema rimane: l'outbound nodes del livello che rappresenta il sotto modello ha queste informazioni, ma non l'ultimo livello del sotto modello, quindi sto da capo a 12...
 
 Ricapitolando:
+
 1. Posso avere un modello che contiene dei sotto modelli
 2. Se il modello contiene un sotto modello, il layer che rappresenta questo sub model è trattato come un layer singolo, non in modo composto
-	1. Di conseguenza le keras_history e gli outbound_nodes sono tracciati considerando questo sotto modello come un livello unico
+   1. Di conseguenza le keras_history e gli outbound_nodes sono tracciati considerando questo sotto modello come un livello unico
 
-TODO. Rivedere il parsing nel complesso: ho bisogno anche di sapere da quale tensore di output del livello precedente deriva (questo succede se il livello precedente è a sua volta un keras.Model)
-
+Rivedere il parsing nel complesso: ho bisogno anche di sapere da quale tensore di output del livello precedente deriva (questo succede se il livello precedente è a sua volta un keras.Model)
 
 Ricostruzione di un modello unico:
+
 ```python
 nextOpsDict
 inputList <- init with input info
@@ -280,12 +282,12 @@ while opQueue :
 	if currOp is Model:
 		## Manage Model
 		subModelConns, subModelInputs, subModelOutputs <- recursive call
-		
+
 		Unify nextOpsDict and subModelsConns
-		
+
 		for elem in subModelOutpus:
 			set next as next of currOp in main model
-		
+
 	else :
 		## Manage Op
 		get outbound nodes
@@ -295,14 +297,17 @@ while opQueue :
 			else :
 				add normal input
 		update nextOpsDict
-		
-		
+
+
 ```
+
 Problema con:
+
 - Possibili operazioni non commutative
 - Operazioni con costanti non accettate nell'input
 
 Altro modo per gestire questi aspetti:
+
 ```python
 def unwrapModel(model) :
 	allOps <- findAllOps(model)
@@ -312,7 +317,7 @@ def unwrapModel(model) :
 		for prevOp in op.prevOps :
 			if prevOp not in executedOps:
 				call exec op on prevOp
-		
+
 		inputs = op._inbound_nodes[0].
 		arguments._flat_arguments
 		## This gives back a list of arguments
@@ -327,29 +332,33 @@ def unwrapModel(model) :
 		opOutput = op.call(*newInputs)
 		for elem, i in op.output:
 			tensorNamesMap[elem.name] = opOutput[i]
-		producedOutputs[opName] = opOutput	
-		
+		producedOutputs[opName] = opOutput
+
 ```
+
 Per fare questo mi serve:
+
 - mappa kerasTensorName -> Operazione che lo genera
 - mappa original keras tensor name -> new keras tensor
-	- Quando lo rieseguo vengono prodotti dei nuovi nomi
+  - Quando lo rieseguo vengono prodotti dei nuovi nomi
 
 CONTROLLARE CHE:
+
 - \_inbound_nodes sia sempre ad un elemento
 - Possibile problema con gli IdentityLayer inseriti per sostituire gli input layer del sotto modello
-	- Loro non sanno il nome originale del tensore di output del livello di input che stanno sostituendo
-	- Inoltre non sono mai stati chiamati, quindi non hanno degli inbound nodes!!
-		- Posso fare un check per vedere se hanno gli attributi che sto cercando
+  - Loro non sanno il nome originale del tensore di output del livello di input che stanno sostituendo
+  - Inoltre non sono mai stati chiamati, quindi non hanno degli inbound nodes!!
+    - Posso fare un check per vedere se hanno gli attributi che sto cercando
 
 Per accedere ai predecessori del sub model NON SO PERCHé, ma input non funziona, però
 `_inbound_nodes[0].arguments._flat_arguments` sembra contenerli...
 
-
 ## Split del Modello (Post Unnest)
+
 Alla luce di quanto capito del funzionamento di keras con l'unnest si è modificato lo split del modello.
 
 Questo pezzo per la ricerca dell'output del modello non funziona: un livello potrebbe essere di output anche se ha dei successori!!
+
 ```python
 if len(nextOpsDict[opName]) == 0:
 ## Output Layer
@@ -364,8 +373,8 @@ if opName in model.output_names: ### List of output layers for the model
 	set it as model output
 ```
 
-
 Per risolvere il problema dei nomi degli InputLayer dei sotto modelli creati, è stato inserito questo blocco post creazione del modello. Questo ci permette di rimuovere i suffissi CLONE che vengono aggiunti in automatico da Keras.
+
 ```python
 for op in subModel.operations:
 	opName: str = op.name
@@ -376,19 +385,20 @@ for op in subModel.operations:
 	op.name = opName
 ```
 
-
 | Pre Blocco      | ![[Schermata del 2024-12-14 19-08-58.png]] |
 | --------------- | ------------------------------------------ |
 | **Post Blocco** | ![[Schermata del 2024-12-14 19-09-50.png]] |
 
 ## Bug Implementazione
+
 Purtroppo c'è un problema.
 
 Se c'è un'operazione che :
-- riceve come input da più output di una stessa operazione precedente 
+
+- riceve come input da più output di una stessa operazione precedente
 - e questa operazione sta fuori dal modello corrente
-Viene costruito un modello keras scorretto: in particolare una volta salvato il modello, keras sembra non essere in grado di ricaricarlo e si blocca proprio su quel punto.
-![[Schermata del 2024-12-15 19-27-47.png|Keras bloccato sul caricamento di SubYolo_2 con maxLayerNum=50]]
+  Viene costruito un modello keras scorretto: in particolare una volta salvato il modello, keras sembra non essere in grado di ricaricarlo e si blocca proprio su quel punto.
+  ![[Schermata del 2024-12-15 19-27-47.png|Keras bloccato sul caricamento di SubYolo_2 con maxLayerNum=50]]
 
 L'esempio in questo caso è quello che segue:
 ![[Schermata del 2024-12-15 19-26-02.png|Concatenate che riceve due input dall'operazione Split]]
@@ -396,34 +406,33 @@ L'esempio in questo caso è quello che segue:
 In questo caso il modello viene ricostruito nel modo seguente
 ![[Pasted image 20241216154328.png|Ricostruzione buggata]]
 
-
 In questo caso otteniamo un InputLayer che dovrebbe dare due valori invece di due input layer diversi che danno in output ognuno il suo.
 
 Per risolvere questa cosa possiamo sfruttare la ricostruzione del modello come già fatta nel caso dell'unnest, ma con delle piccole varianti che altro non fanno che adattare a questo caso.
-
 
 > [!Note] Costo Computazionale
 > Il costo computazionale di ricostruzione non dovrebbe essere troppo alto: quello che si sta facendo è una visita del grafo ad alto livello fatta per ricostruire le History dei tensori.
 > Sicuro keras sotto il cofano fa anche altro, ma non dovrebbe essere nulla di troppo costoso.
 
-
 ### Bug Fix
+
 Per risolvere il bug si parte dalle funzioni di reconstruct costruite per lo l'unnest del modello. In realtà funziona tutto anche abbastanza correttamente, ma bisogna aggiungere alcuni accorgimenti:
+
 - Passare alla funzione i nomi delle sotto operazioni (nel caso dell'unnest sono i nomi di tutte le operazioni)
-	- Questo perché comunque si tratta di un sotto insieme di operazioni del modello
-	- Non posso passare un sotto dizionario di *allOpsDict* perché mi servono le operazioni da cui viene preso l'input
-- Per ricostruire l'input si consideri il codice che segue; questo viene usato per inizializzare *producedOutputs* da cui poi parte la ricostruzione del modello nel suo complesso
-	- In particolare l'input viene impostato come quello di un input layer ex novo; i motivi sono
-		- Non si può semplicemente creare un tensore perché altrimenti c'è un errore dovuto al fatto che quel tensore non ha una history
-		- Se metto come produced semplicemente l'output dell'operazione precedente sto punto e a capo: la history rimane sempre quella precedente che crea questa discrepanza nella ricostruzione dell'input all'atto del salvataggio
+  - Questo perché comunque si tratta di un sotto insieme di operazioni del modello
+  - Non posso passare un sotto dizionario di _allOpsDict_ perché mi servono le operazioni da cui viene preso l'input
+- Per ricostruire l'input si consideri il codice che segue; questo viene usato per inizializzare _producedOutputs_ da cui poi parte la ricostruzione del modello nel suo complesso
+  - In particolare l'input viene impostato come quello di un input layer ex novo; i motivi sono
+    - Non si può semplicemente creare un tensore perché altrimenti c'è un errore dovuto al fatto che quel tensore non ha una history
+    - Se metto come produced semplicemente l'output dell'operazione precedente sto punto e a capo: la history rimane sempre quella precedente che crea questa discrepanza nella ricostruzione dell'input all'atto del salvataggio
 
 ```python
 for inpLayerName in inputOpsList:
 	outputList = Utils.convertToList(allOpsDict[inpLayerName].output)
 	producedOutputs[inpLayerName] = [
 		keras.layers.InputLayer(
-			shape=out.shape[1:], 
-			dtype=out.dtype, 
+			shape=out.shape[1:],
+			dtype=out.dtype,
 			name=f"{inpLayerName}_{idx}"
 		).output
 		for idx, out in enumerate(outputList)
@@ -433,12 +442,11 @@ for inpLayerName in inputOpsList:
 In figura si vede come adesso l'operazione in questione riceve effettivamente input da tutti i precedenti in modo corretto. Inoltre quando si prova a caricare il modello con `keras.saving.load_model` il caricamento non va in blocco.
 ![[Pasted image 20241216154350.png|Bug Risolto: Concatenate con 8 input e dal livello di split]]
 
-
 Anche il test fatto sull'esecuzione sembra tornare:
 ![[Schermata del 2024-12-15 20-29-01.png|Stesso risultato: Modello Intero VS Modello Diviso]]
 
-
 Per ridurre il numero di dati che vengono trasferiti si è aggiunta un'accortezza:
+
 ```python
 newModelInput = {}
 for inpLayerName in inputOpsDict.keys():
@@ -446,8 +454,7 @@ for inpLayerName in inputOpsDict.keys():
 	for idx in tensorIdxs:
 		newModelInput[f"{inpLayerName}_{idx}"] = producedOutputs[inpLayerName][idx]
 ```
+
 Per ogni input layer del modello, si precalcolano e si mettono in inputOpsDict i tensor index che servono come input: questi indici rappresentano gli indici dell'array degli output dell'operazione precedente che sono necessari come input. In questo modo si riduce il numero di output, altrimenti prima si prendevano tutti gli output dell'operazione precedente. La cosa speculare si fanno per gli output.
-L'unica cosa "antipatica" di questo è che se il processo viene fatto due volte sullo stesso modello (ad esempio una volta per l'unnest e una per la divisione), si potrebbe avere una sovrapposizione degli *idx*; in figura successiva questo aspetto:
+L'unica cosa "antipatica" di questo è che se il processo viene fatto due volte sullo stesso modello (ad esempio una volta per l'unnest e una per la divisione), si potrebbe avere una sovrapposizione degli _idx_; in figura successiva questo aspetto:
 ![[Schermata del 2024-12-15 22-48-17.png|Sovrapposizione di Indici]]
-
-

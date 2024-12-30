@@ -3,7 +3,6 @@ from Manipulation import Utils
 from Manipulation.NodeWrapper import NodeKey, NodePool, NodeWrapper
 
 
-
 def initProducedOutputs(
     inputOpsDict: dict[NodeKey, set[int]], nodePool: NodePool
 ) -> dict[NodeKey, list[keras.KerasTensor]]:
@@ -50,7 +49,7 @@ def runOperation(
     call_args = unpack_args(inputGeneratorKey, args, producedOutputs)
     call_kwargs = unpack_kwargs(inputGeneratorKey, kwargs, producedOutputs)
     logReconstruct(nodeKey, call_args, call_kwargs)
-    
+
     opOutput = toCall(*call_args, **call_kwargs)
 
     producedOutputs[nodeKey] = Utils.convertToList(opOutput)
@@ -67,7 +66,9 @@ def wrapOperation(nodeWrap: NodeWrapper) -> keras.Operation:
     return newOperation
 
 
-def wrap_args_and_kwargs(nodeWrap: NodeWrapper, nodePool : NodePool) -> tuple[list, dict]:
+def wrap_args_and_kwargs(
+    nodeWrap: NodeWrapper, nodePool: NodePool
+) -> tuple[list, dict]:
     if nodeWrap.isKerasModel():
         ## It is a sub model
         ## We change the sub model with an Identity Layer
@@ -78,12 +79,12 @@ def wrap_args_and_kwargs(nodeWrap: NodeWrapper, nodePool : NodePool) -> tuple[li
         ## We change it with an Identity layer returning
         ## the same input needed by the submodel model
         subModInputs: list[str] = Utils.getModelInputLayersNames(
-            nodeWrap.getNodeModel()
+            nodeWrap.getOwnerModel()
         )
         inputIdx: int = subModInputs.index(nodeWrap.getId().getOpName())
 
-        ownerKey : NodeKey = nodeWrap.getOwnerModelKey()
-        ownerNode : NodeWrapper = nodePool.getNodeFromKey(ownerKey)
+        ownerKey: NodeKey = nodeWrap.getOwnerModelKey()
+        ownerNode: NodeWrapper = nodePool.getNodeFromKey(ownerKey)
         ## TODO >> Check this if is enough general
         for argElem in ownerNode.getNodeArgs():  ## Super Model of Wrap
             if isinstance(argElem, list):
@@ -131,7 +132,6 @@ def unpack_args(
                 hist.node_index,
                 hist.tensor_index,
             )
-            ## TODO This will not work for multiple reuse of the same node
             prevNodeKey: NodeKey = NodeKey(inputGeneratorKey, prevOpName, nodeIdx)
 
             prevOpOutputs = producedOutputs[prevNodeKey]

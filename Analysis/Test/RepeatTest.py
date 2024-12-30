@@ -1,8 +1,7 @@
-import unittest
-
 import keras
 import numpy as np
 import tensorflow as tf
+from Flops.ComputeFlops import FlopsComputer
 from Manipulation import Unnester
 
 
@@ -29,12 +28,13 @@ def subModel_2():
 def subModel(myDense):
     inp = keras.layers.Input(shape=(32,))
     x1 = myDense(inp)
+    x1 = myDense(x1)
     x2 = keras.layers.Dense(units=32)(x1)
     mod_1 = keras.Model(inputs=inp, outputs=x2)
     return mod_1
 
 
-def test_toy():
+def build_toy():
     myDense = keras.layers.Dense(units=32)
     subMod = subModel_2()
 
@@ -51,7 +51,11 @@ def test_toy():
     y_train = np.random.random(size=(1,))  # Shape (1,)
     toy.fit(x=x_train, y=y_train, epochs=1)
 
-    toy.save("./models/RepeatedToy.keras")
+    return toy
+
+
+def test_toy():
+    toy = build_toy()
 
     test_elem = tf.ones(shape=(1, 32))
     out_1 = toy(test_elem)
@@ -60,11 +64,29 @@ def test_toy():
     unnestedModel.save("./models/UnnestedRepeatedToy.keras")
 
     loadedModel = keras.saving.load_model("./models/UnnestedRepeatedToy.keras")
+
     out_2 = loadedModel(test_elem)["dense_0"]
 
     normDiff = tf.norm(out_1 - out_2)
     print(f"Norm of Diff {normDiff}")
 
 
+def test_flops():
+    toy = build_toy()
+    toy.save("./models/RepeatedToy.keras")
+    print(toy.get_layer("dense")._inbound_nodes[0].parent_nodes[0].parent_nodes)
+    # print(dir(toy))
+    # print(graph.nodePool.getAllKeys())
+    print(toy.inputs)
+    inpShapes = []
+    ## It is always a list!!
+    for _ in enumerate(toy.inputs):
+        inpShapes.append((1, 32))
+
+    comp = FlopsComputer(toy)
+    comp.computeRunningTimes(inpShapes, 10)
+
+
 if __name__ == "__main__":
-    test_toy()
+    # test_toy()
+    test_flops()

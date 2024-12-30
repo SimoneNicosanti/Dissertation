@@ -1,5 +1,4 @@
 import keras
-from Manipulation import Utils
 from Manipulation.NodeWrapper import NodeKey, NodePool, NodeWrapper, PrevFinder
 
 
@@ -7,15 +6,14 @@ class ModelGraph:
 
     def __init__(self, model: keras.Model):
         self.model: keras.Model = model
+        self.nodePool: NodePool = NodePool(model)
 
-        # # Dict Mapping operationPath to its OperationInfo
-        self.nodePool: NodePool = NodePool()
-        self.depthSortedKeys: list[NodeKey] = []
-        self.initNodePool(self.model)
-
-        self.inputOpsKeys: list[NodeKey] = self.nodePool.findInputNodesKeys(model)
-
-        self.outputOpsKeys: list[NodeKey] = self.nodePool.findOutputNodesKeys(model)
+        self.inputOpsKeys: list[NodeKey] = self.nodePool.findInputNodesKeys(
+            modelKey=None
+        )
+        self.outputOpsKeys: list[NodeKey] = self.nodePool.findOutputNodesKeys(
+            modelKey=None
+        )
 
         self.prevConns: dict[NodeKey, set[NodeKey]] = {}
         self.findPrevConns(self.model)
@@ -31,23 +29,8 @@ class ModelGraph:
     def getOutputOpsKeys(self) -> list[NodeKey]:
         return self.outputOpsKeys
 
-    def initNodePool(self, model: keras.Model, modelKey: NodeKey = None) -> None:
-        opsQueue: list[keras.Operation] = Utils.getModelOperations(model)
-
-        while opsQueue:
-            currOp: keras.Operation = opsQueue.pop(0)
-            addedKeys: list[NodeKey] = self.nodePool.addNodesFromOperation(
-                currOp, model, modelKey
-            )
-            self.depthSortedKeys.extend(addedKeys)
-            for key in addedKeys:
-                nodeWrap: NodeWrapper = self.nodePool.getNodeFromKey(key)
-                if nodeWrap.isKerasModel():
-                    ## It is a sub Model --> Getting its Nodes
-                    self.initNodePool(model=nodeWrap.getOperation(), modelKey=key)
-
     def getDepthSortedKeys(self) -> list[NodeKey]:
-        return self.depthSortedKeys
+        return self.nodePool.getDepthSortedKeys()
 
     def findPrevConns(self, model: keras.Model) -> None:
         nodeKeyQueue: list[NodeKey] = self.nodePool.getAllKeys()
@@ -66,7 +49,7 @@ class ModelGraph:
 
             elif currNode.isInput():
                 ## Handle Input Case
-                if not currNode.belongsToMainModel(model):
+                if not currNode.belongsToModel(modelKey=None):
                     ## Sub Model Input Layer --> Then its predecessors will be the nodes giving inputs to the sub model
                     parentWrapList: list[NodeWrapper] = PrevFinder.getPrevsForInputNode(
                         currNode, self.nodePool
@@ -90,7 +73,7 @@ class ModelGraph:
         self, prevConns: dict[NodeKey, set[NodeKey]]
     ) -> dict[NodeKey, set[NodeKey]]:
         nextConns: dict[NodeKey, set[NodeKey]] = {}
-        for nodeKey in self.depthSortedKeys:
+        for nodeKey in self.getDepthSortedKeys():
             nextConns.setdefault(nodeKey, set())
         for dest, sources in prevConns.items():
             for src in sources:

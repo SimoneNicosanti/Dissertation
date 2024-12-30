@@ -131,4 +131,4 @@ def test_seg_former():
 if __name__ == "__main__":
     test_deep_lab()
     test_sam()
-    #test_seg_former()
+    # test_seg_former()

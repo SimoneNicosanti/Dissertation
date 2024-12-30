@@ -74,10 +74,6 @@ def toy_model():
     return mainMod
 
 
-    
-
-
-
 def test_yolo():
     images = tf.ones(shape=(5, 512, 512, 3))
 
@@ -105,9 +101,5 @@ def test_yolo():
     print(f"Yolo Model Test - Norm of Difference >> {diffNorm}")
 
 
-
-    
-
 if __name__ == "__main__":
     test_yolo()
-    test_yolo_with_decode()

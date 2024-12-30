@@ -146,3 +146,19 @@ Questo approccio ha un problema: ci sono alcuni tipi che non sono accettati come
 > - prendere i flops per modello (che posso calcolare sempre)
 > - Faccio la differenza dei totali e se c'è avanzo ripartisco l'avanzo tra le operazioni per cui non posso calcolare direttamente i flops
 
+
+## Aggiornamento - Gestione Operazioni Ripetute
+L'implementazione precedente assumeva che i nomi delle operazioni fossero unici all'interno del modello, cosa che alla fine sembra non essere vera. Per compensare a questa cosa si passa all'uso dei Nodi e delle NodeKey al pari dell'altra.
+
+Il problema principale sta nel fatto che per fare il wrap della `call` dell'operazione, non posso usare l'astrazione dei nodi. Infatti dati più nodi della stessa operazione, questi insistono sulla stessa funzione `call` e quindi non posso fare dei wrap diversi. All'interno della funzione di `track` del Tracker Concreto quindi si può tenere traccia di quale sia la chiamata a quella specifica operazione e aggiornare le statistiche corrispondenti. All'interno del singolo tracker quindi sono mantenute le statistiche per tutte le chiamate di quella operazione.
+
+Per recuperare le statistiche, bisogna prima di tutto capire quali sono i nodi che appartengono al modello che stiamo analizzando. Attraverso la sua chiave (visto che stiamo considerando il main model la sua chiave sarà None), possiamo recuperare dalla node pool le chiavi di tutti i nodi che appartengono a questo modello. 
+Consideriamo un'operazione che viene ripetuta 4 volte, due nel modello principale e due in un sotto modello. La sua lista `_inbound_nodes` conterrà quattro elementi. Supponiamo che la prima e l'ultima chiamata siano nel modello principale, avremo allora le seguenti chiavi:
+- (opName, 0)
+- (subModel, 0, opName, 1)
+- (subModel, 0, opName, 2)
+- (opName 4)
+
+La funzione di track tiene traccia delle esecuzioni di tutte queste chiamate!! Questo perché non si può distinguere quando si fa la call, di quale di queste chiamate si tratti davvero.
+All'interno del tracker vengono mantenute delle statistiche in un dizionario (callIdx --> stat). A questo punto, sapendo che solo la prima e l'ultima chiave appartengono al main model, possiamo accedere al dizionario e recuperare solo le informazioni che ci servono indicizzando i tracker per opName e le statistiche nel tracker per callIdx.
+

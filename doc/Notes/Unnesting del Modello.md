@@ -261,13 +261,15 @@ Per rendere l'implementazione più tollerante alla ripetizione dei livelli ho co
 ### NodeKey
 Rappresenta una chiave univoca associata al nodo. Questa classe quindi si occupa di fare il Wrap di una tupla che definisce il nodo in maniera univoca (o almeno dovrebbe): è stata creata un classe per avere più flessibilità al cambio della definizione della chiave.
 
-> [!Warning]
-> Per adesso è stata definita solo come una coppia (operationName, nodeIdx). Questa definizione in teoria non è sufficiente per gestire casi complessi di annidamento e ripetizione dell'operazione. 
-> 
-> In teoria dovrebbe essere costruita come una tupla che definisce una sorta di path all'interno del modello, del tipo (mainMod, subMod_1.name, subMod_1.idx, subMod_2.name, subMod_2.idx, op.name, op.idx). Una definizione di questo tipo ci permetterebbe di poter identificare un nodo in modo univoco all'interno del grafo.
-
 Supponiamo che vi sia un sotto modello *subMod* usato n volte e che l'operazione *op* sia all'interno di questo modello e sia usata una sola volta al suo interno. In questo caso, sebbene l'operazione sia di fatto usata più volte, perché eseguita n volte, c'è un unico inbound_node ad esso associato. Per poter distinguere quindi tra i path per arrivare al nodo della *op* nelle varie ripetizioni di *subMod*, è necessario tenere traccia dell'istanza di *subMod* a cui il nodo che stiamo considerando appartiene.
 In questo senso quindi una chiave definita come detto ci permette di definire un vero e proprio path e di creare dei NodeWrapper diversi.
+
+> [!Note] 
+> Piccola nota sugli inbound_nodes. 
+> 
+> Quando un'operazione è condivisa tra modello e sotto modello, all'interno degli inbound nodes compaiono anche le chiamate fatte nel sotto modello, quindi sarebbe sufficiente usare il node_idx per identificare le varie call.
+> 
+> Quando è un sotto modello ad essere ripetuto, negli inbound nodes delle sue operazioni non compaiono le chiamate di entrambi i sotto modelli (è anche normale che sia così, perché di fatto il modello che viene costruito è uno, solo che viene riusato in vari punti). Quindi la costruzione della chiave come sequenza è necessaria, in quanto permette di distinguere quale call del sotto modello stiamo facendo e poi quale operazione specifica in questa chiamata.
 
 
 ### NodeWrapper
