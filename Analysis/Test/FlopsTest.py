@@ -2,7 +2,7 @@ import csv
 
 import keras
 import keras_cv
-from Flops.ComputeFlops import FlopsComputer
+from Flops.FlopsComputer import FlopsComputer
 from Manipulation import Unnester
 from Manipulation.NodeWrapper import NodeKey
 
@@ -28,17 +28,17 @@ def test_yolo():
         [(1, 64, 64, 3)]
     )
 
-    modelFloatOps = computer.computeFloatOpsPerModel([(1, 64, 64, 3)])
-    print(modelFloatOps == sum(flopsPerOp.values()))
-
     _, timesPerOp = computer.computeRunningTimes([(1, 64, 64, 3)], 25)
+    outShapes = computer.computeOutputShapes([(1, 64, 64, 3)])
 
     with open("./other/Yolo_FLOPS.csv", "w+") as f:
         writer = csv.writer(f)
-        writer.writerow(["NodeKey", "FloatOps", "AvgTime"])
+        writer.writerow(["NodeKey", "FloatOps", "AvgTime", "OutShapes"])
 
         for opKey in flopsPerOp.keys():
-            writer.writerow([opKey, flopsPerOp[opKey], timesPerOp[opKey]])
+            writer.writerow(
+                [opKey, flopsPerOp[opKey], timesPerOp[opKey]] + outShapes[opKey]
+            )
 
 
 def test_deep_lab():
@@ -69,5 +69,5 @@ def test_deep_lab():
 if __name__ == "__main__":
     setUpClass()
 
-    # test_yolo()
-    test_deep_lab()
+    test_yolo()
+    # test_deep_lab()

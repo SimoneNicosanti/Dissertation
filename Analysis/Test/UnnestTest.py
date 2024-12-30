@@ -101,5 +101,31 @@ def test_yolo():
     print(f"Yolo Model Test - Norm of Difference >> {diffNorm}")
 
 
+def test_yolo_1():
+    images = tf.ones(shape=(5, 512, 512, 3))
+
+    # backbone = keras_cv.models.YOLOV8Backbone.from_preset("yolo_v8_l_backbone_coco")
+
+    ## Pretrained Yolo
+    yolo = keras_cv.models.YOLOV8Detector.from_preset(
+        "yolo_v8_m_pascalvoc", bounding_box_format="xywh"
+    )
+    print(yolo.presets)
+
+    # Evaluate model without box decoding and NMS
+    pred_1 = yolo(images, training=False)
+
+    unnestedModel: keras.Model = Unnester.unnestModel(yolo)
+    unnestedModel.save("./models/UnnestedYolo.keras")
+
+    ## The differences in the outputs of predict
+    ## is because predict in YoloPredictor decodifies automatically
+    loadedModel: keras.Model = keras.saving.load_model("./models/UnnestedYolo.keras")
+    pred_2 = loadedModel(images, training=False)
+
+    diffNorm = tf.norm(pred_1["boxes"] - pred_2["box_0"])
+    print(f"Yolo Model Test - Norm of Difference >> {diffNorm}")
+
+
 if __name__ == "__main__":
-    test_yolo()
+    test_yolo_1()

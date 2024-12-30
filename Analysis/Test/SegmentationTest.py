@@ -4,6 +4,7 @@ import keras_hub
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+import tensorflow_datasets as tfds
 from Manipulation import Unnester
 
 
@@ -128,7 +129,57 @@ def test_seg_former():
     plot_segmentation(image, out_2, colors, "./other/unnest_seg.png")
 
 
+def train_deep_lab():
+    # Load the dataset
+    dataset, info = tfds.load("voc/2012", split=["train", "validation"], with_info=True)
+
+    def preprocess_data(data):
+        # Resize images and masks
+        image = tf.image.resize(data["image"], (224, 224))
+        mask = tf.image.resize(data["segmentation_mask"], (224, 224))
+        mask = tf.cast(mask, tf.int32)  # Ensure mask is integer for loss calculation
+
+        # Normalize image to [0, 1]
+        image = image / 255.0
+        return image, mask
+
+    train_dataset = (
+        dataset[0]
+        .map(preprocess_data)
+        .shuffle(1024)
+        .batch(32)
+        .prefetch(tf.data.AUTOTUNE)
+    )
+    val_dataset = dataset[1].map(preprocess_data).batch(32).prefetch(tf.data.AUTOTUNE)
+
+    backbone = keras_cv.models.ResNet50V2Backbone.from_preset(
+        preset="resnet50_v2_imagenet",
+        input_shape=(224, 224) + (3,),
+        load_weights=True,
+    )
+    segmenter = keras_cv.models.segmentation.DeepLabV3Plus(
+        num_classes=20,
+        backbone=backbone,
+    )
+
+    segmenter.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=["accuracy"],
+    )
+
+    history = segmenter.fit(
+        train_dataset,
+        validation_data=val_dataset,
+        epochs=20,
+    )
+
+    segmenter.evaluate(val_dataset)
+
+
 if __name__ == "__main__":
-    test_deep_lab()
-    test_sam()
+    # test_deep_lab()
+    # test_sam()
     # test_seg_former()
+
+    train_deep_lab()

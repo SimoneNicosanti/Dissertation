@@ -17,7 +17,7 @@ Punto della situazione:
 
 
 
-![[Diagram_1.svg]]
+
 
 Possibile flusso.
 - Model Divider
@@ -75,4 +75,40 @@ Possibile flusso.
 > - Programmazione Lineare Intera
 > - Reinforcement Learning (generazione di scenari simulati)
 > - Euristica
+
+
+---
+
+
+Device avvia richieste di inferenza ai server (ok).
+
+Client richiede deployment di un modello sull'infrastruttura.
+
+Architettura di Sistema con NODI che compongono il sistema. Nei nodi ho i componenti. 
+
+DATA Plane vs CONTROL Plane
+
+DATA Plane --> Nodi 
+CONTROL Plane --> Componenti che sono collocati sull'infrastruttura (Parliamo in termini di Ruoli)
+
+Decidi come dividere la computazione in base a come allochi la divisione (tenendo conto che i modelli sono pesanti).
+
+Considera un Optimizer.
+
+Concentrati sulla fusione degli aspetti: come divido e dove piazzo da considerare insieme. 
+
+> [!NOTE]  Aspetto Secondario
+> L'Optimizer crea più varianti dello stesso modello:
+> - modello suddiviso 1: prima parte in modello e resto in cloud
+> - modello suddiviso 2 : prima parte in edge e resto in cloud
+> Logica che smista tra queste varianti
+
+Profiler per il modello (ok)
+Monitor per Latenza di rete/capacità di calcolo.
+
+Fai dei sequence diagram per ragionare meglio sulle interazioni.
+
+Comincia a ragionare sulle politiche di split.
+
+---
 

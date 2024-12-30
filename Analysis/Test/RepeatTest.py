@@ -1,8 +1,9 @@
 import keras
 import numpy as np
 import tensorflow as tf
-from Flops.ComputeFlops import FlopsComputer
 from Manipulation import Unnester
+
+from Flops.FlopsComputer import FlopsComputer
 
 
 def subModel_1():

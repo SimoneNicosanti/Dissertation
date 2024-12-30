@@ -3,20 +3,28 @@ import time
 import keras
 import numpy as np
 import tensorflow as tf
-from Flops import ExecTrackers
-from Flops.ExecTrackers import FloatOpsTracker, TimeTracker
+from Flops.ExecTrackers import FloatOpsTracker, ShapeTracker, TimeTracker, Tracker
 from Manipulation import Utils
 from Manipulation.NodeWrapper import NodeKey, NodePool
 from tensorflow.python.profiler import model_analyzer, option_builder
 
 
 class FlopsComputer:
+
     def __init__(self, model: keras.Model):
         self.model: keras.Model = model
         self.nodePool: NodePool = NodePool(model)
         self.modelOps: list[keras.Operation] = Utils.getModelOperations(model)
 
         self.modelNodeKeys: list[NodeKey] = self.nodePool.findModelNodesKeys(None)
+
+    def prepareInputsFromShapes(self, inputShapes: list[tuple]):
+        inputs = []
+        for inpShape in inputShapes:
+            input = tf.random.uniform(shape=inpShape)
+            inputs.append(input)
+
+        return inputs
 
     def computeFloatOpsPerModel(self, inputShapes: dict[str, tuple]) -> float:
         inputSignature = [
@@ -33,21 +41,15 @@ class FlopsComputer:
 
         return flops
 
-    def computeFloatOpsPerOp(
-        self, inputShapes: dict[tuple, tuple]
-    ) -> dict[NodeKey, float]:
-        floatOpsTrackers: dict[str, FloatOpsTracker] = ExecTrackers.prepareForTrack(
-            self.model, FloatOpsTracker
+    def computeFloatOpsPerOp(self, inputShapes: list[tuple]) -> dict[NodeKey, float]:
+        floatOpsTrackers: dict[str, FloatOpsTracker] = self.prepareForTrack(
+            FloatOpsTracker
         )
 
-        inputs = []
-        for inpShape in inputShapes:
-            input = tf.random.uniform(shape=inpShape)
-            inputs.append(input)
-
+        inputs = self.prepareInputsFromShapes(inputShapes)
         self.model(inputs)
 
-        ExecTrackers.resetAfterTrack(self.model, floatOpsTrackers)
+        self.resetAfterTrack(floatOpsTrackers)
 
         opsNumberDict: dict[NodeKey, float] = {}
         for key in self.modelNodeKeys:
@@ -59,17 +61,12 @@ class FlopsComputer:
 
     ## Returns dict of operationName to avgExecutionTime
     def computeRunningTimes(
-        self, inputShapes: tuple, testNums: int
+        self, inputShapes: list[tuple], testNums: int
     ) -> tuple[float, dict[NodeKey, float]]:
 
-        inputs = []
-        for inpShape in inputShapes:
-            input = tf.random.uniform(shape=inpShape)
-            inputs.append(input)
+        inputs = inputs = self.prepareInputsFromShapes(inputShapes)
 
-        timeTrackers: dict[str, TimeTracker] = ExecTrackers.prepareForTrack(
-            self.model, TimeTracker
-        )
+        timeTrackers: dict[str, TimeTracker] = self.prepareForTrack(TimeTracker)
 
         modelTimes = []
         for i in range(testNums):
@@ -79,7 +76,7 @@ class FlopsComputer:
             modelTimes.append(end - start)
             print(f"Time For Call Number {i} >> {end - start} ns")
 
-        ExecTrackers.resetAfterTrack(self.model, timeTrackers)
+        self.resetAfterTrack(timeTrackers)
 
         avgTimes: dict[NodeKey, float] = {}
 
@@ -90,3 +87,34 @@ class FlopsComputer:
         modelAvgTime = np.mean(modelTimes)
 
         return modelAvgTime, avgTimes
+
+    def computeOutputShapes(self, inputShapes: list[tuple]):
+        shapeTrackers: dict[str, ShapeTracker] = self.prepareForTrack(ShapeTracker)
+
+        inputs = self.prepareInputsFromShapes(inputShapes)
+        self.model(inputs)
+
+        self.resetAfterTrack(shapeTrackers)
+
+        outShapeDict: dict[NodeKey, list[tuple]] = {}
+        for key in self.modelNodeKeys:
+            shapeTracker: ShapeTracker = shapeTrackers.get(key.getOpName())
+            outShapeDict[key] = shapeTracker.getTrackedFromIndex(key.getOpIdx())
+
+        return outShapeDict
+
+    def prepareForTrack(self, trackerClass):
+        trackers: dict[str, Tracker] = {}
+        for op in Utils.getModelOperations(self.model):
+            op: keras.Operation
+            tracker: Tracker = trackerClass(op)
+            trackers[op.name] = tracker
+            op.call = tracker.track
+
+        return trackers
+
+    def resetAfterTrack(self, trackers: dict[str, Tracker]):
+        for op in Utils.getModelOperations(self.model):
+            op: keras.Operation
+            opTracker = trackers[op.name]
+            op.call = opTracker.originalCall

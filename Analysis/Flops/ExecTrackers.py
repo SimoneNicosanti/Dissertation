@@ -36,25 +36,34 @@ class ShapeTracker(Tracker):
 
     def __init__(self, op: keras.Operation):
         super().__init__(op)
-        self.inputShapes: dict[int, list] = {x: [] for x in range(0, self.totalCalls)}
-        self.outputShapes: dict[int, list] = {x: [] for x in range(0, self.totalCalls)}
+        self.outputShapes: dict[int, list[tuple]] = {
+            x: [] for x in range(0, self.totalCalls)
+        }
 
     def track(self, inputs, *args, **kwargs):
         ## Assuming main maodel
-        nodeKey: NodeKey = NodeKey(None, self.opName, self.nodeIdx)
-        self.inputShapes[nodeKey] = [inputs, args, kwargs]
+        out = self.originalCall(inputs, *args, **kwargs)
+
+        flattenedOut: list = keras.tree.flatten(out)
+        outShapes = []
+        for outElem in flattenedOut:
+            if hasattr(outElem, "shape"):
+                outShapes.append(outElem.shape)
+        self.outputShapes[self.nodeIdx] = outShapes
+
         self.updateIdx()
-        return self.originalCall(inputs, *args, **kwargs)
+
+        return out
 
     def getTrackedFromIndex(self, idx):
-        return self.inputShapes[idx], self.outputShapes[idx]
+        return self.outputShapes[idx]
 
 
 class FloatOpsTracker(Tracker):
     def __init__(self, op: keras.Operation):
         super().__init__(op)
         self.floatOpsDict: dict[int, float] = {x: 0 for x in range(0, self.totalCalls)}
-        self.unsopported = False
+        self.isUnsopported = False
 
     def track(self, inputs, *args, **kwargs):
         try:
@@ -72,7 +81,7 @@ class FloatOpsTracker(Tracker):
                 computedFlops = graph_info.total_float_ops
 
         except TypeError:
-            self.unsopported = True
+            self.isUnsopported = True
             computedFlops = 0
 
         self.floatOpsDict[self.nodeIdx] = computedFlops
@@ -108,21 +117,3 @@ class TimeTracker(Tracker):
         if isinstance(self.op, keras.layers.InputLayer):
             return [0]
         return self.operationsTimes[idx]
-
-
-def prepareForTrack(model: keras.Model, trackerClass):
-
-    trackers = {}
-    for op in Utils.getModelOperations(model):
-        tracker: Tracker = trackerClass(op)
-        trackers[op.name] = tracker
-        op.call = tracker.track
-
-    return trackers
-
-
-def resetAfterTrack(model: keras.Model, trackers: dict[str, Tracker]):
-
-    for op in model.operations:
-        opTracker = trackers[op.name]
-        op.call = opTracker.originalCall
