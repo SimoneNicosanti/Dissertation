@@ -93,9 +93,8 @@ CONTROL Plane --> Componenti che sono collocati sull'infrastruttura (Parliamo in
 
 Decidi come dividere la computazione in base a come allochi la divisione (tenendo conto che i modelli sono pesanti).
 
-Considera un Optimizer.
-
-Concentrati sulla fusione degli aspetti: come divido e dove piazzo da considerare insieme. 
+Considera un Optimizer: fa sia la divisione sia il piano di computazione.
+Fusione degli aspetti: come divido e dove piazzo da considerare insieme. 
 
 > [!NOTE]  Aspetto Secondario
 > L'Optimizer crea più varianti dello stesso modello:
@@ -112,3 +111,30 @@ Comincia a ragionare sulle politiche di split.
 
 ---
 
+![[ModelDeployment.svg|Model Deployment]]
+
+
+Nota: visto che il device comunque esegue un modello, lo considero al pari di un server!!
+
+
+Requirements può contenere requisiti di :
+- latenza
+- accuratezza
+- consumo energetico massimo / livello di consumo
+	- Potrebbe essere già connesso all'accuratezza forse...
+
+
+![[Inference.svg|Inferenza]]
+
+Supponiamo che il Server_0 sia in esecuzione sullo stesso dispositivo del client: in questo caso il tempo per passare l'input è il tempo di trasferimento sull'interfaccia di loopback. 
+
+> [!NOTE]
+> Se voglio supportare casi in cui il client non vuole partecipare all'inferenza, questo potrebbe essere un problema... però non credo sia un problema perché alla fine il task è quello.
+
+L'optimizer potrebbe generare più piani alternativi come delle sorta di path di esecuzione, ognuno dei quali porta ad un esito diverso. Se ad esempio una parte del modello è in esecuzione in più modelli in varianti diverse, potrebbe generare più piani che però portano ad esempio a delle accuratezze o a delle latenze diverse.
+
+Piani:
+- Plan_0: esecuzione locale
+- Plan_1: l'output del server_0 può essere mandato sia a server_1 che a server_2, per poi continuare. Questo potrebbe essere ad esempio per tolleranza ai guasti: se non risponde 1 lo mando a 2
+- Plan_2: l'output di server_0 viene mandato in parte a server_1 e in parte a server_2 per poi ricongiungere il tutto su server_3
+![[Plans.svg|Generazione di Piani Diversi|650]]
