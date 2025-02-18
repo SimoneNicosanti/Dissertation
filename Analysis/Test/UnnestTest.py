@@ -110,7 +110,7 @@ def test_yolo_1():
     yolo = keras_cv.models.YOLOV8Detector.from_preset(
         "yolo_v8_m_pascalvoc", bounding_box_format="xywh"
     )
-    print(yolo.presets)
+    print(keras_cv.models.YOLOV8Detector.presets.keys())
 
     # Evaluate model without box decoding and NMS
     pred_1 = yolo(images, training=False)

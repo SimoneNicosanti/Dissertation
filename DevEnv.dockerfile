@@ -1,6 +1,7 @@
-FROM python:3.10-slim
+FROM python:3.10-bookworm
 
 ## TensorFlow Dependencies
+RUN pip install ultralytics
 RUN pip install ai-edge-litert
 RUN pip install tensorflow
 RUN pip install keras_cv
@@ -32,8 +33,19 @@ RUN ./google-cloud-sdk/install.sh --usage-reporting false --path-update true
 ENV PATH="/google-cloud-sdk/bin:$PATH"
 ## Remember to run gcloud --init --console-only
 
+
+## Other Dependencies
+RUN pip install onnx
+RUN pip install onnxruntime
+RUN pip install onnxslim
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
+RUN pip install PuLP
+RUN apt-get install glpk-utils libglpk-dev -y
+
+
 ## Shell Settings
 ENV SHELL=/usr/bin/bash
+ENV PATH="/ultralytics/ultralytics:$PATH"
 
 ## User Settings
 RUN groupadd -g 1234 customgroup && \

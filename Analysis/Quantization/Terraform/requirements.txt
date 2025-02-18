@@ -1,0 +1,9 @@
+keras
+tensorflow
+tf_keras
+onnx
+onnxruntime
+onnxruntime-gpu
+numpy
+tf2onnx
+ai-edge-litert

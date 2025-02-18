@@ -1,7 +1,7 @@
-import keras
 import keras_cv
 import numpy as np
 import tensorflow as tf
+import tf_keras as keras
 from Manipulation import Splitter, Unnester
 
 
@@ -51,7 +51,39 @@ def test_yolo():
     print(f"Yolo Model Test - Norm of Difference >> {diffNorm}")
 
 
+def test_yolo_1():
+    # images = tf.ones(shape=(1, 512, 512, 3))
+
+    yolo: keras.Model = keras.saving.load_model("./models/yolo11n.keras")
+    print(type(yolo))
+    # wholeModelOutput = yolo(images)
+
+    subModels: list[keras.Model] = Splitter.modelSplit(yolo, maxLayerNum=50)
+    for idx, subMod in enumerate(subModels):
+        subMod.save(f"./models/SubYolo_{idx}.keras")
+    return
+    loadedModels = []
+    for idx in range(0, 9):
+        loadedModels.append(keras.saving.load_model(f"./models/SubYolo_{idx}.keras"))
+
+    producedOutputs: dict[str] = {}
+    producedOutputs["input_layer_1_0_0"] = images
+
+    for idx, subMod in enumerate(loadedModels):
+        print(f"Running Model Part >>> {idx}")
+        subModInput: dict[str] = {}
+        for inputName in subMod.input:
+            subModInput[inputName] = producedOutputs[inputName]
+
+        subModOut: dict[str] = subMod(subModInput)
+        for outName in subModOut:
+            producedOutputs[outName] = subModOut[outName]
+
+    diffNorm = tf.norm(producedOutputs["box_0"] - wholeModelOutput["box_0"])
+    print(f"Yolo Model Test - Norm of Difference >> {diffNorm}")
+
+
 if __name__ == "__main__":
-    setUpTest()
-    test_yolo()
+    # setUpTest()
+    test_yolo_1()
     # testSavedModel()

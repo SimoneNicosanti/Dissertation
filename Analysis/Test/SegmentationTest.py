@@ -131,7 +131,7 @@ def test_seg_former():
 
 def train_deep_lab():
     # Load the dataset
-    dataset, info = tfds.load("voc/2012", split=["train", "validation"], with_info=True)
+    dataset, info = tfds.load("voc", split=["train", "validation"], with_info=True)
 
     def preprocess_data(data):
         # Resize images and masks

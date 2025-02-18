@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "90b97daba45e3d6d",
+        "id": "c25de0c7f934af2b",
         "type": "tabs",
         "children": [
           {
-            "id": "33ece583fbcb8762",
+            "id": "6d71dec1a5c623df",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Architettura/Architettura.md",
+                "file": "Notes/Quantizzazione.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Architettura"
+              "title": "Quantizzazione"
             }
           }
         ]
@@ -40,7 +40,8 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
+                "sortOrder": "alphabetical",
+                "autoReveal": false
               },
               "icon": "lucide-folder-closed",
               "title": "Esplora risorse"
@@ -77,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 252.50260543823242
+    "width": 273.5086555480957
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -93,6 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Notes/Architettura/Architettura.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Riferimenti"
+              "title": "Riferimenti a Architettura"
             }
           },
           {
@@ -159,48 +161,52 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "33ece583fbcb8762",
+  "active": "6d71dec1a5c623df",
   "lastOpenFiles": [
-    "Notes/Architettura/ModelDeployment.svg",
+    "Schermata del 2025-02-17 13-58-08.png",
+    "Schermata del 2025-02-17 11-56-46.png",
+    "Notes/Images/Schermata del 2025-02-13 15-47-32.png",
+    "Notes/Images/Schermata del 2025-02-15 15-20-37.png",
+    "Notes/Quantizzazione.md",
+    "Notes/Images/Schermata del 2025-02-17 08-45-26.png",
+    "Notes/Images/Schermata del 2025-02-15 19-20-50.png",
+    "Notes/Images/Schermata del 2025-02-15 19-18-14.png",
+    "Notes/Images/Schermata del 2025-02-15 15-55-25.png",
+    "Notes/Split del Modello.md",
+    "Notes/Colloqui/2025-02-05.md",
+    "Notes/Images/Schermata del 2025-02-15 15-38-48.png",
+    "Notes/Yolo.md",
+    "Notes/Images/Schermata del 2025-02-14 17-15-14.png",
+    "Notes/Images/Schermata del 2025-02-13 19-02-19.png",
+    "Notes/LiteRT.md",
+    "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Architettura/Architettura.md",
-    "Notes/Architettura/Plans.svg",
-    "Notes/Architettura/Inference.svg",
-    "Notes/Senza nome.md",
+    "Notes/Colloqui/2025-01-10.md",
+    "Notes/Colloqui/2024-11-19.md",
+    "Paper/Learning Optimal Partition/Splitting_2.pdf",
+    "Paper/Others/Tuli_Splitting.pdf",
+    "Paper/Survey Splitting/Survey_Splitting.pdf",
+    "Paper/CoEdge/CoEdge - Notes.md",
+    "Paper/CoEdge/CoEdge.pdf",
+    "Paper/Others/splitCNN.pdf",
+    "Paper/Jellyfish/Jellyfish.pdf",
+    "Notes/Segmentation.md",
+    "Notes/Colloqui/2024-12-17.md",
+    "Notes/Unnesting del Modello.md",
+    "Notes/Calcolo FLOPS.md",
+    "Notes/Architettura/Diagrams",
+    "Notes/Architettura/Diagrams/General.svg.xml",
+    "Notes/Architettura/Diagrams/Deployment_Push.svg.xml",
+    "Paper/Gillis/gillis-icdcs21.pdf",
+    "Paper/Furcifer/Furcifer - Notes.md",
     "Notes/Diagrams.md",
-    "Notes/Architettura/Plans.svg.xml",
-    "Notes/Architettura/Inference.svg.xml",
-    "Notes/Architettura/ModelDeployment.svg.xml",
-    "Notes/Architettura/Senza nome.md",
     "Excalidraw/Drawing 2024-12-30 17.01.02.excalidraw.md",
     "Excalidraw/Drawing 2024-12-30 17.01.42.excalidraw.md",
-    "Excalidraw",
-    "Notes/Colloqui/2024-12-17.md",
-    "Paper/Learning Optimal Partition/Splitting_2.pdf",
-    "Paper/Others/splitCNN.pdf",
-    "Notes/Colloqui/2024-11-19.md",
-    "Notes/Architettura/Diagram_1.svg",
-    "Notes/Unnesting del Modello.md",
-    "Notes/Split del Modello.md",
-    "Notes/Segmentation.md",
-    "Notes/Calcolo FLOPS.md",
-    "Paper/Survey Splitting/Survey_Splitting.pdf",
-    "Paper/Others/Tuli_Splitting.pdf",
-    "Notes/LiteRT.md",
-    "Notes/Yolo.md",
     "Notes/Decoding.md",
-    "Notes/Images/Schermata del 2024-12-23 16-55-44.png",
-    "Notes/Images/Schermata del 2024-12-23 11-32-59.png",
-    "Notes/Images/Schermata del 2024-12-23 13-05-38.png",
-    "Notes/Images/Schermata del 2024-12-23 13-03-47.png",
-    "Notes/Images/Schermata del 2024-12-23 13-03-20.png",
-    "Notes/Images/Schermata del 2024-12-23 12-50-57.png",
     "Notes/MobileNetV3Large.md",
     "Notes/Distribuzione.md",
     "Schermata.md",
     "Paper/Jellyfish/Jellyfish - Notes.md",
-    "Paper/Jellyfish/Jellyfish.pdf",
-    "Paper/Gillis/Gillis - Notes.md",
-    "Paper/Furcifer/Furcifer - Notes.md",
-    "Paper/Furcifer/Furcifer_PerCom24.pdf"
+    "Paper/Gillis/Gillis - Notes.md"
   ]
 }

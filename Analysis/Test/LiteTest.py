@@ -1,12 +1,14 @@
+import time
+
 import keras
 import keras_cv
 import numpy as np
 import tensorflow as tf
 from ai_edge_litert.interpreter import Interpreter, SignatureRunner
 from Manipulation import Splitter, Unnester
-import time
 
-NUM_RUN = 25
+NUM_RUN = 10
+
 
 def runSignatureRunner(runner: SignatureRunner, input):
     liteInput = {}
@@ -32,10 +34,10 @@ def build_converter(kerasModel: keras.Model):
         fn=kerasModel.call,
         input_signature=[inputs],
     )
-    archive.write_out(f"/home/customuser/saved_models/{kerasModel.name}", verbose=False)
+    archive.write_out(f"/tmp/saved_models/{kerasModel.name}", verbose=False)
 
     converter = tf.lite.TFLiteConverter.from_saved_model(
-        f"/home/customuser/saved_models/{kerasModel.name}"
+        f"/tmp/saved_models/{kerasModel.name}"
     )
     converter.target_spec.supported_ops = [
         tf.lite.OpsSet.TFLITE_BUILTINS,  # Operazioni TFLite
@@ -59,138 +61,13 @@ def setUpClass():
     unnestedYolo.save("./models/UnnestedYolo.keras")
 
 
-def test_yolo():
-    images = tf.ones(shape=(1, 512, 512, 3))
-
-    kerasModel = keras.saving.load_model("./models/UnnestedYolo.keras")
-    result_1 = kerasModel(images)
-
-    converter = build_converter(kerasModel)
-    tflite_model = converter.convert()
-    interpreter = Interpreter(model_content=tflite_model)
-    liteRunner: SignatureRunner = interpreter.get_signature_runner("serving_default")
-    
-    result_2 = runSignatureRunner(liteRunner, images)
-
-    diffNorm = tf.norm(result_1["box_0"] - result_2["box_0"], ord=np.inf)
-    print(f"Yolo Test - Inf Norm of Difference >> {diffNorm}")
-
-
-def test_mobile_net():
-    images = tf.ones(shape=(1, 512, 512, 3))
-
-    kerasModel: keras.Model = keras.applications.MobileNetV3Large()
-    result_1 = kerasModel(images)
-
-    converter = build_converter(kerasModel)
-    tflite_model = converter.convert()
-    interpreter = Interpreter(model_content=tflite_model)
-    liteRunner: SignatureRunner = interpreter.get_signature_runner("serving_default")
-    result_2 = runSignatureRunner(liteRunner, images)
-
-    diffNorm = tf.norm(result_1 - result_2["output_0"], ord=np.inf)
-    print(f"MobileNet Test - Inf Norm of Diff >> {diffNorm}")
-
-
-def test_yolo_mixed():
-    ## Splitting the Model
-    yolo = keras.saving.load_model("./models/UnnestedYolo.keras")
-    subModels = Splitter.modelSplit(yolo, maxLayerNum=50)
-    for idx, subMod in enumerate(subModels):
-        subMod.save(f"./models/SubYolo_{idx}.keras")
-
-    ## Preparing for input/output management
-    producedOutputs = {}
-    images = tf.ones(shape=(1, 512, 512, 3))
-    producedOutputs["input_layer_1_0"] = images
-    producedOutputs["input_layer_1_0_0"] = images
-
-    for idx in range(0, len(subModels)):
-        print(f"Running Model {idx}")
-        subMod: keras.Model = keras.saving.load_model(
-            f"./models/SubYolo_{idx}.keras", compile=True
-        )
-
-        usingKeras = idx % 2 == 0
-
-        if usingKeras:
-            ## Run Keras Model
-            inputList = subMod.input
-            runner = subMod
-        else:
-            ## Run Lite Model
-            converter = build_converter(subMod)
-            tflite_model = converter.convert()
-            interpreter = Interpreter(model_content=tflite_model)
-            runner: SignatureRunner = interpreter.get_signature_runner(
-                "serving_default"
-            )
-
-            inputList = runner.get_input_details().keys()
-
-        subInp = {}
-        for inpName in inputList:
-            subInp[inpName] = producedOutputs[inpName]
-
-        if usingKeras:
-            subOut = runner(subInp)
-        else:
-            subOut = runner(**subInp)
-
-        subOut: dict
-        for key in subOut.keys():
-            out = subOut[key]
-            if isinstance(out, tf.Tensor):
-                producedOutputs[key] = out.numpy()
-            else:
-                producedOutputs[key] = out
-
-    yoloOutput = yolo(images)
-
-    diffNorm = tf.norm(yoloOutput["box_0"] - producedOutputs["box_0"], ord=np.inf)
-    print(f"Mixed Test - Inf Norm of Difference >> {diffNorm}")
-
-
-def test_dynamic_quantization():
-    images = tf.ones(shape=(1, 512, 512, 3))
-
-    kerasModel: keras.Model = keras.saving.load_model("./models/UnnestedYolo.keras")
-    result_1 = kerasModel(images)
-
-    converter = build_converter(kerasModel)
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    tflite_model = converter.convert()
-    interpreter = Interpreter(model_content=tflite_model)
-    liteRunner: SignatureRunner = interpreter.get_signature_runner("serving_default")
-    result_2 = runSignatureRunner(liteRunner, images)
-
-    diffNorm = tf.norm(result_1["box_0"] - result_2["box_0"], ord=np.inf)
-    print(f"Dyn Quant - Inf Norm of Difference >> {diffNorm}")
-
-
-def test_float16_quantization():
-    images = tf.ones(shape=(1, 512, 512, 3))
-
-    kerasModel: keras.Model = keras.saving.load_model("./models/UnnestedYolo.keras")
-    result_1 = kerasModel(images)
-
-    converter = build_converter(kerasModel)
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    converter.target_spec.supported_types = [tf.float16]
-    tflite_model = converter.convert()
-    interpreter = Interpreter(model_content=tflite_model)
-    liteRunner: SignatureRunner = interpreter.get_signature_runner("serving_default")
-    result_2 = runSignatureRunner(liteRunner, images)
-
-    diffNorm = tf.norm(result_1["box_0"] - result_2["box_0"], ord=np.inf)
-    print(f"Float16 Quant - Inf Norm of Difference >> {diffNorm}")
-
 def representative_dataset():
     for _ in range(100):
         data = np.random.rand(1, 512, 512, 3)
         yield [data.astype(np.float32)]
 
-def test_full_integer_quantization() :
+
+def test_full_integer_quantization():
     images = tf.ones(shape=(1, 512, 512, 3))
 
     kerasModel: keras.Model = keras.saving.load_model("./models/UnnestedYolo.keras")
@@ -209,114 +86,125 @@ def test_full_integer_quantization() :
     print(f"Full Integer Quant - Inf Norm of Difference >> {diffNorm}")
 
 
-def test_mixed_quantization():
+def divide_and_quantize(maxLayerNum: int, case: int):
     ## Splitting the Model
     yolo = keras.saving.load_model("./models/UnnestedYolo.keras")
-    subModels = Splitter.modelSplit(yolo, maxLayerNum=20)
+    subModels = Splitter.modelSplit(yolo, maxLayerNum=maxLayerNum)
+
+    tf_model_list = []
     for idx, subMod in enumerate(subModels):
-        subMod.save(f"/home/customuser/SubYolo_{idx}.keras")
-
-    ## Preparing for input/output management
-    producedOutputs = {}
-    images = tf.ones(shape=(1, 512, 512, 3))
-    producedOutputs["input_layer_1_0"] = images
-    producedOutputs["input_layer_1_0_0"] = images
-
-    for idx in range(0, len(subModels)):
-        print(f"Running Model {idx}")
-        subMod: keras.Model = keras.saving.load_model(
-            f"/home/customuser/SubYolo_{idx}.keras", compile=True
-        )
+        # subMod.save(f"/home/customuser/SubYolo_{idx}.keras")
         converter = build_converter(subMod)
 
-        if idx % 2 == 0:
-            ## Run With No Quantization
+        if case == 0:
+            ## No Quantization
             pass
-        # elif idx % 3 == 1 :
-        #     ## Run With Dyn Quantization
-        #     converter.optimizations = [tf.lite.Optimize.DEFAULT]
-        else:
-            ## Run With Float16 Quantization
+
+        elif case == 1:
+            ## Dynamic Quantization
+            converter.optimizations = [tf.lite.Optimize.DEFAULT]
+            pass
+
+        elif case == 2:
+            ## Float16 Quantization
             converter.optimizations = [tf.lite.Optimize.DEFAULT]
             converter.target_spec.supported_types = [tf.float16]
+            pass
+
+        elif case == 3:
+            ## Mized Quantization
+            if idx % 2 == 0:
+                ## Run With Dynamic Quantization
+                converter.optimizations = [tf.lite.Optimize.DEFAULT]
+            else:
+                ## Run With No Quantization
+                pass
+        else:
+            raise Exception()
 
         tflite_model = converter.convert()
-        interpreter = Interpreter(model_content=tflite_model)
-        runner: SignatureRunner = interpreter.get_signature_runner(
-            "serving_default"
-        )
+        tf_model_list.append(tflite_model)
 
-        inputList = runner.get_input_details().keys()
+    return tf_model_list
 
-        subInp = {}
-        for inpName in inputList:
-            subInp[inpName] = producedOutputs[inpName]
-        subOut = runner(**subInp)
-        subOut: dict
-        for key in subOut.keys():
-            out = subOut[key]
-            producedOutputs[key] = out
 
+def division_run(tf_list: list):
+    images = tf.ones(shape=(1, 512, 512, 3))
+
+    ## Reading Sub Models only Once
+    interpreterList = []
+    for tf_model in tf_list:
+        interpreterList.append(Interpreter(model_content=tf_model))
+
+    startTime = time.time_ns()
+
+    for _ in range(0, NUM_RUN):
+        producedOutputs = {}
+
+        producedOutputs["input_layer_1_0"] = images
+        producedOutputs["input_layer_1_0_0"] = images
+
+        for idx in range(0, len(tf_list)):
+            interpreter = interpreterList[idx]
+            runner: SignatureRunner = interpreter.get_signature_runner(
+                "serving_default"
+            )
+
+            inputList = runner.get_input_details().keys()
+
+            subInp = {}
+            for inpName in inputList:
+                subInp[inpName] = producedOutputs[inpName]
+            subOut = runner(**subInp)
+            subOut: dict
+            for key in subOut.keys():
+                out = subOut[key]
+                producedOutputs[key] = out
+
+    endTime = time.time_ns()
+
+    yolo = keras.saving.load_model("./models/UnnestedYolo.keras")
     yoloOutput = yolo(images)
 
     diffNorm = tf.norm(yoloOutput["box_0"] - producedOutputs["box_0"], ord=np.inf)
-    print(f"Mixed Quantization Test - Inf Norm of Difference >> {diffNorm}")
 
-def test_times() :
-    images = tf.ones(shape=(1, 512, 512, 3))
+    return [diffNorm, (endTime - startTime) / NUM_RUN]
 
-    kerasModel = keras.saving.load_model("./models/UnnestedYolo.keras")
-    for convIdx in range(0, 4) :
-        converter = build_converter(kerasModel)
-        if convIdx == 0 :
-            ## None
-            pass
-        elif convIdx == 1 :
-            ## Dynamic
-            converter.optimizations = [tf.lite.Optimize.DEFAULT]
-            pass
-        elif convIdx == 2 :
-            ## Float16
-            converter.optimizations = [tf.lite.Optimize.DEFAULT]
-            converter.target_spec.supported_types = [tf.float16]
-            pass
-        else :
-            ## Full Integer
-            converter.optimizations = [tf.lite.Optimize.DEFAULT]
-            converter.representative_dataset = representative_dataset
+
+def test_division_run(maxLayerNum):
+    results = {}
+    for x in range(0, 4):
+        tf_list = divide_and_quantize(maxLayerNum=maxLayerNum, case=x)
+
+        if x == 0:
+            ## No Quantization
+            print("No Quantization Info")
             pass
 
-        tflite_model = converter.convert()
-        interpreter = Interpreter(model_content=tflite_model)
-        liteRunner: SignatureRunner = interpreter.get_signature_runner("serving_default")
+        elif x == 1:
+            ## Dynamic Quantization
+            print("Dynamic Quantization Info")
+            pass
 
-        timesArray = np.zeros(shape = NUM_RUN)
-        for runIdx in range(0, NUM_RUN) :
-            start_time = time.time_ns()
-            runSignatureRunner(liteRunner, images)
-            end_time = time.time_ns()
+        elif x == 2:
+            ## Float16 Quantization
+            print("Float16 Quantization Info")
+            pass
 
-            timesArray[runIdx] = end_time - start_time
-        
-        avgTime = timesArray.mean()
-        if convIdx == 0 :
-            print(f"No Quant Time >> {avgTime}")
-        elif convIdx == 1 :
-            print(f"Dynam Quant Time >> {avgTime}")
-        elif convIdx == 2 :
-            print(f"Float16 Quant Time >> {avgTime}")
-        else :
-            print(f"Full Int Quant Time >> {avgTime}")
+        elif x == 3:
+            ## Mized Quantization
+            print("Mixed Quantization Info")
+        else:
+            break
+
+        run_info = division_run(tf_list)
+        results[x] = run_info
+
+    for x in results.keys():
+        print(f"{x} >> {results[x]}")
+
 
 if __name__ == "__main__":
     setUpClass()
 
-    # test_mobile_net()
-    # test_yolo()
-    # test_dynamic_quantization()
-    # test_float16_quantization()
-    # test_full_integer_quantization()
-
-    #test_mixed_quantization()
-
-    test_times()
+    test_division_run(50_000)
