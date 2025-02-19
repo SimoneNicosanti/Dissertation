@@ -21,7 +21,7 @@ class OptimizerClass:
             problem, model_graph, network_graph
         )
 
-        self.add_boundaries(
+        self.add_constraints(
             problem, model_graph, network_graph, assignment_vars, edge_vars
         )
 
@@ -41,25 +41,26 @@ class OptimizerClass:
             model_graph, network_graph, edge_vars
         )
 
-        # problem += (compute_latency + transmission_latency) + (
-        #     compute_energy + transmission_energy
-        # )
-
-        problem += compute_energy + transmission_energy
+        problem += (
+            compute_latency
+            + transmission_latency
+            + compute_energy
+            + transmission_energy
+        )
 
         problem.solve(pulp.GLPK_CMD())
 
-        for var in problem.variables():
-            if var.name.startswith("x"):
-                print(f"{var.name} = {var.varValue}")
+        with open("VarFile.txt", "w") as f:
+            for var in problem.variables():
+                f.write(f"{var.name} = {var.varValue}\n")
 
-        # Print the objective function value
-        print(f"Objective value = {pulp.value(problem.objective)}")
+        # # Print the objective function value
+        # print(f"Objective value = {pulp.value(problem.objective)}")
 
-        # problem.writeLP("solved_problem.lp")
+        problem.writeLP("solved_problem.lp")
         pass
 
-    def add_boundaries(
+    def add_constraints(
         self,
         problem: pulp.LpProblem,
         model_graph: ModelGraph,
@@ -73,9 +74,8 @@ class OptimizerClass:
             for x_var_key, x_var in assignment_vars.items():
                 if x_var_key[0] == node.get_node_id():
                     var_list.append(x_var)
-            sum = pulp.lpSum(var_list)
 
-            problem += sum == 1
+            problem += pulp.lpSum(var_list) == 1
 
         ## First Flow Balance
         for model_edge in model_graph.get_edges():  ## (i, j)
@@ -121,6 +121,14 @@ class OptimizerClass:
 
                 problem += x_var == pulp.lpSum(y_sum_vars)
 
+        ## Input nodes on server_0
+        ## TODO >> Change this and make dynamic
+        for inp_node in model_graph.get_input_nodes():
+            x_var_key = (inp_node.get_node_id(), NodeId("server_0"))
+
+            x_var = assignment_vars[x_var_key]
+            problem += x_var == 1
+
     def compute_latency(
         self,
         model_graph: ModelGraph,
@@ -128,15 +136,21 @@ class OptimizerClass:
         assignment_vars: dict[tuple, pulp.LpVariable],
     ):
 
-        sum = 0
+        sum_elems = []
+        max_comp_latency = 0
         for mod_node in model_graph.get_nodes():
             for net_node in network_graph.get_nodes():
                 x_var_key = (mod_node.get_node_id(), net_node.get_node_id())
                 x_var = assignment_vars[x_var_key]
 
-                sum += x_var * self.__get_computation_time(mod_node, net_node)
+                max_comp_latency = max(
+                    max_comp_latency, self.__get_computation_time(mod_node, net_node)
+                )
+                sum_elems.append(
+                    x_var * self.__get_computation_time(mod_node, net_node)
+                )
 
-        return sum
+        return pulp.lpSum(sum_elems)
 
     def transmission_latency(
         self,
@@ -144,13 +158,21 @@ class OptimizerClass:
         network_graph: NetworkGraph,
         edge_vars: dict[tuple, pulp.LpVariable],
     ):
-        sum = 0
+        sum_elems = []
+        max_trans_latency = 0
         for model_edge in model_graph.get_edges():
             for network_edge in network_graph.get_edges():
                 y_var_key = (model_edge.get_edge_id(), network_edge.get_edge_id())
                 y_var = edge_vars[y_var_key]
-                sum += y_var * self.__get_transmission_time(model_edge, network_edge)
-        return sum
+
+                max_trans_latency = max(
+                    max_trans_latency,
+                    self.__get_transmission_time(model_edge, network_edge),
+                )
+                sum_elems.append(
+                    y_var * self.__get_transmission_time(model_edge, network_edge)
+                )
+        return pulp.lpSum(sum_elems)
 
     def compute_energy(
         self,
@@ -159,20 +181,26 @@ class OptimizerClass:
         assignment_vars: dict[tuple, pulp.LpVariable],
     ):
 
-        sum = 0
+        tot_sum_elems = []
         for net_node in network_graph.get_nodes():
-            net_node_sum = 0
+            net_node_sum_elems = []
             for mod_node in model_graph.get_nodes():
                 x_var_key = (mod_node.get_node_id(), net_node.get_node_id())
                 x_var = assignment_vars[x_var_key]
 
-                net_node_sum += x_var * self.__get_computation_time(mod_node, net_node)
+                net_node_sum_elems.append(
+                    x_var * self.__get_computation_time(mod_node, net_node)
+                )
 
-            sum += net_node_sum * net_node.get_node_info().get_info(
-                NodeInfo.NET_NODE_COMP_ENERGY_PER_SEC
+            net_node_sum = pulp.lpSum(net_node_sum_elems)
+            tot_sum_elems.append(
+                net_node_sum
+                * net_node.get_node_info().get_info(
+                    NodeInfo.NET_NODE_COMP_ENERGY_PER_SEC
+                )
             )
 
-        return sum
+        return pulp.lpSum(tot_sum_elems)
 
     def transmission_energy(
         self,
@@ -180,9 +208,9 @@ class OptimizerClass:
         network_graph: NetworkGraph,
         edge_vars: dict[tuple, pulp.LpVariable],
     ):
-        sum = 0
+        tot_sum_elems = []
         for net_node in network_graph.get_nodes():
-            net_node_sum = 0
+            net_node_sum_elems = []
             for model_edge in model_graph.get_edges():
                 for dst_net_node in network_graph.get_nodes():
                     network_edge_id = EdgeId(
@@ -191,15 +219,20 @@ class OptimizerClass:
                     y_var_key = (model_edge.get_edge_id(), network_edge_id)
                     y_var = edge_vars[y_var_key]
                     network_edge = network_graph.get_edge(network_edge_id)
-                    net_node_sum += y_var * self.__get_transmission_time(
-                        model_edge, network_edge
+
+                    net_node_sum_elems.append(
+                        y_var * self.__get_transmission_time(model_edge, network_edge)
                     )
 
-            sum += net_node_sum * net_node.get_node_info().get_info(
-                NodeInfo.NET_NODE_TRANS_ENERGY_PER_SEC
+            net_node_sum = pulp.lpSum(net_node_sum_elems)
+            tot_sum_elems.append(
+                net_node_sum
+                * net_node.get_node_info().get_info(
+                    NodeInfo.NET_NODE_TRANS_ENERGY_PER_SEC
+                )
             )
 
-        return sum
+        return pulp.lpSum(tot_sum_elems)
 
         pass
 
@@ -210,7 +243,6 @@ class OptimizerClass:
         network_graph: NetworkGraph,
     ) -> dict[tuple, pulp.LpVariable]:
         vars_table: dict[tuple[NodeId, NodeId], pulp.LpVariable] = {}
-
         for modelNode in model_graph.get_nodes():
             for networkNode in network_graph.get_nodes():
                 ## TODO >> Add quantization!!
@@ -218,9 +250,9 @@ class OptimizerClass:
                 var_name: str = self.__build_assignment_var_name(
                     modelNode.get_node_id(), networkNode.get_node_id()
                 )
-                lp_variable = pulp.LpVariable(var_name, cat="Binary")
+                lp_variable = pulp.LpVariable(var_name, cat=pulp.LpBinary)
 
-                problem.addVariable(lp_variable)
+                # problem.addVariable(lp_variable)
 
                 table_key = (modelNode.get_node_id(), networkNode.get_node_id())
                 vars_table[table_key] = lp_variable
@@ -242,9 +274,7 @@ class OptimizerClass:
                 var_name: str = self.__build_edge_var_name(
                     modelEdge.get_edge_id(), networkEdge.get_edge_id()
                 )
-                lp_variable = pulp.LpVariable(var_name, cat="Binary")
-
-                problem.addVariable(lp_variable)
+                lp_variable = pulp.LpVariable(var_name, cat=pulp.LpBinary)
 
                 table_key = (modelEdge.get_edge_id(), networkEdge.get_edge_id())
                 vars_table[table_key] = lp_variable

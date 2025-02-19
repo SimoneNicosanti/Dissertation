@@ -26,7 +26,12 @@ class OnnxModelProfiler(ModelProfiler):
         return graph
 
     def init_enter_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
-        graph.enter_nodes = [NodeId(inp.name) for inp in model.graph.input]
+        for node in model.graph.node:
+            for mod_input in model.graph.input:
+                if mod_input.name in node.input:
+                    node_id = NodeId(node.name)
+                    node = graph.get_node(node_id)
+                    graph.put_input_node(node)
 
     def init_nodes(
         self,

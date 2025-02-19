@@ -1,18 +1,18 @@
-from Graph.Graph import Edge, Graph, Node
-from Graph.GraphId import EdgeId, NodeId
+import abc
+
+from Graph.Graph import Graph, Node
 
 
-class ModelGraph(Graph):
+class ModelGraph(Graph, abc.ABC):
 
     def __init__(self):
         super().__init__()
-        self.enter_nodes: list[NodeId] = []
+        self.enter_nodes: list[Node] = []
 
         pass
 
-    def set_enter_nodes(self, enter_nodes : list[NodeId]) :
-        for node_id in enter_nodes :
-            if node_id in self.nodes.keys() :
-                self.enter_nodes.append(node_id)
-        
-            
+    def put_input_node(self, node: Node):
+        self.enter_nodes.append(node)
+
+    def get_input_nodes(self):
+        return self.enter_nodes

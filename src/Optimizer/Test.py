@@ -1,4 +1,5 @@
 import onnx
+import onnxruntime
 from Graph.Graph import Edge, Node
 from Graph.GraphId import EdgeId, NodeId
 from Graph.GraphInfo import EdgeInfo, NodeInfo
@@ -11,12 +12,17 @@ from Profiler.OnnxModelProfiler import OnnxModelProfiler
 def main():
     onnx_model = onnx.load_model("./models/ResNet50.onnx")
 
-    model_graph: ModelGraph = OnnxModelProfiler().profile_model(
-        onnx_model, {"args_0": (1, 3, 224, 224)}
-    )
+    print(onnx_model.graph.input)
+    print(onnx_model.graph.output)
 
-    network_graph: NetworkGraph = prepare_network_profile()
-    optimizer = OptimizerClass().optimize(model_graph, network_graph)
+    print(onnxruntime.InferenceSession("./models/ResNet50.onnx").get_outputs()[0].name)
+    print(onnxruntime.InferenceSession("./models/ResNet50.onnx").get_inputs()[0].name)
+    # model_graph: ModelGraph = OnnxModelProfiler().profile_model(
+    #     onnx_model, {"args_0": (1, 3, 224, 224)}
+    # )
+
+    # network_graph: NetworkGraph = prepare_network_profile()
+    # OptimizerClass().optimize(model_graph, network_graph)
 
 
 def prepare_network_profile():
@@ -26,9 +32,9 @@ def prepare_network_profile():
         "server_1",
         "server_2",
     ]
-    flops_list = [100, 500, 1_000]  # Edge, Fog, Cloud
-    energy_list = [0.3, 0.6, 1.0]  # Edge, Fog, Cloud
-    bandwidth_list = [1e4, 100, 50, 25]
+    flops_list = [60, 160, 300]  # Edge, Fog, Cloud
+    energy_list = [0.5, 0.7, 1.0]  # Edge, Fog, Cloud
+    bandwidth_list = [1, 20, 1]
 
     for idx, server_name in enumerate(server_names):
         node_id = NodeId(server_name)

@@ -51,3 +51,6 @@ class Graph:
 
     def get_edge(self, edge_id: EdgeId) -> Edge | None:
         return self.edges.get(edge_id, None)
+
+    def get_node(self, node_id: NodeId) -> Node | None:
+        return self.nodes.get(node_id, None)
