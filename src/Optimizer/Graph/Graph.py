@@ -1,10 +1,5 @@
-import abc
-
-from GraphId import EdgeId, NodeId
-from Profiler.GraphProfile import (
-    EdgeInfo,
-    NodeInfo,
-)
+from Graph.GraphId import EdgeId, NodeId
+from Graph.GraphInfo import EdgeInfo, NodeInfo
 
 
 class Edge:
@@ -34,20 +29,25 @@ class Node:
         return self.node_id
 
 
-class Graph(abc.ABC):
+class Graph:
 
     def __init__(self):
-        self.nodes: list[Node] = []
-        self.edges: list[Edge] = []
+        self.nodes: dict[NodeId, Node] = {}
+        self.edges: dict[NodeId, Node] = {}
 
-        pass
-
-    @abc.abstractmethod
-    def init_graph(self) -> None:
         pass
 
     def get_nodes(self) -> list[Node]:
-        return self.nodes
+        return list(self.nodes.values())
 
     def get_edges(self) -> list[Edge]:
-        return self.edges
+        return list(self.edges.values())
+
+    def put_node(self, node_id: NodeId, node: Node):
+        self.nodes[node_id] = node
+
+    def put_edge(self, edge_id: EdgeId, edge: Edge):
+        self.edges[edge_id] = edge
+
+    def get_edge(self, edge_id: EdgeId) -> Edge | None:
+        return self.edges.get(edge_id, None)

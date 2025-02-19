@@ -4,26 +4,33 @@ import tempfile
 import numpy as np
 import onnx
 import onnx_tool
-from GraphId import EdgeId, NodeId
-from Profiler.GraphProfile import EdgeInfo, GraphProfile, NodeInfo
+from Graph.Graph import Edge, Node
+from Graph.GraphId import EdgeId, NodeId
+from Graph.GraphInfo import EdgeInfo, NodeInfo
+from Graph.ModelGraph import ModelGraph
 from Profiler.ModelProfiler import ModelProfiler
 
 
 class OnnxModelProfiler(ModelProfiler):
 
-    def profile(
+    def profile_model(
         self, model: onnx.ModelProto, input_shapes: dict[str, tuple]
-    ) -> GraphProfile:
+    ) -> ModelGraph:
 
-        profile: GraphProfile = GraphProfile()
-        self.profile_nodes(profile, model, input_shapes)
-        self.profile_edges(profile, model, input_shapes)
+        graph: ModelGraph = ModelGraph()
+        self.init_nodes(graph, model, input_shapes)
+        self.init_edges(graph, model, input_shapes)
 
-        return profile
+        self.init_enter_nodes(graph, model)
 
-    def profile_nodes(
+        return graph
+
+    def init_enter_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
+        graph.enter_nodes = [NodeId(inp.name) for inp in model.graph.input]
+
+    def init_nodes(
         self,
-        profile: GraphProfile,
+        graph: ModelGraph,
         model: onnx.ModelProto,
         input_shapes: dict[str, tuple],
     ):
@@ -48,13 +55,14 @@ class OnnxModelProfiler(ModelProfiler):
 
                 name, flops = row[0], row[2]
                 node_id: NodeId = NodeId(name)
-                node_profile = NodeInfo(node_id=node_id, node_flops=float(flops))
+                node_info = NodeInfo({NodeInfo.MOD_NODE_FLOPS: float(flops)})
+                node: Node = Node(node_id, node_info)
 
-                profile.put_node_profile(node_id, node_profile)
+                graph.put_node(node_id, node)
 
-    def profile_edges(
+    def init_edges(
         self,
-        profile: GraphProfile,
+        graph: ModelGraph,
         model: onnx.ModelProto,
         input_shapes: dict[str, tuple],
     ):
@@ -77,7 +85,7 @@ class OnnxModelProfiler(ModelProfiler):
                     if inp in prev_node.output:
 
                         tensor_shape: onnx.TensorShapeProto = tensor_shapes_dict[inp]
-                        tensor_total_elems = 1
+                        tensor_total_elems = 1  ## TODO >> Init with data size
 
                         for dim in tensor_shape.dim:
                             if dim.HasField("dim_param"):
@@ -88,7 +96,8 @@ class OnnxModelProfiler(ModelProfiler):
                         edge_id: EdgeId = EdgeId(
                             NodeId(prev_node.name), NodeId(node.name)
                         )
-                        edge_profile = EdgeInfo(
-                            edge_id=edge_id, data_size=tensor_total_elems * 32
+                        edge_info = EdgeInfo(
+                            {EdgeInfo.MOD_EDGE_DATA_SIZE: tensor_total_elems}
                         )
-                        profile.put_edge_profile(edge_id, edge_profile)
+                        edge = Edge(edge_id, edge_info)
+                        graph.put_edge(edge_id, edge)

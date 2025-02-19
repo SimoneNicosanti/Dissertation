@@ -1,7 +1,9 @@
 import pulp
-from Graph.Model.ModelGraph import ModelGraph
-from Graph.Network.NetworkGraph import NetworkGraph
-from GraphId import EdgeId, NodeId
+from Graph.Graph import Edge, Node
+from Graph.GraphId import EdgeId, NodeId
+from Graph.GraphInfo import EdgeInfo, NodeInfo
+from Graph.ModelGraph import ModelGraph
+from Graph.NetworkGraph import NetworkGraph
 
 
 class OptimizerClass:
@@ -35,23 +37,26 @@ class OptimizerClass:
         compute_energy = self.compute_energy(
             model_graph, network_graph, assignment_vars
         )
-        # transmission_energy = self.transmission_energy()
+        transmission_energy = self.transmission_energy(
+            model_graph, network_graph, edge_vars
+        )
 
         # problem += (compute_latency + transmission_latency) + (
         #     compute_energy + transmission_energy
         # )
 
-        problem += compute_latency + transmission_latency + compute_energy
+        problem += compute_energy + transmission_energy
 
         problem.solve(pulp.GLPK_CMD())
 
         for var in problem.variables():
-            print(f"{var.name} = {var.varValue}")
+            if var.name.startswith("x"):
+                print(f"{var.name} = {var.varValue}")
 
         # Print the objective function value
         print(f"Objective value = {pulp.value(problem.objective)}")
 
-        problem.writeLP("solved_problem.lp")
+        # problem.writeLP("solved_problem.lp")
         pass
 
     def add_boundaries(
@@ -128,10 +133,8 @@ class OptimizerClass:
             for net_node in network_graph.get_nodes():
                 x_var_key = (mod_node.get_node_id(), net_node.get_node_id())
                 x_var = assignment_vars[x_var_key]
-                sum += x_var * (
-                    mod_node.get_node_info().get_info("node_flops")
-                    / net_node.get_node_info().get_info("flops_per_sec")
-                )
+
+                sum += x_var * self.__get_computation_time(mod_node, net_node)
 
         return sum
 
@@ -146,10 +149,7 @@ class OptimizerClass:
             for network_edge in network_graph.get_edges():
                 y_var_key = (model_edge.get_edge_id(), network_edge.get_edge_id())
                 y_var = edge_vars[y_var_key]
-                sum += y_var * (
-                    model_edge.get_edge_info().get_info("data_size")
-                    / network_edge.get_edge_info().get_info("bandwidth")
-                )
+                sum += y_var * self.__get_transmission_time(model_edge, network_edge)
         return sum
 
     def compute_energy(
@@ -166,18 +166,41 @@ class OptimizerClass:
                 x_var_key = (mod_node.get_node_id(), net_node.get_node_id())
                 x_var = assignment_vars[x_var_key]
 
-                net_node_sum += x_var * (
-                    mod_node.get_node_info().get_info("node_flops")
-                    / net_node.get_node_info().get_info("flops_per_sec")
-                )
+                net_node_sum += x_var * self.__get_computation_time(mod_node, net_node)
 
             sum += net_node_sum * net_node.get_node_info().get_info(
-                "comp_energy_per_sec"
+                NodeInfo.NET_NODE_COMP_ENERGY_PER_SEC
             )
 
         return sum
 
-    def transmission_energy(self):
+    def transmission_energy(
+        self,
+        model_graph: ModelGraph,
+        network_graph: NetworkGraph,
+        edge_vars: dict[tuple, pulp.LpVariable],
+    ):
+        sum = 0
+        for net_node in network_graph.get_nodes():
+            net_node_sum = 0
+            for model_edge in model_graph.get_edges():
+                for dst_net_node in network_graph.get_nodes():
+                    network_edge_id = EdgeId(
+                        net_node.get_node_id(), dst_net_node.get_node_id()
+                    )
+                    y_var_key = (model_edge.get_edge_id(), network_edge_id)
+                    y_var = edge_vars[y_var_key]
+                    network_edge = network_graph.get_edge(network_edge_id)
+                    net_node_sum += y_var * self.__get_transmission_time(
+                        model_edge, network_edge
+                    )
+
+            sum += net_node_sum * net_node.get_node_info().get_info(
+                NodeInfo.NET_NODE_TRANS_ENERGY_PER_SEC
+            )
+
+        return sum
+
         pass
 
     def add_assignemt_vars(
@@ -187,6 +210,7 @@ class OptimizerClass:
         network_graph: NetworkGraph,
     ) -> dict[tuple, pulp.LpVariable]:
         vars_table: dict[tuple[NodeId, NodeId], pulp.LpVariable] = {}
+
         for modelNode in model_graph.get_nodes():
             for networkNode in network_graph.get_nodes():
                 ## TODO >> Add quantization!!
@@ -236,3 +260,13 @@ class OptimizerClass:
         return "y_({})({})".format(
             modelEdge.get_edge_id_str(), networkEdge.get_edge_id_str()
         )
+
+    def __get_transmission_time(self, mod_edge: Edge, net_edge: Edge) -> float:
+        return mod_edge.get_edge_info().get_info(
+            EdgeInfo.MOD_EDGE_DATA_SIZE
+        ) / net_edge.get_edge_info().get_info(EdgeInfo.NET_EDGE_BANDWIDTH)
+
+    def __get_computation_time(self, mod_node: Node, net_node: Node) -> float:
+        return mod_node.get_node_info().get_info(
+            NodeInfo.MOD_NODE_FLOPS
+        ) / net_node.get_node_info().get_info(NodeInfo.NET_NODE_FLOPS_PER_SEC)

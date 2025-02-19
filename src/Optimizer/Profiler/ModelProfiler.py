@@ -1,10 +1,10 @@
 import abc
 
-from Profiler.GraphProfile import GraphProfile
+from Graph.ModelGraph import ModelGraph
 
 
 class ModelProfiler(abc.ABC):
 
     @abc.abstractmethod
-    def profile(self, model) -> GraphProfile:
+    def profile_model(self, model) -> ModelGraph:
         pass
