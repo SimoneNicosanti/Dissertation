@@ -1,13 +1,14 @@
 import numpy as np
 import onnxruntime as ort
-from ModelRunner import ModelRunner
+from Model.Model_IO import ModelInput, ModelOutput
+from Model.ModelRunner import ModelRunner
 
 
 class OnnxModelRunner(ModelRunner):
     def __init__(self, sub_model_path: str):
         super().__init__(sub_model_path)
 
-        ## TODO >> Setup Inference Session
+        ## TODO >> Setup Inference Session with Providers
         self.sess = ort.InferenceSession(self.sub_model_path)
 
         inp: ort.NodeArg
@@ -15,11 +16,12 @@ class OnnxModelRunner(ModelRunner):
             self.input_names.append(inp.name)
 
         out: ort.NodeArg
-        for out in self.onnx_model.graph.output:
+        for out in self.sess.get_outputs():
             self.output_names.append(out.name)
 
-    def run(self, input_dict: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+    def run(self, model_input: ModelInput) -> ModelOutput:
 
+        input_dict = model_input.get_all_inputs()
         model_output: list[np.ndarray] = self.sess.run(None, input_feed=input_dict)
 
         out_dict = {}
@@ -28,4 +30,6 @@ class OnnxModelRunner(ModelRunner):
             out_name = out_names[idx]
             out_dict[out_name] = out_tens
 
-        return out_dict
+        model_output: ModelOutput = ModelOutput(out_dict)
+
+        return model_output

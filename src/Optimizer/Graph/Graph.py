@@ -1,56 +1,65 @@
-from Graph.GraphId import EdgeId, NodeId
+from dataclasses import dataclass
+
 from Graph.GraphInfo import EdgeInfo, NodeInfo
 
 
-class Edge:
+@dataclass(frozen=True, repr=False)
+class NodeId:
+    node_name: str
 
-    def __init__(self, edge_id: EdgeId, edge_info: EdgeInfo):
-        self.edge_id = edge_id
-        self.edge_info = edge_info
-
-    def get_edge_info(self) -> EdgeInfo:
-        return self.edge_info
-
-    def get_edge_id(self) -> EdgeId:
-        return self.edge_id
+    def __repr__(self) -> str:
+        return self.node_name
 
 
-class Node:
+@dataclass(frozen=True, repr=False)
+class EdgeId:
+    first_node_id: NodeId
+    second_node_id: NodeId
 
-    def __init__(self, node_id: NodeId, node_info: NodeInfo):
-        self.node_id = node_id
-        self.node_info: NodeInfo = node_info
-        pass
-
-    def get_node_info(self) -> NodeInfo:
-        return self.node_info
-
-    def get_node_id(self) -> NodeId:
-        return self.node_id
+    def __repr__(self) -> str:
+        return "({})>({})".format(
+            self.first_node_id.node_name, self.second_node_id.node_name
+        )
 
 
 class Graph:
 
     def __init__(self):
-        self.nodes: dict[NodeId, Node] = {}
-        self.edges: dict[NodeId, Node] = {}
+        self.nodes: dict[NodeId, NodeInfo] = {}
+        self.edges: dict[EdgeId, EdgeInfo] = {}
 
         pass
 
-    def get_nodes(self) -> list[Node]:
-        return list(self.nodes.values())
+    def get_nodes_id(self) -> list[NodeId]:
+        return list(self.nodes.keys())
 
-    def get_edges(self) -> list[Edge]:
-        return list(self.edges.values())
+    def get_edges_id(self) -> list[EdgeId]:
+        return list(self.edges.keys())
 
-    def put_node(self, node_id: NodeId, node: Node):
-        self.nodes[node_id] = node
+    def get_edges_from_start(self, start_node_id: NodeId) -> list[EdgeId]:
+        ret_list = []
+        for edge_id in self.edges.keys():
+            if edge_id.first_node_id == start_node_id:
+                ret_list.append(edge_id)
 
-    def put_edge(self, edge_id: EdgeId, edge: Edge):
-        self.edges[edge_id] = edge
+        return ret_list
 
-    def get_edge(self, edge_id: EdgeId) -> Edge | None:
+    def get_edges_from_end(self, end_node_id: NodeId) -> list[EdgeId]:
+        ret_list = []
+        for edge_id in self.edges.keys():
+            if edge_id.second_node_id == end_node_id:
+                ret_list.append(edge_id)
+
+        return ret_list
+
+    def put_node(self, node_id: NodeId, node_info: NodeInfo):
+        self.nodes[node_id] = node_info
+
+    def put_edge(self, edge_id: EdgeId, edge_info: EdgeInfo):
+        self.edges[edge_id] = edge_info
+
+    def get_edge_info(self, edge_id: EdgeId) -> EdgeInfo | None:
         return self.edges.get(edge_id, None)
 
-    def get_node(self, node_id: NodeId) -> Node | None:
+    def get_node_info(self, node_id: NodeId) -> NodeInfo | None:
         return self.nodes.get(node_id, None)

@@ -1,6 +1,6 @@
 import abc
 
-import numpy as np
+from Model.Model_IO import ModelInput, ModelOutput
 
 
 class ModelRunner(abc.ABC):
@@ -11,7 +11,7 @@ class ModelRunner(abc.ABC):
         self.output_names = []
 
     @abc.abstractmethod
-    def run(self, input_dict: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+    def run(self, model_input: ModelInput) -> ModelOutput:
         return
 
     def get_input_names(self) -> list[str]:

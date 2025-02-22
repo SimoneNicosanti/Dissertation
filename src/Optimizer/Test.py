@@ -1,28 +1,49 @@
 import onnx
-import onnxruntime
-from Graph.Graph import Edge, Node
-from Graph.GraphId import EdgeId, NodeId
+from Graph.Graph import EdgeId, NodeId
 from Graph.GraphInfo import EdgeInfo, NodeInfo
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkGraph
-from OptimizerClass import OptimizerClass
+from Optimization.OptimizationHandler import OptimizationHandler
+from Optimization.SolvedProblemInfo import SolvedProblemInfo
+from Optimization.SubGraphBuilder import SubGraphBuilder
+from Partitioner.OnnxPartitioner import OnnxPartitioner
 from Profiler.OnnxModelProfiler import OnnxModelProfiler
 
 
 def main():
-    onnx_model = onnx.load_model("./models/ResNet50.onnx")
 
-    print(onnx_model.graph.input)
-    print(onnx_model.graph.output)
+    node_id = NodeId("args_0")
+    edge_id = EdgeId(node_id, node_id)
 
-    print(onnxruntime.InferenceSession("./models/ResNet50.onnx").get_outputs()[0].name)
-    print(onnxruntime.InferenceSession("./models/ResNet50.onnx").get_inputs()[0].name)
-    # model_graph: ModelGraph = OnnxModelProfiler().profile_model(
-    #     onnx_model, {"args_0": (1, 3, 224, 224)}
-    # )
+    onnx.utils.extract_model(
+        "./models/ResNet50.onnx",
+        "./models/ResNet50_sub.onnx",
+        ["args_0"],
+        ["resnet50/conv2_block1_3_bn/FusedBatchNormV3:0"],
+    )
 
-    # network_graph: NetworkGraph = prepare_network_profile()
-    # OptimizerClass().optimize(model_graph, network_graph)
+    model_graph: ModelGraph = OnnxModelProfiler(
+        "./models/ResNet50_sub.onnx"
+    ).profile_model({"args_0": (1, 3, 448, 448)})
+
+    network_graph: NetworkGraph = prepare_network_profile()
+    deployment_server = network_graph.get_nodes_id()[0]
+    solved_prob_info = OptimizationHandler().optimize(
+        model_graph, network_graph, deployment_server
+    )
+
+    sub_graph_builder = SubGraphBuilder(
+        graph=model_graph, solved_problem_info=solved_prob_info
+    )
+    sub_graphs_by_node = sub_graph_builder.build_sub_graphs()
+
+    for net_node_id, sub_graphs in sub_graphs_by_node.items():
+        print(net_node_id, len(sub_graphs))
+        for sub_graph in sub_graphs:
+            print([node_id for node_id in sub_graph.get_nodes_id()])
+
+        print("--------")
+        OnnxPartitioner("./models/ResNet50_sub_prep.onnx").partition_model(sub_graphs)
 
 
 def prepare_network_profile():
@@ -30,10 +51,9 @@ def prepare_network_profile():
     server_names = [
         "server_0",
         "server_1",
-        "server_2",
     ]
-    flops_list = [60, 160, 300]  # Edge, Fog, Cloud
-    energy_list = [0.5, 0.7, 1.0]  # Edge, Fog, Cloud
+    flops_list = [5, 100]  # Edge, Fog, Cloud
+    energy_list = [0.5, 1.0]  # Edge, Fog, Cloud
     bandwidth_list = [1, 20, 1]
 
     for idx, server_name in enumerate(server_names):
@@ -49,22 +69,20 @@ def prepare_network_profile():
                 ],
             }
         )
-        node = Node(node_id, node_info)
-        graph.put_node(node_id, node)
+        graph.put_node(node_id, node_info)
 
     for idx_1, server_name in enumerate(server_names):
         for idx_2, other_server_name in enumerate(server_names):
 
-            if server_name == other_server_name:
-                bandwidth = 1e4
+            if server_name != other_server_name:
+                bandwidth = 1000
+                edge_info = EdgeInfo({EdgeInfo.NET_EDGE_BANDWIDTH: bandwidth})
             else:
-                bandwidth = bandwidth_list[(idx_1 + idx_2) % len(bandwidth_list)]
+                edge_info = EdgeInfo({})
 
             edge_id = EdgeId(NodeId(server_name), NodeId(other_server_name))
-            edge_info = EdgeInfo({EdgeInfo.NET_EDGE_BANDWIDTH: bandwidth})
-            edge = Edge(edge_id, edge_info)
 
-            graph.put_edge(edge_id, edge)
+            graph.put_edge(edge_id, edge_info)
     return graph
 
 
