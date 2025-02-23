@@ -3,7 +3,6 @@ from Graph.Graph import EdgeId, GraphInfo, NodeId
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
 from Optimization.OptimizationHandler import OptimizationHandler
-from Optimization.SolvedProblemInfo import SolvedProblemInfo
 from Optimization.SubGraphBuilder import SubGraphBuilder
 from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
 from Profiler.OnnxModelProfiler import OnnxModelProfiler
@@ -42,7 +41,7 @@ def main():
             print([node_id for node_id in sub_graph.get_nodes_id()])
 
         print("--------")
-        partitioner = OnnxModelPartitioner("./models/ResNet50_sub_prep.onnx")
+        partitioner = OnnxModelPartitioner("./models/ResNet50_sub.onnx")
         partitioner.partition_model(net_node_id, sub_graphs)
 
 

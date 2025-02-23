@@ -64,7 +64,7 @@ $$E = E^x + E^c$$
 # Problema
 
 In definitiva quindi il problema diventa.
-Indichiamo con $V_I \subset V_M$ il sottoinsieme di nodi di input  
+Indichiamo con $V_I \subset V_M$ il sottoinsieme di nodi di input; indichiamo con $V_O \subset V_M$ il sottoinsieme di nodi di output
 
 $$
 
@@ -78,7 +78,9 @@ Vincoli:\\
 \sum_{b \in E_N} y_{ab} = 1 \hspace{1cm} \forall a \in E_M \\
 x_{ik} = \sum_{h \in V_N} y_{(i,j)(k,h)} \hspace{1cm} \forall a=(i,j) \in E_M, \forall k \in V_N \\
 x_{jh} = \sum_{k \in V_N} y_{(i,j)(k,h)} \hspace{1cm} \forall a=(i,j) \in E_M, \forall h \in V_N \\
-x_{i0} = 1 \hspace{1cm} \forall i \in V_I\\ \\
+x_{i0} = 1 \hspace{1cm} \forall i \in V_I \\ 
+x_{j0} = 1 \hspace{1cm} \forall j \in V_O \\
+\\
 x_{ik} \in \{0, 1\} \hspace{1cm} \forall i \in V_M, \forall k \in V_N \\
 y_{ab} \in \{0, 1\} \hspace{1cm} \forall a \in E_M, \forall b \in E_N \\
 
@@ -92,6 +94,7 @@ Analisi vincoli:
 	1. Il terzo dice che se $i \in V_M$ è assegnato a $k \in V_N$, allora i dati prodotti da $i$ sono inviati ai server che hanno i nodi successori di $i$
 	2. Il quarto vincolo è simile al terzo ma per la ricezione
 4. Il quinto vincolo impone che almeno i livelli di input si trovino sul server 0 che fa partire l'inferenza (per assunzione)
+5. Il sesto vincolo impone che i livelli di output si trovino sul server 0 che fa partire l'inferenza (per assunzione)
 
 
 # Test dell'Implementazione

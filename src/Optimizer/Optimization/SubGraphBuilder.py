@@ -73,17 +73,28 @@ class SubGraphBuilder:
                 edge_info = self.graph.get_edge_info(self_edge_id)
                 sub_graph.put_edge(self_edge_id, edge_info)
 
+                if self_edge_id.first_node_id == NodeId(
+                    ModelGraph.INPUT_GENERATOR_NODE_NAME
+                ):
+                    sub_graph.put_input_edge(self_edge_id)
+                elif self_edge_id.second_node_id == NodeId(
+                    ModelGraph.OUTPUT_RECEIVER_NODE_NAME
+                ):
+                    sub_graph.put_output_edge(self_edge_id)
+
         for input_edge_id in input_edges:
             if input_edge_id.second_node_id in connected_component:
-                sub_graph.put_input_edge(
+                sub_graph.put_edge(
                     input_edge_id, self.graph.get_edge_info(input_edge_id)
                 )
+                sub_graph.put_input_edge(input_edge_id)
 
         for output_edge_id in output_edges:
             if output_edge_id.first_node_id in connected_component:
-                sub_graph.put_output_edge(
+                sub_graph.put_edge(
                     output_edge_id, self.graph.get_edge_info(output_edge_id)
                 )
+                sub_graph.put_output_edge(output_edge_id)
 
         return sub_graph
 

@@ -19,55 +19,10 @@ class OnnxModelProfiler(ModelProfiler):
         model: onnx.ModelProto = onnx.load(self.model_path)
         graph: ModelGraph = ModelGraph()
 
-        self.preprocess_model(model)
-
         self.init_nodes(graph, model, input_shapes)
         self.init_edges(graph, model, input_shapes)
 
-        self.init_input_nodes(graph, model)
-        self.init_output_nodes(graph, model)
-
         return graph
-
-    def preprocess_model(self, model: onnx.ModelProto) -> onnx.ModelProto:
-        graph = model.graph
-
-        # Create an identity node to wrap the input
-        for input in graph.input:
-            input_name = input.name
-            new_input_name = input_name + "_wrapped"
-            identity_node = onnx.helper.make_node(
-                "Identity",
-                inputs=[input_name],
-                outputs=[new_input_name],
-                name=f"{input_name}_wrapper",
-            )
-
-            # Replace references to the input with the new wrapped version
-            for node in graph.node:
-                for i, inp in enumerate(node.input):
-                    if inp == input_name:
-                        node.input[i] = new_input_name
-
-            # Add the new node to the graph
-            graph.node.insert(0, identity_node)
-
-        new_path = self.model_path.replace(".onnx", "_prep.onnx")
-        onnx.save(model, new_path)
-
-    def init_output_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
-        for node in model.graph.node:
-            for mod_output in model.graph.output:
-                if mod_output.name in node.output:
-                    node_id = NodeId(node.name)
-                    graph.put_output_node(node_id)
-
-    def init_input_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
-        for node in model.graph.node:
-            for mod_input in model.graph.input:
-                if mod_input.name in node.input:
-                    node_id = NodeId(node.name)
-                    graph.put_input_node(node_id)
 
     def init_nodes(
         self,
@@ -103,6 +58,22 @@ class OnnxModelProfiler(ModelProfiler):
 
                 graph.put_node(node_id, node_info)
 
+        ## Adding Fake Input Node
+        input_node_id: NodeId = NodeId(ModelGraph.INPUT_GENERATOR_NODE_NAME)
+        input_node_info: ModelNodeInfo = ModelNodeInfo(
+            {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: 0}
+        )
+        graph.put_node(input_node_id, input_node_info)
+        graph.put_input_node(input_node_id)
+
+        ## Adding Fake Output Node
+        output_node_id: NodeId = NodeId(ModelGraph.OUTPUT_RECEIVER_NODE_NAME)
+        output_node_info: ModelNodeInfo = ModelNodeInfo(
+            {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: 0}
+        )
+        graph.put_node(output_node_id, output_node_info)
+        graph.put_output_node(output_node_id)
+
     def init_edges(
         self,
         graph: ModelGraph,
@@ -115,42 +86,81 @@ class OnnxModelProfiler(ModelProfiler):
         )
 
         tensor_dict: dict[str, onnx.TypeProto.Tensor] = {}
+        tensor_info: onnx.ValueInfoProto
 
-        value_info_elem: onnx.ValueInfoProto
-        for value_info_elem in infered_model.graph.value_info:
-            tensor_dict[value_info_elem.name] = value_info_elem.type.tensor_type
+        ## Init from inference
+        for tensor_info in infered_model.graph.value_info:
+            tensor_dict[tensor_info.name] = tensor_info.type.tensor_type
 
         for node in infered_model.graph.node:
             for prev_node in infered_model.graph.node:
-                for inp in node.input:
-                    if inp in prev_node.output:
-                        tensor_shape: onnx.TensorShapeProto = tensor_dict[inp].shape
-                        tensor_total_size = self.__init_size_in_bytes(
-                            tensor_dict[inp].elem_type
+                for inp_name in node.input:
+                    if inp_name in prev_node.output:
+                        tensor_info = tensor_dict[inp_name]
+                        tensor_data_size: float = self.compute_edge_data_size(
+                            tensor_info
                         )
-
-                        for dim in tensor_shape.dim:
-                            if dim.HasField("dim_param"):
-                                ## Batch Size
-                                continue
-                            tensor_total_size *= dim.dim_value
-
                         edge_id: EdgeId = EdgeId(
                             NodeId(prev_node.name), NodeId(node.name)
                         )
+                        edge_info = ModelEdgeInfo(
+                            {
+                                ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_data_size
+                            }
+                        )
+                        edge_info.put_tensor_name(inp_name)
+                        graph.put_edge(edge_id, edge_info)
 
-                        if graph.get_edge_info(edge_id) is not None:
-                            edge_info: ModelEdgeInfo = graph.get_edge_info(edge_id)
-                            edge_info.increase_data_size(tensor_total_size)
-                            edge_info.put_tensor_name(inp)
-                        else:
-                            edge_info = ModelEdgeInfo(
-                                {
-                                    ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_total_size
-                                }
-                            )
-                            edge_info.put_tensor_name(inp)
-                            graph.put_edge(edge_id, edge_info)
+        input_graph_dict: dict[str, onnx.TypeProto.Tensor] = {
+            input.name: input.type.tensor_type for input in infered_model.graph.input
+        }
+        for node in infered_model.graph.node:
+            for inp_name in node.input:
+                if inp_name in input_graph_dict.keys():
+                    input_tensor = input_graph_dict[inp_name]
+                    tensor_data_size: float = self.compute_edge_data_size(input_tensor)
+                    edge_id = EdgeId(
+                        NodeId(ModelGraph.INPUT_GENERATOR_NODE_NAME), NodeId(node.name)
+                    )
+
+                    edge_info = ModelEdgeInfo(
+                        {ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_data_size}
+                    )
+                    edge_info.put_tensor_name(inp_name)
+
+                    graph.put_edge(edge_id, edge_info)
+
+        output_graph_dict: dict[str, onnx.TypeProto.Tensor] = {
+            output.name: output.type.tensor_type
+            for output in infered_model.graph.output
+        }
+        for node in infered_model.graph.node:
+            for out_name in node.output:
+                if out_name in output_graph_dict.keys():
+                    output_tensor = output_graph_dict[out_name]
+                    tensor_data_size: float = self.compute_edge_data_size(output_tensor)
+                    edge_id = EdgeId(
+                        NodeId(node.name), NodeId(ModelGraph.OUTPUT_RECEIVER_NODE_NAME)
+                    )
+
+                    edge_info = ModelEdgeInfo(
+                        {ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_data_size}
+                    )
+                    edge_info.put_tensor_name(out_name)
+                    graph.put_edge(edge_id, edge_info)
+
+    def compute_edge_data_size(self, tensor_info: onnx.TypeProto.Tensor):
+        print(tensor_info)
+        tensor_shape: onnx.TensorShapeProto = tensor_info.shape
+        tensor_total_size = self.__init_size_in_bytes(tensor_info.elem_type)
+
+        for dim in tensor_shape.dim:
+            if dim.HasField("dim_param"):
+                ## Batch Size
+                continue
+            tensor_total_size *= dim.dim_value
+
+        return tensor_total_size
 
     def __init_size_in_bytes(self, elem_type: onnx.TensorProto.DataType) -> int:
         if elem_type == onnx.TensorProto.FLOAT:

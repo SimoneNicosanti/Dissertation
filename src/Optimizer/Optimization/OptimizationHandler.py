@@ -217,6 +217,12 @@ class OptimizationHandler:
             x_var = node_ass_vars[x_var_key]
             problem += x_var == 1
 
+        for out_node_id in model_graph.get_output_nodes():
+            x_var_key = NodeAssKey(out_node_id, deployment_server_id)
+
+            x_var = node_ass_vars[x_var_key]
+            problem += x_var == 1
+
         # x_var_key = NodeAssKey(NodeId("Conv__435"), deployment_server_id)
         # x_var = node_ass_vars[x_var_key]
         # problem += x_var == 1
