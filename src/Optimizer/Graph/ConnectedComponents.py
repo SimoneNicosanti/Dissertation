@@ -1,4 +1,4 @@
-from Graph.Graph import EdgeId, Graph, NodeId
+from Graph.Graph import Graph, NodeId
 
 
 class ConnectedComponentsFinder:
@@ -9,7 +9,6 @@ class ConnectedComponentsFinder:
         is_visited = {node_id: False for node_id in undirect_graph.get_nodes_id()}
 
         for node_id in undirect_graph.get_nodes_id():
-            print(node_id)
             if not is_visited[node_id]:
                 component = []
                 ConnectedComponentsFinder.__find_connected_component(

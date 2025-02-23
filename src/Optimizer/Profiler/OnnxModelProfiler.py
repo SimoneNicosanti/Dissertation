@@ -5,8 +5,7 @@ import numpy as np
 import onnx
 import onnx_tool
 from Graph.Graph import EdgeId, NodeId
-from Graph.GraphInfo import EdgeInfo, NodeInfo
-from Graph.ModelGraph import ModelGraph
+from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 from Profiler.ModelProfiler import ModelProfiler
 
 
@@ -25,7 +24,8 @@ class OnnxModelProfiler(ModelProfiler):
         self.init_nodes(graph, model, input_shapes)
         self.init_edges(graph, model, input_shapes)
 
-        self.init_enter_nodes(graph, model)
+        self.init_input_nodes(graph, model)
+        self.init_output_nodes(graph, model)
 
         return graph
 
@@ -55,7 +55,14 @@ class OnnxModelProfiler(ModelProfiler):
         new_path = self.model_path.replace(".onnx", "_prep.onnx")
         onnx.save(model, new_path)
 
-    def init_enter_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
+    def init_output_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
+        for node in model.graph.node:
+            for mod_output in model.graph.output:
+                if mod_output.name in node.output:
+                    node_id = NodeId(node.name)
+                    graph.put_output_node(node_id)
+
+    def init_input_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
         for node in model.graph.node:
             for mod_input in model.graph.input:
                 if mod_input.name in node.input:
@@ -90,7 +97,9 @@ class OnnxModelProfiler(ModelProfiler):
 
                 name, flops = row[0], row[2]
                 node_id: NodeId = NodeId(name)
-                node_info = NodeInfo({NodeInfo.MOD_NODE_FLOPS: float(flops)})
+                node_info = ModelNodeInfo(
+                    {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: float(flops)}
+                )
 
                 graph.put_node(node_id, node_info)
 
@@ -129,10 +138,19 @@ class OnnxModelProfiler(ModelProfiler):
                         edge_id: EdgeId = EdgeId(
                             NodeId(prev_node.name), NodeId(node.name)
                         )
-                        edge_info = EdgeInfo(
-                            {EdgeInfo.MOD_EDGE_DATA_SIZE: tensor_total_size}
-                        )
-                        graph.put_edge(edge_id, edge_info)
+
+                        if graph.get_edge_info(edge_id) is not None:
+                            edge_info: ModelEdgeInfo = graph.get_edge_info(edge_id)
+                            edge_info.increase_data_size(tensor_total_size)
+                            edge_info.put_tensor_name(inp)
+                        else:
+                            edge_info = ModelEdgeInfo(
+                                {
+                                    ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_total_size
+                                }
+                            )
+                            edge_info.put_tensor_name(inp)
+                            graph.put_edge(edge_id, edge_info)
 
     def __init_size_in_bytes(self, elem_type: onnx.TensorProto.DataType) -> int:
         if elem_type == onnx.TensorProto.FLOAT:

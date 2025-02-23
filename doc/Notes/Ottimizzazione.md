@@ -2,11 +2,11 @@ L'ottimizzazione viene modellata come problema di assegnamento di un grafo logic
 
 Sia $G_M = (V_M, E_M)$ il grafo del modello e sia $G_N = (V_N, E_N)$ il grafo della rete. Quello che vogliamo è mappare ogni nodo del modello su un nodo della rete e mappare ogni arco del modello su un arco della rete. Nello specifico siano:
 - $G_M$ un grafo diretto aciclico
-- $G_N$ un grafo diretto. Supponiamo che all'interno dell'insiemo $E_N$ siano presenti anche archi di tipo $(v, v)$ $\forall v \in V_N$ per modellare il passaggio di dai da un nodo a se stesso.
+- $G_N$ un grafo diretto. Supponiamo che all'interno dell'insieme $E_N$ siano presenti anche archi di tipo $(v, v)$ $\forall v \in V_N$ per modellare il passaggio di dai da un nodo a se stesso.
 
 Sia dato un nodo $v \in V_M$. Definiamo per questo livello una tupla $\phi_v$ di caratteristiche del nodo; in particolare sia $\phi_v = (flops\_livello)$ .
 
-Sia dato un nodo $v \in V_N$. Definiamo per questo livello una tupla $\psi_v$ di caratteristche del nodo dela rete; in particolare sia $\psi_v = (flops\_al\_secondo, consumo\_energetico\_calcolo, consumo\_energetico\_trasmissione)$.
+Sia dato un nodo $v \in V_N$. Definiamo per questo livello una tupla $\psi_v$ di caratteristiche del nodo della rete; in particolare sia $\psi_v = (flops\_al\_secondo, consumo\_energetico\_calcolo, consumo\_energetico\_trasmissione)$.
 
 Sia dato un arco $e \in E_M$. Definiamo per questo arco una tupla $\eta_e$ di caratteristiche dell'arco del modello; in particolare sia $\eta_e = (size\_dati\_arco)$.
 
@@ -70,13 +70,15 @@ $$
 
 \begin{matrix}
 
-Obiettivo: min \hspace{1cm} \alpha*t + \beta*E \\
+Obiettivo: \\
+min \hspace{0.5cm} \alpha*t + \beta*E \\
+\\
 Vincoli:\\
 \sum_{k \in V_N} x_{ik} = 1 \hspace{1cm}  \forall i \in V_M \\
 \sum_{b \in E_N} y_{ab} = 1 \hspace{1cm} \forall a \in E_M \\
 x_{ik} = \sum_{h \in V_N} y_{(i,j)(k,h)} \hspace{1cm} \forall a=(i,j) \in E_M, \forall k \in V_N \\
 x_{jh} = \sum_{k \in V_N} y_{(i,j)(k,h)} \hspace{1cm} \forall a=(i,j) \in E_M, \forall h \in V_N \\
-x_{i0} = 1 \hspace{1cm} \forall i \in V_N \wedge i \in V_I\\
+x_{i0} = 1 \hspace{1cm} \forall i \in V_I\\ \\
 x_{ik} \in \{0, 1\} \hspace{1cm} \forall i \in V_M, \forall k \in V_N \\
 y_{ab} \in \{0, 1\} \hspace{1cm} \forall a \in E_M, \forall b \in E_N \\
 

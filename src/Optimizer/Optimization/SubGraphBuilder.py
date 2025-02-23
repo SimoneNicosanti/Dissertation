@@ -60,6 +60,7 @@ class SubGraphBuilder:
         self_edges: list[EdgeId],
     ) -> ModelGraph:
         sub_graph = ModelGraph()
+
         for node_id in connected_component:
             node_info = self.graph.get_node_info(node_id)
             sub_graph.put_node(node_id, node_info)
@@ -74,11 +75,15 @@ class SubGraphBuilder:
 
         for input_edge_id in input_edges:
             if input_edge_id.second_node_id in connected_component:
-                sub_graph.put_input_edge(input_edge_id)
+                sub_graph.put_input_edge(
+                    input_edge_id, self.graph.get_edge_info(input_edge_id)
+                )
 
         for output_edge_id in output_edges:
             if output_edge_id.first_node_id in connected_component:
-                sub_graph.put_output_edge(output_edge_id)
+                sub_graph.put_output_edge(
+                    output_edge_id, self.graph.get_edge_info(output_edge_id)
+                )
 
         return sub_graph
 
@@ -97,5 +102,4 @@ class SubGraphBuilder:
             )
             undirect_graph.put_edge(opposite_edge_id, None)
 
-        print([edge_id for edge_id in undirect_graph.get_edges_id()])
         return undirect_graph

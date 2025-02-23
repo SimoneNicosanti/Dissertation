@@ -1,12 +1,11 @@
 import onnx
-from Graph.Graph import EdgeId, NodeId
-from Graph.GraphInfo import EdgeInfo, NodeInfo
+from Graph.Graph import EdgeId, GraphInfo, NodeId
 from Graph.ModelGraph import ModelGraph
-from Graph.NetworkGraph import NetworkGraph
+from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
 from Optimization.OptimizationHandler import OptimizationHandler
 from Optimization.SolvedProblemInfo import SolvedProblemInfo
 from Optimization.SubGraphBuilder import SubGraphBuilder
-from Partitioner.OnnxPartitioner import OnnxPartitioner
+from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
 from Profiler.OnnxModelProfiler import OnnxModelProfiler
 
 
@@ -43,7 +42,8 @@ def main():
             print([node_id for node_id in sub_graph.get_nodes_id()])
 
         print("--------")
-        OnnxPartitioner("./models/ResNet50_sub_prep.onnx").partition_model(sub_graphs)
+        partitioner = OnnxModelPartitioner("./models/ResNet50_sub_prep.onnx")
+        partitioner.partition_model(net_node_id, sub_graphs)
 
 
 def prepare_network_profile():
@@ -58,13 +58,15 @@ def prepare_network_profile():
 
     for idx, server_name in enumerate(server_names):
         node_id = NodeId(server_name)
-        node_info = NodeInfo(
+        node_info = NetworkNodeInfo(
             {
-                NodeInfo.NET_NODE_FLOPS_PER_SEC: flops_list[idx % len(flops_list)],
-                NodeInfo.NET_NODE_COMP_ENERGY_PER_SEC: energy_list[
+                NetworkNodeInfo.Attributes.NET_NODE_FLOPS_PER_SEC: flops_list[
+                    idx % len(flops_list)
+                ],
+                NetworkNodeInfo.Attributes.NET_NODE_COMP_ENERGY_PER_SEC: energy_list[
                     idx % len(energy_list)
                 ],
-                NodeInfo.NET_NODE_TRANS_ENERGY_PER_SEC: energy_list[
+                NetworkNodeInfo.Attributes.NET_NODE_TRANS_ENERGY_PER_SEC: energy_list[
                     idx % len(energy_list)
                 ],
             }
@@ -76,9 +78,11 @@ def prepare_network_profile():
 
             if server_name != other_server_name:
                 bandwidth = 1000
-                edge_info = EdgeInfo({EdgeInfo.NET_EDGE_BANDWIDTH: bandwidth})
+                edge_info = NetworkEdgeInfo(
+                    {NetworkEdgeInfo.Attributes.NET_EDGE_BANDWIDTH: bandwidth}
+                )
             else:
-                edge_info = EdgeInfo({})
+                edge_info = GraphInfo({})
 
             edge_id = EdgeId(NodeId(server_name), NodeId(other_server_name))
 

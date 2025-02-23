@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 
 import pulp
-from Graph.Graph import EdgeId, NodeId
-from Graph.GraphInfo import EdgeInfo, NodeInfo
-from Graph.ModelGraph import ModelGraph
-from Graph.NetworkGraph import NetworkGraph
+from Graph.Graph import EdgeId, GraphInfo, NodeId
+from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
+from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
 from Optimization.SolvedProblemInfo import SolvedProblemInfo
 
 
@@ -75,19 +74,19 @@ class OptimizationHandler:
             model_graph, network_graph, edge_ass_vars
         )
 
-        compute_energy = self.computation_energy(
-            model_graph, network_graph, node_ass_vars
-        )
-        transmission_energy = self.transmission_energy(
-            model_graph, network_graph, edge_ass_vars
-        )
+        # compute_energy = self.computation_energy(
+        #     model_graph, network_graph, node_ass_vars
+        # )
+        # transmission_energy = self.transmission_energy(
+        #     model_graph, network_graph, edge_ass_vars
+        # )
 
         ## TODO Add quantization
         problem += (
             compute_latency
             + transmission_latency
-            + compute_energy
-            + transmission_energy
+            # + compute_energy
+            # + transmission_energy
         )
 
         problem.solve(pulp.GLPK_CMD())
@@ -218,7 +217,7 @@ class OptimizationHandler:
             x_var = node_ass_vars[x_var_key]
             problem += x_var == 1
 
-        # x_var_key = NodeAssKey(NodeId("Conv__435"), deployment_server.get_node_id())
+        # x_var_key = NodeAssKey(NodeId("Conv__435"), deployment_server_id)
         # x_var = node_ass_vars[x_var_key]
         # problem += x_var == 1
 
@@ -305,7 +304,7 @@ class OptimizationHandler:
             tot_sum_elems.append(
                 net_node_sum
                 * network_graph.get_node_info(net_node_id).get_info(
-                    NodeInfo.NET_NODE_COMP_ENERGY_PER_SEC
+                    GraphInfo.NET_NODE_COMP_ENERGY_PER_SEC
                 )
             )
 
@@ -341,7 +340,7 @@ class OptimizationHandler:
             tot_sum_elems.append(
                 net_node_sum
                 * network_graph.get_node_info(net_node_id).get_info(
-                    NodeInfo.NET_NODE_TRANS_ENERGY_PER_SEC
+                    GraphInfo.NET_NODE_TRANS_ENERGY_PER_SEC
                 )
             )
 
@@ -394,7 +393,7 @@ class OptimizationHandler:
         return "y_({})({})".format(modelEdge, networkEdge)
 
     def __get_transmission_time(
-        self, mod_edge_info: EdgeInfo, net_edge_info: EdgeInfo, net_edge_id: EdgeId
+        self, mod_edge_info: GraphInfo, net_edge_info: GraphInfo, net_edge_id: EdgeId
     ) -> float:
         ## Note --> Assuming Bandwidth in Byte / s
 
@@ -402,12 +401,12 @@ class OptimizationHandler:
             return 0
 
         return mod_edge_info.get_info(
-            EdgeInfo.MOD_EDGE_DATA_SIZE
-        ) / net_edge_info.get_info(EdgeInfo.NET_EDGE_BANDWIDTH)
+            ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE
+        ) / net_edge_info.get_info(NetworkEdgeInfo.Attributes.NET_EDGE_BANDWIDTH)
 
     def __get_computation_time(
-        self, mod_node_info: NodeInfo, net_node_info: NodeInfo
+        self, mod_node_info: GraphInfo, net_node_info: GraphInfo
     ) -> float:
-        return mod_node_info.get_info(NodeInfo.MOD_NODE_FLOPS) / net_node_info.get_info(
-            NodeInfo.NET_NODE_FLOPS_PER_SEC
-        )
+        return mod_node_info.get_info(
+            ModelNodeInfo.Attributes.MOD_NODE_FLOPS
+        ) / net_node_info.get_info(NetworkNodeInfo.Attributes.NET_NODE_FLOPS_PER_SEC)
