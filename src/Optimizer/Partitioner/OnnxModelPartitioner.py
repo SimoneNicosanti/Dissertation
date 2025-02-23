@@ -50,16 +50,12 @@ class OnnxModelPartitioner(ModelPartitioner):
             input_edge_info: ModelEdgeInfo = sub_graph.get_edge_info(edge_id)
             input_names = input_names.union(input_edge_info.get_tensor_names())
 
-        print(input_names)
         return input_names
 
     def __find_output_names(self, sub_graph: ModelGraph) -> list[str]:
         output_names = set()
-        print(sub_graph.get_output_edges_id())
         for edge_id in sub_graph.get_output_edges_id():
             output_edge_info: ModelEdgeInfo = sub_graph.get_edge_info(edge_id)
             output_names = output_names.union(output_edge_info.get_tensor_names())
-
-        print("Output >> ", output_names)
 
         return output_names

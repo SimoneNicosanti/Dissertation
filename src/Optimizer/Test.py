@@ -36,11 +36,6 @@ def main():
     sub_graphs_by_node = sub_graph_builder.build_sub_graphs()
 
     for net_node_id, sub_graphs in sub_graphs_by_node.items():
-        print(net_node_id, len(sub_graphs))
-        for sub_graph in sub_graphs:
-            print([node_id for node_id in sub_graph.get_nodes_id()])
-
-        print("--------")
         partitioner = OnnxModelPartitioner("./models/ResNet50_sub.onnx")
         partitioner.partition_model(net_node_id, sub_graphs)
 

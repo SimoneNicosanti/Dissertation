@@ -18,8 +18,6 @@ class SubGraphBuilder:
                 net_node_id
             )
 
-            print(sub_graphs_by_node[net_node_id])
-
         return sub_graphs_by_node
 
     def __build_sub_graphs_for_network_node(self, net_node_id: NodeId) -> list[Graph]:
@@ -41,7 +39,6 @@ class SubGraphBuilder:
         connected_components: list[list[NodeId]] = (
             ConnectedComponentsFinder.find_connected_components(undirect_graph)
         )
-        print(len(connected_components))
 
         sub_graphs: list[ModelGraph] = []
         for connected_component in connected_components:
@@ -60,6 +57,9 @@ class SubGraphBuilder:
         self_edges: list[EdgeId],
     ) -> ModelGraph:
         sub_graph = ModelGraph()
+
+        ## TODO Add input and output nodes??
+        ## Probably I will need them to find connections between subgraphs
 
         for node_id in connected_component:
             node_info = self.graph.get_node_info(node_id)

@@ -23,14 +23,14 @@ Notare che per come è modellata la rete di server, i server potrebbero non esse
 ## Latenza di Calcolo
 La latenza di calcolo di un livello su un nodo della rete la possiamo calcolare come segue; dato $k \in V_N$ abbiamo
 
-$$t_k^{c} = \sum_{i \in V_M} \frac{\phi_{i}[0]}{\psi_k[0]} x_{ik}$$  Da cui, la latenza complessiva dovuta al calcolo su tutti i server è data da:
+$$t_k^{c} = \sum_{i \in V_M} \frac{\phi_{i0}}{\psi_{k0}} x_{ik}$$  Da cui, la latenza complessiva dovuta al calcolo su tutti i server è data da:
 $$t^{c} = \sum_{k \in V_N} t_{k}^{c}$$
 
 
 ## Latenza di Trasmissione
 La latenza di trasmissione dipende invece dalla somma delle latenze di trasmissione in funzione delle bande dei link fisici a cui i link logici sono collegati. 
 
-$$t_{k}^{x} = \sum_{a = (i, j) \in E_M} \sum_{b \in E_N \wedge k == b[0]} \frac{\eta_a[0]}{\epsilon_e[0]}y_{ab}$$
+$$t_{k}^{x} = \sum_{a = (i, j) \in E_M} \sum_{b \in E_N \wedge k == b[0]} \frac{\eta_{a0}}{\epsilon_{e0}}y_{ab}$$
 
 Da cui la latenza totale dovuta alla trasmissione è data da:
 $$t^x = \sum_{k \in V_N} t_{k}^{x}$$
@@ -41,14 +41,14 @@ $$t = t^c + t^x$$
 
 ## Energia di Calcolo
 L'energia data dal calcolo per $k \in V_N$ è data da:
-$$E_k^c = t_k^c * \psi_k[1]$$
+$$E_k^c = t_k^c * \psi_{k1}$$
 Da cui l'energia complessiva data dal calcolo è data da
 $$E^c = \sum_{k \in V_N} E_k^c$$
 
 
 ## Energia di Trasmissione
 L'energia data dalla trasmissione per $k \in V_N$ è data da:
-$$E_k^x = t_k^x * \psi_k[2]$$
+$$E_k^x = t_k^x * \psi_{k2}$$
 Da cui l'energia complessiva data dal calcolo è data da
 $$E^x = \sum_{k \in V_N} E_k^x$$
 ## Energia Totale
@@ -98,6 +98,9 @@ Analisi vincoli:
 
 
 # Test dell'Implementazione
+
+^91b978
+
 Test del modello solo con latenza, escludendo l'energia
 
 Parametri di test:
@@ -127,3 +130,10 @@ Divisione ottenuta dall'ottimizzatore:
 | ---------------------------------------------------- |
 | ![[Schermata del 2025-02-22 09-48-33.png\|Server 1]] |
 Come si vede dal risultato ottenuto la computazione rimane sul server 0 fino all'esecuzione della MaxPool, a seguito della quale si ottiene una dimensione dei dati per cui risulta conveniente spostare il calcolo sul server_1 più veloce piuttosto che rimanere sul server_0 più lento.
+
+# Astrazione del Modello
+Sia il modello sia la rete su cui questo viene mandato in deployment vengono modellati come dei grafi.
+
+All'interno del grafo del modello sono aggiunti due nodi fittizi, ovvero ModelInputNode e ModelOutputNode, che servono a semplificare la gestione della posizione dell'input e dell'output (input ed output si trovano sul server che avvia l'inferenza per default).
+
+Allo stesso modo definiamo degli archi di input e di output sul modello che servono a trasportare l'input e l'output tra i vari sottomodelli (o da/verso il modello completo).

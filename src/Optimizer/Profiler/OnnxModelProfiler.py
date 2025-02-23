@@ -42,7 +42,7 @@ class OnnxModelProfiler(ModelProfiler):
 
         tempfile_name: str = tempfile.mktemp() + ".csv"
         m.graph.print_node_map(tempfile_name, metric="FLOPs")
-        m.graph.print_node_map()
+        # m.graph.print_node_map()
 
         with open(tempfile_name, "r") as f:
             reader = csv.reader(f)
@@ -150,7 +150,6 @@ class OnnxModelProfiler(ModelProfiler):
                     graph.put_edge(edge_id, edge_info)
 
     def compute_edge_data_size(self, tensor_info: onnx.TypeProto.Tensor):
-        print(tensor_info)
         tensor_shape: onnx.TensorShapeProto = tensor_info.shape
         tensor_total_size = self.__init_size_in_bytes(tensor_info.elem_type)
 
