@@ -1,7 +1,9 @@
 import onnx
+from Graph.AssignmentGraph import AssignmentGraphInfo
 from Graph.Graph import EdgeId, GraphInfo, NodeId
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
+from Optimization.AssignmentGraphBuilder import AssignmentGraphBuilder
 from Optimization.OptimizationHandler import OptimizationHandler
 from Optimization.SubGraphBuilder import SubGraphBuilder
 from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
@@ -33,11 +35,18 @@ def main():
     sub_graph_builder = SubGraphBuilder(
         graph=model_graph, solved_problem_info=solved_prob_info
     )
-    sub_graphs_by_node = sub_graph_builder.build_sub_graphs()
+    assignment_graph_builder = AssignmentGraphBuilder(
+        graph=model_graph, solved_problem_info=solved_prob_info
+    )
+    assignment_graph = assignment_graph_builder.build_assignment_graph()
 
-    for net_node_id, sub_graphs in sub_graphs_by_node.items():
-        partitioner = OnnxModelPartitioner("./models/ResNet50_sub.onnx")
-        partitioner.partition_model(net_node_id, sub_graphs)
+    print()
+    print("Assignment Graph")
+    for edge_id in assignment_graph.get_edges_id():
+        print(edge_id)
+
+    partitioner = OnnxModelPartitioner("./models/ResNet50_sub.onnx")
+    partitioner.partition_model(assignment_graph)
 
 
 def prepare_network_profile():

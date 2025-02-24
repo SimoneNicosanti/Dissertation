@@ -1,5 +1,6 @@
 import abc
 
+from Graph.AssignmentGraph import AssignmentGraph
 from Graph.Graph import Graph, NodeId
 
 
@@ -11,5 +12,5 @@ class ModelPartitioner(abc.ABC):
     @abc.abstractmethod
     def partition_model(
         self, net_node_id: NodeId, sub_graphs: list[Graph]
-    ) -> list[str]:
+    ) -> AssignmentGraph:
         pass

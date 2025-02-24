@@ -42,7 +42,7 @@ class OnnxModelProfiler(ModelProfiler):
 
         tempfile_name: str = tempfile.mktemp() + ".csv"
         m.graph.print_node_map(tempfile_name, metric="FLOPs")
-        # m.graph.print_node_map()
+        m.graph.print_node_map()
 
         with open(tempfile_name, "r") as f:
             reader = csv.reader(f)
@@ -64,7 +64,6 @@ class OnnxModelProfiler(ModelProfiler):
             {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: 0}
         )
         graph.put_node(input_node_id, input_node_info)
-        graph.put_input_node(input_node_id)
 
         ## Adding Fake Output Node
         output_node_id: NodeId = NodeId(ModelGraph.OUTPUT_RECEIVER_NODE_NAME)
@@ -72,7 +71,6 @@ class OnnxModelProfiler(ModelProfiler):
             {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: 0}
         )
         graph.put_node(output_node_id, output_node_info)
-        graph.put_output_node(output_node_id)
 
     def init_edges(
         self,
@@ -129,6 +127,7 @@ class OnnxModelProfiler(ModelProfiler):
                     edge_info.put_tensor_name(inp_name)
 
                     graph.put_edge(edge_id, edge_info)
+                    graph.put_input_edge(edge_id)
 
         output_graph_dict: dict[str, onnx.TypeProto.Tensor] = {
             output.name: output.type.tensor_type
@@ -148,6 +147,7 @@ class OnnxModelProfiler(ModelProfiler):
                     )
                     edge_info.put_tensor_name(out_name)
                     graph.put_edge(edge_id, edge_info)
+                    graph.put_output_edge(edge_id)
 
     def compute_edge_data_size(self, tensor_info: onnx.TypeProto.Tensor):
         tensor_shape: onnx.TensorShapeProto = tensor_info.shape

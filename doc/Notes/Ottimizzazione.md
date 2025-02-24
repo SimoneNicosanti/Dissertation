@@ -62,9 +62,12 @@ $$E = E^x + E^c$$
 
 
 # Problema
+Indichiamo con:
+- $V_I \subset V_M$ il sottoinsieme di nodi di input; 
+- $V_O \subset V_M$ il sottoinsieme di nodi di output
 
-In definitiva quindi il problema diventa.
-Indichiamo con $V_I \subset V_M$ il sottoinsieme di nodi di input; indichiamo con $V_O \subset V_M$ il sottoinsieme di nodi di output
+In definitiva il problema diventa il seguente:
+
 
 $$
 

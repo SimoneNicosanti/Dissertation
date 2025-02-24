@@ -40,13 +40,14 @@ class ModelGraph(Graph, abc.ABC):
     def __init__(self):
         super().__init__()
 
-        ## These are fake edges not belonging to the actual graph
-        ## They represent the passage of input and output
-        ## To and from the model
-        self.input_nodes: list[NodeId] = []
-        self.output_nodes: list[NodeId] = []
+        ## Nodes generating the input
+        self.input_nodes: set[NodeId] = set()
+        ## Nodes receiving the output
+        self.output_nodes: set[NodeId] = set()
 
+        ## Edges transporting the input (from input node to whatever) (Even Virtual)
         self.input_edges: list[EdgeId] = []
+        ## Edges transporting the output (from whatever to output node) (Even Virtual)
         self.output_edges: list[EdgeId] = []
 
     def __extend_model_edge_info(
@@ -67,26 +68,22 @@ class ModelGraph(Graph, abc.ABC):
             curr_edge_info: ModelEdgeInfo = self.get_edge_info(edge_id)
             self.__extend_model_edge_info(curr_edge_info, edge_info)
 
-    def put_input_node(self, node_id: NodeId):
-        self.input_nodes.append(node_id)
-
     def get_input_nodes(self) -> list[NodeId]:
         return self.input_nodes
-
-    def put_output_node(self, node_id: NodeId):
-        self.output_nodes.append(node_id)
 
     def get_output_nodes(self) -> list[NodeId]:
         return self.output_nodes
 
     def put_input_edge(self, edge_id: EdgeId):
         self.input_edges.append(edge_id)
+        self.input_nodes.add(edge_id.first_node_id)
 
     def get_input_edges_id(self) -> list[EdgeId]:
         return self.input_edges
 
     def put_output_edge(self, edge_id: EdgeId):
         self.output_edges.append(edge_id)
+        self.output_nodes.add(edge_id.second_node_id)
 
     def get_output_edges_id(self) -> list[EdgeId]:
         return self.output_edges
