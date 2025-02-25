@@ -337,3 +337,112 @@ In questo senso un'alternativa potrebbe essere quella riportata in:
 - https://www.tensorflow.org/model_optimization/api_docs/python/tfmot/quantization/keras/quantize_apply
 - https://github.com/tensorflow/tensorflow/issues/45887
 L'approccio qui riportato sembra essere simile a quello di Onnx, ma bisogna capire bene se ciò che è dato qui vale in fase di training o anche in fase di inferenza. Da quello che sembra vengono aggiunti dei livelli di quantize e dequantize allo stesso modo di Onnx che potrebbero (??) dare lo stesso comportamento.
+
+
+
+# Onnx - Test Combinazioni
+Sono stati combinati i vari formati e tipi di quantizzazioni di Onnx.
+
+I test seguenti sono stati fatti con:
+- ResNet112
+- Input (1, 3, 224, 224)
+- Numero di Run = 100
+Il Test seguente è stato fatto con:
+- Macchina e2-standard-4 (no support VNNI)
+- Sistema operativo `debian-cloud/debian-11`
+![[Schermata del 2025-02-25 10-14-05.png|Test Quantizzazioni - e2 Standard 4]]
+Come si vede dal test i casi che restituiscono i risultati migliori sono quelli in cui le attivazioni sono quantizzate come unsigned int e i pesi come signed.
+
+Il test seguente è stato fatto con:
+- Macchina `c3-standard-4` (Supporto VNNI - https://cloud.google.com/compute/docs/general-purpose-machines?hl=it#c3_series)
+- Sistema Operativo `debian-cloud/debian-11`
+![[Schermata del 2025-02-25 10-34-31.png| Test Quantizzazioni - c3 Standard 4]]
+Come si vede dal test in generale la computazione risulta più veloce rispetto al test corrispondente fatto sull'altra macchina.
+
+Notare che le prestazioni della combinazione (QOperator, QInt8, QInt8), sono pessime in entrambi i casi; il warning stesso dice che questa combinazione non è adatta ad architetture x86.
+
+
+Il test seguente è stato fatto con:
+- Macchina c3d-standard-4 (https://cloud.google.com/compute/docs/general-purpose-machines?hl=it#c3d_series)
+- Sistema operativo `debian-cloud/debian-11`
+![[Schermata del 2025-02-25 10-57-11.png|Test Quantizzazioni - c3d Standard 4]]
+Anche in questo caso, trovandoci comunque su architetture x86_64, le performance del caso (QOperator, QInt8, QInt8) sono comunque basse, anche se migliori rispetto agli altri due casi (possibili fluttuazioni??).
+
+
+Il test seguente è stato fatto con:
+- Macchina `c4a-standard-4` (https://cloud.google.com/compute/docs/general-purpose-machines?hl=it#c4a_machine_types)
+- Sistema Operativo `debian-cloud/debian-12-arm64`
+![[Schermata del 2025-02-25 11-22-39.png|Test Quantizzazioni - c4a-standard-4]]
+Finalmente su architettura ARM la combinazione peggiore mostra buone performance, confrontabili con quella degli altri casi.
+
+
+
+> [!Quote] Risposta da ChatGPT:
+>The main reason why **S8S8 mode is slower in QOperator** on x86-64 CPUs is due to the way integer matrix multiplications (e.g., **INT8 GEMM/convolutions**) are handled in different execution paths within ONNX Runtime. Here’s a breakdown:
+>### 1. **Lack of Efficient INT8 Computation in QOperator Path**
+>- ONNX Runtime supports two execution paths for quantized models:
+    >- **QDQ (Quantize-Dequantize)**: Uses quantized tensors but leverages optimized computation kernels (e.g., **Intel MKL-DNN (oneDNN)**, QNNPACK, etc.).
+    >- **QOperator (Quantized Operators)**: Directly executes pre-quantized operators in the ONNX graph.
+    >- The problem with **S8S8 in QOperator mode** is that many x86-64 CPUs (especially those without AVX512-VNNI or AMX instructions) **lack optimized INT8×INT8 (S8S8) computation**. Most optimized implementations (like those in oneDNN) **favor U8S8** (unsigned 8-bit × signed 8-bit) or **U8U8** for better vectorization.
+> ### 2. **AVX2 and AVX-512 Limitation**
+> - Many CPUs rely on **AVX2** for integer matrix multiplication, but AVX2 does not natively support **S8S8 multiplication efficiently**.
+> - On AVX-512 CPUs, **AVX512-VNNI** can accelerate U8S8 computations, but efficient **S8S8 support requires newer AMX instructions (Intel Sapphire Rapids and later)**.
+> - If the CPU does not support these advanced instructions, **ONNX Runtime must fall back to slower implementations**, like naive loops or scalar multiplications.
+> ### 3. **Data Zero-Point Adjustments in QOperator**
+> - **U8S8 is often more optimized** because:
+    >- Many hardware accelerations assume unsigned activation (U8) and signed weights (S8), as this pattern is common in low-precision ML workloads.
+    >- **S8S8 requires extra handling for zero-points**, making it **less efficient in QOperator mode** due to additional preprocessing overhead.
+> ### 4. **QDQ Mode Optimizations**
+> - In contrast, **S8S8 in QDQ mode is well-optimized** for performance because it allows ONNX Runtime to **leverage fused kernels** from libraries like **oneDNN**.
+> - The **QDQ approach balances accuracy and speed** because it inserts quantization nodes dynamically, allowing the runtime to apply the best execution strategy.
+> ### **Conclusion**
+> 
+**S8S8 mode in QOperator is slow because x86-64 CPUs do not efficiently support INT8×INT8 multiplication, requiring inefficient fallback implementations. Instead, U8S8 or U8U8 are often faster due to better hardware support.** If performance is critical, **S8S8 should be used with QDQ instead of QOperator** to leverage optimized execution paths.
+
+
+Dal sitop di google cloud (https://cloud.google.com/compute/docs/cpu-platforms?hl=it#requirements_for_using_amx):
+
+> [!Quote] https://cloud.google.com/compute/docs/cpu-platforms?hl=it#requirements_for_using_amx
+> Compute Engine offre il supporto per AMX nelle seguenti [immagini pubbliche](https://cloud.google.com/compute/docs/images/os-details?hl=it):
+> - CentOS Stream 8 o versioni successive
+> - Container-Optimized OS 109 LTS o versioni successive
+> - RHEL 8 (build più recente) o versioni successive
+> - Rocky Linux 8 (build più recente) o versioni successive
+> - Ubuntu 22.04 o versioni successive
+> - Windows Server 2022 o versioni successive
+
+Inoltre viene detto che:
+
+> [!Quote] https://cloud.google.com/compute/docs/cpu-platforms?hl=it#intel-amx
+> AMX è supportato sui processori Intel Xeon di 5ª generazione (nome in codice Emerald Rapids), che alimentano la serie di [VM per uso generico C4](https://cloud.google.com/compute/docs/general-purpose-machines?hl=it#c4_series), nonché sui processori Intel Xeon di 4ª generazione (nome in codice Sapphire Rapids), che alimentano le VM A3 ottimizzate per l'acceleratore e le [VM per uso generico C3](https://cloud.google.com/compute/docs/general-purpose-machines?hl=it#c3_series). Tutti i tipi di macchine VM C4 e C3 supportano gli insiemi di istruzioni AMX.
+
+
+Quindi la versione debian usata finora non supporta AMX; proviamo una versione ubuntu!!
+
+Il seguente test è stato fatto su:
+- Macchina `c3-standard-4` (Supporto VNNI - https://cloud.google.com/compute/docs/general-purpose-machines?hl=it#c3_series)
+- Sistema Operativo `ubuntu-pro-2404-lts-amd64`
+![[Schermata del 2025-02-25 11-53-03.png|Test Quantizzazioni - c3 standard 4 con Ubuntu]]
+La cosa non sembra apportare beneficio; a questo punto credo sia proprio un solo fattore architetturale che impedisce un uso efficiente.
+
+
+A questo punto quindi a meno di non usare ARM, la quantizzazione (QOperator, QInt8, QInt8) credo sia fuori questione visto lo slowdown che apporta al modello.
+Tutte le altre quantizzazioni sembrano invece fattibili, anche se alcune danno uno speedup maggiore di altre.
+
+> [!Warning] 
+> La quantizzazione è stata testata con dataset di calibrazione e con degli input dummy, quindi i tempi ottenuti in situazioni reali potrebbero essere diversi da quelli trovati in questo caso.
+
+
+# Onnx - Test Quantizzazione Mista
+
+Con quantizzazione mista intendo usare la quantizzazione (QDQ, Int8, Int8) per tutti i livelli che vengono quantizzati: misto si riferisce al fatto che non tutti lo sono. In particolare si fa prima un'estrazione dei singoli livelli, li si quantizza e si vede quali sono i livelli per cui la quantizzazione apporta beneficio. Dopo viene costruito un solo modello in cui si quantizzano solo i livelli con speedup > 1.
+
+Parametri di Test:
+- Modello ResNet50V2
+- Run
+	- 10 per Calcolo Speedup del singolo livello 
+	- 150 per Calcolo Tempi dei modelli complessivi
+- Architettura: Mio PC (Intel i7 8th)
+![[Schermata del 2025-02-25 16-41-03.png|Confronto Tempi Esecuzione]]
+
+Come si vede dallo screen i tempi sono migliori per la quantizzazione mista, anche se non di moltissimo.

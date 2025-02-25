@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Ottimizzazione.md",
+                "file": "Notes/Quantizzazione.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Ottimizzazione"
+              "title": "Quantizzazione"
             }
           }
         ]
@@ -163,20 +163,21 @@
   },
   "active": "6d71dec1a5c623df",
   "lastOpenFiles": [
-    "Notes/Colloqui/2025-02-20.md",
     "Notes/Ottimizzazione.md",
-    "Notes/Colloqui/2025-02-05.md",
     "Notes/Quantizzazione.md",
+    "Schermata del 2025-02-25 16-41-03.png",
+    "Notes/Colloqui/2025-02-20.md",
+    "Notes/Images/Schermata del 2025-02-25 10-14-05.png",
+    "Notes/Images/Schermata del 2025-02-25 10-34-31.png",
+    "Notes/Colloqui/2025-02-05.md",
+    "Notes/Consumo Energetico.md",
+    "Notes/Images/Schermata del 2025-02-25 11-53-03.png",
+    "Notes/Images/Schermata del 2025-02-25 11-22-39.png",
+    "Notes/Images/Schermata del 2025-02-25 10-57-11.png",
     "Notes/Images/Schermata del 2025-02-17 11-56-46.png",
     "Notes/Images/Schermata del 2025-02-22 09-48-33.png",
     "Notes/Images/Schermata del 2025-02-22 09-47-59.png",
     "Notes/Images/Schermata del 2025-02-22 09-45-41.png",
-    "Notes/Images/Schermata del 2025-02-22 09-43-29.png",
-    "Notes/Images/Schermata del 2025-02-17 13-58-08.png",
-    "Notes/Images/Schermata del 2025-02-13 15-47-32.png",
-    "Notes/Images/Schermata del 2025-02-15 15-20-37.png",
-    "Notes/Images/Schermata del 2025-02-17 08-45-26.png",
-    "Notes/Images/Schermata del 2025-02-15 19-20-50.png",
     "Notes/Split del Modello.md",
     "Notes/Yolo.md",
     "Notes/LiteRT.md",
@@ -206,8 +207,6 @@
     "Notes/Decoding.md",
     "Notes/MobileNetV3Large.md",
     "Notes/Distribuzione.md",
-    "Schermata.md",
-    "Paper/Jellyfish/Jellyfish - Notes.md",
-    "Paper/Gillis/Gillis - Notes.md"
+    "Schermata.md"
   ]
 }

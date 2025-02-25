@@ -15,12 +15,12 @@ provider "google" {
 
 resource "google_compute_instance" "vm_instance" {
   name         = "quantization"
-  machine_type = "e2-standard-4"
+  machine_type = "c4-standard-4"
   zone         = "us-central1-a"
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = "ubuntu-os-pro-cloud/ubuntu-pro-2404-lts-amd64"
     }
   }
 
@@ -32,13 +32,6 @@ resource "google_compute_instance" "vm_instance" {
   metadata = {
     # Set your SSH key for the default user (google)
     "ssh-keys"              = "google:${file("/home/customuser/.ssh/id_rsa.pub")}"
-  }
-
-  # Disable live migration (required for instances with GPUs) and use preemptible scheduling to lower cost
-  scheduling {
-    preemptible         = true
-    on_host_maintenance = "TERMINATE"
-    automatic_restart   = false
   }
 
   provisioner "remote-exec" {

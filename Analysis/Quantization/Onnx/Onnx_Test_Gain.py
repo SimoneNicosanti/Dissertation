@@ -1,3 +1,4 @@
+import csv
 import time
 
 import numpy as np
@@ -11,7 +12,7 @@ from onnxruntime.quantization.quantize import (
 from onnxruntime.quantization.shape_inference import quant_pre_process
 
 NUM_RUNS = 10
-MODEL_NAME = "./models/ResNet50"
+MODEL_NAME = "../models/ResNet50"
 
 
 def generate_input(model: ModelProto):
@@ -49,22 +50,25 @@ def quantize_model(subModelName, nodesToQuantize=None):
     quantize_static(
         model_input=subModelName + "_pre_quant.onnx",
         model_output=subModelName + "_quant.onnx",
-        quant_format=QuantFormat.QOperator,
+        quant_format=QuantFormat.QDQ,
         calibration_data_reader=MyDataReader(subModelName + "_pre_quant.onnx"),
         nodes_to_quantize=nodesToQuantize,
     )
 
 
-def compute_avg_time(sess_options, modelName):
+def compute_avg_time(sess_options, modelName, num_runs=NUM_RUNS):
     model = onnx.load_model(modelName)
     sess = ort.InferenceSession(modelName, providers=["OpenVINOExecutionProvider"])
 
     input = generate_input(model)
+    time_array = np.zeros(num_runs)
     start = time.time_ns()
-    for _ in range(0, NUM_RUNS):
+    for i in range(0, num_runs):
+        start = time.perf_counter_ns()
         out = sess.run(None, input_feed=input)
-    end = time.time_ns()
-    return (end - start) / (NUM_RUNS * 1e6), out
+        end = time.perf_counter_ns()
+        time_array[i] = (end - start) / 1e6
+    return time_array.mean(), out
 
 
 def main():
@@ -116,13 +120,29 @@ def main():
         if value[0] > value[1]:
             quantizeNodes.append(key[0])
 
-    print(compute_avg_time(ort.SessionOptions(), MODEL_NAME + ".onnx")[0])
+    with open("./SpeedUp.csv", mode="w") as file:
+        writer = csv.writer(file)
+        for key, value in times_dict.items():
+            writer.writerow([key[0], value[2]])
+
+    print(
+        "Not Quantized Time >> ",
+        compute_avg_time(ort.SessionOptions(), MODEL_NAME + ".onnx", num_runs=150)[0],
+    )
 
     quantize_model(MODEL_NAME, quantizeNodes)
-    print(compute_avg_time(ort.SessionOptions(), MODEL_NAME + "_quant.onnx")[0])
+    print(
+        "Mixed Quantized Time >> ",
+        compute_avg_time(
+            ort.SessionOptions(), MODEL_NAME + "_quant.onnx", num_runs=150
+        )[0],
+    )
 
     quantize_model(MODEL_NAME)
-    print(compute_avg_time(ort.SessionOptions(), MODEL_NAME + ".onnx")[0])
+    print(
+        "Totally Quantized Time >> ",
+        compute_avg_time(ort.SessionOptions(), MODEL_NAME + ".onnx", num_runs=150)[0],
+    )
 
 
 if __name__ == "__main__":

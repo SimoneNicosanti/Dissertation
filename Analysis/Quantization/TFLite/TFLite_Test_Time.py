@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 from ai_edge_litert.interpreter import Interpreter, SignatureRunner
 
-NUM_RUN = 250
+NUM_RUN = 1
 
 
 def runSignatureRunner(runner: SignatureRunner, input):
@@ -94,14 +94,14 @@ def compute_avg_time(tf_model, dtype=tf.float32):
     interpreter = Interpreter(model_content=tf_model)
 
     runner: SignatureRunner = interpreter.get_signature_runner("serving_default")
-    startTime = time.time_ns()
+    startTime = time.perf_counter_ns()
 
-    for _ in range(0, NUM_RUN):
+    for _ in range(0, 1):
         runSignatureRunner(runner, input)
 
-    endTime = time.time_ns()
+    endTime = time.perf_counter_ns()
 
-    return (endTime - startTime) / (NUM_RUN * 1e6)
+    return (endTime - startTime) / (1 * 1e6)
 
 
 def main():
