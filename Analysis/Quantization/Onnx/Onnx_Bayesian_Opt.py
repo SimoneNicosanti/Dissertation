@@ -43,9 +43,12 @@ def prepare_quantization(names=None):
 def objective(quantized_names):
 
     names = []
+    speedup = 0
+    max_speedup = sum(speedup_dict.values())
     for idx, node in enumerate(onnx_model.graph.node):
         if quantized_names[idx] == 1.0:
             names.append(node.name)
+            speedup += speedup_dict[node.name]
     print("Optimizing with >> ", sum(quantized_names))
 
     prepare_quantization(names)
@@ -56,9 +59,15 @@ def objective(quantized_names):
     sess = onnxruntime.InferenceSession(MODEL_NAME + "_pre_quant.onnx")
     not_quant_res = sess.run(None, input_feed={"args_0": random_calibration})
 
-    result = np.linalg.norm(quant_res[0] - not_quant_res[0])
-    print("\tError >> ", result)
-    return result
+    error = np.linalg.norm(quant_res[0] - not_quant_res[0])
+    norm_error = error / np.linalg.norm(not_quant_res[0])
+    norm_speedup = speedup / max_speedup
+    print("\tError >> ", error)
+    print("\tValue >> ", norm_error - norm_speedup)
+    return norm_error - norm_speedup
+
+
+speedup_dict = {}
 
 
 def main():
@@ -75,6 +84,7 @@ def main():
 
             if float(row[1]) > 1.0:
                 list_nodes_vars.append(skopt.space.Categorical([0, 1]))
+                speedup_dict[row[0]] = float(row[1])
             else:
                 list_nodes_vars.append(skopt.space.Categorical([0]))
 

@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "c25de0c7f934af2b",
+        "id": "e2fe4111fecc19a8",
         "type": "tabs",
         "children": [
           {
-            "id": "6d71dec1a5c623df",
+            "id": "e692d2dc8dc513f0",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Quantizzazione.md",
+                "file": "Notes/Yolo.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Quantizzazione"
+              "title": "Yolo"
             }
           }
         ]
@@ -161,29 +161,31 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "6d71dec1a5c623df",
+  "active": "e692d2dc8dc513f0",
   "lastOpenFiles": [
-    "Notes/Ottimizzazione.md",
-    "Notes/Quantizzazione.md",
-    "Schermata del 2025-02-25 16-41-03.png",
     "Notes/Colloqui/2025-02-20.md",
+    "Notes/Colloqui/2025-02-05.md",
+    "Notes/Colloqui/2025-01-10.md",
+    "Notes/Colloqui/2024-12-17.md",
+    "Notes/Images/Pasted image 20250227105701.jpg",
+    "Notes/Images/Pasted image 20250227105743.jpg",
+    "Notes/Yolo.md",
+    "Notes/Images/Pasted image 20250227105937.jpg",
+    "Notes/Images/Pasted image 20250227105920.jpg",
+    "Notes/Images/Pasted image 20250227105805.jpg",
+    "Notes/Architettura/Architettura.md",
+    "Notes/Quantizzazione.md",
+    "Notes/Ottimizzazione Tempo ed Energia.md",
+    "Notes/Ottimizzazione Errore Quantizzazione.md",
+    "Notes/Images/Schermata del 2025-02-25 16-41-03.png",
     "Notes/Images/Schermata del 2025-02-25 10-14-05.png",
     "Notes/Images/Schermata del 2025-02-25 10-34-31.png",
-    "Notes/Colloqui/2025-02-05.md",
     "Notes/Consumo Energetico.md",
     "Notes/Images/Schermata del 2025-02-25 11-53-03.png",
     "Notes/Images/Schermata del 2025-02-25 11-22-39.png",
-    "Notes/Images/Schermata del 2025-02-25 10-57-11.png",
-    "Notes/Images/Schermata del 2025-02-17 11-56-46.png",
-    "Notes/Images/Schermata del 2025-02-22 09-48-33.png",
-    "Notes/Images/Schermata del 2025-02-22 09-47-59.png",
-    "Notes/Images/Schermata del 2025-02-22 09-45-41.png",
     "Notes/Split del Modello.md",
-    "Notes/Yolo.md",
     "Notes/LiteRT.md",
     "Notes/Architettura/Architettura_Inviare.md",
-    "Notes/Architettura/Architettura.md",
-    "Notes/Colloqui/2025-01-10.md",
     "Notes/Colloqui/2024-11-19.md",
     "Paper/Learning Optimal Partition/Splitting_2.pdf",
     "Paper/Others/Tuli_Splitting.pdf",
@@ -193,7 +195,6 @@
     "Paper/Others/splitCNN.pdf",
     "Paper/Jellyfish/Jellyfish.pdf",
     "Notes/Segmentation.md",
-    "Notes/Colloqui/2024-12-17.md",
     "Notes/Unnesting del Modello.md",
     "Notes/Calcolo FLOPS.md",
     "Notes/Architettura/Diagrams",
@@ -206,7 +207,6 @@
     "Excalidraw/Drawing 2024-12-30 17.01.42.excalidraw.md",
     "Notes/Decoding.md",
     "Notes/MobileNetV3Large.md",
-    "Notes/Distribuzione.md",
-    "Schermata.md"
+    "Notes/Distribuzione.md"
   ]
 }

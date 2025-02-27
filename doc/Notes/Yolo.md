@@ -63,3 +63,25 @@ Provare ad integrare il decoding direttamente nel modello solleva un errore rela
 ![[Schermata del 2024-12-23 16-55-44.png|Errore ricevuto all'integrazione del decoding]]
 
 Una possibile alternativa in questo senso è quella di creare al pari del modello principale una funzione di Utility che fa la decodifica, copiandola dall'implementazione originaria.
+
+
+# Pre/Post Processing in Onnx
+A questo link ci sono una serie di esempi con classi di pre e post processing (citare la fonte)
+https://github.com/levipereira/ultralytics/tree/main/examples
+
+In generale ci sono delle piccole discrepanze; possono essere dovute:
+- Tagli di precisione in fase di export del modello da torch ad Onnx
+- Modifiche sulle soglie (non so onestamente da dove il modello originale tiri fuori uno skateboard, ma comunque...)
+
+Modificate leggermente le classi in modo da creare un'interfaccia comune
+## Detection
+
+| Modello Originale                         | Onnx PPP                                  |
+| ----------------------------------------- | ----------------------------------------- |
+| ![[Pasted image 20250227105701.jpg\|325]] | ![[Pasted image 20250227105805.jpg\|325]] |
+
+## Segmentation
+
+| Modello Originale                         | Onnx PPP                                  |
+| ----------------------------------------- | ----------------------------------------- |
+| ![[Pasted image 20250227105920.jpg\|325]] | ![[Pasted image 20250227105937.jpg\|325]] |

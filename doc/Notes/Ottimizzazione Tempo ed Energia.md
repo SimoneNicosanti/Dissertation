@@ -18,39 +18,60 @@ Definiamo le variabili:
 
 Notare che per come è modellata la rete di server, i server potrebbero non essere connessi in una mesh: si potrebbe anche pensare a delle connessioni per cui, pensando ad una divisioni in livelli del continuum (edge, fog, cloud), ogni livello è connesso solo a nodi di livelli superiori e a nodi dello stesso livello, ovvero la computazione non può "tornare indietro" (a meno di non voler spostare la parte finale della computazione sul nodo iniziale per non dover ritrasmettere il risultato).
 
+
+> [!TODO] 
+> Controllare normalizzazione per parte di energia e parte di latenza.
+> In teoria devo escludere le variabili dalla normalizzazione, perché altrimenti il problema è circolare: dovrei prendere il massimo come se le assegnazioni fossero fatte sembre.
+
+
 # Modello di Latenza
 
 ## Latenza di Calcolo
 La latenza di calcolo di un livello su un nodo della rete la possiamo calcolare come segue; dato $k \in V_N$ abbiamo
 
-$$t_k^{c} = \sum_{i \in V_M} \frac{\phi_{i0}}{\psi_{k0}} x_{ik}$$  Da cui, la latenza complessiva dovuta al calcolo su tutti i server è data da:
-$$t^{c} = \sum_{k \in V_N} t_{k}^{c}$$
+$$t_k^{c} = \sum_{i \in V_M} \frac{\phi_{i0}}{\psi_{k0}} x_{ik}$$
+
+Normalizzando otteniamo:
+$$\hat{t}_k^{c} = \frac{t_k^c}{\max_{h \in V_N} t_h^c} $$
+
+Da cui, la latenza complessiva dovuta al calcolo su tutti i server è data da:
+$$T^{c} = \sum_{k \in V_N} \hat{t}_{k}^{c}$$
 
 
 ## Latenza di Trasmissione
 La latenza di trasmissione dipende invece dalla somma delle latenze di trasmissione in funzione delle bande dei link fisici a cui i link logici sono collegati. 
 
-$$t_{k}^{x} = \sum_{a = (i, j) \in E_M} \sum_{b \in E_N \wedge k == b[0]} \frac{\eta_{a0}}{\epsilon_{e0}}y_{ab}$$
+$$t_{k}^{x} = \sum_{a = (i, j) \in E_M} \hspace{0.1cm} \sum_{b \in E_N \wedge k == b[0]} \frac{\eta_{a0}}{\epsilon_{e0}}y_{ab}$$
+
+Normalizzando otteniamo:
+$$\hat{t}_k^{x} = \frac{t_k^x}{\max_{h \in V_N} t_h^x} $$
 
 Da cui la latenza totale dovuta alla trasmissione è data da:
-$$t^x = \sum_{k \in V_N} t_{k}^{x}$$
+$$T^x = \sum_{k \in V_N} \hat{t}_{k}^{x}$$
 ## Latenza totale
 La latenza totale è quindi data da
-$$t = t^c + t^x$$
+$$T = T^c + T^x$$
 # Modello di Energia
 
 ## Energia di Calcolo
 L'energia data dal calcolo per $k \in V_N$ è data da:
 $$E_k^c = t_k^c * \psi_{k1}$$
+
+Normalizzando:
+$$\hat{E}_k^c = \frac{E_k^c}{\max_{h \in V_N} E_h^c}$$
+
 Da cui l'energia complessiva data dal calcolo è data da
-$$E^c = \sum_{k \in V_N} E_k^c$$
+$$E^c = \sum_{k \in V_N} \hat{E}_k^c$$
 
 
 ## Energia di Trasmissione
 L'energia data dalla trasmissione per $k \in V_N$ è data da:
 $$E_k^x = t_k^x * \psi_{k2}$$
+Normalizzando:
+$$\hat{E}_k^x = \frac{E_k^x}{\max_{h \in V_N} E_h^x}$$
+
 Da cui l'energia complessiva data dal calcolo è data da
-$$E^x = \sum_{k \in V_N} E_k^x$$
+$$E^x = \sum_{k \in V_N} \hat{E}_k^x$$
 ## Energia Totale
 $$E = E^x + E^c$$
 
@@ -66,15 +87,19 @@ Indichiamo con:
 - $V_I \subset V_M$ il sottoinsieme di nodi di input; 
 - $V_O \subset V_M$ il sottoinsieme di nodi di output
 
+Siano:
+- $\alpha_c$ e $\alpha_x$ i pesi della latenza di calcolo e di trasmissione
+- $\beta_c$ e $\beta_x$ i pesi dell'energia di calcolo e di trasmissione
+Tali che:
+$$\sum_{i \in \{x,c\}} \alpha_i + \sum_{i \in \{x,c\}} \beta_i = 1$$
+
 In definitiva il problema diventa il seguente:
-
-
 $$
 
 \begin{matrix}
 
 Obiettivo: \\
-min \hspace{0.5cm} \alpha*t + \beta*E \\
+min \hspace{0.5cm} \alpha_c*T^c + \alpha_x*T^x + \beta_c*E^c + \beta_x*E^x \\
 \\
 Vincoli:\\
 \sum_{k \in V_N} x_{ik} = 1 \hspace{1cm}  \forall i \in V_M \\
@@ -134,9 +159,12 @@ Divisione ottenuta dall'ottimizzatore:
 | ![[Schermata del 2025-02-22 09-48-33.png\|Server 1]] |
 Come si vede dal risultato ottenuto la computazione rimane sul server 0 fino all'esecuzione della MaxPool, a seguito della quale si ottiene una dimensione dei dati per cui risulta conveniente spostare il calcolo sul server_1 più veloce piuttosto che rimanere sul server_0 più lento.
 
-# Astrazione del Modello
+## Astrazione del Modello
 Sia il modello sia la rete su cui questo viene mandato in deployment vengono modellati come dei grafi.
 
 All'interno del grafo del modello sono aggiunti due nodi fittizi, ovvero ModelInputNode e ModelOutputNode, che servono a semplificare la gestione della posizione dell'input e dell'output (input ed output si trovano sul server che avvia l'inferenza per default).
 
 Allo stesso modo definiamo degli archi di input e di output sul modello che servono a trasportare l'input e l'output tra i vari sottomodelli (o da/verso il modello completo).
+
+
+

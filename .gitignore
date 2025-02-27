@@ -1,3 +1,7 @@
 models/
 __pycache__/
 .terraform/
+runs/
+*.onnx
+*.pt
+*.keras

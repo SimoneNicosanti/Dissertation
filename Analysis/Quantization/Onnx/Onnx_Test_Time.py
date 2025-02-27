@@ -9,10 +9,11 @@ from onnxruntime.quantization.quantize import QuantFormat, QuantType, quantize_s
 from onnxruntime.quantization.shape_inference import quant_pre_process
 
 NUM_RUNS = 100
-MODEL_NAME = "./models/ResNet152"
+MODEL_NAME = "../models/ResNet152"
 
 
 def prepare_general_test():
+    tf_keras.activations.ResNet50V2()
     model = tf_keras.applications.ResNet152V2()
     model.save(MODEL_NAME + ".keras", save_format="keras")
     spec = (tf.TensorSpec((None, 224, 224, 3), tf.float32),)
@@ -104,11 +105,11 @@ def main():
     not_quantized_test()
 
     test_cases = [
-        (QuantFormat.QDQ, QuantType.QInt8, QuantType.QInt8),
-        (QuantFormat.QDQ, QuantType.QUInt8, QuantType.QInt8),
-        (QuantFormat.QDQ, QuantType.QUInt8, QuantType.QUInt8),
-        (QuantFormat.QOperator, QuantType.QInt8, QuantType.QInt8),
-        (QuantFormat.QOperator, QuantType.QUInt8, QuantType.QInt8),
+        # (QuantFormat.QDQ, QuantType.QInt8, QuantType.QInt8),
+        # (QuantFormat.QDQ, QuantType.QUInt8, QuantType.QInt8),
+        # (QuantFormat.QDQ, QuantType.QUInt8, QuantType.QUInt8),
+        # (QuantFormat.QOperator, QuantType.QInt8, QuantType.QInt8),
+        # (QuantFormat.QOperator, QuantType.QUInt8, QuantType.QInt8),
         (QuantFormat.QOperator, QuantType.QUInt8, QuantType.QUInt8),
     ]
 
