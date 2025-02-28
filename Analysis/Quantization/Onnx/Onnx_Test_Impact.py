@@ -4,17 +4,22 @@ import onnx
 import onnxruntime
 from onnx import ModelProto, version_converter
 from onnx.numpy_helper import to_array
-from onnxruntime.quantization.quantize import QuantFormat, QuantType, quantize_static
+from onnxruntime.quantization.quantize import (
+    CalibrationMethod,
+    QuantFormat,
+    QuantType,
+    quantize_static,
+)
 from onnxruntime.quantization.shape_inference import quant_pre_process
 
-MODEL_NAME = "../models/resnet50-v1-7/resnet50-v1-7"
+MODEL_NAME = "./yolo11n-cls"
 
 
 def generate_input(model: ModelProto):
     # Get input shape from the model
     input_dict = {}
 
-    input_dict["data"] = to_array(
+    input_dict["images"] = to_array(
         onnx.load_tensor("../models/resnet50-v1-7/test_data_set_0/input_0.pb")
     )
 
@@ -27,7 +32,7 @@ class MyDataReader:
         self.model = onnx.load_model(modelFileName)
 
     def get_next(self):
-        if self.idx == 10:
+        if self.idx == 1:
             return None
         inp = generate_input(self.model)
         self.idx += 1
@@ -55,14 +60,16 @@ def test_difference(input):
     sess = onnxruntime.InferenceSession(MODEL_NAME + "_pre_quant.onnx")
 
     original_result = sess.run(None, input_feed=input)
-
-    return np.linalg.norm(quantized_result[0] - original_result[0])
+    return quantized_result[0] - original_result[0]
 
 
 def main():
-    prev_model = onnx.load(MODEL_NAME + ".onnx")
-    new_model = version_converter.convert_version(prev_model, 20)
-    onnx.save_model(new_model, MODEL_NAME + ".onnx")
+    onnx.utils.extract_model(
+        MODEL_NAME + ".onnx",
+        MODEL_NAME + "_extract.onnx",
+        input_names=["images"],
+        output_names=["/model.10/linear/Gemm_output_0"],
+    )
 
     quant_pre_process(
         MODEL_NAME + ".onnx",
@@ -71,19 +78,25 @@ def main():
 
     onnx_model = onnx.load(MODEL_NAME + ".onnx")
     input = generate_input(onnx_model)
-    node_list = []
-    norm_list = []
-    for idx, node in enumerate(onnx_model.graph.node):
 
-        node_list.append(node.name)
+    noise_dict = {}
+    for idx, node in enumerate(onnx_model.graph.node):
         quantize([node.name])
 
         diff_norm = test_difference(input)
-        norm_list.append(diff_norm)
-        print(f"{idx}/{len(onnx_model.graph.node)} >> {diff_norm}")
+        noise_dict[node.name] = diff_norm
 
-    plt.plot(norm_list)
-    plt.show()
+        print(f"{idx}/{len(onnx_model.graph.node)} {node.name}")
+
+    node_list = []
+    for idx, node in enumerate(onnx_model.graph.node):
+        node_list.append(node.name)
+
+        tot = 0
+        for node_name in node_list:
+            tot += noise_dict[node_name]
+        print("Total Norm >> ", np.linalg.norm(tot))
+
     pass
 
 

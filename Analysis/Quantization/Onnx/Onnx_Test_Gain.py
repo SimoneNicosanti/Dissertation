@@ -12,7 +12,7 @@ from onnxruntime.quantization.quantize import (
 from onnxruntime.quantization.shape_inference import quant_pre_process
 
 NUM_RUNS = 10
-MODEL_NAME = "./yolo11n"
+MODEL_NAME = "../models/resnet50-v1-7/resnet50-v1-7"
 
 
 def generate_input(model: ModelProto):

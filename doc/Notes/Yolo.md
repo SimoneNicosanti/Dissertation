@@ -71,14 +71,16 @@ https://github.com/levipereira/ultralytics/tree/main/examples
 
 In generale ci sono delle piccole discrepanze; possono essere dovute:
 - Tagli di precisione in fase di export del modello da torch ad Onnx
-- Modifiche sulle soglie (non so onestamente da dove il modello originale tiri fuori uno skateboard, ma comunque...)
+- Modifiche sulle soglie di confidenza e di IoU (Non ho idea di dove il modello originale tiri fuori uno skateboard, ma comunque...)
 
-Modificate leggermente le classi in modo da creare un'interfaccia comune
+Modificate leggermente le classi in modo da creare un'interfaccia comune per entrambi i task.
+
 ## Detection
 
 | Modello Originale                         | Onnx PPP                                  |
 | ----------------------------------------- | ----------------------------------------- |
 | ![[Pasted image 20250227105701.jpg\|325]] | ![[Pasted image 20250227105805.jpg\|325]] |
+
 
 ## Segmentation
 
