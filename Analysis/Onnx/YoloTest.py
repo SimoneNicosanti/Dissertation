@@ -58,5 +58,6 @@ def test_segmentation():
 
 if __name__ == "__main__":
     # profile()
+
     test_detection()
     test_segmentation()

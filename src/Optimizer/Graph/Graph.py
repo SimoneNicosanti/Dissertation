@@ -23,9 +23,13 @@ class EdgeId:
 
 
 class GraphInfo(abc.ABC):
-
+    ## Note
+    ## Data Sizes Assumed in MB
+    ## Bandwidth Assumed in MB / s
+    ## Available Memory Assumed in MB
     @abc.abstractmethod
     def __init__(self):
+
         super().__init__()
 
 

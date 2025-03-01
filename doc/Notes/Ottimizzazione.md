@@ -223,7 +223,7 @@ $$T_k^c = \sum_{a \in A_{idx}} T_k^{c-a}$$
 ### Latenza di Trasmissione
 La latenza di trasmissione dipende invece dalla somma delle latenze di trasmissione in funzione delle bande dei link fisici a cui i link logici sono assegnati. Per la variante $a$-esima sul server $k$:
 
-$$T_{k}^{x-a} = \lambda^a \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}y_{ab}$$
+$$T_{k}^{x-a} = \lambda^a \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}y_{mn}^a$$
 Da cui il tempo totale di trasmissione per il dispositivo $k$ è dato da:
 $$T_k^x = \sum_{a \in A_{idx}} T_k^{x-a}$$
 
@@ -253,20 +253,20 @@ $$E = \sum_{k \in V_N} (E_k^x + E_k^c)$$
 
 ## Modello di Memoria
 Dato un livello $v \in V_M^a$, la memoria da lui occupata è data da $\phi_{v1} + \phi_{v2}$. Assunto che la memoria allocata per l'output sia riusata per l'output dei livelli successivi, la memoria totale allocata per ogni nodo $k$ per la variante $a$ è data da:
-$$M_k^a = \sum_{i \in V_N^a} (\phi_{i1}*x_{ik}^a) + \max_{i \in V_N^a}(\phi_{i2}^a * x_{ik}^a) $$
+$$M_k^a = \sum_{i \in V_N^a} (\phi_{i1}*x_{ik}^a) + \max_{i \in V_N^a}(\phi_{i2} * x_{ik}^a) $$
 Che però porta ad una formulazione non lineare del problema.
 Definiamo quindi una variabile ausiliaria $m_k^a$, definita in maniera tale che:
-$$m_k^a \ge \phi_{i2}^a * x_{ik}^a \hspace{0.75cm} \forall i \in V_N^a$$
+$$m_k^a \ge \phi_{i2} * x_{ik}^a \hspace{0.75cm} \forall i \in V_N^a$$
 
 > [!TODO] Formulazione Lineare
 > Controllare che questo vincolo sia sufficiente a dare una formulazione lineare
 
 
 Da ciò quindi la memoria usata sul server $k$ dalla variante $a$-esima diventa:
-$$M_k^a = \sum_{i \in V_N^a} (\phi_{i1}*x_{ik}^a) + m_k^a$$
+$$M_k^a = \lambda^a * \left( \sum_{i \in V_N^a} \left( \phi_{i1}*x_{ik}^a \right) + m_k^a \right)$$
 
 Da cui, la memoria totale necessaria sul singolo server $k$ è data da:
-$$M_k = \sum_{a \in A_{idx}} \lambda^a * M_k^a$$
+$$M_k = \sum_{a \in A_{idx}}  M_k^a$$
 
 > [!TODO] Parallelismo
 > Anche qui stiamo assumendo che le richieste vengano gestite in parallelo e che quindi vi sia una copia di modello per ogni richiesta. In generale bisogna capire bene l'aspetto del parallelismo e se/come inserirlo nella formulazione.

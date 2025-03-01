@@ -95,7 +95,7 @@ class OnnxModelProfiler(ModelProfiler):
 
         weights_size_dict: dict[str, float] = {}
         for initializer in model.graph.initializer:
-            weights_size_dict[initializer.name] = self.compute_edge_data_size(
+            weights_size_dict[initializer.name] = self.compute_tensor_size(
                 [
                     onnx.TensorShapeProto.Dimension(dim_value=d)
                     for d in initializer.dims
@@ -121,7 +121,7 @@ class OnnxModelProfiler(ModelProfiler):
 
         output_size_dict: dict[str, float] = {}
         for value_info in infered_model.graph.value_info:
-            output_size_dict[value_info.name] = self.compute_edge_data_size(
+            output_size_dict[value_info.name] = self.compute_tensor_size(
                 value_info.type.tensor_type.shape.dim,
                 value_info.type.tensor_type.elem_type,
             )
@@ -153,7 +153,7 @@ class OnnxModelProfiler(ModelProfiler):
                 for inp_name in node.input:
                     if inp_name in prev_node.output:
                         tensor_info = tensor_dict[inp_name]
-                        tensor_data_size: float = self.compute_edge_data_size(
+                        tensor_data_size: float = self.compute_tensor_size(
                             tensor_info.shape.dim, tensor_info.elem_type
                         )
                         edge_id: EdgeId = graph.build_edge_id(prev_node.name, node.name)
@@ -168,7 +168,7 @@ class OnnxModelProfiler(ModelProfiler):
             for inp_name in node.input:
                 if inp_name in input_graph_dict.keys():
                     input_tensor = input_graph_dict[inp_name]
-                    tensor_data_size: float = self.compute_edge_data_size(
+                    tensor_data_size: float = self.compute_tensor_size(
                         input_tensor.shape.dim, input_tensor.elem_type
                     )
                     edge_id = graph.build_edge_id(
@@ -189,7 +189,7 @@ class OnnxModelProfiler(ModelProfiler):
             for out_name in node.output:
                 if out_name in output_graph_dict.keys():
                     output_tensor = output_graph_dict[out_name]
-                    tensor_data_size: float = self.compute_edge_data_size(
+                    tensor_data_size: float = self.compute_tensor_size(
                         output_tensor.shape.dim, output_tensor.elem_type
                     )
                     edge_id = graph.build_edge_id(
@@ -201,7 +201,8 @@ class OnnxModelProfiler(ModelProfiler):
                     graph.put_edge(edge_id, edge_info)
                     graph.put_output_edge(edge_id)
 
-    def compute_edge_data_size(
+    ## Tensor Size is computed in MB >> All other measures will be in MB
+    def compute_tensor_size(
         self,
         tensor_shape_dim: list[onnx.TensorShapeProto.Dimension],
         tensor_elem_type: onnx.TensorProto.DataType,
@@ -215,7 +216,7 @@ class OnnxModelProfiler(ModelProfiler):
                 continue
             tensor_total_size *= dim.dim_value
 
-        return tensor_total_size
+        return tensor_total_size / 1_000_000
 
     def __init_size_in_bytes(self, elem_type: onnx.TensorProto.DataType) -> int:
         map_elem = TENSOR_TYPE_MAP.get(elem_type)
