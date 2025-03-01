@@ -7,21 +7,16 @@ from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
 from Optimization.SolvedProblemInfo import SolvedProblemInfo
 
 
+@dataclass
 class OptimizationParams:
+    compute_latency_weight: float
+    transmission_latency_weight: float
+    compute_energy_weight: float
+    transmission_energy_weight: float
 
-    COMPUTE_LATENCY_WEIGHT = 1
-    TRANSMISSION_LATENCY_WEIGHT = 2
-    COMPUTE_ENERGY_WEIGHT = 3
-    TRANSMISSION_ENERGY_WEIGHT = 4
+    device_max_energy: float
 
-    def __init__(self):
-        self.params_dict = {}
-
-    def add_param(self, param_id, param_value):
-        self.params_dict[param_id] = param_value
-
-    def get_param(self, param_id):
-        return self.params_dict.get(param_id, 0.0)
+    requests_number: dict[str, int]
 
 
 @dataclass(frozen=True)
@@ -393,26 +388,28 @@ class OptimizationHandler:
         return vars_table
 
     def __build_assignment_var_name(self, modelNode: NodeId, networkNode: NodeId):
-        return "x_({})({})".format(modelNode, networkNode)
+        return "x_(mod_node_{})(net_node_{})".format(modelNode, networkNode)
 
     def __build_edge_var_name(self, modelEdge: EdgeId, networkEdge: EdgeId):
-        return "y_({})({})".format(modelEdge, networkEdge)
+        return "y_(mod_node_{})(net_node_{})".format(modelEdge, networkEdge)
 
     def __get_transmission_time(
-        self, mod_edge_info: GraphInfo, net_edge_info: GraphInfo, net_edge_id: EdgeId
+        self,
+        mod_edge_info: ModelEdgeInfo,
+        net_edge_info: NetworkEdgeInfo,
+        net_edge_id: EdgeId,
     ) -> float:
         ## Note --> Assuming Bandwidth in Byte / s
 
         if net_edge_id.first_node_id == net_edge_id.second_node_id:
             return 0
 
-        return mod_edge_info.get_info(
-            ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE
-        ) / net_edge_info.get_info(NetworkEdgeInfo.Attributes.NET_EDGE_BANDWIDTH)
+        return (
+            mod_edge_info.get_model_edge_data_size()
+            / net_edge_info.get_edge_bandwidth()
+        )
 
     def __get_computation_time(
-        self, mod_node_info: GraphInfo, net_node_info: GraphInfo
+        self, mod_node_info: ModelNodeInfo, net_node_info: NetworkNodeInfo
     ) -> float:
-        return mod_node_info.get_info(
-            ModelNodeInfo.Attributes.MOD_NODE_FLOPS
-        ) / net_node_info.get_info(NetworkNodeInfo.Attributes.NET_NODE_FLOPS_PER_SEC)
+        return mod_node_info.get_node_flops() / net_node_info.get_flops_per_sec()

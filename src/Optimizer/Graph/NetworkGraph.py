@@ -1,29 +1,45 @@
-from enum import Enum
-
 from Graph.Graph import Graph, GraphInfo
 
 
 class NetworkGraph(Graph):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, graph_name: str):
+        super().__init__(graph_name)
 
 
 class NetworkEdgeInfo(GraphInfo):
 
-    class Attributes(Enum):
-        NET_EDGE_BANDWIDTH = 0
+    def __init__(self, net_edge_bandwidth: float):
+        super().__init__()
+        self.net_edge_bandwidth = net_edge_bandwidth
 
-    def __init__(self, info_dict: dict[str, float]):
-        super().__init__(info_dict)
+    def get_edge_bandwidth(self):
+        return self.net_edge_bandwidth
 
 
 class NetworkNodeInfo(GraphInfo):
 
-    class Attributes(Enum):
-        NET_NODE_FLOPS_PER_SEC = 0
-        NET_NODE_COMP_ENERGY_PER_SEC = 1
-        NET_NODE_TRANS_ENERGY_PER_SEC = 2
+    def __init__(
+        self,
+        net_node_flops_per_sec: float,
+        net_node_comp_energy_per_sec: float,
+        net_node_trans_energy_per_sec: float,
+        net_node_available_memory: float,
+    ):
+        super().__init__()
+        self.net_node_flops_per_sec = net_node_flops_per_sec
+        self.net_node_comp_energy_per_sec = net_node_comp_energy_per_sec
+        self.net_node_trans_energy_per_sec = net_node_trans_energy_per_sec
+        self.net_node_available_memory = net_node_available_memory
 
-    def __init__(self, info_dict: dict[str, float]):
-        super().__init__(info_dict)
+    def get_flops_per_sec(self):
+        return self.net_node_flops_per_sec
+
+    def get_comp_energy_per_sec(self):
+        return self.net_node_comp_energy_per_sec
+
+    def get_trans_energy_per_sec(self):
+        return self.net_node_trans_energy_per_sec
+
+    def get_available_memory(self):
+        return self.net_node_available_memory

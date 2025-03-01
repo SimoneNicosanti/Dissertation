@@ -1,4 +1,5 @@
 import csv
+import os
 import tempfile
 
 import numpy as np
@@ -6,6 +7,7 @@ import onnx
 import onnx_tool
 from Graph.Graph import EdgeId, NodeId
 from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
+from onnx.mapping import TENSOR_TYPE_MAP
 from Profiler.ModelProfiler import ModelProfiler
 
 
@@ -17,33 +19,65 @@ class OnnxModelProfiler(ModelProfiler):
     def profile_model(self, input_shapes: dict[str, tuple]) -> ModelGraph:
 
         model: onnx.ModelProto = onnx.load(self.model_path)
-        graph: ModelGraph = ModelGraph()
+        model_name = os.path.basename(self.model_path).removesuffix(".onnx")
+        graph: ModelGraph = ModelGraph(model_name)
 
-        self.init_nodes(graph, model, input_shapes)
-        self.init_edges(graph, model, input_shapes)
+        self.profile_nodes(graph, model)
+        self.profile_edges(graph, model)
 
         return graph
 
-    def init_nodes(
-        self,
-        graph: ModelGraph,
-        model: onnx.ModelProto,
-        input_shapes: dict[str, tuple],
-    ):
+    def profile_nodes(self, graph: ModelGraph, model: onnx.ModelProto):
+
+        ## Adding Fake Input Node
+        graph.put_generator_node()
+
+        ## Adding Real Nodes
+        flops_dict: dict[str, float] = self.profile_nodes_flops(graph, model)
+        weights_size_dict: dict[str, np.ndarray] = self.profile_node_weights_size(
+            graph, model
+        )
+        output_size_dict: dict[str, np.ndarray] = self.profile_node_outputs_size(
+            graph, model
+        )
+
+        for node in model.graph.node:
+            node_id: NodeId = graph.build_node_id(node.name)
+            node_info: ModelNodeInfo = ModelNodeInfo(
+                model_node_flops=flops_dict[node.name],
+                model_node_weights_size=weights_size_dict[node.name],
+                model_node_outputs_size=output_size_dict[node.name],
+            )
+            graph.put_node(node_id, node_info)
+
+        ## Adding Fake Output Node
+        graph.put_receiver_node()
+
+    def profile_nodes_flops(
+        self, graph: ModelGraph, model: onnx.ModelProto
+    ) -> dict[str, float]:
 
         m = onnx_tool.Model(m=model)
 
+        ## TODO We are assuming static input size!!
         input_dict = {}
-        for inp_name, inp_shape in input_shapes.items():
-            input_dict[inp_name] = np.zeros(shape=inp_shape)
-        m.graph.shape_infer(input_dict)
+        for model_input in model.graph.input:
+            input_shape = [1]
+            for idx, dim in enumerate(model_input.type.tensor_type.shape.dim):
+                if idx == 0:
+                    ## Skipping batch size
+                    continue
+                input_shape.append(dim.dim_value)
+            input_dict[model_input.name] = np.zeros(shape=tuple(input_shape))
 
+        m.graph.shape_infer(input_dict)
         m.graph.profile()
 
         tempfile_name: str = tempfile.mktemp() + ".csv"
         m.graph.print_node_map(tempfile_name, metric="FLOPs")
-        m.graph.print_node_map()
+        # m.graph.print_node_map()
 
+        flops_dict = {}
         with open(tempfile_name, "r") as f:
             reader = csv.reader(f)
             for idx, row in enumerate(reader):
@@ -51,33 +85,57 @@ class OnnxModelProfiler(ModelProfiler):
                     continue
 
                 name, flops = row[0], row[2]
-                node_id: NodeId = NodeId(name)
-                node_info = ModelNodeInfo(
-                    {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: float(flops)}
-                )
+                flops_dict[name] = float(flops)
 
-                graph.put_node(node_id, node_info)
+        return flops_dict
 
-        ## Adding Fake Input Node
-        input_node_id: NodeId = NodeId(ModelGraph.INPUT_GENERATOR_NODE_NAME)
-        input_node_info: ModelNodeInfo = ModelNodeInfo(
-            {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: 0}
+    def profile_node_weights_size(
+        self, graph: ModelGraph, model: onnx.ModelProto
+    ) -> dict[str, np.ndarray]:
+
+        weights_size_dict: dict[str, float] = {}
+        for initializer in model.graph.initializer:
+            weights_size_dict[initializer.name] = self.compute_edge_data_size(
+                [
+                    onnx.TensorShapeProto.Dimension(dim_value=d)
+                    for d in initializer.dims
+                ],
+                initializer.data_type,
+            )
+
+        node_weights_size_dict: dict[str, float] = {}
+        for node in model.graph.node:
+            node_weights_size_dict.setdefault(node.name, 0)
+            for input_name in node.input:
+                if input_name in weights_size_dict:
+                    node_weights_size_dict[node.name] += weights_size_dict[input_name]
+        return node_weights_size_dict
+
+    def profile_node_outputs_size(
+        self, graph: ModelGraph, model: onnx.ModelProto
+    ) -> dict[str, np.ndarray]:
+
+        infered_model: onnx.ModelProto = onnx.shape_inference.infer_shapes(
+            model, data_prop=True
         )
-        graph.put_node(input_node_id, input_node_info)
 
-        ## Adding Fake Output Node
-        output_node_id: NodeId = NodeId(ModelGraph.OUTPUT_RECEIVER_NODE_NAME)
-        output_node_info: ModelNodeInfo = ModelNodeInfo(
-            {ModelNodeInfo.Attributes.MOD_NODE_FLOPS: 0}
-        )
-        graph.put_node(output_node_id, output_node_info)
+        output_size_dict: dict[str, float] = {}
+        for value_info in infered_model.graph.value_info:
+            output_size_dict[value_info.name] = self.compute_edge_data_size(
+                value_info.type.tensor_type.shape.dim,
+                value_info.type.tensor_type.elem_type,
+            )
 
-    def init_edges(
-        self,
-        graph: ModelGraph,
-        model: onnx.ModelProto,
-        input_shapes: dict[str, tuple],
-    ):
+        node_output_size_dict: dict[str, float] = {}
+        for node in infered_model.graph.node:
+            node_output_size_dict.setdefault(node.name, 0)
+            for output_name in node.output:
+                if output_name in output_size_dict:
+                    node_output_size_dict[node.name] += output_size_dict[output_name]
+
+        return node_output_size_dict
+
+    def profile_edges(self, graph: ModelGraph, model: onnx.ModelProto):
 
         infered_model: onnx.ModelProto = onnx.shape_inference.infer_shapes(
             model, data_prop=True
@@ -96,16 +154,10 @@ class OnnxModelProfiler(ModelProfiler):
                     if inp_name in prev_node.output:
                         tensor_info = tensor_dict[inp_name]
                         tensor_data_size: float = self.compute_edge_data_size(
-                            tensor_info
+                            tensor_info.shape.dim, tensor_info.elem_type
                         )
-                        edge_id: EdgeId = EdgeId(
-                            NodeId(prev_node.name), NodeId(node.name)
-                        )
-                        edge_info = ModelEdgeInfo(
-                            {
-                                ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_data_size
-                            }
-                        )
+                        edge_id: EdgeId = graph.build_edge_id(prev_node.name, node.name)
+                        edge_info = ModelEdgeInfo(model_edge_data_size=tensor_data_size)
                         edge_info.put_tensor_name(inp_name)
                         graph.put_edge(edge_id, edge_info)
 
@@ -116,14 +168,14 @@ class OnnxModelProfiler(ModelProfiler):
             for inp_name in node.input:
                 if inp_name in input_graph_dict.keys():
                     input_tensor = input_graph_dict[inp_name]
-                    tensor_data_size: float = self.compute_edge_data_size(input_tensor)
-                    edge_id = EdgeId(
-                        NodeId(ModelGraph.INPUT_GENERATOR_NODE_NAME), NodeId(node.name)
+                    tensor_data_size: float = self.compute_edge_data_size(
+                        input_tensor.shape.dim, input_tensor.elem_type
+                    )
+                    edge_id = graph.build_edge_id(
+                        ModelGraph.INPUT_GENERATOR_NODE_NAME, node.name
                     )
 
-                    edge_info = ModelEdgeInfo(
-                        {ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_data_size}
-                    )
+                    edge_info = ModelEdgeInfo(model_edge_data_size=tensor_data_size)
                     edge_info.put_tensor_name(inp_name)
 
                     graph.put_edge(edge_id, edge_info)
@@ -137,23 +189,27 @@ class OnnxModelProfiler(ModelProfiler):
             for out_name in node.output:
                 if out_name in output_graph_dict.keys():
                     output_tensor = output_graph_dict[out_name]
-                    tensor_data_size: float = self.compute_edge_data_size(output_tensor)
-                    edge_id = EdgeId(
-                        NodeId(node.name), NodeId(ModelGraph.OUTPUT_RECEIVER_NODE_NAME)
+                    tensor_data_size: float = self.compute_edge_data_size(
+                        output_tensor.shape.dim, output_tensor.elem_type
+                    )
+                    edge_id = graph.build_edge_id(
+                        node.name, ModelGraph.OUTPUT_RECEIVER_NODE_NAME
                     )
 
-                    edge_info = ModelEdgeInfo(
-                        {ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE: tensor_data_size}
-                    )
+                    edge_info = ModelEdgeInfo(model_edge_data_size=tensor_data_size)
                     edge_info.put_tensor_name(out_name)
                     graph.put_edge(edge_id, edge_info)
                     graph.put_output_edge(edge_id)
 
-    def compute_edge_data_size(self, tensor_info: onnx.TypeProto.Tensor):
-        tensor_shape: onnx.TensorShapeProto = tensor_info.shape
-        tensor_total_size = self.__init_size_in_bytes(tensor_info.elem_type)
+    def compute_edge_data_size(
+        self,
+        tensor_shape_dim: list[onnx.TensorShapeProto.Dimension],
+        tensor_elem_type: onnx.TensorProto.DataType,
+    ):
+        tensor_total_size = self.__init_size_in_bytes(tensor_elem_type)
 
-        for dim in tensor_shape.dim:
+        for dim in tensor_shape_dim:
+
             if dim.HasField("dim_param"):
                 ## Batch Size
                 continue
@@ -162,12 +218,8 @@ class OnnxModelProfiler(ModelProfiler):
         return tensor_total_size
 
     def __init_size_in_bytes(self, elem_type: onnx.TensorProto.DataType) -> int:
-        if elem_type == onnx.TensorProto.FLOAT:
-            ## Float32 --> 4 Byte
-            return 4
-        elif elem_type == onnx.TensorProto.DOUBLE:
-            ## Double --> 8 Byte
-            return 8
-        elif elem_type == onnx.TensorProto.INT8:
-            ## Int8 --> 1 Byte
-            return 1
+        map_elem = TENSOR_TYPE_MAP.get(elem_type)
+        if map_elem is not None:
+            ## TODO Check if this is working for integers too
+            return map_elem.np_dtype.itemsize
+        return 0

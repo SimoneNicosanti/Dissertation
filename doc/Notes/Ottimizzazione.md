@@ -223,7 +223,7 @@ $$T_k^c = \sum_{a \in A_{idx}} T_k^{c-a}$$
 ### Latenza di Trasmissione
 La latenza di trasmissione dipende invece dalla somma delle latenze di trasmissione in funzione delle bande dei link fisici a cui i link logici sono assegnati. Per la variante $a$-esima sul server $k$:
 
-$$T_{k}^{x-a} = \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}y_{ab}$$
+$$T_{k}^{x-a} = \lambda^a \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}y_{ab}$$
 Da cui il tempo totale di trasmissione per il dispositivo $k$ è dato da:
 $$T_k^x = \sum_{a \in A_{idx}} T_k^{x-a}$$
 

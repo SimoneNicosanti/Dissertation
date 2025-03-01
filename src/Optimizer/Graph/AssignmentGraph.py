@@ -6,12 +6,11 @@ class AssignmentGraphInfo(GraphInfo):
 
     def __init__(
         self,
-        info_dict: dict,
         server_id: NodeId,
         sub_graph: ModelGraph,
         sub_graph_idx: int,
     ):
-        super().__init__(info_dict)
+        super().__init__()
 
         self.server_id = server_id
         self.sub_graph = sub_graph
@@ -31,7 +30,8 @@ class AssignmentGraph(Graph):
 
     def __init__(
         self,
+        graph_name: str,
     ):
-        super().__init__()
+        super().__init__(graph_name)
 
     pass

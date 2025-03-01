@@ -8,13 +8,15 @@ from Optimization.SolvedProblemInfo import SolvedProblemInfo
 ## TODO Try to make the build faster!!
 ## Too many embedded cycles
 class AssignmentGraphBuilder:
-    def __init__(self, graph: Graph, solved_problem_info: SolvedProblemInfo):
-        self.graph = graph
+    def __init__(self, graph: ModelGraph, solved_problem_info: SolvedProblemInfo):
+        self.graph: ModelGraph = graph
         self.solved_problem_info = solved_problem_info
 
     def build_assignment_graph(self) -> AssignmentGraph:
-        assignment_graph = AssignmentGraph()
+        ass_graph_name: str = "{}_assignment_graph".format(self.graph.get_graph_name())
+        assignment_graph = AssignmentGraph(ass_graph_name)
 
+        ## Net Node Id >> Assigned Sub Graphs
         assignments_dict: dict[NodeId, list[ModelGraph]] = {}
         for net_node_id in self.solved_problem_info.get_used_network_nodes():
             assignments_dict[net_node_id] = self.__build_sub_graphs_for_network_node(
@@ -24,68 +26,94 @@ class AssignmentGraphBuilder:
         for net_node_id, sub_graphs in assignments_dict.items():
 
             for sub_grah_idx, sub_graph in enumerate(sub_graphs):
-                ## TODO Change with model name!!
-                node_id = self.__build_assignment_graph_node_id(
-                    net_node_id, sub_grah_idx
-                )
+                node_id = assignment_graph.build_node_id(sub_graph.get_graph_name())
                 assignment_node_info = AssignmentGraphInfo(
-                    {}, net_node_id, sub_graph, sub_grah_idx
+                    net_node_id, sub_graph, sub_grah_idx
                 )
                 assignment_graph.put_node(node_id, assignment_node_info)
 
-                for input_edge_id in sub_graph.get_input_edges_id():
-                    ## TODO Find Prev Blocks
-                    prev_graph_node_id = self.__find_prev_graph_node_id(
-                        net_node_id, input_edge_id.first_node_id, assignments_dict
-                    )
-                    if prev_graph_node_id is None:
-                        continue
-                    edge_id = EdgeId(prev_graph_node_id, node_id)
-                    assignment_graph.put_edge(
-                        edge_id, self.graph.get_edge_info(input_edge_id)
-                    )
+        for block_node_id in assignment_graph.get_nodes_id():
 
-                for output_edge_id in sub_graph.get_output_edges_id():
-                    ## TODO Find Next Blocks
-                    next_graph_node_id = self.__find_next_graph_node_id(
-                        net_node_id, output_edge_id.second_node_id, assignments_dict
-                    )
-                    if next_graph_node_id is None:
-                        continue
-                    edge_id = EdgeId(node_id, next_graph_node_id)
-                    assignment_graph.put_edge(
-                        edge_id, self.graph.get_edge_info(output_edge_id)
-                    )
+            prev_blocks_ids = self.__find_prev_blocks_ids(
+                block_node_id, assignment_graph
+            )
+            for prev_block_id in prev_blocks_ids:
+                edge_id = EdgeId(prev_block_id, block_node_id)
+                assignment_graph.put_edge(
+                    edge_id,
+                    self.graph.get_edge_info(EdgeId(prev_block_id, block_node_id)),
+                )
+
+            next_blocks_ids = self.__find_next_blocks_ids(
+                block_node_id, assignment_graph
+            )
+            for next_block_id in next_blocks_ids:
+                edge_id = EdgeId(block_node_id, next_block_id)
+                assignment_graph.put_edge(
+                    edge_id,
+                    self.graph.get_edge_info(EdgeId(block_node_id, next_block_id)),
+                )
+
+            # for output_edge_id in sub_graph.get_output_edges_id():
+            #     ## TODO Find Next Blocks
+            #     next_graph_node_id = self.__find_next_graph_node_id(
+            #         net_node_id, output_edge_id.second_node_id, assignments_dict
+            #     )
+            #     if next_graph_node_id is None:
+            #         continue
+            #     edge_id = EdgeId(node_id, next_graph_node_id)
+            #     assignment_graph.put_edge(
+            #         edge_id, self.graph.get_edge_info(output_edge_id)
+            #     )
         return assignment_graph
 
-    def __build_assignment_graph_node_id(
-        self, net_node_id: NodeId, assignment_idx: int
-    ) -> NodeId:
-        return NodeId(f"node_{net_node_id}_{assignment_idx}")
-
-    def __find_prev_graph_node_id(
-        self, curr_net_node_id: NodeId, prev_mod_node_id: NodeId, assignments_dict: dict
+    def __find_prev_blocks_ids(
+        self, curr_block_id: NodeId, assignment_graph: AssignmentGraph
     ):
-        for net_node_id, sub_graphs in assignments_dict.items():
-            sub_graph: ModelGraph
-            if net_node_id == curr_net_node_id:
-                continue
-            for idx, sub_graph in enumerate(sub_graphs):
-                if prev_mod_node_id in sub_graph.get_nodes_id():
-                    return self.__build_assignment_graph_node_id(net_node_id, idx)
+        curr_sub_graph: ModelGraph = assignment_graph.get_node_info(
+            curr_block_id
+        ).get_sub_graph()
 
-    def __find_next_graph_node_id(
-        self, curr_net_node_id: NodeId, next_mod_node_id: NodeId, assignments_dict: dict
+        prev_blocks_ids = set()
+        for input_edge_id in curr_sub_graph.get_input_edges_id():
+            for other_block_id in assignment_graph.get_nodes_id():
+                if other_block_id == curr_block_id:
+                    continue
+
+                other_sub_graph: ModelGraph = assignment_graph.get_node_info(
+                    other_block_id
+                ).get_sub_graph()
+
+                if input_edge_id.first_node_id in other_sub_graph.get_nodes_id():
+                    prev_blocks_ids.add(other_block_id)
+
+        return prev_blocks_ids
+
+    def __find_next_blocks_ids(
+        self, curr_block_id: NodeId, assignment_graph: AssignmentGraph
     ):
-        for net_node_id, sub_graphs in assignments_dict.items():
-            sub_graph: ModelGraph
-            if net_node_id == curr_net_node_id:
-                continue
-            for idx, sub_graph in enumerate(sub_graphs):
-                if next_mod_node_id in sub_graph.get_nodes_id():
-                    return self.__build_assignment_graph_node_id(net_node_id, idx)
+        curr_sub_graph: ModelGraph = assignment_graph.get_node_info(
+            curr_block_id
+        ).get_sub_graph()
 
-    def __build_sub_graphs_for_network_node(self, net_node_id: NodeId) -> list[Graph]:
+        next_blocks_ids = set()
+        for output_edge_id in curr_sub_graph.get_output_edges_id():
+            for other_block_id in assignment_graph.get_nodes_id():
+                if other_block_id == curr_block_id:
+                    continue
+
+                other_sub_graph: ModelGraph = assignment_graph.get_node_info(
+                    other_block_id
+                ).get_sub_graph()
+
+                if output_edge_id.second_node_id in other_sub_graph.get_nodes_id():
+                    next_blocks_ids.add(other_block_id)
+
+        return next_blocks_ids
+
+    def __build_sub_graphs_for_network_node(
+        self, net_node_id: NodeId
+    ) -> list[ModelGraph]:
         input_edges: list[EdgeId] = (
             self.solved_problem_info.get_input_edges_for_network_node(net_node_id)
         )
@@ -106,9 +134,14 @@ class AssignmentGraphBuilder:
         )
 
         sub_graphs: list[ModelGraph] = []
-        for connected_component in connected_components:
-            sub_graph: ModelGraph = self.__build_sub_graph_from_connected_component(
-                connected_component, input_edges, output_edges, self_edges
+        for idx, connected_component in enumerate(connected_components):
+            sub_graph: ModelGraph = ModelGraph(
+                "{}_server_{}_comp_{}".format(
+                    self.graph.get_graph_name(), net_node_id.node_name, idx
+                )
+            )
+            self.__build_sub_graph_from_connected_component(
+                sub_graph, connected_component, input_edges, output_edges, self_edges
             )
             sub_graphs.append(sub_graph)
 
@@ -116,12 +149,12 @@ class AssignmentGraphBuilder:
 
     def __build_sub_graph_from_connected_component(
         self,
+        sub_graph: ModelGraph,
         connected_component: list[NodeId],
         input_edges: list[EdgeId],
         output_edges: list[EdgeId],
         self_edges: list[EdgeId],
-    ) -> ModelGraph:
-        sub_graph = ModelGraph()
+    ) -> None:
 
         for node_id in connected_component:
             node_info = self.graph.get_node_info(node_id)
@@ -135,13 +168,9 @@ class AssignmentGraphBuilder:
                 edge_info = self.graph.get_edge_info(self_edge_id)
                 sub_graph.put_edge(self_edge_id, edge_info)
 
-                if self_edge_id.first_node_id == NodeId(
-                    ModelGraph.INPUT_GENERATOR_NODE_NAME
-                ):
+                if ModelGraph.is_generator_edge(self_edge_id):
                     sub_graph.put_input_edge(self_edge_id)
-                elif self_edge_id.second_node_id == NodeId(
-                    ModelGraph.OUTPUT_RECEIVER_NODE_NAME
-                ):
+                elif ModelGraph.is_receiver_edge(self_edge_id):
                     sub_graph.put_output_edge(self_edge_id)
 
         for input_edge_id in input_edges:
@@ -158,20 +187,19 @@ class AssignmentGraphBuilder:
                 )
                 sub_graph.put_output_edge(output_edge_id)
 
-        return sub_graph
-
     def __build_undirect_graph(
         self, assigned_nodes: list[NodeId], self_edges: list[EdgeId]
     ) -> Graph:
-        undirect_graph = Graph()
+        undirect_graph = Graph("Support_Undirect_Graph")
         for mod_node_id in assigned_nodes:
             undirect_graph.put_node(mod_node_id, None)
 
         for mod_edge_id in self_edges:
             undirect_graph.put_edge(mod_edge_id, None)
 
-            opposite_edge_id = EdgeId(
-                mod_edge_id.second_node_id, mod_edge_id.first_node_id
+            opposite_edge_id = self.graph.build_edge_id(
+                mod_edge_id.second_node_id.node_name,
+                mod_edge_id.first_node_id.node_name,
             )
             undirect_graph.put_edge(opposite_edge_id, None)
 
