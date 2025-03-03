@@ -1,5 +1,3 @@
-from enum import Enum
-
 from Graph.Graph import EdgeId, Graph, GraphInfo, NodeId
 
 
@@ -28,10 +26,7 @@ class ModelNodeInfo(GraphInfo):
 
 class ModelEdgeInfo(GraphInfo):
 
-    class Attributes(Enum):
-        MOD_EDGE_DATA_SIZE = 0
-
-    def __init__(self, model_edge_data_size: float):
+    def __init__(self, model_edge_data_size: float = 0):
         super().__init__()
         self.model_edge_data_size = model_edge_data_size
         self.tensor_names = set()
@@ -112,6 +107,12 @@ class ModelGraph(Graph):
         node_id: NodeId = self.build_node_id(ModelGraph.OUTPUT_RECEIVER_NODE_NAME)
         node_info: ModelNodeInfo = ModelNodeInfo()
         self.put_node(node_id, node_info)
+
+    def is_in_graph_by_name(self, node_name: str) -> bool:
+        for node_id in self.nodes.keys():
+            if node_id.node_name == node_name:
+                return True
+        return False
 
     @staticmethod
     def is_generator_edge(edge_id: EdgeId) -> bool:

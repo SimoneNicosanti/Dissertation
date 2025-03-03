@@ -59,6 +59,8 @@ class Graph:
         return ret_list
 
     def put_node(self, node_id: NodeId, node_info: GraphInfo):
+        if node_id in self.nodes.keys():
+            return
         self.nodes[node_id] = node_info
 
     def put_edge(self, edge_id: EdgeId, edge_info: GraphInfo):
@@ -71,12 +73,16 @@ class Graph:
         return self.nodes.get(node_id, None)
 
     def build_node_id(self, node_name: str) -> NodeId:
+        for node_id in self.get_nodes_id():
+            if node_id.node_name == node_name:
+                return node_id
+
         node_id = NodeId(node_name=node_name, node_idx=self.node_counter)
         self.node_counter += 1
 
         return node_id
 
-    def build_edge_id(self, node_name_1: NodeId, node_name_2: NodeId) -> EdgeId:
+    def build_edge_id(self, node_name_1: str, node_name_2: str) -> EdgeId:
         node_1 = None
         node_2 = None
         for node_id in self.get_nodes_id():
@@ -86,8 +92,10 @@ class Graph:
             if node_id.node_name == node_name_2:
                 node_2 = node_id
 
-        if node_1 is None or node_2 is None:
-            raise ValueError("Invalid node name")
+        if node_1 is None:
+            node_1: NodeId = self.build_node_id(node_name_1)
+        if node_2 is None:
+            node_2: NodeId = self.build_node_id(node_name_2)
         edge_id = EdgeId(first_node_id=node_1, second_node_id=node_2)
 
         return edge_id

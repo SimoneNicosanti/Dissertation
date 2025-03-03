@@ -12,18 +12,18 @@ def run_original(model_name, input_name):
 
 
 def test_detection():
-    # run_original("yolo11l.pt", "./bus.jpg")
+    # run_original("yolo11n.pt", "./bus.jpg")
 
     yolo_v8_ppp = YoloDetectionPPP(640, 640)
     original_image = cv2.imread("./bus.jpg")
     pre_image = yolo_v8_ppp.preprocess(original_image)["preprocessed_image"]
 
-    sess = ort.InferenceSession("yolo11n.onnx")
+    sess = ort.InferenceSession("./models/yolo11n.onnx")
     model_out = sess.run(None, input_feed={"images": pre_image})
 
     post_image = yolo_v8_ppp.postprocess(original_image, model_out, 0.5, 0.5)
 
-    cv2.imwrite("result_det.jpg", post_image)
+    cv2.imwrite("./results/ppp/result_det.jpg", post_image)
 
 
 def test_segmentation():
@@ -38,7 +38,7 @@ def test_segmentation():
     pre_image = preprocess_dict["preprocessed_image"]
 
     # # Ort inference
-    model_output = ort.InferenceSession("yolo11n-seg.onnx").run(
+    model_output = ort.InferenceSession("./models/yolo11n-seg.onnx").run(
         None, {"images": pre_image}
     )
 
@@ -53,11 +53,10 @@ def test_segmentation():
         nm=32,
     )
 
-    cv2.imwrite("result_seg.jpg", post_image)
+    cv2.imwrite("./results/ppp/result_seg.jpg", post_image)
 
 
 if __name__ == "__main__":
-    # profile()
 
     test_detection()
     test_segmentation()

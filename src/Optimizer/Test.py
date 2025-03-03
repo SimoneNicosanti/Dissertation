@@ -1,11 +1,38 @@
 import os
 
+import onnx
+import onnx_tool
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
+from onnx_tool.utils import NODEPROFILER_REGISTRY
 from Optimization.AssignmentGraphBuilder import AssignmentGraphBuilder
 from Optimization.OptimizationHandler import OptimizationHandler, OptimizationParams
 from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
 from Profiler.OnnxModelProfiler import OnnxModelProfiler
+
+# @onnx_tool.NODE_REGISTRY.register()
+# class QLinearSigmoidNode(onnx_tool.node.SigmoidNode):
+#     pass
+
+
+# @onnx_tool.NODE_REGISTRY.register()
+# class QLinearMulNode(onnx_tool.node.MulNode):
+#     pass
+
+
+# @onnx_tool.NODE_REGISTRY.register()
+# class QLinearAddNode(onnx_tool.node.AddNode):
+#     pass
+
+
+# @onnx_tool.NODE_REGISTRY.register()
+# class QLinearConcatNode(onnx_tool.node.ConcatNode):
+#     pass
+
+
+# @onnx_tool.NODE_REGISTRY.register()
+# class QLinearSoftmaxNode(onnx_tool.node.SoftmaxNode):
+#     pass
 
 
 def main():
@@ -22,25 +49,20 @@ def main():
     # #     ["resnet50/conv2_block1_3_bn/FusedBatchNormV3:0"],
     # # )
 
-    model_path = "./models/yolo11n-seg.onnx"
-    model_graph_1: ModelGraph = OnnxModelProfiler(model_path).profile_model(
+    model_path_1 = "./models/yolo11n-seg_quant.onnx"
+    model_graph_1: ModelGraph = OnnxModelProfiler(model_path_1).profile_model(
         {"args_0": (1, 3, 448, 448)}
     )
 
-    model_path_2 = "./models/yolo11l-seg.onnx"
-    model_graph_2: ModelGraph = OnnxModelProfiler(model_path_2).profile_model(
-        {"args_0": (1, 3, 448, 448)}
-    )
-
-    model_path_3 = "./models/yolo11x-seg.onnx"
-    model_graph_3: ModelGraph = OnnxModelProfiler(model_path_3).profile_model(
-        {"args_0": (1, 3, 448, 448)}
-    )
+    model_path_2 = "./models/yolo11n-seg.onnx"
+    # model_graph_2: ModelGraph = OnnxModelProfiler(model_path_2).profile_model(
+    #     {"args_0": (1, 3, 448, 448)}
+    # )
 
     graph_dict = {
         model_graph_1.get_graph_name(): model_graph_1,
-        model_graph_2.get_graph_name(): model_graph_2,
-        model_graph_3.get_graph_name(): model_graph_3,
+        # model_graph_2.get_graph_name(): model_graph_2,
+        # model_graph_3.get_graph_name(): model_graph_3,
     }
 
     # model_graph: ModelGraph = OnnxModelPartitioner(graph_dict).partition_model()
@@ -51,17 +73,13 @@ def main():
         comp_en_weight=0,
         trans_en_weight=0,
         device_max_energy=1.0,
-        requests_number={
-            model_graph_1.get_graph_name(): 3,
-            model_graph_2.get_graph_name(): 1,
-            model_graph_3.get_graph_name(): 1,
-        },
+        requests_number={key: 1 for key in graph_dict.keys()},
     )
 
     network_graph: NetworkGraph = prepare_network_profile()
     deployment_server = network_graph.get_nodes_id()[0]
     solved_prob_info_dict: dict[str] = OptimizationHandler().optimize(
-        [model_graph_1, model_graph_2, model_graph_3],
+        list(graph_dict.values()),
         network_graph,
         deployment_server,
         opt_params=opt_params,
@@ -82,7 +100,7 @@ def main():
                 edge_id.first_node_id.node_name, ">", edge_id.second_node_id.node_name
             )
 
-        partitioner = OnnxModelPartitioner(model_path)
+        partitioner = OnnxModelPartitioner("./models/" + graph_name + ".onnx")
         partitioner.partition_model(assignment_graph)
 
 

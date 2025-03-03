@@ -5,3 +5,4 @@ runs/
 *.onnx
 *.pt
 *.keras
+coco128/

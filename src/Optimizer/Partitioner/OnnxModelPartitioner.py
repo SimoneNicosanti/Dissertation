@@ -33,6 +33,8 @@ class OnnxModelPartitioner(ModelPartitioner):
             output_path = self.model_path.replace(
                 model_file_name, f"{sub_graph.get_graph_name()}.onnx"
             )
+            print(input_names)
+            print(output_names)
             onnx.utils.extract_model(
                 self.model_path,
                 output_path,

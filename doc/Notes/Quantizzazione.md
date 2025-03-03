@@ -446,3 +446,69 @@ Parametri di Test:
 ![[Schermata del 2025-02-25 16-41-03.png|Confronto Tempi Esecuzione]]
 
 Come si vede dallo screen i tempi sono migliori per la quantizzazione mista, anche se non di moltissimo.
+
+
+# Onnx - Test Ottimizzazioni di Quantizzazione
+
+Test fatto su:
+- Modello Yolo11n-Segmentation
+- Mio PC
+
+Nota: 
+- QDQ --> Aggiunta di Livelli intermedi per la gestione della quantizzazione (simile a quello che si fa per gli addestramenti basati su quantizzazione)
+- QOperator --> Uso di operatori appositi per la modellazione delle operazioni quantizzate
+
+![[Schermata del 2025-03-03 10-26-58.png|QDQ, UINT8, BASIC_OPT]]
+
+| ![[Schermata del 2025-03-03 10-28-16.png\|QDQ, BASIC_OPT, Grafo Quantizzato Ottimizzato\|300]] | ![[Schermata del 2025-03-03 10-29-29.png\|BASIC_OPT, Grafo Non Quantizzato Ottimizzato\|300]] |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+
+
+![[Schermata del 2025-03-03 10-31-42.png|QOperator, UINT8, BASIC_OPT]]
+
+![[Schermata del 2025-03-03 10-32-39.png|QOperator, BASIC_OPT, Grafo Quantizzato Ottimizzato|300]]
+
+
+
+![[Schermata del 2025-03-03 10-34-54.png|QDQ, UINT8, EXTENDED_OPT]]
+
+
+| ![[Schermata del 2025-03-03 10-35-47.png\|EXTENDED_OPT, Not Quantized\|300]] | ![[Schermata del 2025-03-03 10-36-33.png\|QDQ, EXTENDED_OPT, Quantized\|300]] |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+
+
+![[Schermata del 2025-03-03 10-39-15.png|QOperator, EXTENDED_OPT]]
+
+![[Schermata del 2025-03-03 10-49-00.png|QDQ, ALL_OPT]]
+
+![[Schermata del 2025-03-03 10-50-25.png|QOperator, ALL_OPT]]
+
+
+Questi esperimenti mostrano quindi come i QOperator e la QDQ siano in sostanza equivalenti in termini di calcolo nel momento in cui vengono eseguite tutte le ottimizzazioni del caso (sarebbe stato fin troppo strano il contrario).
+
+Il problema dei QOperators è che sono degli operatori implementati in onnxruntime che è della cara vecchia Microsoft (Microsoft regala sempre grandi soddisfazioni...). Questi operatori non sono supportati dal profiler che ho usato per i FLOPS e dagli strumenti di partizionamento del modello di Onnx. I livelli QuantizeLinear e DequantizeLinear sono invece supportati perché definiti proprio in Onnx (non nel runtime).
+
+La cosa migliore per lavorare sulla rete quantizzata potrebbe quindi essere quella di lavorare su una rappresentazione QDQ. Una volta trovato lo splitting in questo formato si fa la divisione e da lì sarà poi la fase di inferenza ad ottimizzare ed eventualmente ad unire gli operatori aggregandoli. In questo senso ci sono alcuni aspetti da considerare:
+- Come considerare i FLOPS dei livelli di Quantize e Dequantize?
+	- Si potrebbero escludere dal calcolo complessivo e assumere già che saranno incorporati nell'unico QOperator
+		- Di fatto questo non è proprio sempre verissimo, perché ci sono alcuni operatori che fanno proprio quantize e dequantize internamente oppure fanno altre operazioni, come ad esempio
+			- https://github.com/microsoft/onnxruntime/blob/main/docs/ContribOperators.md#commicrosoftqlinearadd
+			- https://github.com/microsoft/onnxruntime/blob/main/docs/ContribOperators.md#commicrosoftqlinearsigmoid
+	- Si potrebbero considerare, ma questo poi a livello di ottimizzazione potrebbe creare dei paradossi per cui il modello quantizzato ha un costo maggiore di quello non quantizzato
+	- Si potrebbero considerare ma scontandoli in qualche modo, considerando quindi un valore più basso di quello dato dal profiler
+- Si dovrebbe imporre che i livelli di quantize e di dequantize che sono usati per la modellazione del livello come QDQ non siano separabili, ma siano obbligatoriamente mappati nello stesso nodo, perché altrimenti l'ottimizzatore non potrebbe riunirli nel QOperator corrispondente (non dovrebbe essere complicato, basterebbe aggiungere un attributo agli archi per indicare se è mappabile su un arco della rete o meno)
+
+(GRAZIE ANCORA A MICROSOFT, SEMPRE AL TOP)
+
+Da questi esperimenti non sembra che ci sia uno speedup significativo; in realtà questo è dovuto in buona parte alla dimensione del modello. Aumentando la dimensione e la complessità diventa molto più evidente
+Parametri Test:
+- Macchina c4-standard-4
+- Numero di Run 200
+- Yolo11x-Segmentation (versione più grande possibile per modelli Yolo)
+- Quantizzazione con QOperator con ottimizzazione default (massima) per il runtime
+- Tempi in milli secondi
+![[Schermata del 2025-03-03 12-09-24.png]]
+Per modelli molto grandi lo speedup cresce molto, qui siamo sui 3.75, passando da circa un secondo per modelli non quantizzati ad circa 300 ms per modelli quantizzati.
+
+Il test successivo è stato fatto con modello QDQ sempre per Yolo11x-seg sulla stessa macchina: anche qui si può vedere come le prestazioni siano praticamente le stesse rispetto al modello costruito direttamente con QOperator.
+![[Schermata del 2025-03-03 12-21-06.png]]
