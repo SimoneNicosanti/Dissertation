@@ -91,7 +91,7 @@ class OptimizationHandler:
             ConstraintsBuilder.add_energy_constraints()
 
         ## Computing Latency Objective
-        comp_latency, trans_latency = LatencyComputer.find_latency_component(
+        comp_latency, trans_latency = LatencyComputer.compute_latency_costs(
             model_graphs,
             network_graph,
             node_ass_vars,
@@ -100,7 +100,7 @@ class OptimizationHandler:
         )
 
         ## Computing Energy Objective
-        comp_energy, trans_energy = EnergyComputer.find_energy_component(
+        comp_energy, trans_energy = EnergyComputer.compute_energy_costs(
             model_graphs,
             network_graph,
             node_ass_vars,

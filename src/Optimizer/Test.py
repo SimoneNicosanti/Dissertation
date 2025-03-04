@@ -30,7 +30,7 @@ def main():
     )
     end = time.perf_counter_ns()
     print(f"Profiling Time for {model_path_2} >> {(end-start) / 1e9}")
-    ProfilePrinter.print_profile_csv(model_graph_1, "./yolo11n-seg_prof.csv")
+    ProfilePrinter.print_profile_csv(model_graph_2, "./yolo11n-seg_prof.csv")
 
     start = time.perf_counter_ns()
     model_path_3 = "./models/yolo11l-seg.onnx"

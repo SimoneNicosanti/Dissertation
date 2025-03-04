@@ -2,12 +2,12 @@ import pulp
 from Graph.Graph import EdgeId, NodeId
 from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
-from Optimization.OptimizationKeys import EdgeAssKey, ExpressionKey, NodeAssKey
+from Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 
 ## TODO Check Normalization Min-Max: Per model or total
 
 
-def find_latency_component(
+def compute_latency_costs(
     model_graphs: list[ModelGraph],
     network_graph: NetworkGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
@@ -15,62 +15,71 @@ def find_latency_component(
     requests_number: dict[str, int],
 ) -> pulp.LpAffineExpression:
 
-    max_comp_latency = 0
-    max_trans_latency = 0
-
     tot_comp_latency = 0
     tot_trans_latency = 0
 
-    for curr_mod_graph in model_graphs:
-        curr_comp_latency, curr_max_comp_latency = computation_latency(
-            curr_mod_graph,
-            network_graph,
-            node_ass_vars,
-            requests_number.get(curr_mod_graph.get_graph_name()),
-        )
-        max_comp_latency = max(max_comp_latency, curr_max_comp_latency)
-        tot_comp_latency += curr_comp_latency
+    total_requests = sum(requests_number.values())
 
-        curr_trans_latency, curr_max_comp_latency = transmission_latency(
-            curr_mod_graph,
-            network_graph,
-            edge_ass_vars,
-            requests_number.get(curr_mod_graph.get_graph_name()),
+    for model_graph in model_graphs:
+        model_weight = (
+            requests_number.get(model_graph.get_graph_name()) / total_requests
         )
-        max_trans_latency = max(max_trans_latency, curr_max_comp_latency)
-        tot_trans_latency += curr_trans_latency
 
-    tot_trans_latency = tot_trans_latency  # / max_trans_latency
-    tot_comp_latency = tot_comp_latency  # / max_comp_latency
+        model_comp_latency, max_model_comp_latency = compute_comp_latency_per_model(
+            model_graph, network_graph, node_ass_vars
+        )
+        model_trans_latency, max_model_trans_latency = compute_trans_latency_per_model(
+            model_graph, network_graph, edge_ass_vars
+        )
+
+        tot_comp_latency += model_weight * model_comp_latency / max_model_comp_latency
+        tot_trans_latency += (
+            model_weight * model_trans_latency / max_model_trans_latency
+        )
 
     return tot_comp_latency, tot_trans_latency
 
 
-def computation_latency(
+def compute_comp_latency_per_model(
     model_graph: ModelGraph,
     network_graph: NetworkGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-    requests_number: int,
 ) -> tuple[pulp.LpAffineExpression, float]:
-
-    sum_elems = []
+    tot_comp_latency = 0
     max_comp_latency = 0
     for net_node_id in network_graph.get_nodes_id():
-        curr_net_node_comp_latency, curr_net_node_max_comp_latency = (
-            node_computation_latency(
+        node_comp_latency_per_model, node_max_comp_latency_per_model = (
+            compute_model_comp_latency_per_node(
                 model_graph, network_graph, node_ass_vars, net_node_id
             )
         )
-        sum_elems.append(curr_net_node_comp_latency)
-        max_comp_latency = max(max_comp_latency, curr_net_node_max_comp_latency)
+        tot_comp_latency += node_comp_latency_per_model
+        max_comp_latency = max(max_comp_latency, node_max_comp_latency_per_model)
 
-    return (
-        requests_number * pulp.lpSum(sum_elems) / max_comp_latency,
-        requests_number * max_comp_latency,
-    )
+    return tot_comp_latency, max_comp_latency
 
 
-def node_computation_latency(
+def compute_trans_latency_per_model(
+    model_graph: ModelGraph,
+    network_graph: NetworkGraph,
+    edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+) -> pulp.LpAffineExpression:
+    tot_trans_latency = 0
+    max_trans_latency = 0
+
+    for net_node_id in network_graph.get_nodes_id():
+        node_trans_latency_per_model, node_max_trans_latency_per_model = (
+            compute_model_trans_latency_per_node(
+                model_graph, network_graph, edge_ass_vars, net_node_id
+            )
+        )
+        tot_trans_latency += node_trans_latency_per_model
+        max_trans_latency = max(max_trans_latency, node_max_trans_latency_per_model)
+
+    return tot_trans_latency, max_trans_latency
+
+
+def compute_model_comp_latency_per_node(
     model_graph: ModelGraph,
     network_graph: NetworkGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
@@ -92,31 +101,7 @@ def node_computation_latency(
     return pulp.lpSum(sum_elems), max_comp_latency
 
 
-def transmission_latency(
-    model_graph: ModelGraph,
-    network_graph: NetworkGraph,
-    edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
-    requests_number: int,
-) -> tuple[pulp.LpAffineExpression, float]:
-    sum_elems = []
-    max_trans_latency = 0
-    for net_node_id in network_graph.get_nodes_id():
-        curr_net_node_trans_latency, curr_max_trans_latency = node_transmission_latency(
-            model_graph, network_graph, edge_ass_vars, net_node_id
-        )
-        sum_elems.append(curr_net_node_trans_latency)
-        max_trans_latency = max(
-            max_trans_latency,
-            curr_max_trans_latency,
-        )
-
-    return (
-        requests_number * pulp.lpSum(sum_elems) / max_trans_latency,
-        requests_number * max_trans_latency,
-    )
-
-
-def node_transmission_latency(
+def compute_model_trans_latency_per_node(
     model_graph: ModelGraph,
     network_graph: NetworkGraph,
     edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
@@ -154,7 +139,7 @@ def __get_transmission_time(
     net_edge_info: NetworkEdgeInfo,
     net_edge_id: EdgeId,
 ) -> float:
-    ## Note --> Assuming Bandwidth in Byte / s
+    ## Note --> Assuming Bandwidth in MB / s
 
     if net_edge_id.first_node_id == net_edge_id.second_node_id:
         return 0

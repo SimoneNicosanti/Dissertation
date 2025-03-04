@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Ottimizzazione.md",
+                "file": "Notes/Yolo.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Ottimizzazione"
+              "title": "Yolo"
             }
           }
         ]
@@ -163,6 +163,11 @@
   },
   "active": "37e1fef10c0ae5d3",
   "lastOpenFiles": [
+    "Notes/Unnesting del Modello.md",
+    "Notes/Split del Modello.md",
+    "Notes/Segmentation.md",
+    "Notes/Ottimizzazione.md",
+    "Notes/Quantizzazione.md",
     "Notes/Colloqui/2025-03-04.md",
     "Notes/Colloqui/2025-01-10.md",
     "Notes/Colloqui/2025-02-05.md",
@@ -170,8 +175,6 @@
     "Notes/Images/Schermata del 2025-03-04 09-16-10.png",
     "Notes/Images/Schermata del 2025-03-03 12-21-06.png",
     "Notes/Images/Schermata del 2025-03-03 12-09-24.png",
-    "Notes/Quantizzazione.md",
-    "Notes/Ottimizzazione.md",
     "Notes/Yolo.md",
     "Notes/Images/Schermata del 2025-03-03 10-26-58.png",
     "Notes/Images/Schermata del 2025-03-03 10-28-16.png",
@@ -184,7 +187,6 @@
     "Notes/Colloqui/2024-12-17.md",
     "Notes/Architettura/Architettura.md",
     "Notes/Consumo Energetico.md",
-    "Notes/Split del Modello.md",
     "Notes/LiteRT.md",
     "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Colloqui/2024-11-19.md",
@@ -195,8 +197,6 @@
     "Paper/CoEdge/CoEdge.pdf",
     "Paper/Others/splitCNN.pdf",
     "Paper/Jellyfish/Jellyfish.pdf",
-    "Notes/Segmentation.md",
-    "Notes/Unnesting del Modello.md",
     "Notes/Calcolo FLOPS.md",
     "Notes/Architettura/Diagrams",
     "Notes/Architettura/Diagrams/General.svg.xml",
