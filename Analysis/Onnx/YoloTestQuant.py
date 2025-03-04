@@ -87,8 +87,8 @@ def main():
 
     quantize_static(
         model_input="./models/yolo11n-seg_pre_quant.onnx",
-        model_output="./models/yolo11n-seg_quant.onnx",
-        quant_format=QuantFormat.QDQ,
+        model_output="./models/yolo11n-seg_quant_QOp.onnx",
+        quant_format=QuantFormat.QOperator,
         activation_type=QuantType.QUInt8,
         weight_type=QuantType.QUInt8,
         calibration_data_reader=MyDataReader(CALIBRATION_DATA_PATH),

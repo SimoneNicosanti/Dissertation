@@ -27,3 +27,9 @@ class EdgeAssKey:
 class MemoryUseKey:
     mod_name: str
     net_node_id: NodeId
+
+
+@dataclass(frozen=True)
+class ExpressionKey:
+    mod_name: str
+    net_node_id: NodeId

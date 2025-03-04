@@ -163,7 +163,7 @@ class ConstraintsBuilder:
             mem_use_var_key = MemoryUseKey(model_graph.get_graph_name(), net_node_id)
             mem_use_var = mem_use_vars[mem_use_var_key]
 
-            total_memory = requests_num * (pulp.lpSum(sum_vars) + mem_use_var)
+            total_memory = pulp.lpSum(sum_vars) + mem_use_var
 
             net_node_info: NetworkNodeInfo = network_graph.get_node_info(net_node_id)
             problem += total_memory <= net_node_info.get_available_memory()

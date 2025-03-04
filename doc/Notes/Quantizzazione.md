@@ -512,3 +512,6 @@ Per modelli molto grandi lo speedup cresce molto, qui siamo sui 3.75, passando d
 
 Il test successivo è stato fatto con modello QDQ sempre per Yolo11x-seg sulla stessa macchina: anche qui si può vedere come le prestazioni siano praticamente le stesse rispetto al modello costruito direttamente con QOperator.
 ![[Schermata del 2025-03-03 12-21-06.png]]
+
+Prova definitiva: eseguendo il profiling con l'opzione della InferenceSession, si può vedere come gli operatori che sono eseguiti sono proprio dei QOperators.
+![[Schermata del 2025-03-04 09-16-10.png]]

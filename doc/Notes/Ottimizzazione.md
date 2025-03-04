@@ -213,9 +213,9 @@ Definiamo le variabili:
 
 ### Latenza di Calcolo
 La latenza di calcolo sul server $k$ per richieste fatte alla variante $a$-esima la possiamo scrivere come:
-$$T_k^{c-a} = \lambda^a \sum_{i \in V_M^a} \frac{\phi_{i0}}{\psi_{k0}} x_{ik}^a$$
+$$T_k^{c-a} =  \sum_{i \in V_M^a} \frac{\phi_{i0}}{\psi_{k0}} x_{ik}^a$$
 Da cui il tempo di calcolo totale sul dispositivo $k$ è dato da:
-$$T_k^c = \sum_{a \in A_{idx}} T_k^{c-a}$$
+$$T_k^c = \sum_{a \in A_{idx}} \lambda^a * T_k^{c-a}$$
 
 > [!TODO] Parallelismo
 > Questa formulazione tiene conto del tempo di calcolo totale, ma non della latenza per l'inferenza di una singola richiesta perché questa dipende dall'eventuale parallelismo sul nodo del sistema. Si potrebbe assumere un tempo medio prendendo il numero di thread che eseguono richieste sul modello??
@@ -223,9 +223,9 @@ $$T_k^c = \sum_{a \in A_{idx}} T_k^{c-a}$$
 ### Latenza di Trasmissione
 La latenza di trasmissione dipende invece dalla somma delle latenze di trasmissione in funzione delle bande dei link fisici a cui i link logici sono assegnati. Per la variante $a$-esima sul server $k$:
 
-$$T_{k}^{x-a} = \lambda^a \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}y_{mn}^a$$
+$$T_{k}^{x-a} =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}y_{mn}^a$$
 Da cui il tempo totale di trasmissione per il dispositivo $k$ è dato da:
-$$T_k^x = \sum_{a \in A_{idx}} T_k^{x-a}$$
+$$T_k^x = \sum_{a \in A_{idx}} \lambda^a * T_k^{x-a}$$
 
 > [!TODO] Parallelismo
 > Anche in questo caso forse va considerato il parallelismo di esecuzione e di trasmissione.
@@ -263,13 +263,13 @@ $$m_k^a \ge \phi_{i2} * x_{ik}^a \hspace{0.75cm} \forall i \in V_N^a$$
 
 
 Da ciò quindi la memoria usata sul server $k$ dalla variante $a$-esima diventa:
-$$M_k^a = \lambda^a * \left( \sum_{i \in V_N^a} \left( \phi_{i1}*x_{ik}^a \right) + m_k^a \right)$$
+$$M_k^a = \sum_{i \in V_N^a} \left( \phi_{i1}*x_{ik}^a  + m_k^a \right)$$
 
 Da cui, la memoria totale necessaria sul singolo server $k$ è data da:
 $$M_k = \sum_{a \in A_{idx}}  M_k^a$$
 
-> [!TODO] Parallelismo
-> Anche qui stiamo assumendo che le richieste vengano gestite in parallelo e che quindi vi sia una copia di modello per ogni richiesta. In generale bisogna capire bene l'aspetto del parallelismo e se/come inserirlo nella formulazione.
+> [!Note] Parallelismo
+> Stiamo assumendo che per ogni variante, vi sia una sola copia attiva per modello (e sotto modello), quindi non c'è bisogno di moltiplicare per $\lambda^a$ l'occupazione di memoria
 
 ## Formulazione
 Indichiamo con:

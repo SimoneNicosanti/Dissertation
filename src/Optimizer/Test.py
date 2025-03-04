@@ -1,71 +1,51 @@
-import os
+import time
 
-import onnx
-import onnx_tool
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
-from onnx_tool.utils import NODEPROFILER_REGISTRY
 from Optimization.AssignmentGraphBuilder import AssignmentGraphBuilder
 from Optimization.OptimizationHandler import OptimizationHandler, OptimizationParams
 from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
+from Profiler import ProfilePrinter
 from Profiler.OnnxModelProfiler import OnnxModelProfiler
-
-# @onnx_tool.NODE_REGISTRY.register()
-# class QLinearSigmoidNode(onnx_tool.node.SigmoidNode):
-#     pass
-
-
-# @onnx_tool.NODE_REGISTRY.register()
-# class QLinearMulNode(onnx_tool.node.MulNode):
-#     pass
-
-
-# @onnx_tool.NODE_REGISTRY.register()
-# class QLinearAddNode(onnx_tool.node.AddNode):
-#     pass
-
-
-# @onnx_tool.NODE_REGISTRY.register()
-# class QLinearConcatNode(onnx_tool.node.ConcatNode):
-#     pass
-
-
-# @onnx_tool.NODE_REGISTRY.register()
-# class QLinearSoftmaxNode(onnx_tool.node.SoftmaxNode):
-#     pass
 
 
 def main():
 
-    # mod = YOLO("yolo11x-seg.pt")
-    # mod.export(format="onnx")
-
-    # return
-
-    # # onnx.utils.extract_model(
-    # #     "./models/ResNet50.onnx",
-    # #     "./models/ResNet50_sub.onnx",
-    # #     ["args_0"],
-    # #     ["resnet50/conv2_block1_3_bn/FusedBatchNormV3:0"],
-    # # )
-
-    model_path_1 = "./models/yolo11n-seg_quant.onnx"
+    start = time.perf_counter_ns()
+    model_path_1 = "./models/yolo11x-seg_quant.onnx"
+    print("Profiling Model >> ", model_path_1)
     model_graph_1: ModelGraph = OnnxModelProfiler(model_path_1).profile_model(
         {"args_0": (1, 3, 448, 448)}
     )
+    end = time.perf_counter_ns()
+    print(f"Profiling Time for {model_path_1} >> {(end-start) / 1e9}")
 
+    ProfilePrinter.print_profile_csv(model_graph_1, "./yolo11x-seg_quant_prof.csv")
+
+    start = time.perf_counter_ns()
     model_path_2 = "./models/yolo11n-seg.onnx"
-    # model_graph_2: ModelGraph = OnnxModelProfiler(model_path_2).profile_model(
-    #     {"args_0": (1, 3, 448, 448)}
-    # )
+    print("Profiling Model >> ", model_path_2)
+    model_graph_2: ModelGraph = OnnxModelProfiler(model_path_2).profile_model(
+        {"args_0": (1, 3, 448, 448)}
+    )
+    end = time.perf_counter_ns()
+    print(f"Profiling Time for {model_path_2} >> {(end-start) / 1e9}")
+    ProfilePrinter.print_profile_csv(model_graph_1, "./yolo11n-seg_prof.csv")
+
+    start = time.perf_counter_ns()
+    model_path_3 = "./models/yolo11l-seg.onnx"
+    print("Profiling Model >> ", model_path_3)
+    model_graph_3: ModelGraph = OnnxModelProfiler(model_path_3).profile_model(
+        {"args_0": (1, 3, 448, 448)}
+    )
+    end = time.perf_counter_ns()
+    print(f"Profiling Time for {model_path_3} >> {(end-start) / 1e9}")
 
     graph_dict = {
         model_graph_1.get_graph_name(): model_graph_1,
-        # model_graph_2.get_graph_name(): model_graph_2,
-        # model_graph_3.get_graph_name(): model_graph_3,
+        model_graph_2.get_graph_name(): model_graph_2,
+        model_graph_3.get_graph_name(): model_graph_3,
     }
-
-    # model_graph: ModelGraph = OnnxModelPartitioner(graph_dict).partition_model()
 
     opt_params = OptimizationParams(
         comp_lat_weight=1.0,
@@ -88,20 +68,27 @@ def main():
     for graph_name in graph_dict.keys():
         solved_prob_info = solved_prob_info_dict[graph_name]
 
+        start = time.perf_counter_ns()
+        print(f"Building Assignment Graph for {graph_name}")
         assignment_graph_builder = AssignmentGraphBuilder(
             graph=graph_dict.get(graph_name), solved_problem_info=solved_prob_info
         )
         assignment_graph = assignment_graph_builder.build_assignment_graph()
+        end = time.perf_counter_ns()
+        print(f"Building Assignment Graph for {graph_name} >> {(end-start) / 1e9}")
 
-        print()
-        print("Assignment Graph")
-        for edge_id in assignment_graph.get_edges_id():
-            print(
-                edge_id.first_node_id.node_name, ">", edge_id.second_node_id.node_name
-            )
-
+        # print()
+        # print("Assignment Graph")
+        # for edge_id in assignment_graph.get_edges_id():
+        #     print(
+        #         edge_id.first_node_id.node_name, ">", edge_id.second_node_id.node_name
+        #     )
+        start = time.perf_counter_ns()
+        print(f"Partitioning {graph_name}")
         partitioner = OnnxModelPartitioner("./models/" + graph_name + ".onnx")
         partitioner.partition_model(assignment_graph)
+        end = time.perf_counter_ns()
+        print(f"Partitioning {graph_name} >> {(end-start) / 1e9}")
 
 
 def prepare_network_profile():
@@ -117,7 +104,7 @@ def prepare_network_profile():
             net_node_flops_per_sec=flops_list[idx % len(flops_list)],
             net_node_comp_energy_per_sec=energy_list[idx % len(energy_list)],
             net_node_trans_energy_per_sec=energy_list[idx % len(energy_list)],
-            net_node_available_memory=1000 if idx == 0 else 100_000_000,
+            net_node_available_memory=10 if idx == 0 else 100_000_000,
         )
         graph.put_node(node_id, node_info)
 

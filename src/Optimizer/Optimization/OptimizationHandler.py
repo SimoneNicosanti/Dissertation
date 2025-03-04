@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 
 import pulp
@@ -40,6 +41,8 @@ class OptimizationHandler:
         edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = {}
         mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = {}
 
+        start = time.perf_counter_ns()
+        print("Building Optimization Problem")
         ## Defining variables
         for curr_mod_graph in model_graphs:
             curr_node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = (
@@ -75,7 +78,6 @@ class OptimizationHandler:
                 problem, curr_mod_graph, network_graph, node_ass_vars, edge_ass_vars
             )
 
-            ## TODO Implement these two
             ConstraintsBuilder.add_memory_constraints(
                 problem,
                 curr_mod_graph,
@@ -84,9 +86,11 @@ class OptimizationHandler:
                 mem_use_vars,
                 opt_params.requests_number.get(curr_mod_graph.get_graph_name()),
             )
+
+            ## TODO Implement this one
             ConstraintsBuilder.add_energy_constraints()
 
-        ## Computing Ltency Objective
+        ## Computing Latency Objective
         comp_latency, trans_latency = LatencyComputer.find_latency_component(
             model_graphs,
             network_graph,
@@ -111,6 +115,9 @@ class OptimizationHandler:
             + opt_params.trans_lat_weight * trans_energy
         )
 
+        end = time.perf_counter_ns()
+        print("Building Optimization Problem Time >> ", (end - start) / 1e9)
+
         problem.solve(pulp.GLPK_CMD())
 
         with open("VarFile.txt", "w") as f:
@@ -124,11 +131,14 @@ class OptimizationHandler:
 
         solved_info_dict: dict[str, SolvedProblemInfo] = {}
         for mod_graph in model_graphs:
+            start = time.perf_counter_ns()
+            print("Building Solution >> ", mod_graph.get_graph_name())
             solved_problem_info: SolvedProblemInfo = self.build_solved_problem_info(
                 problem, mod_graph.get_graph_name(), node_ass_vars, edge_ass_vars
             )
             solved_info_dict[mod_graph.get_graph_name()] = solved_problem_info
-
+            end = time.perf_counter_ns()
+            print("Building Solution Time >> ", (end - start) / 1e9)
         return solved_info_dict
 
     def build_solved_problem_info(
@@ -146,38 +156,28 @@ class OptimizationHandler:
         solved_problem_info = SolvedProblemInfo(
             problem_solved=True, solution_value=problem.objective.value()
         )
-        for var in problem.variables():
-            if var.name.startswith("x_"):
-                ## Handle node assignment var
-                for node_ass_key, node_ass_var in node_ass_vars.items():
-                    if (
-                        var.name == node_ass_var.name
-                        and var.varValue == 1.0
-                        and node_ass_key.mod_name == graph_name
-                    ):
-                        mod_node_id = node_ass_key.mod_node_id
-                        net_node_id = node_ass_key.net_node_id
-                        solved_problem_info.put_node_assignment(
-                            net_node_id, mod_node_id
-                        )
-                        break
+
+        filtered_node_ass = dict(
+            filter(lambda item: item[0].mod_name == graph_name, node_ass_vars.items())
+        )
+        filtered_edge_ass = dict(
+            filter(lambda item: item[0].mod_name == graph_name, edge_ass_vars.items())
+        )
+
+        for node_ass_key, node_ass_var in filtered_node_ass.items():
+            if node_ass_var.varValue == 1.0:
+                mod_node_id = node_ass_key.mod_node_id
+                net_node_id = node_ass_key.net_node_id
+                solved_problem_info.put_node_assignment(net_node_id, mod_node_id)
                 pass
-            elif var.name.startswith("y_"):
-                ## Handle edge assignment var
-                for edge_ass_key, edge_ass_var in edge_ass_vars.items():
-                    if (
-                        var.name == edge_ass_var.name
-                        and var.varValue == 1.0
-                        and edge_ass_key.mod_name == graph_name
-                    ):
-                        mod_edge_id = edge_ass_key.mod_edge_id
-                        net_edge_id = edge_ass_key.net_edge_id
-                        solved_problem_info.put_edge_assignment(
-                            net_edge_id, mod_edge_id
-                        )
-                        break
-            else:
-                ## There should be no other variables
+            pass
+
+        for edge_ass_key, edge_ass_var in filtered_edge_ass.items():
+            if edge_ass_var.varValue == 1.0:
+                mod_edge_id = edge_ass_key.mod_edge_id
+                net_edge_id = edge_ass_key.net_edge_id
+                solved_problem_info.put_edge_assignment(net_edge_id, mod_edge_id)
                 pass
+            pass
 
         return solved_problem_info

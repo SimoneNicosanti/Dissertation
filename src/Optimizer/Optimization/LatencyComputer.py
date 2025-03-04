@@ -2,7 +2,7 @@ import pulp
 from Graph.Graph import EdgeId, NodeId
 from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
-from Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
+from Optimization.OptimizationKeys import EdgeAssKey, ExpressionKey, NodeAssKey
 
 ## TODO Check Normalization Min-Max: Per model or total
 

@@ -54,17 +54,6 @@ class AssignmentGraphBuilder:
                     self.graph.get_edge_info(EdgeId(block_node_id, next_block_id)),
                 )
 
-            # for output_edge_id in sub_graph.get_output_edges_id():
-            #     ## TODO Find Next Blocks
-            #     next_graph_node_id = self.__find_next_graph_node_id(
-            #         net_node_id, output_edge_id.second_node_id, assignments_dict
-            #     )
-            #     if next_graph_node_id is None:
-            #         continue
-            #     edge_id = EdgeId(node_id, next_graph_node_id)
-            #     assignment_graph.put_edge(
-            #         edge_id, self.graph.get_edge_info(output_edge_id)
-            #     )
         return assignment_graph
 
     def __find_prev_blocks_ids(
