@@ -233,13 +233,6 @@ $$T^{c-a} = \sum_{k \in V_N} T_k^{c-a}$$
 Definiamo il massimo dei tempi di calcolo dei nodi della variante $a$-esima come :
 $$t^{c-a} = \max_{k \in V_N} t^{c-a}_k$$
 
-Il contributo al costo dato dalla latenza di calcolo della variante $a$-esima è dato da:
-$$C^{c-a}_t = \lambda^a \frac{T^{c-a}}{t^{c-a}}$$
-Da cui, il contributo complessivo del tempo calcolo al costo è definito come:
-$$C^{c}_t = \sum_{a \in A_{idx}} C^{c-a}_t$$
-
-
-
 ### Latenza di Trasmissione
 La latenza di trasmissione dipende invece dalla somma delle latenze di trasmissione in funzione delle bande dei link fisici a cui i link logici sono assegnati. Per la variante $a$-esima sul server $k$:
 
@@ -252,12 +245,12 @@ $$T^{x-a} = \sum_{k \in V_N} T_k^{x-a}$$
 Il tempo di trasmissione massimo per singola richiesta ala variante $a$-esima è dato da:
 $$t^{x-a} = \max_{k \in V_N} t_k^{x-a}$$
 
-Il contributo al costo dato dalla latenza di trasmissione della variante $a$-esima è quindi dato da:
-$$C^{x-a}_t = \lambda^a \frac{T^{x-a}}{t^{x-a}}$$
-Il contributo complessivo del tempo di trasmissione al costo è definito come
-$$C^x_t = \sum_{a \in A_{idx}} C^x_t$$
-
-
+### Costo della latenza
+Definiamo $\mu_t^a = \max \{t^{x-a}, t^{c-a}\}$ il termine di normalizzazione per la latenza del modello $a$-esimo
+Il costo dato dal tempo di inferenza del modello $a$-esimo è dato da:
+$$C^a_t = \lambda^a \frac{T^{c-a} + T^{x-a}}{\mu_t^a}$$
+Da cui il costo del tempo di inferenza complessivo è definito da:
+$$C_t = \sum_{a \in A_{idx}} C_t^a$$
 
 ## Modello di Energia
 
@@ -272,27 +265,26 @@ $$E^{c-a} = \sum_{k \in V_N} E_k^{c-a}$$
 Mentre il consumo massimo è dato da:
 $$e^{c-a} = \max_{k \in V_N} e_k^{c-a}$$
 
-Il contributo al costo dato dal consumo energetico del calcolo è dato da:
-$$C_e^{c-a} = \lambda^a * \frac{E^{c-a}}{e^{c-a}}$$
-Da cui il contributo complessivo del consumo energetico per il calcolo è dato da:
-$$C^c_e = \sum_{a \in A_{idx}} C_e^{c-a}$$
-
 
 ### Energia di Trasmissione
 L'energia data dal calcolo della variante $a$-esima sul server $k$ è definita come:
 $$E_k^{x-a} = T_k^{x-a} * \psi_{k2}$$
 Il consumo energetico maggiore per la singola inferenza del modello $a$ sul server $k$ è dato da:
-$$e_k^{x-a} = t_k^{x-a} * \psi_{kx}$$
+$$e_k^{x-a} = t_k^{x-a} * \psi_{k2}$$
 
 Il consumo energetico complessivo dato dal calcolo della variante $a$-esima è dato da 
 $$E^{x-a} = \sum_{k \in V_N} E_k^{x-a}$$
 Mentre il consumo massimo è dato da:
 $$e^{x-a} = \max_{k \in V_N} e_k^{x-a}$$
 
-Il contributo al costo dato dal consumo energetico del calcolo è dato da:
-$$C_e^{x-a} = \lambda^a * \frac{E^{x-a}}{e^{x-a}}$$
-Da cui il contributo complessivo del consumo energetico per il calcolo è dato da:
-$$C^x_e = \sum_{a \in A_{idx}} C_e^{x-a}$$
+
+### Costo dell'energia
+Definiamo $\mu_e^a = \max \{e^{x-a}, e^{c-a}\}$ il termine di normalizzazione per l'energia del modello $a$-esimo
+Il costo di inferenza del modello $a$-esimo è dato da:
+$$C^a_t = \lambda^a \frac{E^{c-a} + E^{x-a}}{\mu_e^a}$$
+Da cui il costo dell'energia per l'inferenza è dato da:
+$$C_t = \sum_{a \in A_{idx}} C_e^a$$
+
 
 
 ## Modello di Memoria
@@ -311,7 +303,7 @@ Da cui, la memoria totale necessaria sul singolo server $k$ è data da:
 $$M_k = \sum_{a \in A_{idx}}  M_k^a$$
 
 > [!Note] Parallelismo
-> Stiamo assumendo che per ogni variante, vi sia una sola copia attiva per modello (e sotto modello), quindi non c'è bisogno di moltiplicare per $\lambda^a$ l'occupazione di memoria
+> Stiamo assumendo che per ogni variante, vi sia una sola copia attiva, quindi non c'è bisogno di moltiplicare per $\Lambda^a$ l'occupazione di memoria
 
 ## Formulazione
 Indichiamo con:
@@ -319,14 +311,13 @@ Indichiamo con:
 - $V_O^a \subset V_M^a$ il sottoinsieme di nodi di output della variante $a$
 
 Siano:
-- $\omega_t^c$ e $\omega_t^x$ i pesi del tempo di calcolo e di trasmissione
-- $\omega_e^c$ e $\omega_e^x$ i pesi del consumo energetico di calcolo e di trasmissione
+- $\omega_t$ il peso associato al tempo di inferenza
+- $\omega_e$ il peso associato all'energia di inferenza
 
 Tali che:
-$$\sum_{i \in \{x,c\}, j \in \{t,e\}} \omega_j^i  = 1$$
+$$ \omega_t + \omega_e = 1$$
 
 Sia $J_0$ l'energia massima consumabile sul server $0$ che fa partire l'inferenza.  
-
 
 In definitiva il problema diventa il seguente:
 $$
@@ -334,7 +325,7 @@ $$
 \begin{matrix}
 
 Obiettivo: \\
-min \hspace{0.5cm} \omega_t^c*C_t^c + \omega_t^x*C_t^x + \omega_e^c*C_e^c + \omega_e^x*C_e^x \\
+min \hspace{0.5cm} \omega_t*C_t + \omega_e*C_e\\
 \\
 Vincoli:\\
 \sum_{k \in V_N} x_{ik}^a = 1 \hspace{1cm}  \forall a \in A_{idx}, \forall i \in V_M^a \\
@@ -377,3 +368,7 @@ Analisi vincoli:
 
 > [!TODO] Parallelismo
 > Questa formulazione tiene conto del tempo di calcolo totale, ma non della latenza per l'inferenza di una singola richiesta perché questa dipende dall'eventuale parallelismo sul nodo del sistema. Si potrebbe assumere un tempo medio prendendo il numero di thread che eseguono richieste sul modello??
+> 
+> Il parallelismo alla fine lo gestiamo così:
+> - Data una coppia (server, sotto-modello), abbiamo un thread che si occupa dell'inferenza per quel sotto-modello
+> - Il parallelismo di Onnx (o di altri engine di inferenza) è assunto uno nella modellazione, non necessariamente negli esperimenti

@@ -7,7 +7,7 @@ from Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 ## TODO Check Normalization Min-Max: Per model or total
 
 
-def compute_latency_costs(
+def compute_latency_cost(
     model_graphs: list[ModelGraph],
     network_graph: NetworkGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
@@ -15,8 +15,7 @@ def compute_latency_costs(
     requests_number: dict[str, int],
 ) -> pulp.LpAffineExpression:
 
-    tot_comp_latency = 0
-    tot_trans_latency = 0
+    tot_latency_cost = 0
 
     total_requests = sum(requests_number.values())
 
@@ -32,12 +31,17 @@ def compute_latency_costs(
             model_graph, network_graph, edge_ass_vars
         )
 
-        tot_comp_latency += model_weight * model_comp_latency / max_model_comp_latency
-        tot_trans_latency += (
-            model_weight * model_trans_latency / max_model_trans_latency
+        normalization_factor = max(max_model_comp_latency, max_model_trans_latency)
+
+        # tot_latency_cost += model_weight * model_comp_latency / max_model_comp_latency
+        # tot_latency_cost += model_weight * model_trans_latency / max_model_trans_latency
+        tot_latency_cost += (
+            model_weight
+            * (model_comp_latency + model_trans_latency)
+            / normalization_factor
         )
 
-    return tot_comp_latency, tot_trans_latency
+    return tot_latency_cost
 
 
 def compute_comp_latency_per_model(
@@ -63,7 +67,7 @@ def compute_trans_latency_per_model(
     model_graph: ModelGraph,
     network_graph: NetworkGraph,
     edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
-) -> pulp.LpAffineExpression:
+) -> tuple[pulp.LpAffineExpression, float]:
     tot_trans_latency = 0
     max_trans_latency = 0
 

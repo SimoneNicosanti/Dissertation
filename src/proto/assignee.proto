@@ -1,0 +1,26 @@
+syntax = "proto3";
+package fetch;
+
+import "common.proto";
+
+service Assignee {
+    rpc send_plan(Plan) returns (SendResponse);
+}
+
+message Plan {
+    repeated ModelBlock assignments = 1 ;
+    repeated BlockEdge block_edges = 2 ;
+}
+
+message ModelBlock {
+    common.ModelBlockId block_id = 1 ;
+    bool is_only_io = 4 ;
+}
+
+message BlockEdge {
+    common.ModelBlockId first_block_id = 1;
+    common.ModelBlockId second_block_id = 2;
+    repeated string output_names = 3 ;
+}
+
+message SendResponse {}

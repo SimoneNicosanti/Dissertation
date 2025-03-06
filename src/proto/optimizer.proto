@@ -1,37 +1,13 @@
 syntax = "proto3";
+package optimizer;
 
 service Optimization {
-    rpc serve_optimization(stream OptimizationRequest) returns (OptimizationResponse);
-    rpc send_model(stream ModelChunk) returns (ModelSendResponse);
+    rpc serve_optimization(OptimizationRequest) returns (stream OptimizationResponse);
 }
 
 message OptimizationRequest {
-    string model_name = 1 ;
-    repeated int32 inference_shape = 2 ;
+    repeated string model_names = 1 ; // List of model to ask optimization for
 }
 
 message OptimizationResponse {
-    repeated ModelAssignment assignments = 1 ;
-    repeated BlockNext next_blocks = 2 ;
 }
-
-message ModelAssignment {
-    string block_id = 1 ;
-    string server_id = 2 ; 
-}
-
-message BlockNext {
-    string block_id = 1 ;
-    string output_name = 2 ;
-    string next_block_id = 3 ;
-}
-
-message ModelChunk {
-    string model_name = 1 ;
-    int32 model_size = 2 ;
-    int32 chunk_idx = 3 ;
-    bytes chunk = 4 ;
-}
-
-
-message ModelSendResponse {}

@@ -1,0 +1,40 @@
+syntax = "proto3";
+package server;
+
+import "common.proto";
+
+service Inference {
+    // (Method definitions not shown)
+    rpc send_input(stream ModelInput) returns (SendInputResponse) {}
+}
+
+
+
+
+message ModelInput {
+    common.ModelBlockId model_block_id = 1;
+    Tensor input_tensor = 2;
+    bool is_last = 3;
+}
+
+message Tensor {
+    TensorInfo info = 1;
+    TensorChunk chunk = 2;
+}
+
+message TensorInfo {
+    string name = 1;
+    string type = 2 ;
+    repeated int32 shape = 3 ;
+}
+
+message TensorChunk {
+    int32 total_size = 1;
+    int32 chunk_idx = 2;
+    bytes data = 3;
+}
+
+
+
+
+message SendInputResponse {}

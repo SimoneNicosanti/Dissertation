@@ -13,10 +13,8 @@ from Optimization.SolvedProblemInfo import SolvedProblemInfo
 
 @dataclass
 class OptimizationParams:
-    comp_lat_weight: float
-    trans_lat_weight: float
-    comp_en_weight: float
-    trans_en_weight: float
+    latency_weight: float
+    energy_weight: float
 
     device_max_energy: float
 
@@ -91,7 +89,7 @@ class OptimizationHandler:
             ConstraintsBuilder.add_energy_constraints()
 
         ## Computing Latency Objective
-        comp_latency, trans_latency = LatencyComputer.compute_latency_costs(
+        latency_cost = LatencyComputer.compute_latency_cost(
             model_graphs,
             network_graph,
             node_ass_vars,
@@ -100,7 +98,7 @@ class OptimizationHandler:
         )
 
         ## Computing Energy Objective
-        comp_energy, trans_energy = EnergyComputer.compute_energy_costs(
+        energy_cost = EnergyComputer.compute_energy_cost(
             model_graphs,
             network_graph,
             node_ass_vars,
@@ -109,10 +107,8 @@ class OptimizationHandler:
         )
 
         problem += (
-            opt_params.comp_lat_weight * comp_latency
-            + opt_params.trans_lat_weight * trans_latency
-            + opt_params.comp_en_weight * comp_energy
-            + opt_params.trans_lat_weight * trans_energy
+            opt_params.latency_weight * latency_cost
+            + opt_params.energy_weight * energy_cost
         )
 
         end = time.perf_counter_ns()

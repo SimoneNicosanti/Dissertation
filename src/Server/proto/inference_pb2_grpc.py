@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import optimizer_pb2 as optimizer__pb2
+import inference_pb2 as inference__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in optimizer_pb2_grpc.py depends on'
+        + f' but the generated code in inference_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class OptimizationStub(object):
+class InferenceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,43 +34,44 @@ class OptimizationStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.serve_optimization = channel.unary_stream(
-                '/optimizer.Optimization/serve_optimization',
-                request_serializer=optimizer__pb2.OptimizationRequest.SerializeToString,
-                response_deserializer=optimizer__pb2.OptimizationResponse.FromString,
+        self.send_input = channel.stream_unary(
+                '/server.Inference/send_input',
+                request_serializer=inference__pb2.ModelInput.SerializeToString,
+                response_deserializer=inference__pb2.SendInputResponse.FromString,
                 _registered_method=True)
 
 
-class OptimizationServicer(object):
+class InferenceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def serve_optimization(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def send_input(self, request_iterator, context):
+        """(Method definitions not shown)
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_OptimizationServicer_to_server(servicer, server):
+def add_InferenceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'serve_optimization': grpc.unary_stream_rpc_method_handler(
-                    servicer.serve_optimization,
-                    request_deserializer=optimizer__pb2.OptimizationRequest.FromString,
-                    response_serializer=optimizer__pb2.OptimizationResponse.SerializeToString,
+            'send_input': grpc.stream_unary_rpc_method_handler(
+                    servicer.send_input,
+                    request_deserializer=inference__pb2.ModelInput.FromString,
+                    response_serializer=inference__pb2.SendInputResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'optimizer.Optimization', rpc_method_handlers)
+            'server.Inference', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('optimizer.Optimization', rpc_method_handlers)
+    server.add_registered_method_handlers('server.Inference', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class Optimization(object):
+class Inference(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def serve_optimization(request,
+    def send_input(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -80,12 +81,12 @@ class Optimization(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
-            request,
+        return grpc.experimental.stream_unary(
+            request_iterator,
             target,
-            '/optimizer.Optimization/serve_optimization',
-            optimizer__pb2.OptimizationRequest.SerializeToString,
-            optimizer__pb2.OptimizationResponse.FromString,
+            '/server.Inference/send_input',
+            inference__pb2.ModelInput.SerializeToString,
+            inference__pb2.SendInputResponse.FromString,
             options,
             channel_credentials,
             insecure,

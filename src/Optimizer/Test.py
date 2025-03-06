@@ -42,16 +42,14 @@ def main():
     print(f"Profiling Time for {model_path_3} >> {(end-start) / 1e9}")
 
     graph_dict = {
-        model_graph_1.get_graph_name(): model_graph_1,
+        # model_graph_1.get_graph_name(): model_graph_1,
         model_graph_2.get_graph_name(): model_graph_2,
-        model_graph_3.get_graph_name(): model_graph_3,
+        # model_graph_3.get_graph_name(): model_graph_3,
     }
 
     opt_params = OptimizationParams(
-        comp_lat_weight=1.0,
-        trans_lat_weight=1.0,
-        comp_en_weight=0,
-        trans_en_weight=0,
+        latency_weight=1.0,
+        energy_weight=0,
         device_max_energy=1.0,
         requests_number={key: 1 for key in graph_dict.keys()},
     )
@@ -94,7 +92,7 @@ def main():
 def prepare_network_profile():
     graph = NetworkGraph("NetworkGraph")
     server_names = ["0", "1"]
-    flops_list = [5, 10, 10]  # Edge, Fog, Cloud
+    flops_list = [2.5 * 10**9, 5 * 10**9, 12.5]  # Edge, Fog, Cloud
     energy_list = [0.5, 1.0]  # Edge, Fog, Cloud
     bandwidth_list = [1, 20, 1]
 
@@ -112,7 +110,27 @@ def prepare_network_profile():
         for idx_2, other_server_name in enumerate(server_names):
 
             if server_name != other_server_name:
-                bandwidth = 5  ## Bandwidth in MB / s
+                if (
+                    server_name == "0"
+                    and other_server_name == "1"
+                    or server_name == "1"
+                    and other_server_name == "0"
+                ):
+                    bandwidth = 2.5  ## Bandwidth in MB / s
+                if (
+                    server_name == "0"
+                    and other_server_name == "2"
+                    or server_name == "2"
+                    and other_server_name == "0"
+                ):
+                    bandwidth = 1
+                if (
+                    server_name == "1"
+                    and other_server_name == "2"
+                    or server_name == "2"
+                    and other_server_name == "1"
+                ):
+                    bandwidth = 10
                 edge_info = NetworkEdgeInfo(net_edge_bandwidth=bandwidth)
             else:
                 edge_info = NetworkEdgeInfo(net_edge_bandwidth=None)

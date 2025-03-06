@@ -7,7 +7,7 @@ from Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 ## TODO Check Normalization Min-Max: Per model or total
 
 
-def compute_energy_costs(
+def compute_energy_cost(
     model_graphs: list[ModelGraph],
     network_graph: NetworkGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
@@ -15,8 +15,7 @@ def compute_energy_costs(
     requests_number: dict[str, int],
 ) -> pulp.LpAffineExpression:
 
-    tot_comp_energy = 0
-    tot_trans_energy = 0
+    tot_energy_cost = 0
 
     total_requests = sum(requests_number.values())
 
@@ -32,10 +31,15 @@ def compute_energy_costs(
             model_graph, network_graph, edge_ass_vars
         )
 
-        tot_comp_energy += model_weight * model_comp_energy / max_model_comp_energy
-        tot_trans_energy += model_weight * model_trans_energy / max_model_trans_energy
+        normalization_factor = max(max_model_comp_energy, max_model_trans_energy)
 
-    return tot_comp_energy, tot_trans_energy
+        tot_energy_cost += (
+            model_weight
+            * (model_comp_energy + model_trans_energy)
+            / normalization_factor
+        )
+
+    return tot_energy_cost
 
 
 def compute_comp_energy_per_model(

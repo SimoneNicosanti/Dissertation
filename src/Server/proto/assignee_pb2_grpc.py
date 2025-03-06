@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import server_pb2 as server__pb2
+import assignee_pb2 as assignee__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in server_pb2_grpc.py depends on'
+        + f' but the generated code in assignee_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class ModelStub(object):
+class AssigneeStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,44 +34,43 @@ class ModelStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.serve_request = channel.unary_unary(
-                '/server.Model/serve_request',
-                request_serializer=server__pb2.InferenceRequest.SerializeToString,
-                response_deserializer=server__pb2.InferenceResponse.FromString,
+        self.send_plan = channel.unary_unary(
+                '/fetch.Assignee/send_plan',
+                request_serializer=assignee__pb2.Plan.SerializeToString,
+                response_deserializer=assignee__pb2.SendResponse.FromString,
                 _registered_method=True)
 
 
-class ModelServicer(object):
+class AssigneeServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def serve_request(self, request, context):
-        """(Method definitions not shown)
-        """
+    def send_plan(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ModelServicer_to_server(servicer, server):
+def add_AssigneeServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'serve_request': grpc.unary_unary_rpc_method_handler(
-                    servicer.serve_request,
-                    request_deserializer=server__pb2.InferenceRequest.FromString,
-                    response_serializer=server__pb2.InferenceResponse.SerializeToString,
+            'send_plan': grpc.unary_unary_rpc_method_handler(
+                    servicer.send_plan,
+                    request_deserializer=assignee__pb2.Plan.FromString,
+                    response_serializer=assignee__pb2.SendResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'server.Model', rpc_method_handlers)
+            'fetch.Assignee', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('server.Model', rpc_method_handlers)
+    server.add_registered_method_handlers('fetch.Assignee', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class Model(object):
+class Assignee(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def serve_request(request,
+    def send_plan(request,
             target,
             options=(),
             channel_credentials=None,
@@ -84,9 +83,9 @@ class Model(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/server.Model/serve_request',
-            server__pb2.InferenceRequest.SerializeToString,
-            server__pb2.InferenceResponse.FromString,
+            '/fetch.Assignee/send_plan',
+            assignee__pb2.Plan.SerializeToString,
+            assignee__pb2.SendResponse.FromString,
             options,
             channel_credentials,
             insecure,
