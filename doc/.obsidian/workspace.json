@@ -25,12 +25,14 @@
             "id": "802d44e0d91d6c42",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.8.9"
+                "file": "Notes/Componenti Connesse.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-book-up",
-              "title": "Release Notes 1.8.9"
+              "icon": "lucide-file",
+              "title": "Componenti Connesse"
             }
           }
         ],
@@ -174,8 +176,9 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "802d44e0d91d6c42",
+  "active": "2026b6711c0dedcf",
   "lastOpenFiles": [
+    "Notes/Componenti Connesse.md",
     "Notes/Architettura/Architettura.md",
     "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Ottimizzazione.md",

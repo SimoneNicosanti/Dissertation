@@ -1,8 +1,9 @@
 import time
 
+from Graph import ConnectedComponents
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
-from Optimization.AssignmentGraphBuilder import AssignmentGraphBuilder
+from Graph.SolvedModelGraph import SolvedModelGraph
 from Optimization.OptimizationHandler import OptimizationHandler, OptimizationParams
 from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
 from Profiler import ProfilePrinter
@@ -20,7 +21,7 @@ def main():
     end = time.perf_counter_ns()
     print(f"Profiling Time for {model_path_1} >> {(end-start) / 1e9}")
 
-    ProfilePrinter.print_profile_csv(model_graph_1, "./yolo11x-seg_quant_prof.csv")
+    # ProfilePrinter.print_profile_csv(model_graph_1, "./yolo11x-seg_quant_prof.csv")
 
     start = time.perf_counter_ns()
     model_path_2 = "./models/yolo11n-seg.onnx"
@@ -30,19 +31,19 @@ def main():
     )
     end = time.perf_counter_ns()
     print(f"Profiling Time for {model_path_2} >> {(end-start) / 1e9}")
-    ProfilePrinter.print_profile_csv(model_graph_2, "./yolo11n-seg_prof.csv")
+    # ProfilePrinter.print_profile_csv(model_graph_2, "./yolo11n-seg_prof.csv")
 
-    start = time.perf_counter_ns()
-    model_path_3 = "./models/yolo11l-seg.onnx"
-    print("Profiling Model >> ", model_path_3)
-    model_graph_3: ModelGraph = OnnxModelProfiler(model_path_3).profile_model(
-        {"args_0": (1, 3, 448, 448)}
-    )
-    end = time.perf_counter_ns()
-    print(f"Profiling Time for {model_path_3} >> {(end-start) / 1e9}")
+    # start = time.perf_counter_ns()
+    # model_path_3 = "./models/yolo11l-seg.onnx"
+    # print("Profiling Model >> ", model_path_3)
+    # model_graph_3: ModelGraph = OnnxModelProfiler(model_path_3).profile_model(
+    #     {"args_0": (1, 3, 448, 448)}
+    # )
+    # end = time.perf_counter_ns()
+    # print(f"Profiling Time for {model_path_3} >> {(end-start) / 1e9}")
 
     graph_dict = {
-        # model_graph_1.get_graph_name(): model_graph_1,
+        model_graph_1.get_graph_name(): model_graph_1,
         model_graph_2.get_graph_name(): model_graph_2,
         # model_graph_3.get_graph_name(): model_graph_3,
     }
@@ -56,37 +57,29 @@ def main():
 
     network_graph: NetworkGraph = prepare_network_profile()
     deployment_server = network_graph.get_nodes_id()[0]
-    solved_prob_info_dict: dict[str] = OptimizationHandler().optimize(
+    solved_graphs: list[SolvedModelGraph] = OptimizationHandler().optimize(
         list(graph_dict.values()),
         network_graph,
         deployment_server,
         opt_params=opt_params,
     )
 
-    for graph_name in graph_dict.keys():
-        solved_prob_info = solved_prob_info_dict[graph_name]
-
-        start = time.perf_counter_ns()
-        print(f"Building Assignment Graph for {graph_name}")
-        assignment_graph_builder = AssignmentGraphBuilder(
-            graph=graph_dict.get(graph_name), solved_problem_info=solved_prob_info
+    for solved_graph in solved_graphs:
+        graph_name = solved_graph.get_graph_name()
+        ConnectedComponents.ConnectedComponentsFinder.find_connected_components(
+            solved_graph
         )
-        assignment_graph = assignment_graph_builder.build_assignment_graph()
-        end = time.perf_counter_ns()
-        print(f"Building Assignment Graph for {graph_name} >> {(end-start) / 1e9}")
 
-        # print()
-        # print("Assignment Graph")
-        # for edge_id in assignment_graph.get_edges_id():
-        #     print(
-        #         edge_id.first_node_id.node_name, ">", edge_id.second_node_id.node_name
-        #     )
         start = time.perf_counter_ns()
-        print(f"Partitioning {graph_name}")
+        print(
+            f"################################## Partitioning {graph_name} ##################################"
+        )
         partitioner = OnnxModelPartitioner("./models/" + graph_name + ".onnx")
-        partitioner.partition_model(assignment_graph)
+        partitioner.partition_model(solved_graph)
         end = time.perf_counter_ns()
-        print(f"Partitioning {graph_name} >> {(end-start) / 1e9}")
+        print(
+            f"###############################################################################################"
+        )
 
 
 def prepare_network_profile():

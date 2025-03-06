@@ -5,10 +5,10 @@ import pulp
 from Graph.Graph import NodeId
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkGraph
+from Graph.SolvedModelGraph import SolvedEdgeInfo, SolvedModelGraph, SolvedNodeInfo
 from Optimization import EnergyComputer, LatencyComputer, VarsBuilder
 from Optimization.ConstraintsBuilder import ConstraintsBuilder
 from Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
-from Optimization.SolvedProblemInfo import SolvedProblemInfo
 
 
 @dataclass
@@ -32,15 +32,14 @@ class OptimizationHandler:
         network_graph: NetworkGraph,
         deployment_server: NodeId,
         opt_params: OptimizationParams = None,
-    ) -> dict[str, SolvedProblemInfo]:
+    ) -> list[SolvedModelGraph]:
         problem: pulp.LpProblem = pulp.LpProblem("Partitioning", pulp.LpMinimize)
 
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = {}
         edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = {}
         mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = {}
 
-        start = time.perf_counter_ns()
-        print("Building Optimization Problem")
+        time.perf_counter_ns()
         ## Defining variables
         for curr_mod_graph in model_graphs:
             curr_node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = (
@@ -111,8 +110,7 @@ class OptimizationHandler:
             + opt_params.energy_weight * energy_cost
         )
 
-        end = time.perf_counter_ns()
-        print("Building Optimization Problem Time >> ", (end - start) / 1e9)
+        time.perf_counter_ns()
 
         problem.solve(pulp.GLPK_CMD())
 
@@ -125,32 +123,31 @@ class OptimizationHandler:
 
         problem.writeLP("solved_problem.lp")
 
-        solved_info_dict: dict[str, SolvedProblemInfo] = {}
+        solved_model_graphs: list[SolvedModelGraph] = []
         for mod_graph in model_graphs:
-            start = time.perf_counter_ns()
-            print("Building Solution >> ", mod_graph.get_graph_name())
-            solved_problem_info: SolvedProblemInfo = self.build_solved_problem_info(
-                problem, mod_graph.get_graph_name(), node_ass_vars, edge_ass_vars
+            time.perf_counter_ns()
+            solved_model_graph: SolvedModelGraph = self.build_solved_model_graph(
+                problem, mod_graph, node_ass_vars, edge_ass_vars
             )
-            solved_info_dict[mod_graph.get_graph_name()] = solved_problem_info
-            end = time.perf_counter_ns()
-            print("Building Solution Time >> ", (end - start) / 1e9)
-        return solved_info_dict
+            solved_model_graphs.append(solved_model_graph)
+            time.perf_counter_ns()
+        return solved_model_graphs
 
-    def build_solved_problem_info(
+    def build_solved_model_graph(
         self,
         problem: pulp.LpProblem,
-        graph_name: str,
+        model_graph: ModelGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
         edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
-    ) -> SolvedProblemInfo:
+    ) -> SolvedModelGraph:
 
+        graph_name = model_graph.get_graph_name()
         if pulp.LpStatus[problem.status] != pulp.LpStatus[pulp.LpStatusOptimal]:
             ## Problem could not be solved
-            return SolvedProblemInfo(problem_solved=False, solution_value=float("inf"))
+            return SolvedModelGraph(problem_solved=False, solution_value=float("inf"))
 
-        solved_problem_info = SolvedProblemInfo(
-            problem_solved=True, solution_value=problem.objective.value()
+        solved_model_graph = SolvedModelGraph(
+            graph_name, problem_solved=True, solution_value=problem.objective.value()
         )
 
         filtered_node_ass = dict(
@@ -164,7 +161,9 @@ class OptimizationHandler:
             if node_ass_var.varValue == 1.0:
                 mod_node_id = node_ass_key.mod_node_id
                 net_node_id = node_ass_key.net_node_id
-                solved_problem_info.put_node_assignment(net_node_id, mod_node_id)
+
+                node_info = SolvedNodeInfo(net_node_id)
+                solved_model_graph.put_node(mod_node_id, node_info)
                 pass
             pass
 
@@ -172,8 +171,12 @@ class OptimizationHandler:
             if edge_ass_var.varValue == 1.0:
                 mod_edge_id = edge_ass_key.mod_edge_id
                 net_edge_id = edge_ass_key.net_edge_id
-                solved_problem_info.put_edge_assignment(net_edge_id, mod_edge_id)
+
+                tensor_names = model_graph.get_edge_info(mod_edge_id).get_tensor_names()
+
+                edge_info = SolvedEdgeInfo(net_edge_id, tensor_names)
+                solved_model_graph.put_edge(mod_edge_id, edge_info)
                 pass
             pass
 
-        return solved_problem_info
+        return solved_model_graph
