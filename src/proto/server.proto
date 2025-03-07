@@ -9,6 +9,12 @@ service Inference {
 }
 
 
+service Assignee {
+    rpc send_plan(common.OptimizedPlan) returns (AssignmentResponse);
+}
+
+message AssignmentResponse {}
+
 
 
 message ModelInput {

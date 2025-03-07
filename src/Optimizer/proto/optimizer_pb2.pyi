@@ -1,3 +1,4 @@
+import common_pb2 as _common_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -20,7 +21,3 @@ class OptimizationRequest(_message.Message):
     requests_number: _containers.RepeatedScalarFieldContainer[int]
     deployment_server: str
     def __init__(self, model_names: _Optional[_Iterable[str]] = ..., latency_weight: _Optional[float] = ..., energy_weight: _Optional[float] = ..., device_max_energy: _Optional[float] = ..., requests_number: _Optional[_Iterable[int]] = ..., deployment_server: _Optional[str] = ...) -> None: ...
-
-class OptimizationResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...

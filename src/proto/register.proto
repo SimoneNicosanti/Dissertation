@@ -13,7 +13,8 @@ service Register {
 message ReachabilityInfo {
     string ip_address = 1;
     int32 assignment_port = 2;
-    int32 ping_port = 3;
+    int32 inference_port = 3;
+    int32 ping_port = 4;
 }
 
 message RegisterResponse {

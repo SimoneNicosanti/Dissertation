@@ -1,10 +1,9 @@
-from InputReceiver import InputReceiver
-from proto.inference_pb2 import ModelInput, SendInputResponse
-from proto.inference_pb2_grpc import ModelServicer
-from RunnerManager import RunnerManager
+from Server.Inference.InputReceiver import InputReceiver
+from proto.server_pb2_grpc import InferenceServicer
+from Server.Inference.RunnerManager import RunnerManager
 
 
-class ServerClass(ModelServicer):
+class ServerClass(InferenceServicer):
     def __init__(self, runner_manager: RunnerManager):
         super().__init__()
         self.runner_manager = runner_manager

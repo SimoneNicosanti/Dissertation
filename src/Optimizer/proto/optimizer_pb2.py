@@ -22,19 +22,18 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0foptimizer.proto\x12\toptimizer\"\xa8\x01\n\x13OptimizationRequest\x12\x13\n\x0bmodel_names\x18\x01 \x03(\t\x12\x16\n\x0elatency_weight\x18\x02 \x01(\x02\x12\x15\n\renergy_weight\x18\x03 \x01(\x02\x12\x19\n\x11\x64\x65vice_max_energy\x18\x04 \x01(\x02\x12\x17\n\x0frequests_number\x18\x05 \x03(\x05\x12\x19\n\x11\x64\x65ployment_server\x18\x06 \x01(\t\"\x16\n\x14OptimizationResponse2e\n\x0cOptimization\x12U\n\x12serve_optimization\x12\x1e.optimizer.OptimizationRequest\x1a\x1f.optimizer.OptimizationResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0foptimizer.proto\x12\toptimizer\x1a\x0c\x63ommon.proto\"\xa8\x01\n\x13OptimizationRequest\x12\x13\n\x0bmodel_names\x18\x01 \x03(\t\x12\x16\n\x0elatency_weight\x18\x02 \x01(\x02\x12\x15\n\renergy_weight\x18\x03 \x01(\x02\x12\x19\n\x11\x64\x65vice_max_energy\x18\x04 \x01(\x02\x12\x17\n\x0frequests_number\x18\x05 \x03(\x05\x12\x19\n\x11\x64\x65ployment_server\x18\x06 \x01(\t2[\n\x0cOptimization\x12K\n\x12serve_optimization\x12\x1e.optimizer.OptimizationRequest\x1a\x15.common.OptimizedPlanb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'optimizer_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_OPTIMIZATIONREQUEST']._serialized_start=31
-  _globals['_OPTIMIZATIONREQUEST']._serialized_end=199
-  _globals['_OPTIMIZATIONRESPONSE']._serialized_start=201
-  _globals['_OPTIMIZATIONRESPONSE']._serialized_end=223
-  _globals['_OPTIMIZATION']._serialized_start=225
-  _globals['_OPTIMIZATION']._serialized_end=326
+  _globals['_OPTIMIZATIONREQUEST']._serialized_start=45
+  _globals['_OPTIMIZATIONREQUEST']._serialized_end=213
+  _globals['_OPTIMIZATION']._serialized_start=215
+  _globals['_OPTIMIZATION']._serialized_end=306
 # @@protoc_insertion_point(module_scope)

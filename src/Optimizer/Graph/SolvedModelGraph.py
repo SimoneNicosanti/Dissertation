@@ -24,10 +24,13 @@ class SolvedEdgeInfo(GraphInfo):
         return self.mod_edge_names
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class ComponentId:
     net_node_id: NodeId
     component_idx: int
+
+    def __repr__(self):
+        return f"({self.net_node_id}, {self.component_idx})"
 
 
 class SolvedModelGraph(Graph):

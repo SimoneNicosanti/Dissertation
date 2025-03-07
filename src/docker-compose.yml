@@ -4,21 +4,6 @@ networks:
     name: dissertation_network
 
 services:
-  # client:
-  #   build:
-  #     dockerfile: ./docker/client.dockerfile
-  #   tty: true
-  #   stdin_open: true
-  #   volumes:
-  #     - ./client:/src
-  #     - ./proto:/proto
-  #     - ./docker/client_files:/files
-  #     - ./test/Results:/Results
-  #     - ./docker/aws:/.aws
-  #   networks:
-  #     - sdcc_network
-  #   working_dir: /src
-
   optimizer:
     build:
       dockerfile: ./docker/optimizer.dockerfile
@@ -30,6 +15,7 @@ services:
       - ./Optimizer:/src
       - ./Optimizer/models:/optimizer_data/models
       - ./Optimizer/model_profiles:/optimizer_data/model_profiles
+      - ./Optimizer/divided_models:/optimizer_data/divided_models
     working_dir: /src
 
   registry:
@@ -62,7 +48,19 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./FrontEnd:/src
+      - ./FrontEnd:/src/FrontEnd
+      - ./Server:/src/Server
+    working_dir: /src
+
+  pool:
+    build:
+      dockerfile: ./docker/pool.dockerfile
+    tty: true
+    stdin_open: true
+    networks:
+      - dissertation_network
+    volumes:
+      - ./ModelPool:/src
     working_dir: /src
 
   # load_balancer:

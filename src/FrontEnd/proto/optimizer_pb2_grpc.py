@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+import common_pb2 as common__pb2
 import optimizer_pb2 as optimizer__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
@@ -37,7 +38,7 @@ class OptimizationStub(object):
         self.serve_optimization = channel.unary_unary(
                 '/optimizer.Optimization/serve_optimization',
                 request_serializer=optimizer__pb2.OptimizationRequest.SerializeToString,
-                response_deserializer=optimizer__pb2.OptimizationResponse.FromString,
+                response_deserializer=common__pb2.OptimizedPlan.FromString,
                 _registered_method=True)
 
 
@@ -56,7 +57,7 @@ def add_OptimizationServicer_to_server(servicer, server):
             'serve_optimization': grpc.unary_unary_rpc_method_handler(
                     servicer.serve_optimization,
                     request_deserializer=optimizer__pb2.OptimizationRequest.FromString,
-                    response_serializer=optimizer__pb2.OptimizationResponse.SerializeToString,
+                    response_serializer=common__pb2.OptimizedPlan.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -85,7 +86,7 @@ class Optimization(object):
             target,
             '/optimizer.Optimization/serve_optimization',
             optimizer__pb2.OptimizationRequest.SerializeToString,
-            optimizer__pb2.OptimizationResponse.FromString,
+            common__pb2.OptimizedPlan.FromString,
             options,
             channel_credentials,
             insecure,

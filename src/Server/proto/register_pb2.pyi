@@ -7,14 +7,16 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ReachabilityInfo(_message.Message):
-    __slots__ = ("ip_address", "assignment_port", "ping_port")
+    __slots__ = ("ip_address", "assignment_port", "inference_port", "ping_port")
     IP_ADDRESS_FIELD_NUMBER: _ClassVar[int]
     ASSIGNMENT_PORT_FIELD_NUMBER: _ClassVar[int]
+    INFERENCE_PORT_FIELD_NUMBER: _ClassVar[int]
     PING_PORT_FIELD_NUMBER: _ClassVar[int]
     ip_address: str
     assignment_port: int
+    inference_port: int
     ping_port: int
-    def __init__(self, ip_address: _Optional[str] = ..., assignment_port: _Optional[int] = ..., ping_port: _Optional[int] = ...) -> None: ...
+    def __init__(self, ip_address: _Optional[str] = ..., assignment_port: _Optional[int] = ..., inference_port: _Optional[int] = ..., ping_port: _Optional[int] = ...) -> None: ...
 
 class RegisterResponse(_message.Message):
     __slots__ = ("server_id",)

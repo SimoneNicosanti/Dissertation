@@ -6,6 +6,10 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class AssignmentResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
 class ModelInput(_message.Message):
     __slots__ = ("model_block_id", "input_tensor", "is_last")
     MODEL_BLOCK_ID_FIELD_NUMBER: _ClassVar[int]

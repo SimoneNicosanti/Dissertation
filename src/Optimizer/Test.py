@@ -6,20 +6,21 @@ from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
 from Graph.SolvedModelGraph import SolvedModelGraph
 from Optimization.OptimizationHandler import OptimizationHandler, OptimizationParams
 from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
+from Plan.Plan import Plan
 from Profiler import ProfilePrinter
 from Profiler.OnnxModelProfiler import OnnxModelProfiler
 
 
 def main():
 
-    start = time.perf_counter_ns()
-    model_path_1 = "./models/yolo11x-seg_quant.onnx"
-    print("Profiling Model >> ", model_path_1)
-    model_graph_1: ModelGraph = OnnxModelProfiler(model_path_1).profile_model(
-        {"args_0": (1, 3, 448, 448)}
-    )
-    end = time.perf_counter_ns()
-    print(f"Profiling Time for {model_path_1} >> {(end-start) / 1e9}")
+    # start = time.perf_counter_ns()
+    # model_path_1 = "./models/yolo11x-seg_quant.onnx"
+    # print("Profiling Model >> ", model_path_1)
+    # model_graph_1: ModelGraph = OnnxModelProfiler(model_path_1).profile_model(
+    #     {"args_0": (1, 3, 448, 448)}
+    # )
+    # end = time.perf_counter_ns()
+    # print(f"Profiling Time for {model_path_1} >> {(end-start) / 1e9}")
 
     # ProfilePrinter.print_profile_csv(model_graph_1, "./yolo11x-seg_quant_prof.csv")
 
@@ -43,7 +44,7 @@ def main():
     # print(f"Profiling Time for {model_path_3} >> {(end-start) / 1e9}")
 
     graph_dict = {
-        model_graph_1.get_graph_name(): model_graph_1,
+        # model_graph_1.get_graph_name(): model_graph_1,
         model_graph_2.get_graph_name(): model_graph_2,
         # model_graph_3.get_graph_name(): model_graph_3,
     }
@@ -65,20 +66,17 @@ def main():
     )
 
     for solved_graph in solved_graphs:
+
         graph_name = solved_graph.get_graph_name()
         ConnectedComponents.ConnectedComponentsFinder.find_connected_components(
             solved_graph
         )
 
-        start = time.perf_counter_ns()
-        print(
-            f"################################## Partitioning {graph_name} ##################################"
-        )
+        model_plan = Plan(solved_graph)
+
         partitioner = OnnxModelPartitioner("./models/" + graph_name + ".onnx")
-        partitioner.partition_model(solved_graph)
-        end = time.perf_counter_ns()
-        print(
-            f"###############################################################################################"
+        partitioner.partition_model(
+            model_plan, solved_graph.get_graph_name(), print_plan=True
         )
 
 
@@ -98,6 +96,10 @@ def prepare_network_profile(first_node_id: str = "0"):
             net_node_available_memory=10 if idx == 0 else 100_000_000,
         )
         graph.put_node(node_id, node_info)
+
+        if idx == 0:
+            node_info.net_node_ip_address = "172.18.0.4"
+            node_info.net_node_port = 50040
 
     for idx_1, server_name in enumerate(server_names):
         for idx_2, other_server_name in enumerate(server_names):

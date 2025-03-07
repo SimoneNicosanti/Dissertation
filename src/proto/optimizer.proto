@@ -1,8 +1,10 @@
 syntax = "proto3";
 package optimizer;
 
+import "common.proto";
+
 service Optimization {
-    rpc serve_optimization(OptimizationRequest) returns (OptimizationResponse);
+    rpc serve_optimization(OptimizationRequest) returns (common.OptimizedPlan);
 }
 
 message OptimizationRequest {
@@ -13,5 +15,3 @@ message OptimizationRequest {
     repeated int32 requests_number=5;
     string deployment_server = 6;
 }
-
-message OptimizationResponse {}

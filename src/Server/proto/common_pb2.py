@@ -24,15 +24,21 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x63ommon.proto\x12\x06\x63ommon\"H\n\x0cModelBlockId\x12\x12\n\nmodel_name\x18\x01 \x01(\t\x12\x11\n\tserver_id\x18\x02 \x01(\t\x12\x11\n\tblock_idx\x18\x03 \x01(\t\"\x07\n\x05\x45mptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x63ommon.proto\x12\x06\x63ommon\"H\n\x0cModelBlockId\x12\x12\n\nmodel_name\x18\x01 \x01(\t\x12\x11\n\tserver_id\x18\x02 \x01(\t\x12\x11\n\tblock_idx\x18\x03 \x01(\t\"\x07\n\x05\x45mpty\"x\n\rOptimizedPlan\x12\x36\n\tplans_map\x18\x01 \x03(\x0b\x32#.common.OptimizedPlan.PlansMapEntry\x1a/\n\rPlansMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'common_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
+  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._loaded_options = None
+  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._serialized_options = b'8\001'
   _globals['_MODELBLOCKID']._serialized_start=24
   _globals['_MODELBLOCKID']._serialized_end=96
   _globals['_EMPTY']._serialized_start=98
   _globals['_EMPTY']._serialized_end=105
+  _globals['_OPTIMIZEDPLAN']._serialized_start=107
+  _globals['_OPTIMIZEDPLAN']._serialized_end=227
+  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._serialized_start=180
+  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._serialized_end=227
 # @@protoc_insertion_point(module_scope)

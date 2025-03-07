@@ -126,14 +126,14 @@ class OptimizationHandler:
 
         problem.solve(pulp.GLPK_CMD())
 
-        with open("VarFile.txt", "w") as f:
+        with open("./solved_problem/VarFile.txt", "w") as f:
             for var in problem.variables():
                 f.write(f"{var.name} = {var.varValue}\n")
 
         # Print the objective function value
         print(f"Objective value = {pulp.value(problem.objective)}")
 
-        problem.writeLP("solved_problem.lp")
+        problem.writeLP("./solved_problem/solved_problem.lp")
 
         solved_model_graphs: list[SolvedModelGraph] = []
         for mod_graph in model_graphs:

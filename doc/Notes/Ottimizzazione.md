@@ -379,5 +379,5 @@ Analisi vincoli:
 > - Il parallelismo di Onnx (o di altri engine di inferenza) è assunto uno nella modellazione, non necessariamente negli esperimenti
 
 
-> [!TODO] Gestione della memoria
+> [!Warning] Gestione della memoria
 > La gestione della memoria potrebbe essere più complicata di così: dato un sottomodello c'è bisogno di mantenere tutti i suoi input in memoria prima di far partire l'inferenza su quel sotto modello. Questa cosa va modellata in qualche modo, altrimenti si perde la coerenza sulla memoria. Di fatto anche l'aspetto di riuso della memoria potrebbe non essere completamente verosimile perché (potrebbero) esserci più nodi in esecuzione contemporaneamente (parallelismo interno all'engine ignorato in teoria).

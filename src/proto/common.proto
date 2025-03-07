@@ -9,3 +9,7 @@ message ModelBlockId {
 }
 
 message Empty {}
+
+message OptimizedPlan {
+    map<string, string> plans_map = 1;
+}

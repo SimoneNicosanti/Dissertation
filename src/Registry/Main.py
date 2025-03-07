@@ -2,7 +2,6 @@ import time
 from concurrent import futures
 
 import grpc
-
 from proto.register_pb2_grpc import add_RegisterServicer_to_server
 from RegistryServer import RegistryServer
 
@@ -14,11 +13,8 @@ def main():
     server.add_insecure_port("[::]:50051")
     server.start()
     print("gRPC Server running on port 50051...")
-    try:
-        while True:
-            time.sleep(86400)
-    except KeyboardInterrupt:
-        server.stop(0)
+
+    server.wait_for_termination()
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import os
+from pyexpat import model
 from typing import Iterator
 
 import grpc
@@ -12,18 +13,44 @@ from proto.pool_pb2 import (
 )
 from proto.pool_pb2_grpc import ModelPoolServicer
 
-MODEL_CHUNK_MAX_SIZE = 3 * 8 * 1024 * 1024  # Read up to 3 MB per chunk
+MODEL_CHUNK_MAX_SIZE = 3 * 1024 * 1024  # Read up to 3 MB per chunk
+
+MODEL_DIRECTORY_PATH = "/models"
 
 
 class PoolServer(ModelPoolServicer):
-    def __init__(self, model_directory_path: str):
-        self.model_directory_path: str = model_directory_path
-        pass
+    def __init__(self):
+        os.makedirs(MODEL_DIRECTORY_PATH, exist_ok=True)
 
     def push_model(self, request_iterator: Iterator[PushRequest], context):
+        first_request: PushRequest = next(request_iterator)
+        model_block_id: ModelBlockId = first_request.model_block_id
+        model_name: str = model_block_id.model_name
+        server_id: str = model_block_id.server_id
+        model_block_idx: str = model_block_id.block_idx
+
+        model_file_name = "{}_server_{}_comp_{}.onnx".format(
+            model_name, server_id, model_block_idx
+        )
+
+        print("Writing on File >> ", model_file_name)
+
+        with open(
+            os.path.join(MODEL_DIRECTORY_PATH, model_file_name), "wb"
+        ) as model_file:
+            model_chunk: ModelChunk = first_request.model_chunk
+            model_file.write(model_chunk.chunk_data)
+
+            for push_request in request_iterator:
+                model_chunk = push_request.model_chunk
+                model_file.write(model_chunk.chunk_data)
+
+        print("Completed Writing on File >> ", model_file_name)
+
         return PushResponse()
 
     def pull_model(self, request: PullRequest, context):
+        print("Received Pull Request")
         model_block_id: ModelBlockId = request.model_block_id
         model_name: str = model_block_id.model_name
         server_id: str = model_block_id.server_id
@@ -32,14 +59,17 @@ class PoolServer(ModelPoolServicer):
         model_file_name = "{}_server_{}_comp_{}.onnx".format(
             model_name, server_id, model_block_idx
         )
-        model_path = os.path.join(self.model_directory_path, model_file_name)
+        model_path = os.path.join(MODEL_DIRECTORY_PATH, model_file_name)
 
         try:
             model_chunk_idx = 0
             with open(model_path, "rb") as model_file:
                 while chunk_data := model_file.read(MODEL_CHUNK_MAX_SIZE):
-                    pull_response = PullResponse(
-                        ModelChunk(0, model_chunk_idx, chunk_data)
+                    model_chunk = ModelChunk(
+                        total_chunks=0, chunk_idx=model_chunk_idx, chunk_data=chunk_data
+                    )
+                    pull_response = PullResponse(model_chunk=
+                        model_chunk
                     )
                     yield pull_response
 
