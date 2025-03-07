@@ -2,12 +2,16 @@ syntax = "proto3";
 package optimizer;
 
 service Optimization {
-    rpc serve_optimization(OptimizationRequest) returns (stream OptimizationResponse);
+    rpc serve_optimization(OptimizationRequest) returns (OptimizationResponse);
 }
 
 message OptimizationRequest {
     repeated string model_names = 1 ; // List of model to ask optimization for
+    float latency_weight=2 ;
+    float energy_weight=3 ;
+    float device_max_energy=4 ;
+    repeated int32 requests_number=5;
+    string deployment_server = 6;
 }
 
-message OptimizationResponse {
-}
+message OptimizationResponse {}

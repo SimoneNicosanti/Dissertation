@@ -284,7 +284,10 @@ Il costo di inferenza del modello $a$-esimo è dato da:
 $$C^a_t = \lambda^a \frac{E^{c-a} + E^{x-a}}{\mu_e^a}$$
 Da cui il costo dell'energia per l'inferenza è dato da:
 $$C_t = \sum_{a \in A_{idx}} C_e^a$$
-
+### Energia del device
+Sia il device il server ad indice 0 in $V_N$.
+La quantità di energia consumata da questo nodo di rete è data da:
+$$E_0 = \sum_{a \in A_{idx}} \left( E_0^{x-a} + E_0^{c-a} \right)$$
 
 
 ## Modello di Memoria
@@ -314,10 +317,12 @@ Siano:
 - $\omega_t$ il peso associato al tempo di inferenza
 - $\omega_e$ il peso associato all'energia di inferenza
 
+Sia $J_0$ l'energia massima consumabile sul device $0 \in V_N$.
+
 Tali che:
 $$ \omega_t + \omega_e = 1$$
 
-Sia $J_0$ l'energia massima consumabile sul server $0$ che fa partire l'inferenza.  
+
 
 In definitiva il problema diventa il seguente:
 $$
@@ -342,7 +347,7 @@ M_k \le \psi_{k3} \hspace{1cm} \forall k \in V_N \\
 m_k^a \ge \phi_{i2}^a * x_{ik}^a \hspace{0.75cm} \forall a \in A_{idx}, \forall i \in V_N^a \\
 \\
 
-J_0 \le E_0\\
+E_0 \le J_0\\
 \\
 
 x_{ik}^a \in \{0, 1\} \hspace{1cm} \forall a \in A_{idx}, \forall i \in V_M^a, \forall k \in V_N \\
@@ -372,3 +377,7 @@ Analisi vincoli:
 > Il parallelismo alla fine lo gestiamo così:
 > - Data una coppia (server, sotto-modello), abbiamo un thread che si occupa dell'inferenza per quel sotto-modello
 > - Il parallelismo di Onnx (o di altri engine di inferenza) è assunto uno nella modellazione, non necessariamente negli esperimenti
+
+
+> [!TODO] Gestione della memoria
+> La gestione della memoria potrebbe essere più complicata di così: dato un sottomodello c'è bisogno di mantenere tutti i suoi input in memoria prima di far partire l'inferenza su quel sotto modello. Questa cosa va modellata in qualche modo, altrimenti si perde la coerenza sulla memoria. Di fatto anche l'aspetto di riuso della memoria potrebbe non essere completamente verosimile perché (potrebbero) esserci più nodi in esecuzione contemporaneamente (parallelismo interno all'engine ignorato in teoria).

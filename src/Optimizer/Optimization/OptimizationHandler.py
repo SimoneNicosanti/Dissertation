@@ -84,8 +84,16 @@ class OptimizationHandler:
                 opt_params.requests_number.get(curr_mod_graph.get_graph_name()),
             )
 
-            ## TODO Implement this one
-            ConstraintsBuilder.add_energy_constraints()
+        ## TODO Activate this when known energy model
+        # ConstraintsBuilder.add_energy_constraints(
+        #     problem,
+        #     model_graphs,
+        #     network_graph,
+        #     node_ass_vars,
+        #     opt_params.requests_number,
+        #     deployment_server,
+        #     opt_params.device_max_energy,
+        # )
 
         ## Computing Latency Objective
         latency_cost = LatencyComputer.compute_latency_cost(
@@ -105,10 +113,14 @@ class OptimizationHandler:
             opt_params.requests_number,
         )
 
-        problem += (
-            opt_params.latency_weight * latency_cost
-            + opt_params.energy_weight * energy_cost
+        latency_weight = opt_params.latency_weight / (
+            opt_params.latency_weight + opt_params.energy_weight
         )
+        energy_weight = opt_params.energy_weight / (
+            opt_params.latency_weight + opt_params.energy_weight
+        )
+
+        problem += latency_weight * latency_cost + energy_weight * energy_cost
 
         time.perf_counter_ns()
 

@@ -82,9 +82,9 @@ def main():
         )
 
 
-def prepare_network_profile():
+def prepare_network_profile(first_node_id: str = "0"):
     graph = NetworkGraph("NetworkGraph")
-    server_names = ["0", "1"]
+    server_names = [first_node_id, "1"]
     flops_list = [2.5 * 10**9, 5 * 10**9, 12.5]  # Edge, Fog, Cloud
     energy_list = [0.5, 1.0]  # Edge, Fog, Cloud
     bandwidth_list = [1, 20, 1]

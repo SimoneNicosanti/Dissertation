@@ -4,7 +4,6 @@ from Graph.SolvedModelGraph import (
     SolvedModelGraph,
     SolvedNodeInfo,
 )
-from pyparsing import C
 
 
 class ConnectedComponentsFinder:

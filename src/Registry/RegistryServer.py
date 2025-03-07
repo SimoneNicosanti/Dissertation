@@ -1,3 +1,4 @@
+
 from proto.common_pb2 import Empty
 from proto.register_pb2 import (
     AllServerInfo,
@@ -8,7 +9,7 @@ from proto.register_pb2 import (
 from proto.register_pb2_grpc import RegisterServicer
 
 
-class Registry(RegisterServicer):
+class RegistryServer(RegisterServicer):
 
     def __init__(
         self,
@@ -24,8 +25,10 @@ class Registry(RegisterServicer):
         new_server_id = str(self.server_id)
         self.reachability_dict[new_server_id] = reachability_info
 
-        register_response = RegisterResponse(new_server_id)
+        register_response = RegisterResponse(server_id=new_server_id)
         self.server_id += 1
+        self.log_server_registration(reachability_info, new_server_id)
+
         return register_response
 
     def get_all_servers_info(self, request: Empty, context) -> AllServerInfo:
@@ -36,3 +39,11 @@ class Registry(RegisterServicer):
             server_info_list.append(server_info)
 
         return AllServerInfo(server_info_list)
+
+    def log_server_registration(self, reachability_info: ReachabilityInfo, server_id : int) -> None:
+        print("Received Registration")
+        print(f"\t IP Addr >> {reachability_info.ip_address}")
+        print(f"\t Port >> {reachability_info.assignment_port}")
+        print(f"\t Ping Port >> {reachability_info.ping_port}")
+        print(f"\t Server ID >> {server_id}")
+        print("----------------------------------------")

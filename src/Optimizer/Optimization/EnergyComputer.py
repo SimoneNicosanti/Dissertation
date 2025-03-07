@@ -1,4 +1,5 @@
 import pulp
+from Graph.Graph import NodeId
 from Graph.ModelGraph import ModelGraph
 from Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
 from Optimization import LatencyComputer
@@ -99,3 +100,37 @@ def compute_trans_energy_per_model(
         max_trans_energy = max(max_trans_energy, node_max_trans_energy_per_model)
 
     return tot_trans_energy, max_trans_energy
+
+
+def compute_energy_cost_per_net_node(
+    model_graphs: list[ModelGraph],
+    network_graph: NetworkGraph,
+    node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+    edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+    requests_number: dict[str, int],
+    net_node_id: NodeId,
+) -> pulp.LpAffineExpression:
+
+    net_node_energy = 0
+    net_node_info: NetworkNodeInfo = network_graph.get_node_info(net_node_id)
+
+    for model_graph in model_graphs:
+
+        model_request_num = requests_number.get(model_graph.get_graph_name())
+
+        model_comp_latency, _ = LatencyComputer.compute_model_comp_latency_per_node(
+            model_graph, network_graph, node_ass_vars, net_node_id
+        )
+
+        model_trans_latency, _ = LatencyComputer.compute_model_trans_latency_per_node(
+            model_graph, network_graph, edge_ass_vars, net_node_id
+        )
+
+        model_comp_energy = model_comp_latency * net_node_info.get_comp_energy_per_sec()
+        model_trans_energy = (
+            model_trans_latency * net_node_info.get_trans_energy_per_sec()
+        )
+
+        net_node_energy += model_request_num * (model_comp_energy + model_trans_energy)
+
+    return net_node_energy

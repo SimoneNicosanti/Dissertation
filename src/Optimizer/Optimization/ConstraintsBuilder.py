@@ -2,6 +2,7 @@ import pulp
 from Graph.Graph import EdgeId, NodeId
 from Graph.ModelGraph import ModelGraph, ModelNodeInfo
 from Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
+from Optimization import EnergyComputer
 from Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
 
 
@@ -169,6 +170,19 @@ class ConstraintsBuilder:
             problem += total_memory <= net_node_info.get_available_memory()
 
     @staticmethod
-    def add_energy_constraints():
-        ## TODO To Implement
+    def add_energy_constraints(
+        problem: pulp.LpProblem,
+        model_graphs: list[ModelGraph],
+        network_graph: NetworkGraph,
+        ass_vars: dict[NodeAssKey, pulp.LpVariable],
+        requests_num: int,
+        net_node_id: NodeId,
+        device_energy_limit: float,
+    ):
+
+        device_energy = EnergyComputer.compute_energy_cost_per_net_node(
+            model_graphs, network_graph, ass_vars, requests_num, net_node_id
+        )
+
+        problem += device_energy <= device_energy_limit
         pass
