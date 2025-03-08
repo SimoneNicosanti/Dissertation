@@ -17,7 +17,7 @@ message ModelChunk {
 }
 
 message PushRequest {
-    common.ModelBlockId model_block_id = 1;
+    common.ModelComponentId model_component_id = 1;
     ModelChunk model_chunk = 2;
 }
 
@@ -26,7 +26,7 @@ message PushResponse {
 }
 
 message PullRequest {
-    common.ModelBlockId model_block_id = 1;
+    common.ModelComponentId model_component_id = 1;
 }
 
 message PullResponse {

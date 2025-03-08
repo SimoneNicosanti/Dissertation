@@ -22,7 +22,11 @@ class OnnxModelPartitioner(ModelPartitioner):
         self.divided_model_dir = divided_model_dir
 
     def partition_model(
-        self, model_plan: Plan, model_name: str, print_plan: bool
+        self,
+        model_plan: Plan,
+        model_name: str,
+        deployment_server: NodeId,
+        print_plan: bool,
     ) -> dict:
 
         for component_id in model_plan.get_all_components():
@@ -38,7 +42,7 @@ class OnnxModelPartitioner(ModelPartitioner):
 
             output_path = (
                 os.path.join(self.divided_model_dir, model_name)
-                + f"_server_{component_id.net_node_id}_comp_{component_id.component_idx}.onnx"
+                + f"_depl_{deployment_server}_server_{component_id.net_node_id}_comp_{component_id.component_idx}.onnx"
             )
 
             onnx.utils.extract_model(

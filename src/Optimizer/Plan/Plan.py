@@ -6,15 +6,21 @@ from Graph.SolvedModelGraph import ComponentId, SolvedEdgeInfo, SolvedModelGraph
 
 
 class Plan:
-    def __init__(self, solved_graph: SolvedModelGraph):
+    def __init__(self, solved_graph: SolvedModelGraph, deployer_id: str):
 
         self.plan_dict = {}
         self.solved_graph = solved_graph
+        self.deployer_id = deployer_id
 
         self.__init_plan(solved_graph)
 
     def dump_plan(self):
-        return json.dumps(self.plan_dict, sort_keys=True)
+        dump_dict = {
+            "model_name": self.solved_graph.get_graph_name(),
+            "deployer_id": self.deployer_id,
+            "plan": self.plan_dict,
+        }
+        return json.dumps(dump_dict, sort_keys=True)
 
     def get_all_components(self) -> set[ComponentId]:
         return self.solved_graph.get_all_components()

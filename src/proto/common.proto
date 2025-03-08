@@ -2,14 +2,16 @@
 syntax = "proto3";
 package common;
 
-message ModelBlockId {
+message ModelComponentId {
     string model_name = 1;
-    string server_id = 2;
-    string block_idx = 3;
+    string deployer_id = 2;
+    string server_id = 3;
+    string component_idx = 4;
 }
 
 message Empty {}
 
 message OptimizedPlan {
-    map<string, string> plans_map = 1;
+    string deployer_id = 1;
+    map<string, string> plans_map = 2;
 }

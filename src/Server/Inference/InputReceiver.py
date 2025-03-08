@@ -1,50 +1,63 @@
-from dataclasses import dataclass
+from multiprocessing import shared_memory
+from typing import Iterator
 
-from proto.inference_pb2 import ModelBlockId, ModelInput, Tensor
-
-
-@dataclass(frozen=True)
-class InputKey:
-    model_name: str
-    block_idx: str
-    tensor_name: str
-
-
-class InputBinaryValue:
-    tensor_type: str
-    tensor_shape: list
-    tensor_data: bytearray
+import numpy
+from Inference.InputInfo import ComponentInfo, ModelInfo, SharedTensorInfo
+from proto.server_pb2 import ModelInput, Tensor
 
 
 class InputReceiver:
 
-    def __init__(self):
-        self.input_receive_map: dict[InputKey, InputBinaryValue] = {}
+    def handle_input_stream(self, input_stream: Iterator[ModelInput]):
 
-    def handle_input(self, input: ModelInput):
-        model_block_id: ModelBlockId = input.model_block_id
-        tensor: Tensor = input.input_tensor
+        first_input = next(input_stream)
 
-        tensor_name = tensor.info.name
-        tensor_type = tensor.info.type
-        tensor_shape = tensor.info.shape
+        model_comp_id = first_input.model_block_id
+        model_name = model_comp_id.model_name
+        deployer_id = model_comp_id.deployer_id
+        server_id = model_comp_id.server_id
+        block_idx = model_comp_id.block_idx
 
-        tensor_chunk = tensor.chunk
-        tensor_chunk_data: bytes = tensor_chunk.data
+        input_tensor: Tensor = first_input.input_tensor
+        tensor_name = input_tensor.info.name
+        tensor_type = input_tensor.info.type
+        tensor_shape = input_tensor.info.shape
 
-        input_key = InputKey(
-            model_block_id.model_name, model_block_id.block_idx, tensor_name
+        tensor_total_size = self.compute_tensor_size(tensor_shape, tensor_type)
+
+        shared_tensor_name = (
+            f"{model_name}_{block_idx}_{tensor_name}_{deployer_id}_{server_id}"
+        )
+        shared_tensor_memory = shared_memory.SharedMemory(
+            name=shared_tensor_name,
+            create=True,
+            size=tensor_total_size,
         )
 
-        self.input_receive_map.setdefault(
-            input_key,
-            InputBinaryValue(tensor_type, tensor_shape, bytearray()),
+        tensor_chunk_size = input_tensor.tensor_chunk.chunk_size
+        shared_tensor_memory.buf[:tensor_chunk_size] = (
+            input_tensor.tensor_chunk.chunk_data
         )
-        self.input_receive_map[input_key].tensor_type = tensor_type
-        self.input_receive_map[input_key].tensor_shape = tensor_shape
-        self.input_receive_map[input_key].tensor_data.extend(tensor_chunk_data)
 
+        shared_memory_curr_idx = tensor_chunk_size
 
-    def get_input() -> dict[InputKey, ]
+        for input in input_stream:
+            tensor_chunk_size = input.input_tensor.tensor_chunk.chunk_size
+            shared_tensor_memory.buf[
+                shared_memory_curr_idx : shared_memory_curr_idx + tensor_chunk_size
+            ] = input.input_tensor.tensor_chunk.chunk_data
+            shared_memory_curr_idx += tensor_chunk_size
 
-        
+        model_info = ModelInfo(model_name, deployer_id, server_id, block_idx)
+        component_info = ComponentInfo(model_info, block_idx)
+        shared_tensor_info = SharedTensorInfo(
+            tensor_name, tensor_type, tensor_shape, shared_tensor_name
+        )
+
+        return component_info, shared_tensor_info
+
+    def compute_tensor_size(self, tensor_shape: list, tensor_type: str):
+        tensor_size = numpy.dtype(tensor_type).itemsize
+        for dim in tensor_shape:
+            tensor_size *= dim
+        return tensor_size

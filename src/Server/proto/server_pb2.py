@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cserver.proto\x12\x06server\x1a\x0c\x63ommon.proto\"\x14\n\x12\x41ssignmentResponse\"q\n\nModelInput\x12,\n\x0emodel_block_id\x18\x01 \x01(\x0b\x32\x14.common.ModelBlockId\x12$\n\x0cinput_tensor\x18\x02 \x01(\x0b\x32\x0e.server.Tensor\x12\x0f\n\x07is_last\x18\x03 \x01(\x08\"N\n\x06Tensor\x12 \n\x04info\x18\x01 \x01(\x0b\x32\x12.server.TensorInfo\x12\"\n\x05\x63hunk\x18\x02 \x01(\x0b\x32\x13.server.TensorChunk\"7\n\nTensorInfo\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\r\n\x05shape\x18\x03 \x03(\x05\"B\n\x0bTensorChunk\x12\x12\n\ntotal_size\x18\x01 \x01(\x05\x12\x11\n\tchunk_idx\x18\x02 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"\x13\n\x11SendInputResponse2L\n\tInference\x12?\n\nsend_input\x12\x12.server.ModelInput\x1a\x19.server.SendInputResponse\"\x00(\x01\x32J\n\x08\x41ssignee\x12>\n\tsend_plan\x12\x15.common.OptimizedPlan\x1a\x1a.server.AssignmentResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cserver.proto\x12\x06server\x1a\x0c\x63ommon.proto\"\x14\n\x12\x41ssignmentResponse\"\x95\x01\n\x0eInferenceInput\x12\'\n\x0crequest_info\x18\x01 \x01(\x0b\x32\x11.server.RequestId\x12\x34\n\x12model_component_id\x18\x02 \x01(\x0b\x32\x18.common.ModelComponentId\x12$\n\x0cinput_tensor\x18\x03 \x01(\x0b\x32\x0e.server.Tensor\"6\n\tRequestId\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x13\n\x0brequest_idx\x18\x02 \x01(\x05\"U\n\x06Tensor\x12 \n\x04info\x18\x01 \x01(\x0b\x32\x12.server.TensorInfo\x12)\n\x0ctensor_chunk\x18\x02 \x01(\x0b\x32\x13.server.TensorChunk\"7\n\nTensorInfo\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\r\n\x05shape\x18\x03 \x03(\x05\"5\n\x0bTensorChunk\x12\x12\n\nchunk_size\x18\x01 \x01(\x05\x12\x12\n\nchunk_data\x18\x02 \x01(\x0c\"\x13\n\x11InferenceResponse2R\n\tInference\x12\x45\n\x0c\x64o_inference\x12\x16.server.InferenceInput\x1a\x19.server.InferenceResponse\"\x00(\x01\x32J\n\x08\x41ssignee\x12>\n\tsend_plan\x12\x15.common.OptimizedPlan\x1a\x1a.server.AssignmentResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,18 +34,20 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_ASSIGNMENTRESPONSE']._serialized_start=38
   _globals['_ASSIGNMENTRESPONSE']._serialized_end=58
-  _globals['_MODELINPUT']._serialized_start=60
-  _globals['_MODELINPUT']._serialized_end=173
-  _globals['_TENSOR']._serialized_start=175
-  _globals['_TENSOR']._serialized_end=253
-  _globals['_TENSORINFO']._serialized_start=255
-  _globals['_TENSORINFO']._serialized_end=310
-  _globals['_TENSORCHUNK']._serialized_start=312
-  _globals['_TENSORCHUNK']._serialized_end=378
-  _globals['_SENDINPUTRESPONSE']._serialized_start=380
-  _globals['_SENDINPUTRESPONSE']._serialized_end=399
-  _globals['_INFERENCE']._serialized_start=401
-  _globals['_INFERENCE']._serialized_end=477
-  _globals['_ASSIGNEE']._serialized_start=479
-  _globals['_ASSIGNEE']._serialized_end=553
+  _globals['_INFERENCEINPUT']._serialized_start=61
+  _globals['_INFERENCEINPUT']._serialized_end=210
+  _globals['_REQUESTID']._serialized_start=212
+  _globals['_REQUESTID']._serialized_end=266
+  _globals['_TENSOR']._serialized_start=268
+  _globals['_TENSOR']._serialized_end=353
+  _globals['_TENSORINFO']._serialized_start=355
+  _globals['_TENSORINFO']._serialized_end=410
+  _globals['_TENSORCHUNK']._serialized_start=412
+  _globals['_TENSORCHUNK']._serialized_end=465
+  _globals['_INFERENCERESPONSE']._serialized_start=467
+  _globals['_INFERENCERESPONSE']._serialized_end=486
+  _globals['_INFERENCE']._serialized_start=488
+  _globals['_INFERENCE']._serialized_end=570
+  _globals['_ASSIGNEE']._serialized_start=572
+  _globals['_ASSIGNEE']._serialized_end=646
 # @@protoc_insertion_point(module_scope)

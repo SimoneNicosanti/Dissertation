@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\npool.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"I\n\nModelChunk\x12\x14\n\x0ctotal_chunks\x18\x02 \x01(\x05\x12\x11\n\tchunk_idx\x18\x03 \x01(\x05\x12\x12\n\nchunk_data\x18\x04 \x01(\x0c\"b\n\x0bPushRequest\x12,\n\x0emodel_block_id\x18\x01 \x01(\x0b\x32\x14.common.ModelBlockId\x12%\n\x0bmodel_chunk\x18\x02 \x01(\x0b\x32\x10.pool.ModelChunk\"\x0e\n\x0cPushResponse\";\n\x0bPullRequest\x12,\n\x0emodel_block_id\x18\x01 \x01(\x0b\x32\x14.common.ModelBlockId\"5\n\x0cPullResponse\x12%\n\x0bmodel_chunk\x18\x01 \x01(\x0b\x32\x10.pool.ModelChunk2y\n\tModelPool\x12\x35\n\npush_model\x12\x11.pool.PushRequest\x1a\x12.pool.PushResponse(\x01\x12\x35\n\npull_model\x12\x11.pool.PullRequest\x1a\x12.pool.PullResponse0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\npool.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"I\n\nModelChunk\x12\x14\n\x0ctotal_chunks\x18\x02 \x01(\x05\x12\x11\n\tchunk_idx\x18\x03 \x01(\x05\x12\x12\n\nchunk_data\x18\x04 \x01(\x0c\"j\n\x0bPushRequest\x12\x34\n\x12model_component_id\x18\x01 \x01(\x0b\x32\x18.common.ModelComponentId\x12%\n\x0bmodel_chunk\x18\x02 \x01(\x0b\x32\x10.pool.ModelChunk\"\x0e\n\x0cPushResponse\"C\n\x0bPullRequest\x12\x34\n\x12model_component_id\x18\x01 \x01(\x0b\x32\x18.common.ModelComponentId\"5\n\x0cPullResponse\x12%\n\x0bmodel_chunk\x18\x01 \x01(\x0b\x32\x10.pool.ModelChunk2y\n\tModelPool\x12\x35\n\npush_model\x12\x11.pool.PushRequest\x1a\x12.pool.PushResponse(\x01\x12\x35\n\npull_model\x12\x11.pool.PullRequest\x1a\x12.pool.PullResponse0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,13 +35,13 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MODELCHUNK']._serialized_start=34
   _globals['_MODELCHUNK']._serialized_end=107
   _globals['_PUSHREQUEST']._serialized_start=109
-  _globals['_PUSHREQUEST']._serialized_end=207
-  _globals['_PUSHRESPONSE']._serialized_start=209
-  _globals['_PUSHRESPONSE']._serialized_end=223
-  _globals['_PULLREQUEST']._serialized_start=225
-  _globals['_PULLREQUEST']._serialized_end=284
-  _globals['_PULLRESPONSE']._serialized_start=286
-  _globals['_PULLRESPONSE']._serialized_end=339
-  _globals['_MODELPOOL']._serialized_start=341
-  _globals['_MODELPOOL']._serialized_end=462
+  _globals['_PUSHREQUEST']._serialized_end=215
+  _globals['_PUSHRESPONSE']._serialized_start=217
+  _globals['_PUSHRESPONSE']._serialized_end=231
+  _globals['_PULLREQUEST']._serialized_start=233
+  _globals['_PULLREQUEST']._serialized_end=300
+  _globals['_PULLRESPONSE']._serialized_start=302
+  _globals['_PULLRESPONSE']._serialized_end=355
+  _globals['_MODELPOOL']._serialized_start=357
+  _globals['_MODELPOOL']._serialized_end=478
 # @@protoc_insertion_point(module_scope)

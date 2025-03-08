@@ -4,8 +4,7 @@ package server;
 import "common.proto";
 
 service Inference {
-    // (Method definitions not shown)
-    rpc send_input(stream ModelInput) returns (SendInputResponse) {}
+    rpc do_inference(stream InferenceInput) returns (InferenceResponse) {}
 }
 
 
@@ -17,15 +16,20 @@ message AssignmentResponse {}
 
 
 
-message ModelInput {
-    common.ModelBlockId model_block_id = 1;
-    Tensor input_tensor = 2;
-    bool is_last = 3;
+message InferenceInput {
+    RequestId request_info = 1;
+    common.ModelComponentId model_component_id = 2;
+    Tensor input_tensor = 3;
+}
+
+message RequestId {
+    string requester_id = 1;
+    int32 request_idx = 2;
 }
 
 message Tensor {
     TensorInfo info = 1;
-    TensorChunk chunk = 2;
+    TensorChunk tensor_chunk = 2;
 }
 
 message TensorInfo {
@@ -35,12 +39,9 @@ message TensorInfo {
 }
 
 message TensorChunk {
-    int32 total_size = 1;
-    int32 chunk_idx = 2;
-    bytes data = 3;
+    int32 chunk_size = 1;
+    bytes chunk_data = 2;
 }
 
 
-
-
-message SendInputResponse {}
+message InferenceResponse {}

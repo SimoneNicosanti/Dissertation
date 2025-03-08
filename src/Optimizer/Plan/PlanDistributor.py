@@ -1,8 +1,7 @@
 import grpc
 from Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
-from Plan.Plan import Plan
-from proto.server_pb2_grpc import AssigneeStub
 from proto.common_pb2 import OptimizedPlan
+from proto.server_pb2_grpc import AssigneeStub
 
 
 class PlanDistributor:
@@ -11,9 +10,16 @@ class PlanDistributor:
         self.stubs_dict: dict[str, AssigneeStub] = {}
         pass
 
-    def distribute_plan(self, plan_dict: dict[str, str], network_graph: NetworkGraph):
+    def distribute_plan(
+        self,
+        plan_dict: dict[str, str],
+        network_graph: NetworkGraph,
+        deployment_server: str,
+    ):
 
-        optimized_plan = OptimizedPlan(plans_map=plan_dict)
+        optimized_plan = OptimizedPlan(
+            deployer_id=deployment_server, plans_map=plan_dict
+        )
         for net_node_id in network_graph.get_nodes_id():
             network_node_info: NetworkNodeInfo = network_graph.get_node_info(
                 net_node_id

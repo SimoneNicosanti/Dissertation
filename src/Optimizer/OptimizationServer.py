@@ -73,18 +73,24 @@ class OptmizationServer(OptimizationServicer):
                 solved_graph
             )
 
-            plan = Plan(solved_graph)
+            plan = Plan(solved_graph, deployer_id=deployment_server.node_name)
 
             partitioner = OnnxModelPartitioner(
                 MODEL_DIR + graph_name + ".onnx", DIVIDED_MODEL_DIR
             )
-            partitioner.partition_model(plan, solved_graph.get_graph_name(), True)
+            partitioner.partition_model(
+                plan, solved_graph.get_graph_name(), deployment_server, True
+            )
 
             plan_map[graph_name] = plan.dump_plan()
 
-            self.model_distributor.distribute(graph_name, plan)
+            self.model_distributor.distribute(
+                graph_name, plan, deployment_server.node_name
+            )
 
-        self.plan_distributor.distribute_plan(plan_map, network_graph)
+        self.plan_distributor.distribute_plan(
+            plan_map, network_graph, deployment_server.node_name
+        )
 
         return OptimizedPlan(
             plans_map=plan_map,

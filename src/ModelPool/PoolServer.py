@@ -1,9 +1,8 @@
 import os
-from pyexpat import model
 from typing import Iterator
 
 import grpc
-from proto.common_pb2 import ModelBlockId
+from proto.common_pb2 import ModelComponentId
 from proto.pool_pb2 import (
     ModelChunk,
     PullRequest,
@@ -24,13 +23,14 @@ class PoolServer(ModelPoolServicer):
 
     def push_model(self, request_iterator: Iterator[PushRequest], context):
         first_request: PushRequest = next(request_iterator)
-        model_block_id: ModelBlockId = first_request.model_block_id
-        model_name: str = model_block_id.model_name
-        server_id: str = model_block_id.server_id
-        model_block_idx: str = model_block_id.block_idx
+        model_component_id: ModelComponentId = first_request.model_component_id
+        model_name: str = model_component_id.model_name
+        server_id: str = model_component_id.server_id
+        model_component_idx: str = model_component_id.component_idx
+        deployer_id: str = model_component_id.deployer_id
 
-        model_file_name = "{}_server_{}_comp_{}.onnx".format(
-            model_name, server_id, model_block_idx
+        model_file_name = "{}_depl_{}_server_{}_comp_{}.onnx".format(
+            model_name, deployer_id, server_id, model_component_idx
         )
 
         print("Writing on File >> ", model_file_name)
@@ -51,13 +51,14 @@ class PoolServer(ModelPoolServicer):
 
     def pull_model(self, request: PullRequest, context):
         print("Received Pull Request")
-        model_block_id: ModelBlockId = request.model_block_id
-        model_name: str = model_block_id.model_name
-        server_id: str = model_block_id.server_id
-        model_block_idx: str = model_block_id.block_idx
+        model_component_id: ModelComponentId = request.model_component_id
+        model_name: str = model_component_id.model_name
+        server_id: str = model_component_id.server_id
+        model_component_idx: str = model_component_id.component_idx
+        deployer_id: str = model_component_id.deployer_id
 
-        model_file_name = "{}_server_{}_comp_{}.onnx".format(
-            model_name, server_id, model_block_idx
+        model_file_name = "{}_depl_{}_server_{}_comp_{}.onnx".format(
+            model_name, deployer_id, server_id, model_component_idx
         )
         model_path = os.path.join(MODEL_DIRECTORY_PATH, model_file_name)
 
@@ -68,9 +69,7 @@ class PoolServer(ModelPoolServicer):
                     model_chunk = ModelChunk(
                         total_chunks=0, chunk_idx=model_chunk_idx, chunk_data=chunk_data
                     )
-                    pull_response = PullResponse(model_chunk=
-                        model_chunk
-                    )
+                    pull_response = PullResponse(model_chunk=model_chunk)
                     yield pull_response
 
                 model_chunk_idx += 1

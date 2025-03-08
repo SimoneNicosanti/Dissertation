@@ -35,19 +35,18 @@ class InferenceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.send_input = channel.stream_unary(
-                '/server.Inference/send_input',
-                request_serializer=server__pb2.ModelInput.SerializeToString,
-                response_deserializer=server__pb2.SendInputResponse.FromString,
+        self.do_inference = channel.stream_unary(
+                '/server.Inference/do_inference',
+                request_serializer=server__pb2.InferenceInput.SerializeToString,
+                response_deserializer=server__pb2.InferenceResponse.FromString,
                 _registered_method=True)
 
 
 class InferenceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def send_input(self, request_iterator, context):
-        """(Method definitions not shown)
-        """
+    def do_inference(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -55,10 +54,10 @@ class InferenceServicer(object):
 
 def add_InferenceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'send_input': grpc.stream_unary_rpc_method_handler(
-                    servicer.send_input,
-                    request_deserializer=server__pb2.ModelInput.FromString,
-                    response_serializer=server__pb2.SendInputResponse.SerializeToString,
+            'do_inference': grpc.stream_unary_rpc_method_handler(
+                    servicer.do_inference,
+                    request_deserializer=server__pb2.InferenceInput.FromString,
+                    response_serializer=server__pb2.InferenceResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -72,7 +71,7 @@ class Inference(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def send_input(request_iterator,
+    def do_inference(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -85,9 +84,9 @@ class Inference(object):
         return grpc.experimental.stream_unary(
             request_iterator,
             target,
-            '/server.Inference/send_input',
-            server__pb2.ModelInput.SerializeToString,
-            server__pb2.SendInputResponse.FromString,
+            '/server.Inference/do_inference',
+            server__pb2.InferenceInput.SerializeToString,
+            server__pb2.InferenceResponse.FromString,
             options,
             channel_credentials,
             insecure,

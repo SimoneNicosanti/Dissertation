@@ -3,9 +3,10 @@ from concurrent import futures
 
 import grpc
 from Assignee.Assignee import Fetcher
-from proto.server_pb2_grpc import add_AssigneeServicer_to_server
+from Inference.ModelManagerPool import ModelManagerPool
 from proto.register_pb2 import ReachabilityInfo, RegisterResponse
 from proto.register_pb2_grpc import RegisterStub
+from proto.server_pb2_grpc import add_AssigneeServicer_to_server
 
 ASSIGNEE_PORT = 50040
 INFERENCE_PORT = 50030
@@ -18,7 +19,11 @@ def main():
     ## Start Assignee
 
     register_response: RegisterResponse = register_to_registry()
-    assignee_server = start_assignee_server(register_response.server_id)
+
+    model_manager_pool = ModelManagerPool()
+    assignee_server = start_assignee_server(
+        register_response.server_id, model_manager_pool
+    )
     # inference_server = start_inference_server()
 
     assignee_server.wait_for_termination()
@@ -41,9 +46,9 @@ def register_to_registry():
     return register_response
 
 
-def start_assignee_server(server_id: int):
+def start_assignee_server(server_id: int, model_manager_pool):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    fetcher = Fetcher(server_id, "/models", None)
+    fetcher = Fetcher(server_id, "/models", model_manager_pool)
     add_AssigneeServicer_to_server(fetcher, server)
     server.add_insecure_port(f"[::]:{ASSIGNEE_PORT}")
     print(f"Assignee Server running on port {ASSIGNEE_PORT}...")
@@ -60,4 +65,7 @@ def start_inference_server(server_id: int):
 
 
 if __name__ == "__main__":
+    import multiprocessing as mp
+
+    mp.set_start_method("spawn")
     main()
