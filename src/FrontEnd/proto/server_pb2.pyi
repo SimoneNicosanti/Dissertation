@@ -11,22 +11,14 @@ class AssignmentResponse(_message.Message):
     def __init__(self) -> None: ...
 
 class InferenceInput(_message.Message):
-    __slots__ = ("request_id", "model_component_id", "input_tensor")
+    __slots__ = ("request_id", "component_id", "input_tensor")
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
-    MODEL_COMPONENT_ID_FIELD_NUMBER: _ClassVar[int]
+    COMPONENT_ID_FIELD_NUMBER: _ClassVar[int]
     INPUT_TENSOR_FIELD_NUMBER: _ClassVar[int]
-    request_id: RequestId
-    model_component_id: _common_pb2.ModelComponentId
+    request_id: _common_pb2.RequestId
+    component_id: _common_pb2.ComponentId
     input_tensor: Tensor
-    def __init__(self, request_id: _Optional[_Union[RequestId, _Mapping]] = ..., model_component_id: _Optional[_Union[_common_pb2.ModelComponentId, _Mapping]] = ..., input_tensor: _Optional[_Union[Tensor, _Mapping]] = ...) -> None: ...
-
-class RequestId(_message.Message):
-    __slots__ = ("requester_id", "request_idx")
-    REQUESTER_ID_FIELD_NUMBER: _ClassVar[int]
-    REQUEST_IDX_FIELD_NUMBER: _ClassVar[int]
-    requester_id: str
-    request_idx: int
-    def __init__(self, requester_id: _Optional[str] = ..., request_idx: _Optional[int] = ...) -> None: ...
+    def __init__(self, request_id: _Optional[_Union[_common_pb2.RequestId, _Mapping]] = ..., component_id: _Optional[_Union[_common_pb2.ComponentId, _Mapping]] = ..., input_tensor: _Optional[_Union[Tensor, _Mapping]] = ...) -> None: ...
 
 class Tensor(_message.Message):
     __slots__ = ("info", "tensor_chunk")

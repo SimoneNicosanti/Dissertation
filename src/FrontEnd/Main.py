@@ -6,10 +6,10 @@ import grpc
 import numpy
 import yaml
 from PPP.YoloSegmentationPPP import YoloSegmentationPPP
-from proto.common_pb2 import ModelComponentId
+from proto.common_pb2 import ComponentId, ModelId, RequestId
 from proto.optimizer_pb2 import OptimizationRequest
 from proto.optimizer_pb2_grpc import OptimizationStub
-from proto.server_pb2 import InferenceInput, RequestId, Tensor, TensorChunk, TensorInfo
+from proto.server_pb2 import InferenceInput, Tensor, TensorChunk, TensorInfo
 from proto.server_pb2_grpc import InferenceStub
 
 MAX_CHUNK_SIZE = 3 * 1024 * 1024
@@ -55,11 +55,10 @@ def input_generator(image: numpy.ndarray):
     print("Tensor Info {} {} {}".format(tensor_type, tensor_shape, len(tensor_bytes)))
     byte_buffer = io.BytesIO(tensor_bytes)
 
-    model_component_id = ModelComponentId(
-        model_name="yolo11n-seg",
+    component_id = ComponentId(
+        model_id=ModelId(model_name="yolo11n-seg", deployer_id="0"),
         server_id="0",
         component_idx="0",
-        deployer_id="0",
     )
     request_id = RequestId(requester_id="0", request_idx=0)
     tensor_info = TensorInfo(name="images", type=str(tensor_type), shape=tensor_shape)
@@ -69,7 +68,7 @@ def input_generator(image: numpy.ndarray):
         print("Sending Chunk")
         yield InferenceInput(
             request_id=request_id,
-            model_component_id=model_component_id,
+            component_id=component_id,
             input_tensor=tensor,
         )
 

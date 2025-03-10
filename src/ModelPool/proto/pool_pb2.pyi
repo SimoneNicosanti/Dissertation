@@ -16,22 +16,22 @@ class ModelChunk(_message.Message):
     def __init__(self, total_chunks: _Optional[int] = ..., chunk_idx: _Optional[int] = ..., chunk_data: _Optional[bytes] = ...) -> None: ...
 
 class PushRequest(_message.Message):
-    __slots__ = ("model_component_id", "model_chunk")
-    MODEL_COMPONENT_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("component_id", "model_chunk")
+    COMPONENT_ID_FIELD_NUMBER: _ClassVar[int]
     MODEL_CHUNK_FIELD_NUMBER: _ClassVar[int]
-    model_component_id: _common_pb2.ModelComponentId
+    component_id: _common_pb2.ComponentId
     model_chunk: ModelChunk
-    def __init__(self, model_component_id: _Optional[_Union[_common_pb2.ModelComponentId, _Mapping]] = ..., model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...
+    def __init__(self, component_id: _Optional[_Union[_common_pb2.ComponentId, _Mapping]] = ..., model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...
 
 class PushResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
 class PullRequest(_message.Message):
-    __slots__ = ("model_component_id",)
-    MODEL_COMPONENT_ID_FIELD_NUMBER: _ClassVar[int]
-    model_component_id: _common_pb2.ModelComponentId
-    def __init__(self, model_component_id: _Optional[_Union[_common_pb2.ModelComponentId, _Mapping]] = ...) -> None: ...
+    __slots__ = ("component_id",)
+    COMPONENT_ID_FIELD_NUMBER: _ClassVar[int]
+    component_id: _common_pb2.ComponentId
+    def __init__(self, component_id: _Optional[_Union[_common_pb2.ComponentId, _Mapping]] = ...) -> None: ...
 
 class PullResponse(_message.Message):
     __slots__ = ("model_chunk",)

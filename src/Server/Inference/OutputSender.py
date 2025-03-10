@@ -1,13 +1,12 @@
 import io
-import pickle
 
 import grpc
 import numpy
 from Inference.InferenceInfo import ComponentInfo, RequestInfo
-from proto.common_pb2 import ModelComponentId
+from proto.common_pb2 import ComponentId, ModelId, RequestId
 from proto.register_pb2 import ReachabilityInfo, ServerId
 from proto.register_pb2_grpc import RegisterStub
-from proto.server_pb2 import InferenceInput, RequestId, Tensor, TensorChunk, TensorInfo
+from proto.server_pb2 import InferenceInput, Tensor, TensorChunk, TensorInfo
 from proto.server_pb2_grpc import InferenceStub
 from Wrapper.PlanWrapper import PlanWrapper
 
@@ -29,7 +28,7 @@ class OutputSender:
         request_info: RequestInfo,
         infer_output: dict[str, numpy.ndarray],
     ):
-
+        print("Sending Inference Output")
         next_components_dict: dict[str, list[ComponentInfo]] = (
             self.plan_wrapper.find_next_connections(component_info)
         )
@@ -64,11 +63,13 @@ class OutputSender:
         #     "Tensor Info {} {} {}".format(tensor_type, tensor_shape, len(tensor_bytes))
         # )
 
-        model_component_id = ModelComponentId(
-            model_name=next_component_info.model_info.model_name,
+        component_id = ComponentId(
+            model_id=ModelId(
+                model_name=next_component_info.model_info.model_name,
+                deployer_id=next_component_info.model_info.deployer_id,
+            ),
             server_id=next_component_info.server_id,
             component_idx=next_component_info.component_idx,
-            deployer_id=next_component_info.model_info.deployer_id,
         )
         request_id = RequestId(
             requester_id=request_info.requester_id, request_idx=request_info.request_idx
@@ -91,7 +92,7 @@ class OutputSender:
 
             yield InferenceInput(
                 request_id=request_id,
-                model_component_id=model_component_id,
+                component_id=component_id,
                 input_tensor=tensor,
             )
 

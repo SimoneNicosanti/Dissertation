@@ -2,7 +2,7 @@ import os
 
 import grpc
 from Plan.Plan import Plan
-from proto.common_pb2 import ModelComponentId
+from proto.common_pb2 import ComponentId, ModelId
 from proto.pool_pb2 import ModelChunk, PushRequest
 from proto.pool_pb2_grpc import ModelPoolStub
 
@@ -23,9 +23,8 @@ class ModelDistributor:
 
         for component_id in plan.get_all_components():
             print("\t Pushing component {}".format(component_id))
-            model_component_id = ModelComponentId(
-                model_name=model_name,
-                deployer_id=deployment_server,
+            grpc_comp_id = ComponentId(
+                model_id=ModelId(model_name=model_name, deployer_id=deployment_server),
                 server_id=component_id.net_node_id.node_name,
                 component_idx=str(component_id.component_idx),
             )
@@ -44,11 +43,11 @@ class ModelDistributor:
             print("\t Component File Path >> ", component_file_path)
 
             self.pool_stub.push_model(
-                self.__model_chunk_generator(component_file_path, model_component_id)
+                self.__model_chunk_generator(component_file_path, grpc_comp_id)
             )
 
     def __model_chunk_generator(
-        self, component_file_path: str, model_component_id: ModelComponentId
+        self, component_file_path: str, component_id: ComponentId
     ):
         with open(component_file_path, "rb") as component_file:
             while data_chunk := component_file.read(MODEL_CHUNK_MAX_SIZE):
@@ -56,6 +55,4 @@ class ModelDistributor:
                 model_chunk = ModelChunk(
                     total_chunks=0, chunk_idx=0, chunk_data=data_chunk
                 )
-                yield PushRequest(
-                    model_component_id=model_component_id, model_chunk=model_chunk
-                )
+                yield PushRequest(component_id=component_id, model_chunk=model_chunk)

@@ -1,21 +1,35 @@
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional
+from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class ModelComponentId(_message.Message):
-    __slots__ = ("model_name", "deployer_id", "server_id", "component_idx")
+class ModelId(_message.Message):
+    __slots__ = ("model_name", "deployer_id")
     MODEL_NAME_FIELD_NUMBER: _ClassVar[int]
     DEPLOYER_ID_FIELD_NUMBER: _ClassVar[int]
-    SERVER_ID_FIELD_NUMBER: _ClassVar[int]
-    COMPONENT_IDX_FIELD_NUMBER: _ClassVar[int]
     model_name: str
     deployer_id: str
+    def __init__(self, model_name: _Optional[str] = ..., deployer_id: _Optional[str] = ...) -> None: ...
+
+class ComponentId(_message.Message):
+    __slots__ = ("model_id", "server_id", "component_idx")
+    MODEL_ID_FIELD_NUMBER: _ClassVar[int]
+    SERVER_ID_FIELD_NUMBER: _ClassVar[int]
+    COMPONENT_IDX_FIELD_NUMBER: _ClassVar[int]
+    model_id: ModelId
     server_id: str
     component_idx: str
-    def __init__(self, model_name: _Optional[str] = ..., deployer_id: _Optional[str] = ..., server_id: _Optional[str] = ..., component_idx: _Optional[str] = ...) -> None: ...
+    def __init__(self, model_id: _Optional[_Union[ModelId, _Mapping]] = ..., server_id: _Optional[str] = ..., component_idx: _Optional[str] = ...) -> None: ...
+
+class RequestId(_message.Message):
+    __slots__ = ("requester_id", "request_idx")
+    REQUESTER_ID_FIELD_NUMBER: _ClassVar[int]
+    REQUEST_IDX_FIELD_NUMBER: _ClassVar[int]
+    requester_id: str
+    request_idx: int
+    def __init__(self, requester_id: _Optional[str] = ..., request_idx: _Optional[int] = ...) -> None: ...
 
 class Empty(_message.Message):
     __slots__ = ()

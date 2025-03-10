@@ -6,7 +6,7 @@ from typing import Iterator
 import grpc
 from Inference.InferenceInfo import ComponentInfo
 from Inference.ModelManagerPool import ModelManagerPool
-from proto.common_pb2 import ModelComponentId, OptimizedPlan
+from proto.common_pb2 import ComponentId, ModelId, OptimizedPlan
 from proto.pool_pb2 import ModelChunk, PullRequest, PullResponse
 from proto.pool_pb2_grpc import ModelPoolStub
 from proto.server_pb2 import AssignmentResponse
@@ -86,13 +86,15 @@ class Fetcher(AssigneeServicer):
         )
 
     def __fetch_component(self, componet_info: ComponentInfo):
-        model_component_id = ModelComponentId(
-            model_name=componet_info.model_info.model_name,
-            deployer_id=componet_info.model_info.deployer_id,
+        component_id = ComponentId(
+            model_id=ModelId(
+                model_name=componet_info.model_info.model_name,
+                deployer_id=componet_info.model_info.deployer_id,
+            ),
             server_id=componet_info.server_id,
             component_idx=componet_info.component_idx,
         )
-        pull_request = PullRequest(model_component_id=model_component_id)
+        pull_request = PullRequest(component_id=component_id)
 
         pull_response_stream: Iterator[PullResponse] = self.model_pool.pull_model(
             pull_request

@@ -2,11 +2,20 @@
 syntax = "proto3";
 package common;
 
-message ModelComponentId {
-    string model_name = 1;
-    string deployer_id = 2;
-    string server_id = 3;
-    string component_idx = 4;
+message ModelId {
+    string model_name = 1 ;
+    string deployer_id = 2 ;
+}
+
+message ComponentId {
+    ModelId model_id = 1;
+    string server_id = 2;
+    string component_idx = 3;
+}
+
+message RequestId {
+    string requester_id = 1;
+    int32 request_idx = 2;
 }
 
 message Empty {}

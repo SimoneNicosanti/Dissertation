@@ -24,10 +24,10 @@ class InputReceiver:
         requester_id = first_input.request_id.requester_id
         request_idx = first_input.request_id.request_idx
 
-        model_name = first_input.model_component_id.model_name
-        deployer_id = first_input.model_component_id.deployer_id
-        server_id = first_input.model_component_id.server_id
-        component_idx = first_input.model_component_id.component_idx
+        model_name = first_input.component_id.model_id.model_name
+        deployer_id = first_input.component_id.model_id.deployer_id
+        server_id = first_input.component_id.server_id
+        component_idx = first_input.component_id.component_idx
 
         input_tensor: Tensor = first_input.input_tensor
         tensor_name = input_tensor.info.name
@@ -36,16 +36,8 @@ class InputReceiver:
 
         tensor_total_size = self.compute_tensor_size(tensor_shape, tensor_type)
 
-        print("Model Name: {}".format(model_name))
-        print("Deployer Id: {}".format(deployer_id))
-        print("Server Id: {}".format(server_id))
-        print("Component Id: {}".format(component_idx))
-        print("Requester Id: {}".format(requester_id))
-        print("Request Id: {}".format(request_idx))
-        print("Tensor Name: {}".format(tensor_name))
-        print("Tensor Type: {}".format(tensor_type))
-        print("Tensor Shape: {}".format(tensor_shape))
-        print("Tensor Total Size: {}".format(tensor_total_size))
+        print("Received Input for >> ")
+        print(first_input.component_id)
 
         # shared_tensor_name = (
         #     "tensor_{}_depl_{}_serv_{}_comp_{}_client_{}_req_{}_name_{}".format(

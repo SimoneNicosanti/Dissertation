@@ -2,7 +2,7 @@ import os
 from typing import Iterator
 
 import grpc
-from proto.common_pb2 import ModelComponentId
+from proto.common_pb2 import ComponentId, ModelId
 from proto.pool_pb2 import (
     ModelChunk,
     PullRequest,
@@ -23,11 +23,11 @@ class PoolServer(ModelPoolServicer):
 
     def push_model(self, request_iterator: Iterator[PushRequest], context):
         first_request: PushRequest = next(request_iterator)
-        model_component_id: ModelComponentId = first_request.model_component_id
-        model_name: str = model_component_id.model_name
-        server_id: str = model_component_id.server_id
-        model_component_idx: str = model_component_id.component_idx
-        deployer_id: str = model_component_id.deployer_id
+        component_id: ComponentId = first_request.component_id
+        model_name: str = component_id.model_id.model_name
+        deployer_id: str = component_id.model_id.model_name
+        server_id: str = component_id.server_id
+        model_component_idx: str = component_id.component_idx
 
         model_file_name = "{}_depl_{}_server_{}_comp_{}.onnx".format(
             model_name, deployer_id, server_id, model_component_idx
@@ -51,11 +51,11 @@ class PoolServer(ModelPoolServicer):
 
     def pull_model(self, request: PullRequest, context):
         print("Received Pull Request")
-        model_component_id: ModelComponentId = request.model_component_id
-        model_name: str = model_component_id.model_name
-        server_id: str = model_component_id.server_id
-        model_component_idx: str = model_component_id.component_idx
-        deployer_id: str = model_component_id.deployer_id
+        component_id: ComponentId = request.component_id
+        model_name: str = component_id.model_id.model_name
+        deployer_id: str = component_id.model_id.deployer_id
+        server_id: str = component_id.server_id
+        model_component_idx: str = component_id.component_idx
 
         model_file_name = "{}_depl_{}_server_{}_comp_{}.onnx".format(
             model_name, deployer_id, server_id, model_component_idx

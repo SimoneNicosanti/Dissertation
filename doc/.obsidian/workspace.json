@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Componenti Connesse.md",
+                "file": "Notes/Architettura/Architettura_Inviare.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Componenti Connesse"
+              "title": "Architettura_Inviare"
             }
           }
         ],
@@ -178,9 +178,9 @@
   },
   "active": "802d44e0d91d6c42",
   "lastOpenFiles": [
+    "Notes/Componenti Connesse.md",
     "Notes/Architettura/Architettura.md",
     "Notes/Ottimizzazione.md",
-    "Notes/Componenti Connesse.md",
     "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Yolo.md",
     "Notes/Unnesting del Modello.md",

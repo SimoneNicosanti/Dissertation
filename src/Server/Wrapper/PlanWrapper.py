@@ -61,6 +61,15 @@ class PlanWrapper:
 
         return assigned_components
 
+    def get_input_for_component(self, component_info: ComponentInfo):
+        for key in self.plan_dict.keys():
+            if self.__is_same_key(key, component_info):
+                print("Input Type >> ", type(self.plan_dict[key]["input_names"]))
+                print("Elem Type >> ", type(self.plan_dict[key]["input_names"][0]))
+                return self.plan_dict[key]["input_names"]
+
+        return []
+
     def __is_same_key(self, key: tuple, comp_info: ComponentInfo) -> bool:
         key_tuple = ast.literal_eval(key)
         return str(key_tuple[0]) == str(comp_info.server_id) and str(

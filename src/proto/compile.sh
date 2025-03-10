@@ -20,6 +20,7 @@ python -m grpc_tools.protoc -I./ --python_out=../Optimizer/proto --pyi_out=../Op
 
 ## Compile for FrontEnd
 python -m grpc_tools.protoc -I./ --python_out=../FrontEnd/proto --pyi_out=../FrontEnd/proto --grpc_python_out=../FrontEnd/proto ./optimizer.proto
+python -m grpc_tools.protoc -I./ --python_out=../FrontEnd/proto --pyi_out=../FrontEnd/proto --grpc_python_out=../FrontEnd/proto ./frontend.proto
 
 ## Compile for ModelPool
 python -m grpc_tools.protoc -I./ --python_out=../ModelPool/proto --pyi_out=../ModelPool/proto --grpc_python_out=../ModelPool/proto ./pool.proto

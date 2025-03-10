@@ -1,7 +1,10 @@
 import numpy
-from Inference.ComponentManager import ComponentManager
-from Inference.ComponentManagerInput import ComponentManagerInput
-from Inference.ComponentManagerOutput import ComponentManagerOutput
+from Inference.ComponentManager import (
+    ComponentManager,
+    ComponentManagerInput,
+    ComponentManagerIntermediate,
+    ComponentManagerOutput,
+)
 from Inference.InferenceInfo import ComponentInfo, RequestInfo, SharedTensorInfo
 from Inference.OutputSender import OutputSender
 from Wrapper.PlanWrapper import PlanWrapper
@@ -48,14 +51,20 @@ class WorkerProcess:
         if component_info in self.component_manager_dict:
             return
 
+        component_inputs = self.plan_wrapper.get_input_for_component(component_info)
         if is_only_input:
-            pass
+            comp_manager = ComponentManagerInput(component_info, component_inputs, [])
         elif is_only_output:
+            comp_manager = ComponentManagerOutput(
+                component_info, component_inputs, [], ""
+            )
             pass
         else:
-            self.component_manager_dict[component_info] = ComponentManager(
-                component_info, component_path, is_only_input, is_only_output
+            comp_manager = ComponentManagerIntermediate(
+                component_info, component_inputs, [], component_path
             )
+
+        self.component_manager_dict[component_info] = comp_manager
 
     def handle_input_pass(
         self,
