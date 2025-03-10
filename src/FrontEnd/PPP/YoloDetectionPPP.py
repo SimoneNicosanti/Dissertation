@@ -9,8 +9,9 @@ class YoloDetectionPPP(YoloPPP):
         self,
         mod_input_width,
         mod_input_height,
+        classes: dict[int, str],
     ):
-        super().__init__(mod_input_width, mod_input_height)
+        super().__init__(mod_input_width, mod_input_height, classes)
 
     def preprocess(self, input_image: np.ndarray) -> dict[str]:
         """

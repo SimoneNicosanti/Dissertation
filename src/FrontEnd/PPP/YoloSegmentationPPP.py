@@ -1,11 +1,13 @@
 import cv2
 import numpy as np
-from YoloPPP import YoloPPP
+from PPP.YoloPPP import YoloPPP
 
 
 class YoloSegmentationPPP(YoloPPP):
-    def __init__(self, mod_input_height: int, mod_input_width: int):
-        super().__init__(mod_input_height, mod_input_width)
+    def __init__(
+        self, mod_input_height: int, mod_input_width: int, classes: dict[int, str]
+    ):
+        super().__init__(mod_input_height, mod_input_width, classes)
 
     def preprocess(self, input_image: np.ndarray) -> dict[str]:
         """

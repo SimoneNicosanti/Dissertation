@@ -4,15 +4,23 @@ from Graph.Graph import EdgeId, Graph, GraphInfo, NodeId
 
 
 class SolvedNodeInfo(GraphInfo):
-    def __init__(self, net_node_id: NodeId):
+    def __init__(self, net_node_id: NodeId, is_generator: bool, is_receiver: bool):
         self.net_node_id: NodeId = net_node_id
         self.node_component: tuple[NodeId, int] = None
+        self.is_generator_node: bool = is_generator
+        self.is_receiver_node: bool = is_receiver
 
     def get_component(self) -> tuple[NodeId, int]:
         return self.node_component
 
     def set_component(self, component: tuple[NodeId, int]):
         self.node_component = component
+
+    def is_generator(self) -> bool:
+        return self.is_generator_node
+
+    def is_receiver(self) -> bool:
+        return self.is_receiver_node
 
 
 class SolvedEdgeInfo(GraphInfo):

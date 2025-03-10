@@ -2,37 +2,70 @@ from multiprocessing import shared_memory
 from typing import Iterator
 
 import numpy
-from Inference.InputInfo import ComponentInfo, ModelInfo, SharedTensorInfo
-from proto.server_pb2 import ModelInput, Tensor
+from Inference.InferenceInfo import (
+    ComponentInfo,
+    ModelInfo,
+    RequestInfo,
+    SharedTensorInfo,
+)
+from proto.server_pb2 import InferenceInput, Tensor
 
 
 class InputReceiver:
 
-    def handle_input_stream(self, input_stream: Iterator[ModelInput]):
+    def __init__(self):
+        pass
 
+    def handle_input_stream(self, input_stream: Iterator[InferenceInput]):
+        print("Reading First Chunk")
         first_input = next(input_stream)
+        print("Reading First Chunk")
 
-        model_comp_id = first_input.model_block_id
-        model_name = model_comp_id.model_name
-        deployer_id = model_comp_id.deployer_id
-        server_id = model_comp_id.server_id
-        block_idx = model_comp_id.block_idx
+        requester_id = first_input.request_id.requester_id
+        request_idx = first_input.request_id.request_idx
+
+        model_name = first_input.model_component_id.model_name
+        deployer_id = first_input.model_component_id.deployer_id
+        server_id = first_input.model_component_id.server_id
+        component_idx = first_input.model_component_id.component_idx
 
         input_tensor: Tensor = first_input.input_tensor
         tensor_name = input_tensor.info.name
         tensor_type = input_tensor.info.type
-        tensor_shape = input_tensor.info.shape
+        tensor_shape = [dim for dim in input_tensor.info.shape]
 
         tensor_total_size = self.compute_tensor_size(tensor_shape, tensor_type)
 
-        shared_tensor_name = (
-            f"{model_name}_{block_idx}_{tensor_name}_{deployer_id}_{server_id}"
-        )
+        print("Model Name: {}".format(model_name))
+        print("Deployer Id: {}".format(deployer_id))
+        print("Server Id: {}".format(server_id))
+        print("Component Id: {}".format(component_idx))
+        print("Requester Id: {}".format(requester_id))
+        print("Request Id: {}".format(request_idx))
+        print("Tensor Name: {}".format(tensor_name))
+        print("Tensor Type: {}".format(tensor_type))
+        print("Tensor Shape: {}".format(tensor_shape))
+        print("Tensor Total Size: {}".format(tensor_total_size))
+
+        # shared_tensor_name = (
+        #     "tensor_{}_depl_{}_serv_{}_comp_{}_client_{}_req_{}_name_{}".format(
+        #         model_name,
+        #         deployer_id,
+        #         server_id,
+        #         component_idx,
+        #         requester_id,
+        #         request_idx,
+        #         tensor_name,
+        #     )
+        # )
+
         shared_tensor_memory = shared_memory.SharedMemory(
-            name=shared_tensor_name,
+            name=None,
             create=True,
             size=tensor_total_size,
         )
+        shared_tensor_name = shared_tensor_memory.name
+        print("Created Shared Memory with Name {}".format(shared_tensor_name))
 
         tensor_chunk_size = input_tensor.tensor_chunk.chunk_size
         shared_tensor_memory.buf[:tensor_chunk_size] = (
@@ -48,13 +81,16 @@ class InputReceiver:
             ] = input.input_tensor.tensor_chunk.chunk_data
             shared_memory_curr_idx += tensor_chunk_size
 
-        model_info = ModelInfo(model_name, deployer_id, server_id, block_idx)
-        component_info = ComponentInfo(model_info, block_idx)
+        model_info = ModelInfo(model_name, deployer_id)
+        component_info = ComponentInfo(model_info, server_id, component_idx)
+        request_info = RequestInfo(requester_id, request_idx)
         shared_tensor_info = SharedTensorInfo(
             tensor_name, tensor_type, tensor_shape, shared_tensor_name
         )
 
-        return component_info, shared_tensor_info
+        shared_tensor_memory.close()
+
+        return component_info, request_info, shared_tensor_info
 
     def compute_tensor_size(self, tensor_shape: list, tensor_type: str):
         tensor_size = numpy.dtype(tensor_type).itemsize

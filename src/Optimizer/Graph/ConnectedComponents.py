@@ -1,4 +1,7 @@
+from operator import is_
+
 from Graph.Graph import Graph, NodeId
+from Graph.ModelGraph import ModelGraph
 from Graph.SolvedModelGraph import (
     ComponentId,
     SolvedModelGraph,
@@ -51,33 +54,46 @@ class ConnectedComponentsFinder:
 
         for node_id in top_order:
             node_info: SolvedNodeInfo = solved_model_graph.get_node_info(node_id)
+            server_id = node_info.net_node_id
             node_dip_set = dip_set_dict[node_id]
             node_poss_comp_set = poss_comp_dict[node_id]
 
-            if node_dip_set.isdisjoint(node_poss_comp_set):
-                ## No dependency
-                if len(node_poss_comp_set) == 0:
-                    ## No possible component
+            if node_info.is_generator():
+                ## They will be handled by a different component
+                curr_comp_idx = next_comp_idx[server_id]
+                node_comp = ComponentId(server_id, curr_comp_idx)
+                next_comp_idx[server_id] += 1
+                print("Input Component", node_comp)
+            elif node_info.is_receiver():
+                next_comp_idx[server_id] += 1
+                curr_comp_idx = next_comp_idx[server_id]
+                node_comp = ComponentId(server_id, curr_comp_idx)
+                print("Output Component", node_comp)
+            else:
+                ## Intermediate node
+
+                if node_dip_set.isdisjoint(node_poss_comp_set):
+                    ## No dependency
+                    if len(node_poss_comp_set) == 0:
+                        ## No possible component
+                        ## Generate new component for my server
+                        node_comp = ConnectedComponentsFinder.__generate_component_id(
+                            server_id, next_comp_idx, node_dip_set
+                        )
+
+                    else:
+                        ## One or more possible component
+                        ## Taking the one with highest component size
+                        node_comp = max(
+                            node_poss_comp_set, key=lambda comp: compon_size_count[comp]
+                        )
+
+                else:
+                    ## Dependency
                     ## Generate new component for my server
-                    server_id = node_info.net_node_id
                     node_comp = ConnectedComponentsFinder.__generate_component_id(
                         server_id, next_comp_idx, node_dip_set
                     )
-
-                else:
-                    ## One or more possible component
-                    ## Taking the one with highest component size
-                    node_comp = max(
-                        node_poss_comp_set, key=lambda comp: compon_size_count[comp]
-                    )
-
-            else:
-                ## Dependency
-                ## Generate new component for my server
-                server_id = node_info.net_node_id
-                node_comp = ConnectedComponentsFinder.__generate_component_id(
-                    server_id, next_comp_idx, node_dip_set
-                )
 
             ## Setting determined node comp
             node_info.set_component(node_comp)
@@ -87,12 +103,14 @@ class ConnectedComponentsFinder:
             for neigh_id in solved_model_graph.get_nexts_from_node(node_id):
                 neigh_info: SolvedNodeInfo = solved_model_graph.get_node_info(neigh_id)
 
-                if node_info.net_node_id == neigh_info.net_node_id:
+                if node_info.net_node_id == neigh_info.net_node_id and not (
+                    node_info.is_generator() or neigh_info.is_receiver()
+                ):
                     ## Same server --> Setting possible component
                     poss_comp_dict[neigh_id].add(node_comp)
 
                 else:
-                    ## Different server --> Setting dependency
+                    ## Different server or Generator Node --> Setting dependency
                     dip_set_dict[neigh_id].add(node_comp)
 
                 dip_set_dict[neigh_id] = dip_set_dict[neigh_id].union(

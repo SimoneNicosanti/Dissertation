@@ -2,7 +2,7 @@ from proto.common_pb2 import Empty
 from proto.register_pb2 import (
     AllServerInfo,
     ReachabilityInfo,
-    RegisterResponse,
+    ServerId,
     ServerInfo,
 )
 from proto.register_pb2_grpc import RegisterServicer
@@ -17,14 +17,12 @@ class RegistryServer(RegisterServicer):
         self.server_id = 0
         pass
 
-    def register_server(
-        self, reachability_info: ReachabilityInfo, context
-    ) -> RegisterResponse:
+    def register_server(self, reachability_info: ReachabilityInfo, context) -> ServerId:
 
         if reachability_info.ip_address in self.reachability_dict:
             print("Server already registered")
             server_id = self.reachability_dict[reachability_info.ip_address][1]
-            return RegisterResponse(server_id=str(server_id))
+            return ServerId(server_id=str(server_id))
 
         new_server_id = str(self.server_id)
         self.reachability_dict[reachability_info.ip_address] = [
@@ -32,7 +30,7 @@ class RegistryServer(RegisterServicer):
             new_server_id,
         ]
 
-        register_response = RegisterResponse(server_id=new_server_id)
+        register_response = ServerId(server_id=new_server_id)
         self.server_id += 1
         self.log_server_registration(reachability_info, new_server_id)
 
@@ -42,10 +40,19 @@ class RegistryServer(RegisterServicer):
 
         server_info_list: list[ServerInfo] = []
         for reach_info, server_id in self.reachability_dict.values():
-            server_info = ServerInfo(reachability_info=reach_info, server_id=server_id)
+            server_info = ServerInfo(
+                reachability_info=reach_info, server_id=ServerId(server_id=server_id)
+            )
             server_info_list.append(server_info)
 
         return AllServerInfo(all_server_info=server_info_list)
+
+    def get_info_from_id(self, server_id: ServerId, context) -> ReachabilityInfo:
+        for reach_info, id in self.reachability_dict.values():
+            if str(id) == server_id.server_id:
+                return reach_info
+
+        raise Exception("Server not found")
 
     def log_server_registration(
         self, reachability_info: ReachabilityInfo, server_id: int

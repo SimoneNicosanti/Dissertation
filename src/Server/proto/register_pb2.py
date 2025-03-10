@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eregister.proto\x12\x08register\x1a\x0c\x63ommon.proto\"j\n\x10ReachabilityInfo\x12\x12\n\nip_address\x18\x01 \x01(\t\x12\x17\n\x0f\x61ssignment_port\x18\x02 \x01(\x05\x12\x16\n\x0einference_port\x18\x03 \x01(\x05\x12\x11\n\tping_port\x18\x04 \x01(\x05\"%\n\x10RegisterResponse\x12\x11\n\tserver_id\x18\x01 \x01(\t\"V\n\nServerInfo\x12\x35\n\x11reachability_info\x18\x01 \x01(\x0b\x32\x1a.register.ReachabilityInfo\x12\x11\n\tserver_id\x18\x02 \x01(\t\">\n\rAllServerInfo\x12-\n\x0f\x61ll_server_info\x18\x01 \x03(\x0b\x32\x14.register.ServerInfo2\x95\x01\n\x08Register\x12I\n\x0fregister_server\x12\x1a.register.ReachabilityInfo\x1a\x1a.register.RegisterResponse\x12>\n\x14get_all_servers_info\x12\r.common.Empty\x1a\x17.register.AllServerInfob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eregister.proto\x12\x08register\x1a\x0c\x63ommon.proto\"j\n\x10ReachabilityInfo\x12\x12\n\nip_address\x18\x01 \x01(\t\x12\x17\n\x0f\x61ssignment_port\x18\x02 \x01(\x05\x12\x16\n\x0einference_port\x18\x03 \x01(\x05\x12\x11\n\tping_port\x18\x04 \x01(\x05\"\x1d\n\x08ServerId\x12\x11\n\tserver_id\x18\x01 \x01(\t\"j\n\nServerInfo\x12\x35\n\x11reachability_info\x18\x01 \x01(\x0b\x32\x1a.register.ReachabilityInfo\x12%\n\tserver_id\x18\x02 \x01(\x0b\x32\x12.register.ServerId\">\n\rAllServerInfo\x12-\n\x0f\x61ll_server_info\x18\x01 \x03(\x0b\x32\x14.register.ServerInfo2\xd1\x01\n\x08Register\x12\x41\n\x0fregister_server\x12\x1a.register.ReachabilityInfo\x1a\x12.register.ServerId\x12>\n\x14get_all_servers_info\x12\r.common.Empty\x1a\x17.register.AllServerInfo\x12\x42\n\x10get_info_from_id\x12\x12.register.ServerId\x1a\x1a.register.ReachabilityInfob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,12 +34,12 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_REACHABILITYINFO']._serialized_start=42
   _globals['_REACHABILITYINFO']._serialized_end=148
-  _globals['_REGISTERRESPONSE']._serialized_start=150
-  _globals['_REGISTERRESPONSE']._serialized_end=187
-  _globals['_SERVERINFO']._serialized_start=189
-  _globals['_SERVERINFO']._serialized_end=275
-  _globals['_ALLSERVERINFO']._serialized_start=277
-  _globals['_ALLSERVERINFO']._serialized_end=339
-  _globals['_REGISTER']._serialized_start=342
-  _globals['_REGISTER']._serialized_end=491
+  _globals['_SERVERID']._serialized_start=150
+  _globals['_SERVERID']._serialized_end=179
+  _globals['_SERVERINFO']._serialized_start=181
+  _globals['_SERVERINFO']._serialized_end=287
+  _globals['_ALLSERVERINFO']._serialized_start=289
+  _globals['_ALLSERVERINFO']._serialized_end=351
+  _globals['_REGISTER']._serialized_start=354
+  _globals['_REGISTER']._serialized_end=563
 # @@protoc_insertion_point(module_scope)

@@ -1,6 +1,10 @@
 import multiprocessing
 
-from Inference.InputInfo import ComponentInfo, ModelInfo, RequestInfo, SharedTensorInfo
+from Inference.InferenceInfo import (
+    ComponentInfo,
+    RequestInfo,
+    SharedTensorInfo,
+)
 
 MAX_QUEUE_SIZE = 1_000
 
@@ -23,6 +27,7 @@ class QueueWrapper:
         request_info: RequestInfo,
         shared_tensor_info: SharedTensorInfo,
     ):
+        print("Passing Input")
         to_send = (
             QueueWrapper.INPUT_MESSAGE,
             component_info,

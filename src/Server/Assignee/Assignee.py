@@ -1,11 +1,10 @@
-import ast
 import asyncio
 import json
 import os
 from typing import Iterator
 
 import grpc
-from Inference.InputInfo import ComponentInfo, ModelInfo
+from Inference.InferenceInfo import ComponentInfo
 from Inference.ModelManagerPool import ModelManagerPool
 from proto.common_pb2 import ModelComponentId, OptimizedPlan
 from proto.pool_pb2 import ModelChunk, PullRequest, PullResponse
@@ -90,7 +89,7 @@ class Fetcher(AssigneeServicer):
         model_component_id = ModelComponentId(
             model_name=componet_info.model_info.model_name,
             deployer_id=componet_info.model_info.deployer_id,
-            server_id=componet_info.model_info.server_id,
+            server_id=componet_info.server_id,
             component_idx=componet_info.component_idx,
         )
         pull_request = PullRequest(model_component_id=model_component_id)
@@ -116,7 +115,7 @@ class Fetcher(AssigneeServicer):
             "{}_depl_{}_server_{}_comp_{}.onnx".format(
                 componet_info.model_info.model_name,
                 componet_info.model_info.deployer_id,
-                componet_info.model_info.server_id,
+                componet_info.server_id,
                 componet_info.component_idx,
             ),
         )

@@ -38,12 +38,17 @@ class RegisterStub(object):
         self.register_server = channel.unary_unary(
                 '/register.Register/register_server',
                 request_serializer=register__pb2.ReachabilityInfo.SerializeToString,
-                response_deserializer=register__pb2.RegisterResponse.FromString,
+                response_deserializer=register__pb2.ServerId.FromString,
                 _registered_method=True)
         self.get_all_servers_info = channel.unary_unary(
                 '/register.Register/get_all_servers_info',
                 request_serializer=common__pb2.Empty.SerializeToString,
                 response_deserializer=register__pb2.AllServerInfo.FromString,
+                _registered_method=True)
+        self.get_info_from_id = channel.unary_unary(
+                '/register.Register/get_info_from_id',
+                request_serializer=register__pb2.ServerId.SerializeToString,
+                response_deserializer=register__pb2.ReachabilityInfo.FromString,
                 _registered_method=True)
 
 
@@ -62,18 +67,29 @@ class RegisterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def get_info_from_id(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RegisterServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'register_server': grpc.unary_unary_rpc_method_handler(
                     servicer.register_server,
                     request_deserializer=register__pb2.ReachabilityInfo.FromString,
-                    response_serializer=register__pb2.RegisterResponse.SerializeToString,
+                    response_serializer=register__pb2.ServerId.SerializeToString,
             ),
             'get_all_servers_info': grpc.unary_unary_rpc_method_handler(
                     servicer.get_all_servers_info,
                     request_deserializer=common__pb2.Empty.FromString,
                     response_serializer=register__pb2.AllServerInfo.SerializeToString,
+            ),
+            'get_info_from_id': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_info_from_id,
+                    request_deserializer=register__pb2.ServerId.FromString,
+                    response_serializer=register__pb2.ReachabilityInfo.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -102,7 +118,7 @@ class Register(object):
             target,
             '/register.Register/register_server',
             register__pb2.ReachabilityInfo.SerializeToString,
-            register__pb2.RegisterResponse.FromString,
+            register__pb2.ServerId.FromString,
             options,
             channel_credentials,
             insecure,
@@ -130,6 +146,33 @@ class Register(object):
             '/register.Register/get_all_servers_info',
             common__pb2.Empty.SerializeToString,
             register__pb2.AllServerInfo.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_info_from_id(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/register.Register/get_info_from_id',
+            register__pb2.ServerId.SerializeToString,
+            register__pb2.ReachabilityInfo.FromString,
             options,
             channel_credentials,
             insecure,

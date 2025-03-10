@@ -11,14 +11,14 @@ class AssignmentResponse(_message.Message):
     def __init__(self) -> None: ...
 
 class InferenceInput(_message.Message):
-    __slots__ = ("request_info", "model_component_id", "input_tensor")
-    REQUEST_INFO_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("request_id", "model_component_id", "input_tensor")
+    REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     MODEL_COMPONENT_ID_FIELD_NUMBER: _ClassVar[int]
     INPUT_TENSOR_FIELD_NUMBER: _ClassVar[int]
-    request_info: RequestId
+    request_id: RequestId
     model_component_id: _common_pb2.ModelComponentId
     input_tensor: Tensor
-    def __init__(self, request_info: _Optional[_Union[RequestId, _Mapping]] = ..., model_component_id: _Optional[_Union[_common_pb2.ModelComponentId, _Mapping]] = ..., input_tensor: _Optional[_Union[Tensor, _Mapping]] = ...) -> None: ...
+    def __init__(self, request_id: _Optional[_Union[RequestId, _Mapping]] = ..., model_component_id: _Optional[_Union[_common_pb2.ModelComponentId, _Mapping]] = ..., input_tensor: _Optional[_Union[Tensor, _Mapping]] = ...) -> None: ...
 
 class RequestId(_message.Message):
     __slots__ = ("requester_id", "request_idx")

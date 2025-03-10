@@ -2,9 +2,14 @@ import threading
 from multiprocessing import Process
 
 from Inference import WorkerProcess
-from Inference.InputInfo import ComponentInfo, ModelInfo, RequestInfo, SharedTensorInfo
-from Inference.QueueWrapper import QueueWrapper
+from Inference.InferenceInfo import (
+    ComponentInfo,
+    ModelInfo,
+    RequestInfo,
+    SharedTensorInfo,
+)
 from Wrapper.PlanWrapper import PlanWrapper
+from Wrapper.QueueWrapper import QueueWrapper
 
 
 class ModelManagerPool:

@@ -13,12 +13,12 @@ class SharedTensorInfo:
 class ModelInfo:
     model_name: str
     deployer_id: str
-    server_id: str
 
 
 @dataclass(frozen=True)
 class ComponentInfo:
     model_info: ModelInfo
+    server_id: str
     component_idx: str
 
 

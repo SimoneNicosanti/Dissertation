@@ -17,7 +17,7 @@ message AssignmentResponse {}
 
 
 message InferenceInput {
-    RequestId request_info = 1;
+    RequestId request_id = 1;
     common.ModelComponentId model_component_id = 2;
     Tensor input_tensor = 3;
 }

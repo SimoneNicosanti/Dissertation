@@ -1,10 +1,11 @@
 import os
 import pickle
 
-import Test
 from Graph import ConnectedComponents
 from Graph.ModelGraph import ModelGraph
+from Graph.NetworkGraph import NetworkGraph
 from Graph.SolvedModelGraph import SolvedModelGraph
+from Network.NetworkBuilder import NetworkBuilder
 from Optimization.OptimizationHandler import OptimizationHandler, OptimizationParams
 from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
 from Plan.ModelDistributor import ModelDistributor
@@ -25,7 +26,7 @@ class OptmizationServer(OptimizationServicer):
     def __init__(self):
         self.plan_distributor = PlanDistributor()
         self.model_distributor = ModelDistributor(DIVIDED_MODEL_DIR)
-        self.network_builder = None
+        self.network_builder = NetworkBuilder()
         pass
 
     def serve_optimization(self, request: OptimizationRequest, context):
@@ -56,8 +57,9 @@ class OptmizationServer(OptimizationServicer):
                 with open(model_profile_path, "wb") as pickle_file:
                     pickle.dump(model_graph, pickle_file)
 
-        network_graph = Test.prepare_network_profile(request.deployment_server)
+        network_graph: NetworkGraph = self.network_builder.build_network()
         deployment_server = network_graph.build_node_id(request.deployment_server)
+        print("Deployment Server >> ", deployment_server.node_name)
 
         solved_graphs: list[SolvedModelGraph] = OptimizationHandler().optimize(
             list(model_graphs_dict.values()),
@@ -68,6 +70,9 @@ class OptmizationServer(OptimizationServicer):
 
         plan_map = {}
         for solved_graph in solved_graphs:
+            if not solved_graph.is_solved():
+                print(solved_graph.get_graph_name() + " is not solved")
+                continue
             graph_name = solved_graph.get_graph_name()
             ConnectedComponents.ConnectedComponentsFinder.find_connected_components(
                 solved_graph

@@ -98,6 +98,10 @@ def prepare_network_profile(first_node_id: str = "0"):
         graph.put_node(node_id, node_info)
 
         if idx == 0:
+            node_info.net_node_ip_address = "172.18.0.4"
+            node_info.net_node_port = 50040
+
+        if idx == 1:
             node_info.net_node_ip_address = "172.18.0.6"
             node_info.net_node_port = 50040
 

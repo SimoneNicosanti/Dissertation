@@ -43,6 +43,7 @@ class Plan:
 
     def __init_plan(self, solved_graph: SolvedModelGraph):
         for component_id in solved_graph.get_all_components():
+            print(component_id)
 
             key = str(component_id)
 
@@ -91,6 +92,13 @@ class Plan:
                     ## Input Node
                     input_names = input_names.union(edge_info.get_tensor_names())
 
+            if edge_id.first_node_id in comp_nodes and ModelGraph.is_generator_node(
+                edge_id.first_node_id
+            ):
+                ## If a component contains the input node
+                ## Then it has to receive all inputs
+                input_names = input_names.union(edge_info.get_tensor_names())
+
         return input_names
 
     def __find_output_names(
@@ -120,5 +128,16 @@ class Plan:
 
                     if second_node_comp != curr_comp_id:
                         output_connections[output_name].append(str(second_node_comp))
+
+            if edge_id.second_node_id in comp_nodes and ModelGraph.is_receiver_node(
+                edge_id.second_node_id
+            ):
+                ## If a component contains the output node
+                ## Then it has to output all model outputs
+                ## But there will be no next component
+                output_names = edge_info.get_tensor_names()
+                for output_name in output_names:
+                    output_connections.setdefault(output_name, [])
+                    # output_connections[output_name].append(str(curr_comp_id))
 
         return output_connections

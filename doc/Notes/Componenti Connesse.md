@@ -39,3 +39,10 @@ GenerateComponentId
 3. Altrimenti
 	1. Incrementa l'indice della componente attuale per il server
 	2. Usa la nuova componente (questa componente è stata creata ora per la prima volta, quindi nessuno può dipendere da lei).
+
+
+
+Nota aggiuntiva:
+I nodi di input ed output vengono gestiti in modo tale da fare sempre parte di componenti separate: in questo modo si semplifica la gestione del pre e del post processing. I gestori di queste componenti all'interno della *do_inference* non faranno altro che le operazioni di pre e post processing più eventualmente il salvataggio dell'output.
+
+A livello di FrontEnd questo non deve fare altro che connettersi su localhost al servizio ed inviare l'input alla componente del piano. Eventuali parametri per il pre e il post processing possono essere letti da un file di configurazione. Questa cosa permette anche la modellazione del passaggio di dati di pre-processing (come quelli generati per la segmentazione tra generator node ed input node).

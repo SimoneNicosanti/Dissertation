@@ -18,7 +18,7 @@ class ReachabilityInfo(_message.Message):
     ping_port: int
     def __init__(self, ip_address: _Optional[str] = ..., assignment_port: _Optional[int] = ..., inference_port: _Optional[int] = ..., ping_port: _Optional[int] = ...) -> None: ...
 
-class RegisterResponse(_message.Message):
+class ServerId(_message.Message):
     __slots__ = ("server_id",)
     SERVER_ID_FIELD_NUMBER: _ClassVar[int]
     server_id: str
@@ -29,8 +29,8 @@ class ServerInfo(_message.Message):
     REACHABILITY_INFO_FIELD_NUMBER: _ClassVar[int]
     SERVER_ID_FIELD_NUMBER: _ClassVar[int]
     reachability_info: ReachabilityInfo
-    server_id: str
-    def __init__(self, reachability_info: _Optional[_Union[ReachabilityInfo, _Mapping]] = ..., server_id: _Optional[str] = ...) -> None: ...
+    server_id: ServerId
+    def __init__(self, reachability_info: _Optional[_Union[ReachabilityInfo, _Mapping]] = ..., server_id: _Optional[_Union[ServerId, _Mapping]] = ...) -> None: ...
 
 class AllServerInfo(_message.Message):
     __slots__ = ("all_server_info",)

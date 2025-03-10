@@ -1,5 +1,6 @@
 import time
 from dataclasses import dataclass
+from operator import mod
 
 import pulp
 from Graph.Graph import NodeId
@@ -156,7 +157,9 @@ class OptimizationHandler:
         graph_name = model_graph.get_graph_name()
         if pulp.LpStatus[problem.status] != pulp.LpStatus[pulp.LpStatusOptimal]:
             ## Problem could not be solved
-            return SolvedModelGraph(problem_solved=False, solution_value=float("inf"))
+            return SolvedModelGraph(
+                graph_name=graph_name, problem_solved=False, solution_value=float("inf")
+            )
 
         solved_model_graph = SolvedModelGraph(
             graph_name, problem_solved=True, solution_value=problem.objective.value()
@@ -174,7 +177,11 @@ class OptimizationHandler:
                 mod_node_id = node_ass_key.mod_node_id
                 net_node_id = node_ass_key.net_node_id
 
-                node_info = SolvedNodeInfo(net_node_id)
+                node_info = SolvedNodeInfo(
+                    net_node_id,
+                    ModelGraph.is_generator_node(mod_node_id),
+                    ModelGraph.is_receiver_node(mod_node_id),
+                )
                 solved_model_graph.put_node(mod_node_id, node_info)
                 pass
             pass
