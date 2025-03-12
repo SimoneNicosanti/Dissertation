@@ -1,28 +1,46 @@
 syntax = "proto3";
-
 package server;
 
-service Model {
-    // (Method definitions not shown)
-    rpc serve_request(InferenceRequest) returns (InferenceResponse) {}
+import "common.proto";
+
+service Inference {
+    rpc do_inference(stream InferenceInput) returns (InferenceResponse) ;
 }
 
-message InferenceRequest {
-    Info info = 1;
-    repeated Data inputs = 2;
+
+service Assignee {
+    rpc send_plan(common.OptimizedPlan) returns (AssignmentResponse);
 }
 
-message Data {
+message AssignmentResponse {}
+
+
+
+message InferenceInput {
+    common.RequestId request_id = 1;
+    common.ComponentId component_id = 2;
+    Tensor input_tensor = 3;
+}
+
+
+
+message Tensor {
+    TensorInfo info = 1;
+    TensorChunk tensor_chunk = 2;
+}
+
+message TensorInfo {
     string name = 1;
     string type = 2 ;
     repeated int32 shape = 3 ;
-    bytes data = 4;
 }
 
-message Info {
-    int32 request_id = 1;
-    string client_id = 2;
-    string model_name = 3;
+message TensorChunk {
+    int32 chunk_size = 1;
+    bytes chunk_data = 2;
 }
 
-message InferenceResponse {}
+
+message InferenceResponse {
+    
+}

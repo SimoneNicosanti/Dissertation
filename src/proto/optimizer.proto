@@ -1,37 +1,17 @@
 syntax = "proto3";
+package optimizer;
+
+import "common.proto";
 
 service Optimization {
-    rpc serve_optimization(stream OptimizationRequest) returns (OptimizationResponse);
-    rpc send_model(stream ModelChunk) returns (ModelSendResponse);
+    rpc serve_optimization(OptimizationRequest) returns (common.OptimizedPlan);
 }
 
 message OptimizationRequest {
-    string model_name = 1 ;
-    repeated int32 inference_shape = 2 ;
+    repeated string model_names = 1 ; // List of model to ask optimization for
+    float latency_weight=2 ;
+    float energy_weight=3 ;
+    float device_max_energy=4 ;
+    repeated int32 requests_number=5;
+    string deployment_server = 6;
 }
-
-message OptimizationResponse {
-    repeated ModelAssignment assignments = 1 ;
-    repeated BlockNext next_blocks = 2 ;
-}
-
-message ModelAssignment {
-    string block_id = 1 ;
-    string server_id = 2 ; 
-}
-
-message BlockNext {
-    string block_id = 1 ;
-    string output_name = 2 ;
-    string next_block_id = 3 ;
-}
-
-message ModelChunk {
-    string model_name = 1 ;
-    int32 model_size = 2 ;
-    int32 chunk_idx = 3 ;
-    bytes chunk = 4 ;
-}
-
-
-message ModelSendResponse {}

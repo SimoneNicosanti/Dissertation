@@ -1,7 +1,6 @@
 import abc
 
-from Graph.AssignmentGraph import AssignmentGraph
-from Graph.Graph import Graph, NodeId
+from Optimizer.Graph.Graph import Graph, NodeId
 
 
 class ModelPartitioner(abc.ABC):
@@ -10,7 +9,5 @@ class ModelPartitioner(abc.ABC):
         self.model_path = model_path
 
     @abc.abstractmethod
-    def partition_model(
-        self, net_node_id: NodeId, sub_graphs: list[Graph]
-    ) -> AssignmentGraph:
+    def partition_model(self, net_node_id: NodeId, sub_graphs: list[Graph]):
         pass

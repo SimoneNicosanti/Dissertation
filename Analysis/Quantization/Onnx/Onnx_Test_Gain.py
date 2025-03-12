@@ -7,12 +7,13 @@ import onnxruntime as ort
 from onnx import ModelProto
 from onnxruntime.quantization.quantize import (
     QuantFormat,
+    QuantType,
     quantize_static,
 )
 from onnxruntime.quantization.shape_inference import quant_pre_process
 
-NUM_RUNS = 10
-MODEL_NAME = "../models/resnet50-v1-7/resnet50-v1-7"
+NUM_RUNS = 5
+MODEL_NAME = "./yolo11m-seg"
 
 
 def generate_input(model: ModelProto):
@@ -53,16 +54,20 @@ def quantize_model(subModelName, nodesToQuantize=None):
         quant_format=QuantFormat.QDQ,
         calibration_data_reader=MyDataReader(subModelName + "_pre_quant.onnx"),
         nodes_to_quantize=nodesToQuantize,
+        per_channel=True,
+        reduce_range=True,
+        activation_type=QuantType.QUInt8,
+        weight_type=QuantType.QUInt8,
     )
 
 
 def compute_avg_time(sess_options, modelName, num_runs=NUM_RUNS):
     model = onnx.load_model(modelName)
-    sess = ort.InferenceSession(modelName, providers=["OpenVINOExecutionProvider"])
+    sess_options = ort.SessionOptions()
+    sess = ort.InferenceSession(modelName, sess_options=sess_options)
 
     input = generate_input(model)
     time_array = np.zeros(num_runs)
-    start = time.time_ns()
     for i in range(0, num_runs):
         start = time.perf_counter_ns()
         out = sess.run(None, input_feed=input)
@@ -72,6 +77,10 @@ def compute_avg_time(sess_options, modelName, num_runs=NUM_RUNS):
 
 
 def main():
+
+    # model = ultralytics.YOLO("yolo11m-seg.pt")
+    # model.export(format=".onnx")
+
     onnx_model: ModelProto = onnx.load_model(MODEL_NAME + ".onnx")
 
     actual_outputs = set()
@@ -80,13 +89,13 @@ def main():
         actual_outputs = actual_outputs.union(list(node.output))
 
     times_dict = {}
+    speed_up_dict = {}
 
     idx = 0
     for node in onnx_model.graph.node:
         print(f"{idx}/{len(onnx_model.graph.node)}")
 
         sub_input = [inp for inp in node.input if inp in actual_outputs]
-        print(sub_input)
         onnx.utils.extract_model(
             MODEL_NAME + ".onnx", MODEL_NAME + "_sub.onnx", sub_input, node.output
         )
@@ -106,11 +115,14 @@ def main():
             np.linalg.norm(not_quant_out[0] - quant_out[0]),
         ]
 
+        speed_up_dict.setdefault(node.op_type, [])
+        speed_up_dict[node.op_type].append(not_quantized_time / quantized_time)
+
         idx += 1
 
     tot_times = [0, 0, 0]
     for key, value in times_dict.items():
-        print(key, value)
+        # print(key, value)
         tot_times[0] += value[0]
         tot_times[1] += value[1]
         tot_times[2] += value[1] if value[0] > value[1] else value[0]
@@ -121,6 +133,16 @@ def main():
         tot_times[0] / tot_times[1],
         tot_times[0] / tot_times[2],
     )
+
+    for op_type in speed_up_dict.keys():
+        print(
+            op_type,
+            np.mean(speed_up_dict[op_type]),
+            np.std(speed_up_dict[op_type]),
+            np.max(speed_up_dict[op_type]),
+            np.min(speed_up_dict[op_type]),
+            len(speed_up_dict[op_type]),
+        )
 
     quantizeNodes = []
     for key, value in times_dict.items():

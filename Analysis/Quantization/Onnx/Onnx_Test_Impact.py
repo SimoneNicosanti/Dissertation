@@ -64,6 +64,13 @@ def test_difference(input):
 
 
 def main():
+    # quantize()
+    # model = onnx.load_model(MODEL_NAME + "_quant.onnx")
+    # for initializer in model.graph.initializer:
+    #     print(initializer.name, initializer.data_type, initializer.dims)
+
+    # return
+
     onnx.utils.extract_model(
         MODEL_NAME + ".onnx",
         MODEL_NAME + "_extract.onnx",

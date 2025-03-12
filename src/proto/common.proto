@@ -1,0 +1,27 @@
+
+syntax = "proto3";
+package common;
+
+message ModelId {
+    string model_name = 1 ;
+    string deployer_id = 2 ;
+}
+
+message ComponentId {
+    ModelId model_id = 1;
+    string server_id = 2;
+    string component_idx = 3;
+}
+
+message RequestId {
+    string requester_id = 1;
+    int32 request_idx = 2;
+    int32 callback_port = 3;
+}
+
+message Empty {}
+
+message OptimizedPlan {
+    string deployer_id = 1;
+    map<string, string> plans_map = 2;
+}

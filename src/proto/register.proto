@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package register;
+
+import "common.proto";
+
+service Register {
+    rpc register_server(ReachabilityInfo) returns (ServerId);
+    rpc get_all_servers_info(common.Empty) returns (AllServerInfo);
+    rpc get_info_from_id(ServerId) returns (ReachabilityInfo);
+}
+
+
+message ReachabilityInfo {
+    string ip_address = 1;
+    int32 assignment_port = 2;
+    int32 inference_port = 3;
+    int32 ping_port = 4;
+}
+
+message ServerId {
+    string server_id = 1;
+}
+
+message ServerInfo {
+    ReachabilityInfo reachability_info = 1;
+    ServerId server_id = 2;
+}
+
+message AllServerInfo {
+    repeated ServerInfo all_server_info = 1;
+}
+
+
+

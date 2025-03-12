@@ -169,3 +169,13 @@ Esempio di Piani:
 - Plan_1: l'output del server_0 può essere mandato sia a server_1 che a server_2, per poi continuare. Questo potrebbe essere ad esempio per tolleranza ai guasti: se non risponde 1 lo mando a 2
 - Plan_2: l'output di server_0 viene mandato in parte a server_1 e in parte a server_2 per poi ricongiungere il tutto su server_3
 ![[Plans.svg|Generazione di Piani Diversi|650]]
+
+
+
+
+# Implementazione
+
+Da qui si vede che il GIL non è un problema con la *run* di ONNX: infatti dice esplicitamente che il GIL viene rilasciato per permettere la chiamata di *run* da parte di più thread
+https://github.com/microsoft/onnxruntime/issues/11246.
+Di base quindi si potrebbero eseguire più modelli senza creare dei processi diversi.
+Ad esempio si potrebbe creare un wrap del modello e delle sue componenti che espone un metodo di Run: il metodo di run internamente gestisce un semaforo per limitare il numero di thread che contemporaneamente possono andare a chiamare quel servizio.

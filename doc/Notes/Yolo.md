@@ -87,3 +87,28 @@ Modificate leggermente le classi in modo da creare un'interfaccia comune per ent
 | Modello Originale                         | Onnx PPP                                  |
 | ----------------------------------------- | ----------------------------------------- |
 | ![[Pasted image 20250227105920.jpg\|325]] | ![[Pasted image 20250227105937.jpg\|325]] |
+
+# Quantizzazione dei Modelli
+La quantizzazione dei modelli si può realizzare con Onnx fornendo un dataset di calibrazione.
+
+Come dataset di calibrazione è stato usato Coco128 (https://www.kaggle.com/datasets/ultralytics/coco128/).
+
+Il problema principale della quantizzazione fatta con Onnx è che quando i modelli vengono quantizzati, le predizioni sulle classi vengono portate tutte quante a zero, portando quindi a non avere predizioni di nessun tipo.
+Questo problema è riportato anche in:
+- https://github.com/microsoft/onnxruntime/issues/14233
+
+Come riportato in:
+- https://github.com/microsoft/onnxruntime/issues/14233
+- https://github.com/microsoft/onnxruntime/issues/17410
+- https://medium.com/@sulavstha007/quantizing-yolo-v8-models-34c39a2c10e2
+I livelli più bassi della rete tendono ad avere delle performance pessime perché il range dei valori dei tensori è molto grande. La soluzione è quella quindi di non quantizzare questi livelli. Tuttavia questi link fanno riferimento a Yolov8 o Yolov5 e non a versioni più recenti.
+
+Ci sono due alternative:
+- Fare export torch-->TFLite (Quantized Int) --> Onnx
+	- Troppe conversioni
+	- Vengono sollevati degli errori
+- Escludere alcuni livelli dalle quantizzazioni
+	- Alternative
+		- Si possono escludere n livelli vicino all'output per attenuare questo effetto
+		- Anche l'esclusione dell'ultimo livello di Concatenazione porta ad avere delle predizioni con delle prestazioni buone, quindi ci si potrebbe limitare a questo livello
+

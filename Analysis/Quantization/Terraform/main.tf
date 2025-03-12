@@ -20,7 +20,7 @@ resource "google_compute_instance" "vm_instance" {
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-pro-cloud/ubuntu-pro-2404-lts-amd64"
+      image = ## Use debian image
     }
   }
 
@@ -37,7 +37,10 @@ resource "google_compute_instance" "vm_instance" {
   provisioner "remote-exec" {
     inline = [
       "sudo apt-get update",
-      "sudo apt-get install python3-pip -y"
+      "sudo apt-get install python3-pip -y",
+      "sudo apt-get install python3-venv -y",
+      "cd /home/google/",
+      "python3 -m venv my_venv",
     ]
     connection {
       type        = "ssh"
@@ -46,4 +49,17 @@ resource "google_compute_instance" "vm_instance" {
       host        = self.network_interface[0].access_config[0].nat_ip   # Public IP of the instance
     }
   }
+
+  provisioner "file" {
+    content     = "./requirements.txt"
+    destination = "/home/google/requirements.txt"
+
+    connection {
+      type        = "ssh"
+      user        = "google"                                          # Default user for GCP instances
+      private_key = file("/home/customuser/.ssh/id_rsa")              # Path to your private SSH key
+      host        = self.network_interface[0].access_config[0].nat_ip   # Public IP of the instance
+    }
+  }
+
 }

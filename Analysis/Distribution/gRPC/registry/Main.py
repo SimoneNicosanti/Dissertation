@@ -4,7 +4,7 @@ import grpc
 import keras
 import tensorflow as tf
 from proto import registry_pb2_grpc
-from Registry import Registry
+from Registry import RegistryServer
 
 from Analysis.Manipulation import Splitter
 
@@ -52,7 +52,7 @@ def main():
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     registry_pb2_grpc.add_RegisterServicer_to_server(
-        Registry(partsNum=len(subModels), outputsNames=list(model.output.keys())),
+        RegistryServer(partsNum=len(subModels), outputsNames=list(model.output.keys())),
         server,
     )
     server.add_insecure_port("[::]:5000")

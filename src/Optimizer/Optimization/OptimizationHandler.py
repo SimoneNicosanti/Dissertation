@@ -1,39 +1,29 @@
+import time
 from dataclasses import dataclass
 
 import pulp
-from Graph.Graph import EdgeId, GraphInfo, NodeId
-from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
-from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
-from Optimization.SolvedProblemInfo import SolvedProblemInfo
+
+from Optimizer.Graph.Graph import NodeId
+from Optimizer.Graph.ModelGraph import ModelGraph
+from Optimizer.Graph.NetworkGraph import NetworkGraph
+from Optimizer.Graph.SolvedModelGraph import (
+    SolvedEdgeInfo,
+    SolvedModelGraph,
+    SolvedNodeInfo,
+)
+from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
+from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
+from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
 
 
+@dataclass
 class OptimizationParams:
+    latency_weight: float
+    energy_weight: float
 
-    COMPUTE_LATENCY_WEIGHT = 1
-    TRANSMISSION_LATENCY_WEIGHT = 2
-    COMPUTE_ENERGY_WEIGHT = 3
-    TRANSMISSION_ENERGY_WEIGHT = 4
+    device_max_energy: float
 
-    def __init__(self):
-        self.params_dict = {}
-
-    def add_param(self, param_id, param_value):
-        self.params_dict[param_id] = param_value
-
-    def get_param(self, param_id):
-        return self.params_dict.get(param_id, 0.0)
-
-
-@dataclass(frozen=True)
-class NodeAssKey:
-    mod_node_id: NodeId
-    net_node_id: NodeId
-
-
-@dataclass(frozen=True)
-class EdgeAssKey:
-    mod_edge_id: EdgeId
-    net_edge_id: EdgeId
+    requests_number: dict[str, int]
 
 
 class OptimizationHandler:
@@ -43,376 +33,173 @@ class OptimizationHandler:
 
     def optimize(
         self,
-        model_graph: ModelGraph,
+        model_graphs: list[ModelGraph],
         network_graph: NetworkGraph,
         deployment_server: NodeId,
-        optimization_params: OptimizationParams = None,
-    ) -> SolvedProblemInfo:
+        opt_params: OptimizationParams = None,
+    ) -> list[SolvedModelGraph]:
         problem: pulp.LpProblem = pulp.LpProblem("Partitioning", pulp.LpMinimize)
 
-        node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = (
-            self.define_node_assignment_vars(problem, model_graph, network_graph)
-        )
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = (
-            self.define_edge_assignment_vars(problem, model_graph, network_graph)
-        )
+        node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = {}
+        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = {}
+        mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = {}
 
-        self.add_constraints(
-            problem,
-            model_graph,
+        time.perf_counter_ns()
+        ## Defining variables
+        for curr_mod_graph in model_graphs:
+            curr_node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = (
+                VarsBuilder.define_node_assignment_vars(curr_mod_graph, network_graph)
+            )
+            node_ass_vars.update(curr_node_ass_vars)
+
+            curr_edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = (
+                VarsBuilder.define_edge_assignment_vars(curr_mod_graph, network_graph)
+            )
+            edge_ass_vars.update(curr_edge_ass_vars)
+
+            curr_mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = (
+                VarsBuilder.define_memory_use_vars(
+                    network_graph, curr_mod_graph.get_graph_name()
+                )
+            )
+            mem_use_vars.update(curr_mem_use_vars)
+
+        ## Adding Constraints
+        for curr_mod_graph in model_graphs:
+            ConstraintsBuilder.add_node_assignment_constraints(
+                problem, curr_mod_graph, node_ass_vars, deployment_server
+            )
+            ConstraintsBuilder.add_edge_assignment_constraints(
+                problem, curr_mod_graph, edge_ass_vars
+            )
+
+            ConstraintsBuilder.add_input_flow_constraints(
+                problem, curr_mod_graph, network_graph, node_ass_vars, edge_ass_vars
+            )
+            ConstraintsBuilder.add_output_flow_constraints(
+                problem, curr_mod_graph, network_graph, node_ass_vars, edge_ass_vars
+            )
+
+            ConstraintsBuilder.add_memory_constraints(
+                problem,
+                curr_mod_graph,
+                network_graph,
+                node_ass_vars,
+                mem_use_vars,
+                opt_params.requests_number.get(curr_mod_graph.get_graph_name()),
+            )
+
+        ## TODO Activate this when known energy model
+        # ConstraintsBuilder.add_energy_constraints(
+        #     problem,
+        #     model_graphs,
+        #     network_graph,
+        #     node_ass_vars,
+        #     opt_params.requests_number,
+        #     deployment_server,
+        #     opt_params.device_max_energy,
+        # )
+
+        ## Computing Latency Objective
+        latency_cost = LatencyComputer.compute_latency_cost(
+            model_graphs,
             network_graph,
-            deployment_server,
             node_ass_vars,
             edge_ass_vars,
+            opt_params.requests_number,
         )
 
-        compute_latency = self.computation_latency(
-            model_graph, network_graph, node_ass_vars
+        ## Computing Energy Objective
+        energy_cost = EnergyComputer.compute_energy_cost(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            edge_ass_vars,
+            opt_params.requests_number,
         )
 
-        transmission_latency = self.transmission_latency(
-            model_graph, network_graph, edge_ass_vars
+        latency_weight = opt_params.latency_weight / (
+            opt_params.latency_weight + opt_params.energy_weight
+        )
+        energy_weight = opt_params.energy_weight / (
+            opt_params.latency_weight + opt_params.energy_weight
         )
 
-        # compute_energy = self.computation_energy(
-        #     model_graph, network_graph, node_ass_vars
-        # )
-        # transmission_energy = self.transmission_energy(
-        #     model_graph, network_graph, edge_ass_vars
-        # )
+        problem += latency_weight * latency_cost + energy_weight * energy_cost
 
-        ## TODO Add quantization
-        problem += (
-            compute_latency
-            + transmission_latency
-            # + compute_energy
-            # + transmission_energy
-        )
+        time.perf_counter_ns()
 
         problem.solve(pulp.GLPK_CMD())
 
-        with open("VarFile.txt", "w") as f:
-            for var in problem.variables():
-                f.write(f"{var.name} = {var.varValue}\n")
+        # with open("./solved_problem/VarFile.txt", "w") as f:
+        #     for var in problem.variables():
+        #         f.write(f"{var.name} = {var.varValue}\n")
 
-        # # Print the objective function value
-        # print(f"Objective value = {pulp.value(problem.objective)}")
+        # Print the objective function value
+        print(f"Objective value = {pulp.value(problem.objective)}")
 
-        problem.writeLP("solved_problem.lp")
+        # problem.writeLP("./solved_problem/solved_problem.lp")
 
-        solved_problem_info: SolvedProblemInfo = self.build_solved_problem_info(
-            problem, node_ass_vars, edge_ass_vars
-        )
+        solved_model_graphs: list[SolvedModelGraph] = []
+        for mod_graph in model_graphs:
+            time.perf_counter_ns()
+            solved_model_graph: SolvedModelGraph = self.build_solved_model_graph(
+                problem, mod_graph, node_ass_vars, edge_ass_vars
+            )
+            solved_model_graphs.append(solved_model_graph)
+            time.perf_counter_ns()
+        return solved_model_graphs
 
-        return solved_problem_info
-
-    def build_solved_problem_info(
+    def build_solved_model_graph(
         self,
         problem: pulp.LpProblem,
+        model_graph: ModelGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
         edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
-    ) -> SolvedProblemInfo:
+    ) -> SolvedModelGraph:
 
+        graph_name = model_graph.get_graph_name()
         if pulp.LpStatus[problem.status] != pulp.LpStatus[pulp.LpStatusOptimal]:
             ## Problem could not be solved
-            return SolvedProblemInfo(problem_solved=False, solution_value=float("inf"))
+            return SolvedModelGraph(
+                graph_name=graph_name, problem_solved=False, solution_value=float("inf")
+            )
 
-        solved_problem_info = SolvedProblemInfo(
-            problem_solved=True, solution_value=problem.objective.value()
+        solved_model_graph = SolvedModelGraph(
+            graph_name, problem_solved=True, solution_value=problem.objective.value()
         )
-        for var in problem.variables():
-            if var.name.startswith("x_"):
-                ## Handle node assignment var
-                for node_ass_key, node_ass_var in node_ass_vars.items():
-                    if var.name == node_ass_var.name and var.varValue == 1.0:
-                        mod_node_id = node_ass_key.mod_node_id
-                        net_node_id = node_ass_key.net_node_id
-                        solved_problem_info.put_node_assignment(
-                            net_node_id, mod_node_id
-                        )
-                        break
+
+        filtered_node_ass = dict(
+            filter(lambda item: item[0].mod_name == graph_name, node_ass_vars.items())
+        )
+        filtered_edge_ass = dict(
+            filter(lambda item: item[0].mod_name == graph_name, edge_ass_vars.items())
+        )
+
+        for node_ass_key, node_ass_var in filtered_node_ass.items():
+            if node_ass_var.varValue == 1.0:
+                mod_node_id = node_ass_key.mod_node_id
+                net_node_id = node_ass_key.net_node_id
+
+                node_info = SolvedNodeInfo(
+                    net_node_id,
+                    ModelGraph.is_generator_node(mod_node_id),
+                    ModelGraph.is_receiver_node(mod_node_id),
+                )
+                solved_model_graph.put_node(mod_node_id, node_info)
                 pass
-            elif var.name.startswith("y_"):
-                ## Handle edge assignment var
-                for edge_ass_key, edge_ass_var in edge_ass_vars.items():
-                    if var.name == edge_ass_var.name and var.varValue == 1.0:
-                        mod_edge_id = edge_ass_key.mod_edge_id
-                        net_edge_id = edge_ass_key.net_edge_id
-                        solved_problem_info.put_edge_assignment(
-                            net_edge_id, mod_edge_id
-                        )
-                        break
-            else:
-                ## There should be no other variables
+            pass
+
+        for edge_ass_key, edge_ass_var in filtered_edge_ass.items():
+            if edge_ass_var.varValue == 1.0:
+                mod_edge_id = edge_ass_key.mod_edge_id
+                net_edge_id = edge_ass_key.net_edge_id
+
+                tensor_names = model_graph.get_edge_info(mod_edge_id).get_tensor_names()
+
+                edge_info = SolvedEdgeInfo(net_edge_id, tensor_names)
+                solved_model_graph.put_edge(mod_edge_id, edge_info)
                 pass
+            pass
 
-        return solved_problem_info
-
-    def add_constraints(
-        self,
-        problem: pulp.LpProblem,
-        model_graph: ModelGraph,
-        network_graph: NetworkGraph,
-        deployment_server_id: NodeId,
-        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
-    ):
-        ## One server per layer!!
-        for mod_node_id in model_graph.get_nodes_id():
-            var_list = []
-            for x_var_key, x_var in node_ass_vars.items():
-                if x_var_key.mod_node_id == mod_node_id:
-                    var_list.append(x_var)
-
-            problem += pulp.lpSum(var_list) == 1
-
-        ## One link per model edge
-        for mod_edge_id in model_graph.get_edges_id():
-            var_list = []
-            for y_var_key, y_var in edge_ass_vars.items():
-                if y_var_key.mod_edge_id == mod_edge_id:
-                    var_list.append(y_var)
-
-            problem += pulp.lpSum(var_list) == 1
-
-        ## First Flow Balance
-        for mod_edge_id in model_graph.get_edges_id():  ## (i, j)
-            for src_net_node_id in network_graph.get_nodes_id():  ## Net Node h
-                y_sum_vars = []
-                for dst_net_node_id in network_graph.get_nodes_id():  ## Net Node k
-                    net_edge_id = EdgeId(src_net_node_id, dst_net_node_id)
-                    y_var_key = EdgeAssKey(mod_edge_id, net_edge_id)
-
-                    if edge_ass_vars.get(y_var_key) is not None:
-                        y_sum_vars.append(edge_ass_vars[y_var_key])
-
-                x_var_key = NodeAssKey(mod_edge_id.first_node_id, src_net_node_id)
-                x_var = node_ass_vars[x_var_key]
-
-                problem += x_var == pulp.lpSum(y_sum_vars)
-
-        ## Second Flow Balance
-        for mod_edge_id in model_graph.get_edges_id():  ## (i, j)
-            for dst_net_node_id in network_graph.get_nodes_id():  ## Net Node k
-                y_sum_vars = []
-                for src_net_node_id in network_graph.get_nodes_id():  ## Net Node k
-                    net_edge_id = EdgeId(src_net_node_id, dst_net_node_id)
-                    y_var_key = EdgeAssKey(mod_edge_id, net_edge_id)
-
-                    if edge_ass_vars.get(y_var_key) is not None:
-                        y_sum_vars.append(edge_ass_vars[y_var_key])
-
-                x_var_key = NodeAssKey(
-                    mod_edge_id.second_node_id,
-                    dst_net_node_id,
-                )
-                x_var = node_ass_vars[x_var_key]
-
-                problem += x_var == pulp.lpSum(y_sum_vars)
-
-        ## Input nodes on server_0
-        for inp_node_id in model_graph.get_input_nodes():
-            x_var_key = NodeAssKey(inp_node_id, deployment_server_id)
-
-            x_var = node_ass_vars[x_var_key]
-            problem += x_var == 1
-
-        for out_node_id in model_graph.get_output_nodes():
-            x_var_key = NodeAssKey(out_node_id, deployment_server_id)
-
-            x_var = node_ass_vars[x_var_key]
-            problem += x_var == 1
-
-        # x_var_key = NodeAssKey(NodeId("Conv__435"), deployment_server_id)
-        # x_var = node_ass_vars[x_var_key]
-        # problem += x_var == 1
-
-    def computation_latency(
-        self,
-        model_graph: ModelGraph,
-        network_graph: NetworkGraph,
-        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-    ):
-
-        sum_elems = []
-        max_comp_latency = 0
-        for mod_node_id in model_graph.get_nodes_id():
-            for net_node_id in network_graph.get_nodes_id():
-                x_var_key = NodeAssKey(mod_node_id, net_node_id)
-                x_var = node_ass_vars[x_var_key]
-
-                comp_time = self.__get_computation_time(
-                    model_graph.get_node_info(mod_node_id),
-                    network_graph.get_node_info(net_node_id),
-                )
-                max_comp_latency = max(max_comp_latency, comp_time)
-                sum_elems.append(x_var * comp_time)
-
-        return pulp.lpSum(sum_elems) / max_comp_latency
-
-    def transmission_latency(
-        self,
-        model_graph: ModelGraph,
-        network_graph: NetworkGraph,
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
-    ):
-        sum_elems = []
-        max_trans_latency = 0
-        for net_node_id in network_graph.get_nodes_id():
-            for mod_edge_id in model_graph.get_edges_id():
-                for net_edge_id in network_graph.get_edges_id():
-                    if net_edge_id.first_node_id == net_node_id:
-                        y_var_key = EdgeAssKey(
-                            mod_edge_id,
-                            net_edge_id,
-                        )
-                        y_var = edge_ass_vars[y_var_key]
-
-                        trans_time = self.__get_transmission_time(
-                            model_graph.get_edge_info(mod_edge_id),
-                            network_graph.get_edge_info(net_edge_id),
-                            net_edge_id,
-                        )
-
-                        sum_elems.append(y_var * trans_time)
-
-                        max_trans_latency = max(
-                            max_trans_latency,
-                            trans_time,
-                        )
-
-        return pulp.lpSum(sum_elems) / max_trans_latency
-
-    def computation_energy(
-        self,
-        model_graph: ModelGraph,
-        network_graph: NetworkGraph,
-        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-    ):
-        ## TODO Scale Min-Max
-
-        tot_sum_elems = []
-        for net_node_id in network_graph.get_nodes_id():
-            net_node_sum_elems = []
-            for mod_node_id in model_graph.get_nodes_id():
-                x_var_key = NodeAssKey(mod_node_id, net_node_id)
-                x_var = node_ass_vars[x_var_key]
-
-                net_node_sum_elems.append(
-                    x_var
-                    * self.__get_computation_time(
-                        model_graph.get_node_info(mod_node_id),
-                        network_graph.get_node_info(net_node_id),
-                    )
-                )
-
-            net_node_sum = pulp.lpSum(net_node_sum_elems)
-            tot_sum_elems.append(
-                net_node_sum
-                * network_graph.get_node_info(net_node_id).get_info(
-                    GraphInfo.NET_NODE_COMP_ENERGY_PER_SEC
-                )
-            )
-
-        return pulp.lpSum(tot_sum_elems)
-
-    def transmission_energy(
-        self,
-        model_graph: ModelGraph,
-        network_graph: NetworkGraph,
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
-    ):
-        ## TODO Scale Min-Max
-
-        tot_sum_elems = []
-        for net_node_id in network_graph.get_nodes_id():
-            net_node_sum_elems = []
-            for mod_edge_id in model_graph.get_edges_id():
-                for dst_net_node_id in network_graph.get_nodes_id():
-                    net_edge_id = EdgeId(net_node_id, dst_net_node_id)
-                    y_var_key = EdgeAssKey(mod_edge_id, net_edge_id)
-                    y_var = edge_ass_vars[y_var_key]
-
-                    net_node_sum_elems.append(
-                        y_var
-                        * self.__get_transmission_time(
-                            model_graph.get_edge_info(mod_edge_id),
-                            network_graph.get_edge_info(net_edge_id),
-                            net_edge_id,
-                        )
-                    )
-
-            net_node_sum = pulp.lpSum(net_node_sum_elems)
-            tot_sum_elems.append(
-                net_node_sum
-                * network_graph.get_node_info(net_node_id).get_info(
-                    GraphInfo.NET_NODE_TRANS_ENERGY_PER_SEC
-                )
-            )
-
-        return pulp.lpSum(tot_sum_elems)
-
-    def define_node_assignment_vars(
-        self,
-        problem: pulp.LpProblem,
-        model_graph: ModelGraph,
-        network_graph: NetworkGraph,
-    ) -> dict[NodeAssKey, pulp.LpVariable]:
-
-        vars_table: dict[NodeAssKey, pulp.LpVariable] = {}
-        for mod_node_id in model_graph.get_nodes_id():
-            for net_node_id in network_graph.get_nodes_id():
-
-                var_name: str = self.__build_assignment_var_name(
-                    mod_node_id, net_node_id
-                )
-                lp_variable = pulp.LpVariable(var_name, cat=pulp.LpBinary)
-
-                # problem.addVariable(lp_variable)
-                table_key = NodeAssKey(mod_node_id, net_node_id)
-                vars_table[table_key] = lp_variable
-
-        return vars_table
-
-    def define_edge_assignment_vars(
-        self,
-        problem: pulp.LpProblem,
-        model_graph: ModelGraph,
-        network_graph: NetworkGraph,
-    ) -> dict[EdgeAssKey, pulp.LpVariable]:
-        vars_table: dict[EdgeAssKey, pulp.LpVariable] = {}
-        for mod_edge_id in model_graph.get_edges_id():
-            for net_edge_id in network_graph.get_edges_id():
-
-                var_name: str = self.__build_edge_var_name(mod_edge_id, net_edge_id)
-                lp_variable = pulp.LpVariable(var_name, cat=pulp.LpBinary)
-
-                table_key = EdgeAssKey(mod_edge_id, net_edge_id)
-                vars_table[table_key] = lp_variable
-
-        return vars_table
-
-    def __build_assignment_var_name(self, modelNode: NodeId, networkNode: NodeId):
-        return "x_({})({})".format(modelNode, networkNode)
-
-    def __build_edge_var_name(self, modelEdge: EdgeId, networkEdge: EdgeId):
-        return "y_({})({})".format(modelEdge, networkEdge)
-
-    def __get_transmission_time(
-        self, mod_edge_info: GraphInfo, net_edge_info: GraphInfo, net_edge_id: EdgeId
-    ) -> float:
-        ## Note --> Assuming Bandwidth in Byte / s
-
-        if net_edge_id.first_node_id == net_edge_id.second_node_id:
-            return 0
-
-        return mod_edge_info.get_info(
-            ModelEdgeInfo.Attributes.MOD_EDGE_DATA_SIZE
-        ) / net_edge_info.get_info(NetworkEdgeInfo.Attributes.NET_EDGE_BANDWIDTH)
-
-    def __get_computation_time(
-        self, mod_node_info: GraphInfo, net_node_info: GraphInfo
-    ) -> float:
-        return mod_node_info.get_info(
-            ModelNodeInfo.Attributes.MOD_NODE_FLOPS
-        ) / net_node_info.get_info(NetworkNodeInfo.Attributes.NET_NODE_FLOPS_PER_SEC)
+        return solved_model_graph
