@@ -8,8 +8,6 @@ import yaml
 
 from Client.PPP.YoloSegmentationPPP import YoloSegmentationPPP
 from proto_compiled.common_pb2 import ComponentId, ModelId, RequestId
-from proto_compiled.optimizer_pb2 import OptimizationRequest
-from proto_compiled.optimizer_pb2_grpc import OptimizationStub
 from proto_compiled.server_pb2 import InferenceInput, Tensor, TensorChunk, TensorInfo
 from proto_compiled.server_pb2_grpc import InferenceStub
 
@@ -17,8 +15,6 @@ MAX_CHUNK_SIZE = 3 * 1024 * 1024
 
 
 def main():
-
-    time.sleep(5)
 
     server_stub: InferenceStub = InferenceStub(grpc.insecure_channel("localhost:50090"))
 
@@ -31,6 +27,22 @@ def main():
     pre_image: numpy.ndarray = preprocess_dict["preprocessed_image"]
 
     server_stub.do_inference(input_generator(pre_image))
+
+    output = numpy.load("./output.npz")
+    output0 = output["output0"]
+    output1 = output["output1"]
+
+    post_image = yolo_segmentation_ppp.postprocess(
+        orig_image,
+        [output0, output1],
+        0.5,
+        0.5,
+        ratio=preprocess_dict["ratio"],
+        pad_w=preprocess_dict["pad_w"],
+        pad_h=preprocess_dict["pad_h"],
+        nm=32,
+    )
+    cv2.imwrite("./Client/test/Test_Image_Out.jpg", post_image)
 
 
 def input_generator(image: numpy.ndarray):
@@ -48,7 +60,7 @@ def input_generator(image: numpy.ndarray):
         server_id="0",
         component_idx="0",
     )
-    request_id = RequestId(requester_id="0", request_idx=0)
+    request_id = RequestId(requester_id="0", request_idx=0, callback_port=50090)
     tensor_info = TensorInfo(name="images", type=str(tensor_type), shape=tensor_shape)
     while chunk_data := byte_buffer.read(MAX_CHUNK_SIZE):
         tensor_chunk = TensorChunk(chunk_size=len(chunk_data), chunk_data=chunk_data)

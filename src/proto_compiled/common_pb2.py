@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x63ommon.proto\x12\x06\x63ommon\"2\n\x07ModelId\x12\x12\n\nmodel_name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65ployer_id\x18\x02 \x01(\t\"Z\n\x0b\x43omponentId\x12!\n\x08model_id\x18\x01 \x01(\x0b\x32\x0f.common.ModelId\x12\x11\n\tserver_id\x18\x02 \x01(\t\x12\x15\n\rcomponent_idx\x18\x03 \x01(\t\"6\n\tRequestId\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x13\n\x0brequest_idx\x18\x02 \x01(\x05\"\x07\n\x05\x45mpty\"\x8d\x01\n\rOptimizedPlan\x12\x13\n\x0b\x64\x65ployer_id\x18\x01 \x01(\t\x12\x36\n\tplans_map\x18\x02 \x03(\x0b\x32#.common.OptimizedPlan.PlansMapEntry\x1a/\n\rPlansMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x63ommon.proto\x12\x06\x63ommon\"2\n\x07ModelId\x12\x12\n\nmodel_name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65ployer_id\x18\x02 \x01(\t\"Z\n\x0b\x43omponentId\x12!\n\x08model_id\x18\x01 \x01(\x0b\x32\x0f.common.ModelId\x12\x11\n\tserver_id\x18\x02 \x01(\t\x12\x15\n\rcomponent_idx\x18\x03 \x01(\t\"M\n\tRequestId\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x13\n\x0brequest_idx\x18\x02 \x01(\x05\x12\x15\n\rcallback_port\x18\x03 \x01(\x05\"\x07\n\x05\x45mpty\"\x8d\x01\n\rOptimizedPlan\x12\x13\n\x0b\x64\x65ployer_id\x18\x01 \x01(\t\x12\x36\n\tplans_map\x18\x02 \x03(\x0b\x32#.common.OptimizedPlan.PlansMapEntry\x1a/\n\rPlansMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -38,11 +38,11 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_COMPONENTID']._serialized_start=76
   _globals['_COMPONENTID']._serialized_end=166
   _globals['_REQUESTID']._serialized_start=168
-  _globals['_REQUESTID']._serialized_end=222
-  _globals['_EMPTY']._serialized_start=224
-  _globals['_EMPTY']._serialized_end=231
-  _globals['_OPTIMIZEDPLAN']._serialized_start=234
-  _globals['_OPTIMIZEDPLAN']._serialized_end=375
-  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._serialized_start=328
-  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._serialized_end=375
+  _globals['_REQUESTID']._serialized_end=245
+  _globals['_EMPTY']._serialized_start=247
+  _globals['_EMPTY']._serialized_end=254
+  _globals['_OPTIMIZEDPLAN']._serialized_start=257
+  _globals['_OPTIMIZEDPLAN']._serialized_end=398
+  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._serialized_start=351
+  _globals['_OPTIMIZEDPLAN_PLANSMAPENTRY']._serialized_end=398
 # @@protoc_insertion_point(module_scope)

@@ -78,3 +78,17 @@ class PlanWrapper:
         return str(key_tuple[0]) == str(comp_info.server_id) and str(
             key_tuple[1]
         ) == str(comp_info.component_idx)
+
+    def get_input_and_output_component(self):
+        model_info = ModelInfo(self.model_name, self.deployer_id)
+        output_list = []
+        for key in self.plan_dict.keys():
+            key_tuple = ast.literal_eval(key)
+            if (
+                self.plan_dict[key]["is_only_output"]
+                or self.plan_dict[key]["is_only_input"]
+            ):
+                output_list.append(
+                    ComponentInfo(model_info, str(key_tuple[0]), str(key_tuple[1]))
+                )
+        return output_list

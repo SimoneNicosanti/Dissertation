@@ -2,8 +2,6 @@ import socket
 from concurrent import futures
 
 import grpc
-from Server.Assignee.Assignee import Fetcher
-from Server.Inference.IntermediateServer import IntermediateServer
 
 from proto_compiled.register_pb2 import ReachabilityInfo, ServerId
 from proto_compiled.register_pb2_grpc import RegisterStub
@@ -11,6 +9,8 @@ from proto_compiled.server_pb2_grpc import (
     add_AssigneeServicer_to_server,
     add_InferenceServicer_to_server,
 )
+from Server.Assignee.Assignee import Fetcher
+from Server.Inference.IntermediateServer import IntermediateServer
 
 ASSIGNEE_PORT = 50040
 INFERENCE_PORT = 50030
@@ -24,10 +24,11 @@ def main():
 
     register_response: ServerId = register_to_registry()
 
-    inferencer = start_inference_server()
+    inferencer, inference_server = start_inference_server()
     assignee_server = start_assignee_server(register_response.server_id, inferencer)
 
     assignee_server.wait_for_termination()
+    inference_server.wait_for_termination()
     pass
 
 
@@ -62,8 +63,10 @@ def start_inference_server():
     inferencer = IntermediateServer()
     add_InferenceServicer_to_server(inferencer, server)
     server.add_insecure_port(f"[::]:{INFERENCE_PORT}")
+
+    server.start()
     print(f"Inference Server running on port {INFERENCE_PORT}...")
-    return inferencer
+    return inferencer, server
 
 
 if __name__ == "__main__":

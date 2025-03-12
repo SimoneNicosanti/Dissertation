@@ -24,12 +24,14 @@ class ComponentId(_message.Message):
     def __init__(self, model_id: _Optional[_Union[ModelId, _Mapping]] = ..., server_id: _Optional[str] = ..., component_idx: _Optional[str] = ...) -> None: ...
 
 class RequestId(_message.Message):
-    __slots__ = ("requester_id", "request_idx")
+    __slots__ = ("requester_id", "request_idx", "callback_port")
     REQUESTER_ID_FIELD_NUMBER: _ClassVar[int]
     REQUEST_IDX_FIELD_NUMBER: _ClassVar[int]
+    CALLBACK_PORT_FIELD_NUMBER: _ClassVar[int]
     requester_id: str
     request_idx: int
-    def __init__(self, requester_id: _Optional[str] = ..., request_idx: _Optional[int] = ...) -> None: ...
+    callback_port: int
+    def __init__(self, requester_id: _Optional[str] = ..., request_idx: _Optional[int] = ..., callback_port: _Optional[int] = ...) -> None: ...
 
 class Empty(_message.Message):
     __slots__ = ()

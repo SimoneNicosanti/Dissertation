@@ -1,10 +1,11 @@
-POOL_SERVER_PORT = 50000
 from concurrent import futures
 
 import grpc
-from ModelPool.PoolServer import PoolServer
 
+from ModelPool.PoolServer import PoolServer
 from proto_compiled.pool_pb2_grpc import add_ModelPoolServicer_to_server
+
+POOL_SERVER_PORT = 50000
 
 
 def main():

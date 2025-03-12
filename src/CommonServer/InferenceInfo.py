@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 
+import numpy
+
 
 @dataclass(frozen=True)
-class SharedTensorInfo:
+class TensorWrapper:
     tensor_name: str
     tensor_type: str
     tensor_shape: list
-    shared_memory_name: str
+    numpy_array: numpy.ndarray
 
 
 @dataclass(frozen=True)
@@ -26,3 +28,4 @@ class ComponentInfo:
 class RequestInfo:
     requester_id: str
     request_idx: int
+    callback_port: int

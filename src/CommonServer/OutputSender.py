@@ -3,7 +3,7 @@ import io
 import grpc
 import numpy
 
-from CommonServer.InferenceInfo import ComponentInfo, RequestInfo
+from CommonServer.InferenceInfo import ComponentInfo, RequestInfo, TensorWrapper
 from CommonServer.PlanWrapper import PlanWrapper
 from proto_compiled.common_pb2 import ComponentId, ModelId, RequestId
 from proto_compiled.register_pb2 import ReachabilityInfo, ServerId
@@ -18,32 +18,34 @@ class OutputSender:
     def __init__(self):
         self.register_stub = RegisterStub(grpc.insecure_channel("registry:50051"))
         self.next_server_channel: dict[str, grpc.Channel] = {}
+        self.callback_channel_dict: dict[str, grpc.Channel] = {}
+        self.reachability_info_dict: dict[str, ReachabilityInfo] = {}
 
     def send_output(
         self,
         plan_wrapper: PlanWrapper,
         component_info: ComponentInfo,
         request_info: RequestInfo,
-        infer_output: dict[str, numpy.ndarray],
+        infer_output: list[TensorWrapper],
     ):
         print("Sending Inference Output")
         next_components_dict: dict[str, list[ComponentInfo]] = (
             plan_wrapper.find_next_connections(component_info)
         )
 
-        for tensor_name in infer_output.keys():
-            print("Sending  {}".format(tensor_name))
-            for next_comp_info in next_components_dict[tensor_name]:
-                next_comp_stub: InferenceStub = (
-                    self.__open_connection_to_next_component(next_comp_info)
+        for tensor_wrap in infer_output:
+            print("Sending  {}".format(tensor_wrap.tensor_name))
+            for next_comp_info in next_components_dict[tensor_wrap.tensor_name]:
+                next_comp_stub: InferenceStub = self.__get_stub_for_next_server(
+                    plan_wrapper, next_comp_info, request_info
                 )
 
                 next_comp_stub.do_inference(
                     self.__stream_generator(
                         next_comp_info,
                         request_info,
-                        infer_output[tensor_name],
-                        tensor_name,
+                        tensor_wrap.numpy_array,
+                        tensor_wrap.tensor_name,
                     )
                 )
 
@@ -70,7 +72,9 @@ class OutputSender:
             component_idx=next_component_info.component_idx,
         )
         request_id = RequestId(
-            requester_id=request_info.requester_id, request_idx=request_info.request_idx
+            requester_id=request_info.requester_id,
+            request_idx=request_info.request_idx,
+            callback_port=request_info.callback_port,
         )
 
         tensor_type = input_tensor.dtype
@@ -94,20 +98,43 @@ class OutputSender:
                 input_tensor=tensor,
             )
 
-    def __open_connection_to_next_component(self, next_component_info: ComponentInfo):
+    def __get_stub_for_next_server(
+        self,
+        plan_wrapper: PlanWrapper,
+        next_component_info: ComponentInfo,
+        request_info: RequestInfo,
+    ):
 
-        if next_component_info.server_id not in self.next_server_channel.keys():
-
+        if next_component_info.server_id not in self.reachability_info_dict.keys():
+            pass
+            ## Find reachability info
             reachability_info: ReachabilityInfo = self.register_stub.get_info_from_id(
                 ServerId(server_id=next_component_info.server_id),
             )
-
-            server_stub = InferenceStub(
-                grpc.insecure_channel(
-                    f"{reachability_info.ip_address}:{reachability_info.inference_port}"
-                )
+            self.reachability_info_dict[next_component_info.server_id] = (
+                reachability_info
             )
 
-            self.next_server_channel[next_component_info.server_id] = server_stub
+        reachability_info = self.reachability_info_dict[next_component_info.server_id]
 
-        return self.next_server_channel[next_component_info.server_id]
+        if plan_wrapper.is_only_output_component(next_component_info):
+            ## Send back with callback
+            if next_component_info.server_id not in self.callback_channel_dict.keys():
+                channel = grpc.insecure_channel(
+                    f"{reachability_info.ip_address}:{request_info.callback_port}"
+                )
+                self.callback_channel_dict[next_component_info.server_id] = channel
+
+            channel = self.callback_channel_dict[next_component_info.server_id]
+        else:
+            if next_component_info.server_id not in self.next_server_channel.keys():
+                channel = grpc.insecure_channel(
+                    f"{reachability_info.ip_address}:{reachability_info.inference_port}"
+                )
+
+                self.next_server_channel[next_component_info.server_id] = channel
+            channel = self.next_server_channel[next_component_info.server_id]
+
+        server_stub = InferenceStub(channel)
+
+        return server_stub
