@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Graph.Graph import EdgeId, Graph, GraphInfo, NodeId
+from Optimizer.Graph.Graph import EdgeId, Graph, GraphInfo, NodeId
 
 
 class SolvedNodeInfo(GraphInfo):

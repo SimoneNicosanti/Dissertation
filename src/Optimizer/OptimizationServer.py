@@ -1,20 +1,23 @@
 import os
 import pickle
 
-from Graph import ConnectedComponents
-from Graph.ModelGraph import ModelGraph
-from Graph.NetworkGraph import NetworkGraph
-from Graph.SolvedModelGraph import SolvedModelGraph
-from Network.NetworkBuilder import NetworkBuilder
-from Optimization.OptimizationHandler import OptimizationHandler, OptimizationParams
-from Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
-from Plan.ModelDistributor import ModelDistributor
-from Plan.Plan import Plan
-from Plan.PlanDistributor import PlanDistributor
-from Profiler.OnnxModelProfiler import OnnxModelProfiler
-from proto.common_pb2 import OptimizedPlan
-from proto.optimizer_pb2 import OptimizationRequest
-from proto.optimizer_pb2_grpc import OptimizationServicer
+from Optimizer.Graph import ConnectedComponents
+from Optimizer.Graph.ModelGraph import ModelGraph
+from Optimizer.Graph.NetworkGraph import NetworkGraph
+from Optimizer.Graph.SolvedModelGraph import SolvedModelGraph
+from Optimizer.Network.NetworkBuilder import NetworkBuilder
+from Optimizer.Optimization.OptimizationHandler import (
+    OptimizationHandler,
+    OptimizationParams,
+)
+from Optimizer.Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
+from Optimizer.Plan.ModelDistributor import ModelDistributor
+from Optimizer.Plan.Plan import Plan
+from Optimizer.Plan.PlanDistributor import PlanDistributor
+from Optimizer.Profiler.OnnxModelProfiler import OnnxModelProfiler
+from proto_compiled.common_pb2 import OptimizedPlan
+from proto_compiled.optimizer_pb2 import OptimizationRequest
+from proto_compiled.optimizer_pb2_grpc import OptimizationServicer
 
 MODEL_PROFILES_DIR = "/optimizer_data/model_profiles/"
 MODEL_DIR = "/optimizer_data/models/"

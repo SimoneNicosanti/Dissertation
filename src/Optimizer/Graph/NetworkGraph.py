@@ -1,4 +1,4 @@
-from Graph.Graph import Graph, GraphInfo
+from Optimizer.Graph.Graph import Graph, GraphInfo
 
 
 class NetworkGraph(Graph):

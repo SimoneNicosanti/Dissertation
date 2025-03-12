@@ -1,6 +1,6 @@
 import abc
 
-from Graph.ModelGraph import ModelGraph
+from Optimizer.Graph.ModelGraph import ModelGraph
 
 
 class ModelProfiler(abc.ABC):

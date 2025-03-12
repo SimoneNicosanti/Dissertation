@@ -1,6 +1,6 @@
 import abc
 
-from Graph.Graph import Graph, NodeId
+from Optimizer.Graph.Graph import Graph, NodeId
 
 
 class ModelPartitioner(abc.ABC):

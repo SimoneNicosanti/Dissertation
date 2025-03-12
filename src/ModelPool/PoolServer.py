@@ -2,15 +2,16 @@ import os
 from typing import Iterator
 
 import grpc
-from proto.common_pb2 import ComponentId, ModelId
-from proto.pool_pb2 import (
+
+from proto_compiled.common_pb2 import ComponentId, ModelId
+from proto_compiled.pool_pb2 import (
     ModelChunk,
     PullRequest,
     PullResponse,
     PushRequest,
     PushResponse,
 )
-from proto.pool_pb2_grpc import ModelPoolServicer
+from proto_compiled.pool_pb2_grpc import ModelPoolServicer
 
 MODEL_CHUNK_MAX_SIZE = 3 * 1024 * 1024  # Read up to 3 MB per chunk
 
@@ -25,7 +26,7 @@ class PoolServer(ModelPoolServicer):
         first_request: PushRequest = next(request_iterator)
         component_id: ComponentId = first_request.component_id
         model_name: str = component_id.model_id.model_name
-        deployer_id: str = component_id.model_id.model_name
+        deployer_id: str = component_id.model_id.deployer_id
         server_id: str = component_id.server_id
         model_component_idx: str = component_id.component_idx
 
@@ -61,7 +62,7 @@ class PoolServer(ModelPoolServicer):
             model_name, deployer_id, server_id, model_component_idx
         )
         model_path = os.path.join(MODEL_DIRECTORY_PATH, model_file_name)
-
+        print("Asked for file with path >> ", model_path)
         try:
             model_chunk_idx = 0
             with open(model_path, "rb") as model_file:

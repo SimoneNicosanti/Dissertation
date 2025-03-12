@@ -1,9 +1,9 @@
 import pulp
-from Graph.Graph import NodeId
-from Graph.ModelGraph import ModelGraph
-from Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
-from Optimization import LatencyComputer
-from Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
+from Optimizer.Graph.Graph import NodeId
+from Optimizer.Graph.ModelGraph import ModelGraph
+from Optimizer.Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
+from Optimizer.Optimization import LatencyComputer
+from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 
 ## TODO Check Normalization Min-Max: Per model or total
 

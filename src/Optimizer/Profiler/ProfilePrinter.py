@@ -1,6 +1,6 @@
 import csv
 
-from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
+from Optimizer.Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 
 
 def print_profile_csv(model_graph: ModelGraph, file_path: str) -> None:

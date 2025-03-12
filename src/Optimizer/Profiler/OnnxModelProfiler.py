@@ -5,9 +5,9 @@ import tempfile
 import numpy as np
 import onnx
 import onnx_tool
-from Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
+from Optimizer.Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 from onnx.mapping import TENSOR_TYPE_MAP
-from Profiler.ModelProfiler import ModelProfiler
+from Optimizer.Profiler.ModelProfiler import ModelProfiler
 
 
 class OnnxModelProfiler(ModelProfiler):

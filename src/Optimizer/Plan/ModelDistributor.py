@@ -1,10 +1,11 @@
 import os
 
 import grpc
-from Plan.Plan import Plan
-from proto.common_pb2 import ComponentId, ModelId
-from proto.pool_pb2 import ModelChunk, PushRequest
-from proto.pool_pb2_grpc import ModelPoolStub
+from Optimizer.Plan.Plan import Plan
+
+from proto_compiled.common_pb2 import ComponentId, ModelId
+from proto_compiled.pool_pb2 import ModelChunk, PushRequest
+from proto_compiled.pool_pb2_grpc import ModelPoolStub
 
 POOL_PORT = 50000
 MODEL_CHUNK_MAX_SIZE = 3 * 1024 * 1024

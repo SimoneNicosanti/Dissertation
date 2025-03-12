@@ -1,8 +1,8 @@
 import json
 
-from Graph.Graph import NodeId
-from Graph.ModelGraph import ModelGraph
-from Graph.SolvedModelGraph import ComponentId, SolvedEdgeInfo, SolvedModelGraph
+from Optimizer.Graph.Graph import NodeId
+from Optimizer.Graph.ModelGraph import ModelGraph
+from Optimizer.Graph.SolvedModelGraph import ComponentId, SolvedEdgeInfo, SolvedModelGraph
 
 
 class Plan:

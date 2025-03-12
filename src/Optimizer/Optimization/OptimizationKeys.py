@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Graph.Graph import EdgeId, NodeId
+from Optimizer.Graph.Graph import EdgeId, NodeId
 
 
 @dataclass(frozen=True)

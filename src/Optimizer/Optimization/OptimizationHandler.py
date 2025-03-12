@@ -1,15 +1,19 @@
 import time
 from dataclasses import dataclass
-from operator import mod
 
 import pulp
-from Graph.Graph import NodeId
-from Graph.ModelGraph import ModelGraph
-from Graph.NetworkGraph import NetworkGraph
-from Graph.SolvedModelGraph import SolvedEdgeInfo, SolvedModelGraph, SolvedNodeInfo
-from Optimization import EnergyComputer, LatencyComputer, VarsBuilder
-from Optimization.ConstraintsBuilder import ConstraintsBuilder
-from Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
+
+from Optimizer.Graph.Graph import NodeId
+from Optimizer.Graph.ModelGraph import ModelGraph
+from Optimizer.Graph.NetworkGraph import NetworkGraph
+from Optimizer.Graph.SolvedModelGraph import (
+    SolvedEdgeInfo,
+    SolvedModelGraph,
+    SolvedNodeInfo,
+)
+from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
+from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
+from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
 
 
 @dataclass
@@ -127,14 +131,14 @@ class OptimizationHandler:
 
         problem.solve(pulp.GLPK_CMD())
 
-        with open("./solved_problem/VarFile.txt", "w") as f:
-            for var in problem.variables():
-                f.write(f"{var.name} = {var.varValue}\n")
+        # with open("./solved_problem/VarFile.txt", "w") as f:
+        #     for var in problem.variables():
+        #         f.write(f"{var.name} = {var.varValue}\n")
 
         # Print the objective function value
         print(f"Objective value = {pulp.value(problem.objective)}")
 
-        problem.writeLP("./solved_problem/solved_problem.lp")
+        # problem.writeLP("./solved_problem/solved_problem.lp")
 
         solved_model_graphs: list[SolvedModelGraph] = []
         for mod_graph in model_graphs:

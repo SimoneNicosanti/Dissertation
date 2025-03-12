@@ -1,8 +1,8 @@
 import pulp
-from Graph.Graph import EdgeId, NodeId
-from Graph.ModelGraph import ModelGraph
-from Graph.NetworkGraph import NetworkGraph
-from Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
+from Optimizer.Graph.Graph import EdgeId, NodeId
+from Optimizer.Graph.ModelGraph import ModelGraph
+from Optimizer.Graph.NetworkGraph import NetworkGraph
+from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
 
 
 def define_node_assignment_vars(

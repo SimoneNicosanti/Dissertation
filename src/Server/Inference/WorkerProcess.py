@@ -1,91 +1,100 @@
+import multiprocessing
+import multiprocessing.connection
+from multiprocessing import shared_memory
+
 import numpy
-from Inference.ComponentManager import (
-    ComponentManager,
-    ComponentManagerInput,
-    ComponentManagerIntermediate,
-    ComponentManagerOutput,
-)
-from Inference.InferenceInfo import ComponentInfo, RequestInfo, SharedTensorInfo
-from Inference.OutputSender import OutputSender
-from Wrapper.PlanWrapper import PlanWrapper
-from Wrapper.QueueWrapper import QueueWrapper
+import onnxruntime as ort
+
+from CommonServer.InferenceInfo import ComponentInfo, SharedTensorInfo
 
 
-class WorkerProcess:
-    def __init__(self, queue_wrapper: QueueWrapper, plan_wrapper: PlanWrapper):
-        self.queue_wrapper = queue_wrapper
-        self.plan_wrapper = plan_wrapper
-        self.component_manager_dict = {}
+def prepare_input(input_list: list[SharedTensorInfo]) -> dict[str, numpy.ndarray]:
 
-        self.output_sender = OutputSender(self.plan_wrapper)
+    input_dict = {}
+    shared_mem_refs = []
+    for shared_tensor_info in input_list:
+        shared_mem_name = shared_tensor_info.shared_memory_name
+        shared_mem = shared_memory.SharedMemory(shared_mem_name, create=False)
 
-    def do_work(self):
-        while True:
-
-            extracted_data: tuple = self.queue_wrapper.extract_from_queue()
-            if extracted_data[0] == QueueWrapper.SPAWN_MESSAGE:
-                component_info = extracted_data[1]
-                component_path = extracted_data[2]
-                self.handle_component_spawn(component_info, component_path)
-
-            elif extracted_data[0] == QueueWrapper.INPUT_MESSAGE:
-                component_info = extracted_data[1]
-                request_info = extracted_data[2]
-                shared_tensor_info = extracted_data[3]
-                self.handle_input_pass(
-                    component_info,
-                    request_info,
-                    shared_tensor_info,
-                )
-            else:
-                raise Exception("Unknown queue")
-
-    def handle_component_spawn(
-        self,
-        component_info: ComponentInfo,
-        component_path: str,
-    ):
-        is_only_input = self.plan_wrapper.is_only_input_component(component_info)
-        is_only_output = self.plan_wrapper.is_only_output_component(component_info)
-        print("Handling Spawn for component {}".format(component_path))
-        if component_info in self.component_manager_dict:
-            return
-
-        component_inputs = self.plan_wrapper.get_input_for_component(component_info)
-        if is_only_input:
-            comp_manager = ComponentManagerInput(component_info, component_inputs, [])
-        elif is_only_output:
-            comp_manager = ComponentManagerOutput(
-                component_info, component_inputs, [], ""
-            )
-            pass
-        else:
-            comp_manager = ComponentManagerIntermediate(
-                component_info, component_inputs, [], component_path
-            )
-
-        self.component_manager_dict[component_info] = comp_manager
-
-    def handle_input_pass(
-        self,
-        component_info: ComponentInfo,
-        request_info: RequestInfo,
-        shared_tensor_info: SharedTensorInfo,
-    ):
-
-        component_manager: ComponentManager = self.component_manager_dict[
-            component_info
-        ]
-
-        infer_output: dict[str, numpy.ndarray] = component_manager.pass_input_and_infer(
-            request_info, shared_tensor_info
+        input_tensor = numpy.ndarray(
+            buffer=shared_mem.buf,
+            dtype=shared_tensor_info.tensor_type,
+            shape=shared_tensor_info.tensor_shape,
         )
-        if infer_output is None:
-            ## Inference not ready for this request
-            return
 
-        self.output_sender.send_output(component_info, request_info, infer_output)
+        input_dict[shared_tensor_info.tensor_name] = input_tensor
+
+        shared_mem_refs.append(shared_mem)
+
+    return input_dict, shared_mem_refs
 
 
-def work(queue_wrapper: QueueWrapper, plan_wrapper: PlanWrapper) -> None:
-    WorkerProcess(queue_wrapper, plan_wrapper).do_work()
+def prepare_output(output_dict: dict[str, numpy.ndarray]) -> list[SharedTensorInfo]:
+
+    shared_output_tensor_list = []
+    for output_name, output_tensor in output_dict.items():
+        shared_mem = shared_memory.SharedMemory(create=True, size=output_tensor.nbytes)
+
+        shared_mem.buf[:] = output_tensor[:]
+
+        shared_tensor_info = SharedTensorInfo(
+            tensor_name=output_name,
+            tensor_type=output_tensor.dtype,
+            tensor_shape=output_tensor.shape,
+            shared_memory_name=shared_mem.name,
+        )
+
+        shared_output_tensor_list.append(shared_tensor_info)
+
+        shared_mem.close()
+
+    return shared_output_tensor_list
+
+
+def do_inference(
+    infer_session: ort.InferenceSession, input_dict: dict[str, numpy.ndarray]
+):
+    output_names = [out.name for out in infer_session.get_outputs()]
+    output_list = infer_session.run(output_names=output_names, input_feed=input_dict)
+    output_dict = dict(zip(output_names, output_list))
+
+    return output_dict
+
+
+def close_shared_memory(shared_mem_refs: list[shared_memory.SharedMemory]):
+    for shared_mem in shared_mem_refs:
+        shared_mem.close()
+
+
+def return_result(self, output_list: list[SharedTensorInfo]):
+    self.worker_conn.send(output_list)
+
+
+def receive_input(self) -> tuple[ComponentInfo, list[SharedTensorInfo]]:
+    return self.worker_conn.recv()
+
+
+def start_worker_process(
+    components_dict: dict[ComponentInfo, str],
+    worker_conn: multiprocessing.connection.Connection,
+) -> None:
+
+    inference_session_dict: dict[ComponentInfo, ort.InferenceSession] = {}
+
+    for component_info, component_path in components_dict.items():
+        inference_session_dict[component_info] = ort.InferenceSession(component_path)
+
+    while input_data := worker_conn.recv():
+        comp_info, shared_input_tensor_list = input_data
+
+        input_dict, shared_mem_refs = prepare_input(shared_input_tensor_list)
+
+        output_dict = do_inference(
+            infer_session=inference_session_dict[comp_info], input_dict=input_dict
+        )
+
+        close_shared_memory(shared_mem_refs)
+
+        shared_output_tensor_list = prepare_output(output_dict=output_dict)
+
+        worker_conn.send(shared_output_tensor_list)

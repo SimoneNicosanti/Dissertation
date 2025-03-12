@@ -12,7 +12,11 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./Optimizer:/src
+      - ./Optimizer:/src/Optimizer
+      - ./proto_compiled:/src/proto_compiled
+      - ./Main/OptimizerMain.py:/src/Main.py
+      - ./start.sh:/src/start.sh
+
       - ./Optimizer/models:/optimizer_data/models
       - ./Optimizer/model_profiles:/optimizer_data/model_profiles
       - ./Optimizer/divided_models:/optimizer_data/divided_models
@@ -26,7 +30,10 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./Registry:/src
+      - ./proto_compiled:/src/proto_compiled
+      - ./Registry:/src/Registry
+      - ./Main/RegistryMain.py:/src/Main.py
+      - ./start.sh:/src/start.sh
     working_dir: /src
 
   server:
@@ -37,10 +44,14 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./Server:/src
+      - ./Server:/src/Server
+      - ./CommonServer:/src/CommonServer
+      - ./proto_compiled:/src/proto_compiled
+      - ./Main/ServerMain.py:/src/Main.py
+      - ./start.sh:/src/start.sh
     working_dir: /src
 
-  frontend:
+  client:
     build:
       dockerfile: ./docker/server.dockerfile
     tty: true
@@ -48,8 +59,17 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./FrontEnd:/src/FrontEnd
+      - ./Client:/src/Client
       - ./Server:/src/Server
+      - ./FrontEnd:/src/FrontEnd
+      - ./CommonServer:/src/CommonServer
+      - ./proto_compiled:/src/proto_compiled
+
+      - ./Main/ServerMain.py:/src/ServerMain.py
+      - ./Main/FrontEndMain.py:/src/FrontEndMain.py
+      - ./Main/ClientMain.py:/src/ClientMain.py
+
+      - ./start.sh:/src/start.sh
     working_dir: /src
 
   pool:
@@ -60,21 +80,11 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./ModelPool:/src
+      - ./ModelPool:/src/ModelPool
+      - ./proto_compiled:/src/proto_compiled
+      - ./Main/ModelPoolMain.py:/src/Main.py
+      - ./start.sh:/src/start.sh
     working_dir: /src
-
-  # load_balancer:
-  #   build:
-  #     dockerfile: ./docker/load_balancer.dockerfile
-  #   tty: true
-  #   stdin_open: true
-  #   networks:
-  #     - sdcc_network
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - ./load_balancer:/src
-  #     - ./proto/load_balancer:/proto
 
   # edge:
   #   build:

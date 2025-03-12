@@ -1,11 +1,11 @@
-from proto.common_pb2 import Empty
-from proto.register_pb2 import (
+from proto_compiled.common_pb2 import Empty
+from proto_compiled.register_pb2 import (
     AllServerInfo,
     ReachabilityInfo,
     ServerId,
     ServerInfo,
 )
-from proto.register_pb2_grpc import RegisterServicer
+from proto_compiled.register_pb2_grpc import RegisterServicer
 
 
 class RegistryServer(RegisterServicer):

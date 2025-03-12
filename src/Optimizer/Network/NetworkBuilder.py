@@ -1,8 +1,9 @@
 import grpc
-from Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
-from proto.common_pb2 import Empty
-from proto.register_pb2 import AllServerInfo, ServerInfo
-from proto.register_pb2_grpc import RegisterStub
+from Optimizer.Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
+
+from proto_compiled.common_pb2 import Empty
+from proto_compiled.register_pb2 import AllServerInfo, ServerInfo
+from proto_compiled.register_pb2_grpc import RegisterStub
 
 
 class NetworkBuilder:

@@ -1,8 +1,5 @@
-from operator import is_
-
-from Graph.Graph import Graph, NodeId
-from Graph.ModelGraph import ModelGraph
-from Graph.SolvedModelGraph import (
+from Optimizer.Graph.Graph import Graph, NodeId
+from Optimizer.Graph.SolvedModelGraph import (
     ComponentId,
     SolvedModelGraph,
     SolvedNodeInfo,

@@ -174,3 +174,8 @@ Esempio di Piani:
 
 
 # Implementazione
+
+Da qui si vede che il GIL non è un problema con la *run* di ONNX: infatti dice esplicitamente che il GIL viene rilasciato per permettere la chiamata di *run* da parte di più thread
+https://github.com/microsoft/onnxruntime/issues/11246.
+Di base quindi si potrebbero eseguire più modelli senza creare dei processi diversi.
+Ad esempio si potrebbe creare un wrap del modello e delle sue componenti che espone un metodo di Run: il metodo di run internamente gestisce un semaforo per limitare il numero di thread che contemporaneamente possono andare a chiamare quel servizio.

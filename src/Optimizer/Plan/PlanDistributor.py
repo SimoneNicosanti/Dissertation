@@ -1,7 +1,8 @@
 import grpc
-from Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
-from proto.common_pb2 import OptimizedPlan
-from proto.server_pb2_grpc import AssigneeStub
+from Optimizer.Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
+
+from proto_compiled.common_pb2 import OptimizedPlan
+from proto_compiled.server_pb2_grpc import AssigneeStub
 
 
 class PlanDistributor:

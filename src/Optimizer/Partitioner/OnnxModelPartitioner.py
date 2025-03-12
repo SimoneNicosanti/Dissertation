@@ -1,16 +1,9 @@
 import os
 
 import onnx
-from Graph.Graph import NodeId
-from Graph.ModelGraph import ModelEdgeInfo, ModelGraph
-from Graph.SolvedModelGraph import (
-    ComponentId,
-    SolvedEdgeInfo,
-    SolvedModelGraph,
-    SolvedNodeInfo,
-)
-from Partitioner.ModelPartitioner import ModelPartitioner
-from Plan.Plan import Plan
+from Optimizer.Graph.Graph import NodeId
+from Optimizer.Partitioner.ModelPartitioner import ModelPartitioner
+from Optimizer.Plan.Plan import Plan
 
 
 class OnnxModelPartitioner(ModelPartitioner):
