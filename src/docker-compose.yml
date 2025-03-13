@@ -17,9 +17,10 @@ services:
       - ./Main/OptimizerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
 
-      - ./Optimizer/models:/optimizer_data/models
-      - ./Optimizer/model_profiles:/optimizer_data/model_profiles
-      - ./Optimizer/divided_models:/optimizer_data/divided_models
+      - ./Other/models:/optimizer_data/models
+      - ./Other/models_profiles:/optimizer_data/models_profiles
+      - ./Other/divided_models:/optimizer_data/divided_models
+      - ./Other/plans/:/optimizer_data/plans
     working_dir: /src
 
   registry:

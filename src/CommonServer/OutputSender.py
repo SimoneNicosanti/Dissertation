@@ -1,7 +1,6 @@
 import io
 
 import grpc
-import numpy
 
 from CommonServer.InferenceInfo import ComponentInfo, RequestInfo, TensorWrapper
 from CommonServer.PlanWrapper import PlanWrapper
@@ -28,26 +27,29 @@ class OutputSender:
         request_info: RequestInfo,
         infer_output: list[TensorWrapper],
     ):
-        print("Sending Inference Output")
-        next_components_dict: dict[str, list[ComponentInfo]] = (
+        next_components_dict: dict[ComponentInfo, list[str]] = (
             plan_wrapper.find_next_connections(component_info)
         )
 
-        for tensor_wrap in infer_output:
-            print("Sending  {}".format(tensor_wrap.tensor_name))
-            for next_comp_info in next_components_dict[tensor_wrap.tensor_name]:
-                next_comp_stub: InferenceStub = self.__get_stub_for_next_server(
-                    plan_wrapper, next_comp_info, request_info
-                )
+        for next_comp_info in next_components_dict.keys():
+            next_comp_inputs = next_components_dict[next_comp_info]
 
-                next_comp_stub.do_inference(
-                    self.__stream_generator(
-                        next_comp_info,
-                        request_info,
-                        tensor_wrap.numpy_array,
-                        tensor_wrap.tensor_name,
-                    )
-                )
+            to_send_list = filter(
+                lambda item: item.tensor_name in next_comp_inputs, infer_output
+            )
+
+            next_comp_stub: InferenceStub = self.__get_stub_for_next_server(
+                plan_wrapper, next_comp_info, request_info
+            )
+
+            response_stream = next_comp_stub.do_inference(
+                self.__stream_generator(next_comp_info, request_info, to_send_list)
+            )
+
+            ## As the receiver will answer with a stream
+            ## We have to consume it in order to unlock the computation
+            for _ in response_stream:
+                pass
 
         pass
 
@@ -55,13 +57,8 @@ class OutputSender:
         self,
         next_component_info: ComponentInfo,
         request_info: RequestInfo,
-        input_tensor: numpy.ndarray,
-        input_tensor_name: str,
+        to_send_list: list[TensorWrapper],
     ):
-
-        # print(
-        #     "Tensor Info {} {} {}".format(tensor_type, tensor_shape, len(tensor_bytes))
-        # )
 
         component_id = ComponentId(
             model_id=ModelId(
@@ -77,26 +74,25 @@ class OutputSender:
             callback_port=request_info.callback_port,
         )
 
-        tensor_type = input_tensor.dtype
-        tensor_shape = input_tensor.shape
-
-        tensor_info = TensorInfo(
-            name=input_tensor_name, type=str(tensor_type), shape=tensor_shape
-        )
-
-        tensor_bytes = input_tensor.tobytes()
-        byte_buffer = io.BytesIO(tensor_bytes)
-        while chunk_data := byte_buffer.read(MAX_CHUNK_SIZE):
-            tensor_chunk = TensorChunk(
-                chunk_size=len(chunk_data), chunk_data=chunk_data
+        for tensor_wrapper in to_send_list:
+            tensor_info = TensorInfo(
+                name=tensor_wrapper.tensor_name,
+                type=tensor_wrapper.tensor_type,
+                shape=tensor_wrapper.tensor_shape,
             )
-            tensor = Tensor(info=tensor_info, tensor_chunk=tensor_chunk)
 
-            yield InferenceInput(
-                request_id=request_id,
-                component_id=component_id,
-                input_tensor=tensor,
-            )
+            byte_buffer = io.BytesIO(tensor_wrapper.numpy_array.tobytes())
+            while chunk_data := byte_buffer.read(MAX_CHUNK_SIZE):
+                tensor_chunk = TensorChunk(
+                    chunk_size=len(chunk_data), chunk_data=chunk_data
+                )
+                tensor = Tensor(info=tensor_info, tensor_chunk=tensor_chunk)
+
+                yield InferenceInput(
+                    request_id=request_id,
+                    component_id=component_id,
+                    input_tensor=tensor,
+                )
 
     def __get_stub_for_next_server(
         self,

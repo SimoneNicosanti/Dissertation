@@ -29,7 +29,7 @@ class IntermediateServer(InferenceServicer):
 
     def do_inference(self, input_stream, context):
         ## 1. Receive Input
-        component_info, request_info, input_tensor_info = (
+        component_info, request_info, tensor_wrapper_list = (
             self.input_receiver.handle_input_stream(input_stream)
         )
         print("Completed Input Reading")
@@ -38,21 +38,23 @@ class IntermediateServer(InferenceServicer):
         ## Running in async way allows not to block the sender thread
         threading.Thread(
             target=self.__do_inference_and_send_output,
-            args=(component_info, request_info, input_tensor_info),
+            args=(component_info, request_info, tensor_wrapper_list),
         ).start()
 
-        return InferenceResponse()
+        ## Returning an empty stream
+        ## For the intermediate part of the inference we are not intrested in the output value
+        yield
 
     def __do_inference_and_send_output(
         self,
         component_info: ComponentInfo,
         request_info: RequestInfo,
-        input_tensor_info: TensorWrapper,
+        tensor_wrapper_list: TensorWrapper,
     ):
         model_manager = self.model_managers[component_info.model_info]
 
         output_tensor_info = model_manager.pass_input_and_infer(
-            component_info, request_info, input_tensor_info
+            component_info, request_info, tensor_wrapper_list
         )
 
         if output_tensor_info is not None:

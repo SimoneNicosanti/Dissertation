@@ -20,11 +20,11 @@ def main():
         grpc.insecure_channel("optimizer:50060")
     )
     opt_req = OptimizationRequest(
-        model_names=["yolo11n-seg"],
+        model_names=["yolo11n-seg", "yolo11s-seg"],
         latency_weight=1,
         energy_weight=0,
         device_max_energy=1,
-        requests_number=[1],
+        requests_number=[1, 1],
         deployment_server="0",
     )
     optimized_plan: OptimizedPlan = optimizer_stub.serve_optimization(opt_req)

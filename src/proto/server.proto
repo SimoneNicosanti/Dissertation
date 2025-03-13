@@ -4,7 +4,7 @@ package server;
 import "common.proto";
 
 service Inference {
-    rpc do_inference(stream InferenceInput) returns (InferenceResponse) ;
+    rpc do_inference(stream InferenceInput) returns (stream InferenceResponse) ;
 }
 
 
@@ -42,5 +42,5 @@ message TensorChunk {
 
 
 message InferenceResponse {
-    
+    Tensor output_tensor = 1;
 }

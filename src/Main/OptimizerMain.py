@@ -1,9 +1,8 @@
-import time
 from concurrent import futures
 
 import grpc
-from Optimizer.OptimizationServer import OptmizationServer
 
+from Optimizer.OptimizationServer import OptmizationServer
 from proto_compiled.optimizer_pb2_grpc import add_OptimizationServicer_to_server
 
 OPTIMIZER_PORT = 50060

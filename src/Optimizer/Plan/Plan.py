@@ -2,7 +2,11 @@ import json
 
 from Optimizer.Graph.Graph import NodeId
 from Optimizer.Graph.ModelGraph import ModelGraph
-from Optimizer.Graph.SolvedModelGraph import ComponentId, SolvedEdgeInfo, SolvedModelGraph
+from Optimizer.Graph.SolvedModelGraph import (
+    ComponentId,
+    SolvedEdgeInfo,
+    SolvedModelGraph,
+)
 
 
 class Plan:
@@ -107,7 +111,7 @@ class Plan:
         comp_nodes: set[NodeId],
         solved_graph: SolvedModelGraph,
     ) -> list[str]:
-        output_connections: dict[str, list[ComponentId]] = {}
+        output_connections: dict[str, set[ComponentId]] = {}
 
         for edge_id in solved_graph.get_edges_id():
             edge_info: SolvedEdgeInfo = solved_graph.get_edge_info(edge_id)
@@ -124,10 +128,10 @@ class Plan:
                 ## Output Node
                 output_names = edge_info.get_tensor_names()
                 for output_name in output_names:
-                    output_connections.setdefault(output_name, [])
+                    output_connections.setdefault(output_name, set())
 
                     if second_node_comp != curr_comp_id:
-                        output_connections[output_name].append(str(second_node_comp))
+                        output_connections[output_name].add(str(second_node_comp))
 
             if edge_id.second_node_id in comp_nodes and ModelGraph.is_receiver_node(
                 edge_id.second_node_id
@@ -137,7 +141,10 @@ class Plan:
                 ## But there will be no next component
                 output_names = edge_info.get_tensor_names()
                 for output_name in output_names:
-                    output_connections.setdefault(output_name, [])
+                    output_connections.setdefault(output_name, set())
                     # output_connections[output_name].append(str(curr_comp_id))
+
+        for output_name in output_connections.keys():
+            output_connections[output_name] = list(output_connections[output_name])
 
         return output_connections

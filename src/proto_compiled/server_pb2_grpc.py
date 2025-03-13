@@ -35,7 +35,7 @@ class InferenceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.do_inference = channel.stream_unary(
+        self.do_inference = channel.stream_stream(
                 '/server.Inference/do_inference',
                 request_serializer=server__pb2.InferenceInput.SerializeToString,
                 response_deserializer=server__pb2.InferenceResponse.FromString,
@@ -54,7 +54,7 @@ class InferenceServicer(object):
 
 def add_InferenceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'do_inference': grpc.stream_unary_rpc_method_handler(
+            'do_inference': grpc.stream_stream_rpc_method_handler(
                     servicer.do_inference,
                     request_deserializer=server__pb2.InferenceInput.FromString,
                     response_serializer=server__pb2.InferenceResponse.SerializeToString,
@@ -81,7 +81,7 @@ class Inference(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(
+        return grpc.experimental.stream_stream(
             request_iterator,
             target,
             '/server.Inference/do_inference',

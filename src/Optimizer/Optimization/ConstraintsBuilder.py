@@ -1,4 +1,5 @@
 import pulp
+
 from Optimizer.Graph.Graph import EdgeId, NodeId
 from Optimizer.Graph.ModelGraph import ModelGraph, ModelNodeInfo
 from Optimizer.Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
@@ -125,7 +126,7 @@ class ConstraintsBuilder:
     @staticmethod
     def add_memory_constraints(
         problem: pulp.LpProblem,
-        model_graph: ModelGraph,
+        model_graphs: list[ModelGraph],
         network_graph: NetworkGraph,
         ass_vars: dict[NodeAssKey, pulp.LpVariable],
         mem_use_vars: dict[MemoryUseKey, pulp.LpVariable],
@@ -134,40 +135,72 @@ class ConstraintsBuilder:
 
         ## Bounding for max definition
         for net_node_id in network_graph.get_nodes_id():
-            mem_use_var_key = MemoryUseKey(model_graph.get_graph_name(), net_node_id)
-            mem_use_var = mem_use_vars[mem_use_var_key]
-
-            for mod_node_id in model_graph.get_nodes_id():
-                x_var_key = NodeAssKey(
-                    mod_node_id, net_node_id, model_graph.get_graph_name()
+            for model_graph in model_graphs:
+                mem_use_var_key = MemoryUseKey(
+                    model_graph.get_graph_name(), net_node_id
                 )
-                x_var = ass_vars[x_var_key]
+                mem_use_var = mem_use_vars[mem_use_var_key]
 
-                mod_node_info: ModelNodeInfo = model_graph.get_node_info(mod_node_id)
-                mod_node_out_size = mod_node_info.get_node_outputs_size()
+                for mod_node_id in model_graph.get_nodes_id():
+                    x_var_key = NodeAssKey(
+                        mod_node_id, net_node_id, model_graph.get_graph_name()
+                    )
+                    x_var = ass_vars[x_var_key]
 
-                problem += mem_use_var >= x_var * mod_node_out_size
+                    mod_node_info: ModelNodeInfo = model_graph.get_node_info(
+                        mod_node_id
+                    )
+                    mod_node_out_size = mod_node_info.get_node_outputs_size()
+
+                    problem += mem_use_var >= x_var * mod_node_out_size
 
         for net_node_id in network_graph.get_nodes_id():
-            sum_vars = []
-            for mod_node_id in model_graph.get_nodes_id():
-                x_var_key = NodeAssKey(
-                    mod_node_id, net_node_id, model_graph.get_graph_name()
+            used_memory = 0
+            for model_graph in model_graphs:
+                model_used_memory = 0
+                for mod_node_id in model_graph.get_nodes_id():
+                    x_var_key = NodeAssKey(
+                        mod_node_id, net_node_id, model_graph.get_graph_name()
+                    )
+                    x_var = ass_vars[x_var_key]
+
+                    mod_node_info: ModelNodeInfo = model_graph.get_node_info(
+                        mod_node_id
+                    )
+                    mod_node_weights_size = mod_node_info.get_node_weights_size()
+
+                    model_used_memory += x_var * mod_node_weights_size
+
+                mem_use_var_key = MemoryUseKey(
+                    model_graph.get_graph_name(), net_node_id
                 )
-                x_var = ass_vars[x_var_key]
+                mem_use_var = mem_use_vars[mem_use_var_key]
 
-                mod_node_info: ModelNodeInfo = model_graph.get_node_info(mod_node_id)
-                mod_node_weights_size = mod_node_info.get_node_weights_size()
-
-                sum_vars.append(x_var * mod_node_weights_size)
-
-            mem_use_var_key = MemoryUseKey(model_graph.get_graph_name(), net_node_id)
-            mem_use_var = mem_use_vars[mem_use_var_key]
-
-            total_memory = pulp.lpSum(sum_vars) + mem_use_var
+                used_memory += model_used_memory + mem_use_var
 
             net_node_info: NetworkNodeInfo = network_graph.get_node_info(net_node_id)
-            problem += total_memory <= net_node_info.get_available_memory()
+            problem += used_memory <= net_node_info.get_available_memory()
+
+        # for net_node_id in network_graph.get_nodes_id():
+        #     sum_vars = []
+        #     for mod_node_id in model_graph.get_nodes_id():
+        #         x_var_key = NodeAssKey(
+        #             mod_node_id, net_node_id, model_graph.get_graph_name()
+        #         )
+        #         x_var = ass_vars[x_var_key]
+
+        #         mod_node_info: ModelNodeInfo = model_graph.get_node_info(mod_node_id)
+        #         mod_node_weights_size = mod_node_info.get_node_weights_size()
+
+        #         sum_vars.append(x_var * mod_node_weights_size)
+
+        #     mem_use_var_key = MemoryUseKey(model_graph.get_graph_name(), net_node_id)
+        #     mem_use_var = mem_use_vars[mem_use_var_key]
+
+        #     total_memory = pulp.lpSum(sum_vars) + mem_use_var
+
+        #     net_node_info: NetworkNodeInfo = network_graph.get_node_info(net_node_id)
+        #     problem += total_memory <= net_node_info.get_available_memory()
 
     @staticmethod
     def add_energy_constraints(

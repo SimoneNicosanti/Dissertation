@@ -10,8 +10,11 @@ RUN pip install grpcio
 RUN pip install grpcio-tools
 RUN pip install PyYAML
 
-# RUN groupadd -g 1234 customgroup && \
-#     useradd -m -u 1234 -g customgroup customuser
+RUN groupadd -g 1234 customgroup && \
+    useradd -m -u 1234 -g customgroup customuser
+
+RUN mkdir -p /server_data && chown -R customuser:customgroup /server_data
+
 # USER customuser
 
 CMD ["/bin/bash"]

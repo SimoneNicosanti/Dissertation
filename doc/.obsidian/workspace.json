@@ -35,8 +35,7 @@
               "title": "Architettura"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -176,11 +175,11 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "802d44e0d91d6c42",
+  "active": "37e1fef10c0ae5d3",
   "lastOpenFiles": [
+    "Notes/Architettura/Architettura.md",
     "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Componenti Connesse.md",
-    "Notes/Architettura/Architettura.md",
     "Notes/Ottimizzazione.md",
     "Notes/Yolo.md",
     "Notes/Unnesting del Modello.md",

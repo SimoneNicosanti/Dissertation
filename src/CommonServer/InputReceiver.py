@@ -8,7 +8,7 @@ from CommonServer.InferenceInfo import (
     RequestInfo,
     TensorWrapper,
 )
-from proto_compiled.server_pb2 import InferenceInput, Tensor
+from proto_compiled.server_pb2 import InferenceInput
 
 
 class InputReceiver:
@@ -16,46 +16,72 @@ class InputReceiver:
     def __init__(self):
         pass
 
-    def handle_input_stream(self, input_stream: Iterator[InferenceInput]):
-        print("Reading First Chunk")
-        first_input = next(input_stream)
+    def handle_input_stream(
+        self, input_stream: Iterator[InferenceInput]
+    ) -> tuple[ComponentInfo, RequestInfo, list[TensorWrapper]]:
 
-        requester_id = first_input.request_id.requester_id
-        request_idx = first_input.request_id.request_idx
+        component_info = None
+        request_info = None
+        tensor_wrapper_list = []
 
-        model_name = first_input.component_id.model_id.model_name
-        deployer_id = first_input.component_id.model_id.deployer_id
-        server_id = first_input.component_id.server_id
-        component_idx = first_input.component_id.component_idx
-
-        input_tensor: Tensor = first_input.input_tensor
-        tensor_name = input_tensor.info.name
-        tensor_type = input_tensor.info.type
-        tensor_shape = [dim for dim in input_tensor.info.shape]
-
-        tensor_byte_array = bytearray()
-
-        print("Received Input for >> ")
-        print(first_input.component_id)
-
-        tensor_byte_array.extend(input_tensor.tensor_chunk.chunk_data)
-
+        current_tensor_name = None
+        current_tensor_shape = None
+        current_tensor_type = None
+        current_tensor_buffer = bytearray()
         for input in input_stream:
-            print("RECVD")
-            tensor_byte_array.extend(input.input_tensor.tensor_chunk.chunk_data)
+            if component_info is None:
+                model_info = ModelInfo(
+                    model_name=input.component_id.model_id.model_name,
+                    deployer_id=input.component_id.model_id.deployer_id,
+                )
+                component_info = ComponentInfo(
+                    model_info=model_info,
+                    server_id=input.component_id.server_id,
+                    component_idx=input.component_id.component_idx,
+                )
+            if request_info is None:
+                request_info = RequestInfo(
+                    requester_id=input.request_id.requester_id,
+                    request_idx=input.request_id.request_idx,
+                    callback_port=input.request_id.callback_port,
+                )
 
-        model_info = ModelInfo(model_name, deployer_id)
-        component_info = ComponentInfo(model_info, server_id, component_idx)
-        request_info = RequestInfo(
-            requester_id, request_idx, first_input.request_id.callback_port
-        )
+            if current_tensor_name != input.input_tensor.info.name:
+                if current_tensor_name is not None:
+                    numpy_tensor = numpy.ndarray(
+                        shape=current_tensor_shape,
+                        dtype=current_tensor_type,
+                        buffer=current_tensor_buffer,
+                    )
 
+                    tensor_wrapper = TensorWrapper(
+                        tensor_name=current_tensor_name,
+                        tensor_type=current_tensor_type,
+                        numpy_array=numpy_tensor,
+                        tensor_shape=current_tensor_shape,
+                    )
+                    tensor_wrapper_list.append(tensor_wrapper)
+
+                current_tensor_name = input.input_tensor.info.name
+                current_tensor_shape = [dim for dim in input.input_tensor.info.shape]
+                current_tensor_type = input.input_tensor.info.type
+                current_tensor_buffer = bytearray()
+
+            current_tensor_buffer.extend(input.input_tensor.tensor_chunk.chunk_data)
+
+        ## For the last tensor
         numpy_tensor = numpy.ndarray(
-            shape=tensor_shape, dtype=numpy.dtype(tensor_type), buffer=tensor_byte_array
+            shape=current_tensor_shape,
+            dtype=current_tensor_type,
+            buffer=current_tensor_buffer,
         )
 
-        shared_tensor_info = TensorWrapper(
-            tensor_name, tensor_type, tensor_shape, numpy_tensor
+        tensor_wrapper = TensorWrapper(
+            tensor_name=current_tensor_name,
+            tensor_type=current_tensor_type,
+            numpy_array=numpy_tensor,
+            tensor_shape=current_tensor_shape,
         )
+        tensor_wrapper_list.append(tensor_wrapper)
 
-        return component_info, request_info, shared_tensor_info
+        return component_info, request_info, tensor_wrapper_list

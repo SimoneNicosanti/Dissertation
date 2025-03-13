@@ -1,6 +1,7 @@
 import os
 
 import onnx
+
 from Optimizer.Graph.Graph import NodeId
 from Optimizer.Partitioner.ModelPartitioner import ModelPartitioner
 from Optimizer.Plan.Plan import Plan
@@ -19,7 +20,6 @@ class OnnxModelPartitioner(ModelPartitioner):
         model_plan: Plan,
         model_name: str,
         deployment_server: NodeId,
-        print_plan: bool,
     ) -> dict:
 
         for component_id in model_plan.get_all_components():
@@ -44,11 +44,5 @@ class OnnxModelPartitioner(ModelPartitioner):
                 input_names,
                 output_names,
             )
-
-        if print_plan:
-            plan_path = os.path.join(self.divided_model_dir, f"{model_name}_plan.json")
-
-            with open(plan_path, "w") as plan_file:
-                plan_file.write(model_plan.dump_plan())
 
         pass

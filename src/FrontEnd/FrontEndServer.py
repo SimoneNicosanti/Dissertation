@@ -1,8 +1,7 @@
 import os
 import threading
 import time
-
-import numpy
+from typing import Generator
 
 from CommonServer.InferenceInfo import (
     ComponentInfo,
@@ -14,8 +13,8 @@ from CommonServer.InputReceiver import InputReceiver
 from CommonServer.ModelManager import ModelManager
 from CommonServer.OutputSender import OutputSender
 from CommonServer.PlanWrapper import PlanWrapper
+from FrontEnd import ResponseGenerator
 from FrontEnd.ExtremeModelManager import ExtremeModelManager
-from proto_compiled.server_pb2 import InferenceResponse
 from proto_compiled.server_pb2_grpc import InferenceServicer
 
 ## This has to be a different service running on the client
@@ -38,22 +37,25 @@ class FrontEndServer(InferenceServicer):
         self.model_managers: dict[ModelInfo, ModelManager] = {}
         self.pending_request_dict: dict[RequestInfo, threading.Event] = {}
         self.pending_times_dict: dict[RequestInfo, int] = {}
+
+        self.final_results_dict: dict[RequestInfo, list[TensorWrapper]] = {}
         pass
 
     def do_inference(self, input_stream, context):
 
         ## 1. Receive Input
-        component_info, request_info, input_tensor_info = (
+        component_info, request_info, tensor_wrapper_list = (
             self.input_receiver.handle_input_stream(input_stream)
         )
 
         ## 2. Do actual inference
         out_tensor_wrap_list = self.__do_inference(
-            component_info, request_info, input_tensor_info
+            component_info, request_info, tensor_wrapper_list
         )
 
         if out_tensor_wrap_list is not None:
             ## 3. Send Output
+            print("Sending Inference Output")
             plan_wrapper = self.plan_wrapper_dict[component_info.model_info]
             self.output_sender.send_output(
                 plan_wrapper,
@@ -64,44 +66,56 @@ class FrontEndServer(InferenceServicer):
 
         ## Lock or Unlock threads for response wait
         if out_tensor_wrap_list is not None:
-            if plan_wrapper.is_only_input_component(component_info):
-                print("Received Input")
-                self.pending_times_dict[request_info] = time.time_ns()
-                self.pending_request_dict[request_info] = threading.Event()
-                self.pending_request_dict[request_info].wait()
-                print(
-                    "Total Time >> ",
-                    time.time_ns() - self.pending_times_dict[request_info],
-                )
+            print("Valid")
+            yield from self.lock_unlock_threads(
+                request_info, component_info, out_tensor_wrap_list
+            )
 
-            elif plan_wrapper.is_only_output_component(component_info):
-                save_tensor_dict = {
-                    tensor.tensor_name: tensor.numpy_array
-                    for tensor in out_tensor_wrap_list
-                }
-                out_file_name = "{}_{}.npz".format(
-                    request_info.requester_id, request_info.request_idx
-                )
-                out_path = os.path.join(
-                    self.output_save_path,
-                    component_info.model_info.model_name,
-                    out_file_name,
-                )
-                numpy.savez(out_path, **save_tensor_dict)
-                self.pending_request_dict[request_info].set()
+        yield
 
-        return InferenceResponse()
+    def lock_unlock_threads(
+        self,
+        request_info: RequestInfo,
+        component_info: ComponentInfo,
+        out_tensor_wrap_list: list[TensorWrapper],
+    ) -> Generator:
+
+        plan_wrapper = self.plan_wrapper_dict[component_info.model_info]
+
+        if plan_wrapper.is_only_input_component(component_info):
+            print("Locking Thread")
+            self.pending_times_dict[request_info] = time.time_ns()
+            self.pending_request_dict[request_info] = threading.Event()
+
+            ## We have to lock the thread until the response is received
+            self.pending_request_dict[request_info].wait()
+
+            ## Once the threads has been unlocked, we can compute the total time and yield the result
+            print(
+                "Total Time >> ",
+                time.time_ns() - self.pending_times_dict[request_info],
+            )
+            inference_output = self.final_results_dict[request_info]
+
+            yield from ResponseGenerator.yield_response(inference_output)
+
+        elif plan_wrapper.is_only_output_component(component_info):
+            self.final_results_dict[request_info] = out_tensor_wrap_list
+            print("Unlocking Thread")
+            self.pending_request_dict[request_info].set()
+
+        yield
 
     def __do_inference(
         self,
         component_info: ComponentInfo,
         request_info: RequestInfo,
-        tensor_wrap: TensorWrapper,
+        tensor_wrap_list: list[TensorWrapper],
     ) -> list[TensorWrapper]:
         model_manager = self.model_managers[component_info.model_info]
 
         out_tensor_wrap_list = model_manager.pass_input_and_infer(
-            component_info, request_info, tensor_wrap
+            component_info, request_info, tensor_wrap_list
         )
 
         return out_tensor_wrap_list

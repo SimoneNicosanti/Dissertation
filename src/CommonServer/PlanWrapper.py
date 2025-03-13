@@ -25,9 +25,9 @@ class PlanWrapper:
 
     def find_next_connections(
         self, comp_info: ComponentInfo
-    ) -> dict[str, list[ComponentInfo]]:
+    ) -> dict[ComponentInfo, set[str]]:
 
-        connections_dict = {}
+        connections_dict: dict[ComponentInfo, set[str]] = {}
         for key in self.plan_dict.keys():
             if self.__is_same_key(key, comp_info):
                 out_connections: dict[str, str] = self.plan_dict[key][
@@ -35,7 +35,6 @@ class PlanWrapper:
                 ]
 
                 for tensor_name in out_connections.keys():
-                    connections_dict.setdefault(tensor_name, [])
                     for comp_id in out_connections[tensor_name]:
                         next_comp_id_tuple = ast.literal_eval(comp_id)
                         next_comp_info = ComponentInfo(
@@ -43,8 +42,8 @@ class PlanWrapper:
                             str(next_comp_id_tuple[0]),
                             str(next_comp_id_tuple[1]),
                         )
-
-                        connections_dict[tensor_name].append(next_comp_info)
+                        connections_dict.setdefault(next_comp_info, set())
+                        connections_dict[next_comp_info].add(tensor_name)
 
         return connections_dict
 

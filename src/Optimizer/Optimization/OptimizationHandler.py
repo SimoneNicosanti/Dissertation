@@ -80,14 +80,14 @@ class OptimizationHandler:
                 problem, curr_mod_graph, network_graph, node_ass_vars, edge_ass_vars
             )
 
-            ConstraintsBuilder.add_memory_constraints(
-                problem,
-                curr_mod_graph,
-                network_graph,
-                node_ass_vars,
-                mem_use_vars,
-                opt_params.requests_number.get(curr_mod_graph.get_graph_name()),
-            )
+        ConstraintsBuilder.add_memory_constraints(
+            problem,
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            mem_use_vars,
+            opt_params.requests_number.get(curr_mod_graph.get_graph_name()),
+        )
 
         ## TODO Activate this when known energy model
         # ConstraintsBuilder.add_energy_constraints(
@@ -131,9 +131,9 @@ class OptimizationHandler:
 
         problem.solve(pulp.GLPK_CMD())
 
-        # with open("./solved_problem/VarFile.txt", "w") as f:
-        #     for var in problem.variables():
-        #         f.write(f"{var.name} = {var.varValue}\n")
+        with open("./Optimizer/solved_problem/VarFile.txt", "w") as f:
+            for var in problem.variables():
+                f.write(f"{var.name} = {var.varValue}\n")
 
         # Print the objective function value
         print(f"Objective value = {pulp.value(problem.objective)}")

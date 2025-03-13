@@ -49,7 +49,7 @@ def register_to_registry():
 
 def start_assignee_server(server_id: int, intermediate_server):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    fetcher = Fetcher(server_id, "/models", intermediate_server)
+    fetcher = Fetcher(server_id, "/server_data/models", intermediate_server)
     add_AssigneeServicer_to_server(fetcher, server)
     server.add_insecure_port(f"[::]:{ASSIGNEE_PORT}")
     print(f"Assignee Server running on port {ASSIGNEE_PORT}...")

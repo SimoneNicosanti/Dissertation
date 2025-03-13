@@ -5,8 +5,9 @@ import tempfile
 import numpy as np
 import onnx
 import onnx_tool
-from Optimizer.Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 from onnx.mapping import TENSOR_TYPE_MAP
+
+from Optimizer.Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 from Optimizer.Profiler.ModelProfiler import ModelProfiler
 
 
@@ -331,7 +332,7 @@ class OnnxModelProfiler(ModelProfiler):
             tensor_total_size *= dim.dim_value
 
         ## Tensor Size is computed in MB >> All other measures will be in MB
-        return tensor_total_size / 1_000_000
+        return tensor_total_size / (1024 * 1024)
 
     def __init_size_in_bytes(self, elem_type: onnx.TensorProto.DataType) -> int:
         map_elem = TENSOR_TYPE_MAP.get(elem_type)

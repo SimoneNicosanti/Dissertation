@@ -29,13 +29,13 @@ class ModelManager(abc.ABC):
         self,
         component_info: ComponentInfo,
         request_info: RequestInfo,
-        input_tensor_info: TensorWrapper,
+        tensor_wrap_list: list[TensorWrapper],
     ):
 
         with self.pool_lock:
-            self.input_pool.put_input(component_info, request_info, input_tensor_info)
-            print("Extracted Input")
-            print(self.component_input_dict[component_info])
+            for tensor_wrap in tensor_wrap_list:
+                self.input_pool.put_input(component_info, request_info, tensor_wrap)
+
             input_list, is_ready = self.input_pool.get_input_if_ready(
                 component_info, request_info, self.component_input_dict[component_info]
             )
@@ -43,7 +43,8 @@ class ModelManager(abc.ABC):
         if is_ready:
             print("Is Ready")
             return self.do_inference(component_info, input_list)
-
+        else:
+            print("Not Ready")
         return None
 
     @abc.abstractmethod

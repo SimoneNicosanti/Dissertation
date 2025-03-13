@@ -300,7 +300,7 @@ $$m_k^a \ge \phi_{i2} * x_{ik}^a \hspace{0.75cm} \forall i \in V_N^a$$
 
 
 Da ciò quindi la memoria usata sul server $k$ dalla variante $a$-esima diventa:
-$$M_k^a = \sum_{i \in V_N^a} \left( \phi_{i1}*x_{ik}^a  + m_k^a \right)$$
+$$M_k^a = \sum_{i \in V_N^a} \left( \phi_{i1}*x_{ik}^a \right)  + m_k^a $$
 
 Da cui, la memoria totale necessaria sul singolo server $k$ è data da:
 $$M_k = \sum_{a \in A_{idx}}  M_k^a$$

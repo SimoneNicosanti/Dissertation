@@ -1,3 +1,4 @@
+import json
 import os
 import pickle
 
@@ -19,7 +20,7 @@ from proto_compiled.common_pb2 import OptimizedPlan
 from proto_compiled.optimizer_pb2 import OptimizationRequest
 from proto_compiled.optimizer_pb2_grpc import OptimizationServicer
 
-MODEL_PROFILES_DIR = "/optimizer_data/model_profiles/"
+MODEL_PROFILES_DIR = "/optimizer_data/models_profiles/"
 MODEL_DIR = "/optimizer_data/models/"
 DIVIDED_MODEL_DIR = "/optimizer_data/divided_models/"
 
@@ -87,7 +88,7 @@ class OptmizationServer(OptimizationServicer):
                 MODEL_DIR + graph_name + ".onnx", DIVIDED_MODEL_DIR
             )
             partitioner.partition_model(
-                plan, solved_graph.get_graph_name(), deployment_server, True
+                plan, solved_graph.get_graph_name(), deployment_server
             )
 
             plan_map[graph_name] = plan.dump_plan()
@@ -100,6 +101,14 @@ class OptmizationServer(OptimizationServicer):
             plan_map, network_graph, deployment_server.node_name
         )
 
+        self.write_whole_plan(plan_map, deployment_server.node_name)
+
         return OptimizedPlan(
             plans_map=plan_map,
         )
+
+    def write_whole_plan(self, plan_map: dict, deployer_id: str):
+        for model_name, plan_string in plan_map.items():
+            plan_name = "plan_depl_{}_{}.json".format(deployer_id, model_name)
+            with open("/optimizer_data/plans/" + plan_name, "w") as plan_file:
+                plan_file.write(plan_string)
