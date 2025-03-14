@@ -33,6 +33,7 @@ services:
     volumes:
       - ./proto_compiled:/src/proto_compiled
       - ./Registry:/src/Registry
+      - ./StatePool:/src/StatePool
       - ./Main/RegistryMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
     working_dir: /src

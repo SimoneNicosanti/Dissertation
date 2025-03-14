@@ -1,4 +1,5 @@
 import pulp
+
 from Optimizer.Graph.Graph import EdgeId, NodeId
 from Optimizer.Graph.ModelGraph import ModelEdgeInfo, ModelGraph, ModelNodeInfo
 from Optimizer.Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
@@ -145,8 +146,8 @@ def __get_transmission_time(
 ) -> float:
     ## Note --> Assuming Bandwidth in MB / s
 
-    if net_edge_id.first_node_id == net_edge_id.second_node_id:
-        return 0
+    # if net_edge_id.first_node_id == net_edge_id.second_node_id:
+    #     return 0
 
     return mod_edge_info.get_model_edge_data_size() / net_edge_info.get_edge_bandwidth()
 

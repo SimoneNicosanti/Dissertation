@@ -60,12 +60,12 @@ class ConnectedComponentsFinder:
                 curr_comp_idx = next_comp_idx[server_id]
                 node_comp = ComponentId(server_id, curr_comp_idx)
                 next_comp_idx[server_id] += 1
-                print("Input Component", node_comp)
+
             elif node_info.is_receiver():
                 next_comp_idx[server_id] += 1
                 curr_comp_idx = next_comp_idx[server_id]
                 node_comp = ComponentId(server_id, curr_comp_idx)
-                print("Output Component", node_comp)
+
             else:
                 ## Intermediate node
 

@@ -1,4 +1,3 @@
-import os
 import threading
 import time
 from typing import Generator
@@ -68,11 +67,19 @@ class FrontEndServer(InferenceServicer):
         ## If the component is the input one --> The thread will be blocked
         ## If the component is the output one --> The input thread will be unlocked
         if out_tensor_wrap_list is not None:
-            yield from self.lock_unlock_threads(
-                request_info, component_info, out_tensor_wrap_list
-            )
+            self.lock_unlock_threads(request_info, component_info, out_tensor_wrap_list)
 
-        yield
+            ## If Input Component --> Yield output
+            if plan_wrapper.is_only_input_component(component_info):
+                with self.requests_lock.gen_wlock():
+                    inference_output = self.pending_request_dict.pop(request_info)
+
+                yield from ResponseGenerator.yield_response(inference_output)
+
+            else:
+                yield
+        else:
+            yield
 
     def lock_unlock_threads(
         self,
@@ -99,20 +106,16 @@ class FrontEndServer(InferenceServicer):
             print(
                 f"Time for Request: {request_info.request_idx} >> {end_time - start_time}"
             )
-            with self.requests_lock.gen_wlock():
-                inference_output = self.final_results_dict.pop(request_info)
-
-            yield from ResponseGenerator.yield_response(inference_output)
 
         elif plan_wrapper.is_only_output_component(component_info):
             with self.requests_lock.gen_wlock():
                 self.final_results_dict[request_info] = out_tensor_wrap_list
+                if out_tensor_wrap_list is None:
+                    print("Where is it??")
                 waiting_event = self.pending_request_dict.pop(request_info)
 
             print("Unlocking Thread")
             waiting_event.set()
-
-        yield
 
     def __do_inference(
         self,

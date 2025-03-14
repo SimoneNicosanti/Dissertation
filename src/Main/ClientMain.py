@@ -25,7 +25,7 @@ def main():
         "yolo11n-seg",
     ]
     thr_list = []
-    for idx in range(9):
+    for idx in range(18):
         thr = threading.Thread(
             target=do_inference,
             args=(

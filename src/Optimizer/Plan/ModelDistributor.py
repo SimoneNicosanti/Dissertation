@@ -20,7 +20,6 @@ class ModelDistributor:
     def distribute(self, model_name, plan: Plan, deployment_server: str):
 
         for component_id in plan.get_all_components():
-            print("Pushing component {}".format(component_id))
             grpc_comp_id = ComponentId(
                 model_id=ModelId(model_name=model_name, deployer_id=deployment_server),
                 server_id=component_id.net_node_id.node_name,

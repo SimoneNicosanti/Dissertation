@@ -1,0 +1,15 @@
+
+
+
+syntax = "proto3";
+package optimizer;
+
+import "common.proto";
+
+service Ping {
+    rpc ping(PingMessage) returns (common.Empty);
+}
+
+message PingMessage {
+    bytes ping_bytes = 1;
+}

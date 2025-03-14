@@ -15,7 +15,6 @@ service Assignee {
 message AssignmentResponse {}
 
 
-
 message InferenceInput {
     common.RequestId request_id = 1;
     common.ComponentId component_id = 2;

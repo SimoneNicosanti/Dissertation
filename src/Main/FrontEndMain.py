@@ -30,7 +30,7 @@ def main():
     optimized_plan: OptimizedPlan = optimizer_stub.serve_optimization(opt_req)
     plan_dict = optimized_plan.plans_map
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
     frontend_servicer = FrontEndServer()
 
     for _, model_plan_str in plan_dict.items():

@@ -3,6 +3,7 @@ from concurrent import futures
 
 import grpc
 
+from proto_compiled.ping_pb2_grpc import add_PingServicer_to_server
 from proto_compiled.register_pb2 import ReachabilityInfo, ServerId
 from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.server_pb2_grpc import (
@@ -11,6 +12,8 @@ from proto_compiled.server_pb2_grpc import (
 )
 from Server.Assignee.Assignee import Fetcher
 from Server.Inference.IntermediateServer import IntermediateServer
+from Server.Monitor.ServerMonitor import ServerMonitor
+from Server.Ping.PingServer import PingServer
 
 ASSIGNEE_PORT = 50040
 INFERENCE_PORT = 50030
@@ -26,9 +29,14 @@ def main():
 
     inferencer, inference_server = start_inference_server()
     assignee_server = start_assignee_server(register_response.server_id, inferencer)
+    ping_server = start_ping_server()
+
+    server_monitor = ServerMonitor(register_response.server_id)
+    server_monitor.init_monitoring()
 
     assignee_server.wait_for_termination()
     inference_server.wait_for_termination()
+    ping_server.wait_for_termination()
     pass
 
 
@@ -69,8 +77,19 @@ def start_inference_server():
     return inferencer, server
 
 
+def start_ping_server():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    add_PingServicer_to_server(PingServer(), server)
+
+    server.add_insecure_port(f"[::]:{PING_PORT}")
+    server.start()
+    print(f"Ping Server running on port {PING_PORT}...")
+
+    return server
+
+
 if __name__ == "__main__":
     import multiprocessing as mp
 
-    mp.set_start_method("spawn")
+    # mp.set_start_method("spawn")
     main()

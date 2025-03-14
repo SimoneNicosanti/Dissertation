@@ -34,7 +34,7 @@ class OptmizationServer(OptimizationServicer):
         pass
 
     def serve_optimization(self, request: OptimizationRequest, context):
-
+        print("Received Optimization Request")
         optimization_params = OptimizationParams(
             latency_weight=request.latency_weight,
             energy_weight=request.energy_weight,
@@ -47,8 +47,10 @@ class OptmizationServer(OptimizationServicer):
         for model_name in request.model_names:
             model_graph = self.build_model_graph(model_name)
             model_graphs_dict[model_name] = model_graph
+        print("Built Model Graphs and Profiles")
 
         network_graph: NetworkGraph = self.network_builder.build_network()
+        print("Built Network Graph")
         deployment_server = network_graph.build_node_id(request.deployment_server)
 
         solved_graphs: list[SolvedModelGraph] = OptimizationHandler().optimize(
@@ -57,6 +59,7 @@ class OptmizationServer(OptimizationServicer):
             deployment_server,
             opt_params=optimization_params,
         )
+        print("Problem Solved!")
 
         plan_map = {}
         for solved_graph in solved_graphs:
@@ -83,10 +86,12 @@ class OptmizationServer(OptimizationServicer):
             self.model_distributor.distribute(
                 graph_name, plan, deployment_server.node_name
             )
+        print("All Models Parts Distributed")
 
         self.plan_distributor.distribute_plan(
             plan_map, network_graph, deployment_server.node_name
         )
+        print("Plan Distributed to Servers")
 
         self.write_whole_plan(plan_map, deployment_server.node_name)
 

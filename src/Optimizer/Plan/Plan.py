@@ -47,7 +47,6 @@ class Plan:
 
     def __init_plan(self, solved_graph: SolvedModelGraph):
         for component_id in solved_graph.get_all_components():
-            print(component_id)
 
             key = str(component_id)
 
