@@ -3,6 +3,7 @@ from typing import Iterator
 
 import grpc
 import numpy
+from readerwriterlock import rwlock
 
 from proto_compiled.common_pb2 import ComponentId, ModelId, RequestId
 from proto_compiled.server_pb2 import (
@@ -17,19 +18,23 @@ from proto_compiled.server_pb2_grpc import InferenceStub
 MAX_CHUNK_SIZE = 3 * 1024 * 1024
 
 
-class InferenceInteractor:
+class InferenceCaller:
 
     def __init__(self) -> None:
         self.front_end_connection = grpc.insecure_channel("localhost:50090")
+
+        self.index_lock = rwlock.RWLockWriteD()
         self.request_idx = 0
         pass
 
-    def start_inference(
+    ## This has to be called with preprocessing already done on the image
+    def call_inference(
         self, model_name: str, input_dict: dict[str, numpy.ndarray]
     ) -> None:
 
-        current_idx = self.request_idx
-        self.request_idx += 1
+        with self.index_lock.gen_wlock():
+            current_idx = self.request_idx
+            self.request_idx += 1
 
         front_end_stub = InferenceStub(self.front_end_connection)
 
@@ -37,7 +42,7 @@ class InferenceInteractor:
             self.input_generate(model_name, input_dict, current_idx)
         )
 
-        return self.output_receive(return_stream)
+        return self.output_receive(return_stream), current_idx
 
     def input_generate(
         self, model_name: str, input_dict: dict[str, numpy.ndarray], request_idx: int

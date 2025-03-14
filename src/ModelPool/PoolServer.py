@@ -23,6 +23,7 @@ class PoolServer(ModelPoolServicer):
         os.makedirs(MODEL_DIRECTORY_PATH, exist_ok=True)
 
     def push_model(self, request_iterator: Iterator[PushRequest], context):
+
         first_request: PushRequest = next(request_iterator)
         component_id: ComponentId = first_request.component_id
         model_name: str = component_id.model_id.model_name

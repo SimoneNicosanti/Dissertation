@@ -19,8 +19,8 @@ class IntermediateModelManager(ModelManager):
         super().__init__(plan_wrapper, components_dict)
 
         self.execution_semaphore = threading.Semaphore(threads_per_model)
-
         self.runner_lock_list = [threading.Lock() for _ in range(threads_per_model)]
+
         self.model_runners = [
             ModelRunner(components_dict) for _ in range(threads_per_model)
         ]
@@ -30,13 +30,13 @@ class IntermediateModelManager(ModelManager):
         component_info: ComponentInfo,
         tensor_wrapper_list: list[TensorWrapper],
     ):
-
+        ## Firt of all we have to take the semaphore
+        ## This ensures that there will be at least one free model runner
         with self.execution_semaphore:
-            print("Taken Lock")
             for idx, runner_lock in enumerate(self.runner_lock_list):
+                ## Then we have to find a free runner taking the lock
                 if runner_lock.acquire(blocking=False):
                     ## Run Inference
-                    print("Taken Second Lock")
                     model_runner = self.model_runners[idx]
                     output_info_list = model_runner.run_component(
                         component_info, tensor_wrapper_list

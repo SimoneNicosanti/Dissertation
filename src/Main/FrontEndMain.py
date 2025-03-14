@@ -20,22 +20,21 @@ def main():
         grpc.insecure_channel("optimizer:50060")
     )
     opt_req = OptimizationRequest(
-        model_names=["yolo11n-seg", "yolo11s-seg"],
+        model_names=["yolo11n-seg"],
         latency_weight=1,
         energy_weight=0,
         device_max_energy=1,
-        requests_number=[1, 1],
+        requests_number=[1],
         deployment_server="0",
     )
     optimized_plan: OptimizedPlan = optimizer_stub.serve_optimization(opt_req)
     plan_dict = optimized_plan.plans_map
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    frontend_servicer = FrontEndServer("./Client/test/")
+    frontend_servicer = FrontEndServer()
 
-    for _, model_plan in plan_dict.items():
-        model_plan_dict = json.loads(model_plan)
-        plan_wrapper = PlanWrapper(model_plan_dict)
+    for _, model_plan_str in plan_dict.items():
+        plan_wrapper = PlanWrapper(model_plan_str)
         model_info = plan_wrapper.get_model_info()
         extreme_components = plan_wrapper.get_input_and_output_component()
         components_dict = {comp_info: None for comp_info in extreme_components}

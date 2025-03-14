@@ -1,13 +1,16 @@
 import ast
+import json
 
 from CommonServer.InferenceInfo import ComponentInfo, ModelInfo
 
 
 class PlanWrapper:
-    def __init__(self, model_plan: dict[str]):
-        self.model_name = model_plan["model_name"]
-        self.deployer_id = model_plan["deployer_id"]
-        self.plan_dict: dict[str] = model_plan["plan"]
+    def __init__(self, model_plan_str: str):
+        decoded_plan = json.loads(model_plan_str)
+
+        self.plan_dict: dict[str] = decoded_plan["plan"]
+        self.model_name = decoded_plan["model_name"]
+        self.deployer_id = decoded_plan["deployer_id"]
 
     def is_only_input_component(self, comp_info: ComponentInfo) -> bool:
         for key in self.plan_dict.keys():
@@ -66,8 +69,6 @@ class PlanWrapper:
     def get_input_for_component(self, component_info: ComponentInfo):
         for key in self.plan_dict.keys():
             if self.__is_same_key(key, component_info):
-                print("Input Type >> ", type(self.plan_dict[key]["input_names"]))
-                print("Elem Type >> ", type(self.plan_dict[key]["input_names"][0]))
                 return self.plan_dict[key]["input_names"]
 
         return []

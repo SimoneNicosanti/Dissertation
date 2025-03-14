@@ -1,6 +1,7 @@
 import io
 
 import grpc
+from readerwriterlock import rwlock
 
 from CommonServer.InferenceInfo import ComponentInfo, RequestInfo, TensorWrapper
 from CommonServer.PlanWrapper import PlanWrapper
@@ -15,9 +16,15 @@ MAX_CHUNK_SIZE = 3 * 1024 * 1024
 
 class OutputSender:
     def __init__(self):
-        self.register_stub = RegisterStub(grpc.insecure_channel("registry:50051"))
+        self.registry_connection = grpc.insecure_channel("registry:50051")
+
+        self.server_channel_lock = rwlock.RWLockWriteD()
         self.next_server_channel: dict[str, grpc.Channel] = {}
+
+        self.callback_channel_lock = rwlock.RWLockWriteD()
         self.callback_channel_dict: dict[str, grpc.Channel] = {}
+
+        self.reachability_info_lock = rwlock.RWLockWriteD()
         self.reachability_info_dict: dict[str, ReachabilityInfo] = {}
 
     def send_output(
@@ -48,6 +55,7 @@ class OutputSender:
 
             ## As the receiver will answer with a stream
             ## We have to consume it in order to unlock the computation
+            ## The stream will actually be empty, but we have to do it anyway
             for _ in response_stream:
                 pass
 
@@ -101,35 +109,81 @@ class OutputSender:
         request_info: RequestInfo,
     ):
 
-        if next_component_info.server_id not in self.reachability_info_dict.keys():
-            pass
-            ## Find reachability info
-            reachability_info: ReachabilityInfo = self.register_stub.get_info_from_id(
+        with self.server_channel_lock.gen_rlock():
+            is_present = (
+                next_component_info.server_id in self.reachability_info_dict.keys()
+            )
+
+            if is_present:
+                reachability_info = self.reachability_info_dict[
+                    next_component_info.server_id
+                ]
+
+        if not is_present:
+            reachability_info: ReachabilityInfo = RegisterStub(
+                self.registry_connection
+            ).get_info_from_id(
                 ServerId(server_id=next_component_info.server_id),
             )
             self.reachability_info_dict[next_component_info.server_id] = (
                 reachability_info
             )
 
-        reachability_info = self.reachability_info_dict[next_component_info.server_id]
-
         if plan_wrapper.is_only_output_component(next_component_info):
-            ## Send back with callback
-            if next_component_info.server_id not in self.callback_channel_dict.keys():
-                channel = grpc.insecure_channel(
-                    f"{reachability_info.ip_address}:{request_info.callback_port}"
-                )
-                self.callback_channel_dict[next_component_info.server_id] = channel
 
-            channel = self.callback_channel_dict[next_component_info.server_id]
+            with self.callback_channel_lock.gen_rlock():
+                is_present = (
+                    next_component_info.server_id in self.callback_channel_dict.keys()
+                )
+
+                if is_present:
+                    channel = self.callback_channel_dict[next_component_info.server_id]
+
+            if not is_present:
+                with self.callback_channel_lock.gen_wlock():
+                    ## Chek if it has not been changed in the meantime
+                    if (
+                        next_component_info.server_id
+                        in self.callback_channel_dict.keys()
+                    ):
+                        channel = self.callback_channel_dict[
+                            next_component_info.server_id
+                        ]
+
+                    else:
+                        channel = grpc.insecure_channel(
+                            f"{reachability_info.ip_address}:{request_info.callback_port}"
+                        )
+
+                        self.callback_channel_dict[next_component_info.server_id] = (
+                            channel
+                        )
+
         else:
-            if next_component_info.server_id not in self.next_server_channel.keys():
-                channel = grpc.insecure_channel(
-                    f"{reachability_info.ip_address}:{reachability_info.inference_port}"
+            with self.server_channel_lock.gen_rlock():
+                is_present = (
+                    next_component_info.server_id in self.next_server_channel.keys()
                 )
 
-                self.next_server_channel[next_component_info.server_id] = channel
-            channel = self.next_server_channel[next_component_info.server_id]
+                if is_present:
+                    channel = self.next_server_channel[next_component_info.server_id]
+
+            if not is_present:
+                with self.server_channel_lock.gen_wlock():
+                    ## Chek if it has not been changed in the meantime
+                    if next_component_info.server_id in self.next_server_channel.keys():
+                        channel = self.next_server_channel[
+                            next_component_info.server_id
+                        ]
+
+                    else:
+                        channel = grpc.insecure_channel(
+                            f"{reachability_info.ip_address}:{reachability_info.inference_port}"
+                        )
+
+                        self.next_server_channel[next_component_info.server_id] = (
+                            channel
+                        )
 
         server_stub = InferenceStub(channel)
 

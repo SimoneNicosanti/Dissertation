@@ -1,6 +1,7 @@
 import grpc
-from Optimizer.Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
+from readerwriterlock import rwlock
 
+from Optimizer.Graph.NetworkGraph import NetworkGraph, NetworkNodeInfo
 from proto_compiled.common_pb2 import OptimizedPlan
 from proto_compiled.server_pb2_grpc import AssigneeStub
 
@@ -8,7 +9,8 @@ from proto_compiled.server_pb2_grpc import AssigneeStub
 class PlanDistributor:
 
     def __init__(self):
-        self.stubs_dict: dict[str, AssigneeStub] = {}
+        self.assignee_dict_lock = rwlock.RWLockWriteD()
+        self.assignee_channels: dict[str, grpc.Channel] = {}
         pass
 
     def distribute_plan(
@@ -32,13 +34,31 @@ class PlanDistributor:
             if assignee_ip_addr is None or assignee_port is None:
                 continue
 
-            assignee_stub = self.stubs_dict.get(assignee_ip_addr)
-            if assignee_stub is None:
-                self.stubs_dict[assignee_ip_addr] = AssigneeStub(
-                    grpc.insecure_channel(f"{assignee_ip_addr}:{assignee_port}")
-                )
-                assignee_stub = self.stubs_dict[assignee_ip_addr]
+            assignee_stub = self.__get_stub_for_assignee(
+                assignee_ip_addr, assignee_port
+            )
 
             assignee_stub.send_plan(optimized_plan)
 
-        pass
+    def __get_stub_for_assignee(
+        self, assignee_ip_addr: str, assignee_port: int
+    ) -> AssigneeStub:
+
+        with self.assignee_dict_lock.gen_rlock():
+            is_present = assignee_ip_addr in self.assignee_channels.keys()
+
+            if is_present:
+                channel = self.assignee_channels[assignee_ip_addr]
+
+        if not is_present:
+            with self.assignee_dict_lock.gen_wlock():
+
+                if assignee_ip_addr in self.assignee_channels.keys():
+                    channel = self.assignee_channels[assignee_ip_addr]
+                else:
+                    channel = grpc.insecure_channel(
+                        f"{assignee_ip_addr}:{assignee_port}"
+                    )
+                    self.assignee_channels[assignee_ip_addr] = channel
+
+        return AssigneeStub(channel)

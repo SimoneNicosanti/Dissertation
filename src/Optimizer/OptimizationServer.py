@@ -45,25 +45,11 @@ class OptmizationServer(OptimizationServicer):
         model_graphs_dict: dict[str, ModelGraph] = {}
 
         for model_name in request.model_names:
-            model_profile_path = os.path.join(
-                MODEL_PROFILES_DIR, model_name + ".pickle"
-            )
-            if os.path.isfile(model_profile_path):
-                with open(model_profile_path, "rb") as pickle_file:
-                    model_graphs_dict[model_name] = pickle.load(pickle_file)
-            else:
-                model_path = os.path.join(MODEL_DIR, model_name + ".onnx")
-                model_graph: ModelGraph = OnnxModelProfiler(model_path).profile_model(
-                    {"args_0": (1, 3, 448, 448)}
-                )
-
-                model_graphs_dict[model_name] = model_graph
-                with open(model_profile_path, "wb") as pickle_file:
-                    pickle.dump(model_graph, pickle_file)
+            model_graph = self.build_model_graph(model_name)
+            model_graphs_dict[model_name] = model_graph
 
         network_graph: NetworkGraph = self.network_builder.build_network()
         deployment_server = network_graph.build_node_id(request.deployment_server)
-        print("Deployment Server >> ", deployment_server.node_name)
 
         solved_graphs: list[SolvedModelGraph] = OptimizationHandler().optimize(
             list(model_graphs_dict.values()),
@@ -77,6 +63,7 @@ class OptmizationServer(OptimizationServicer):
             if not solved_graph.is_solved():
                 print(solved_graph.get_graph_name() + " is not solved")
                 continue
+
             graph_name = solved_graph.get_graph_name()
             ConnectedComponents.ConnectedComponentsFinder.find_connected_components(
                 solved_graph
@@ -106,6 +93,21 @@ class OptmizationServer(OptimizationServicer):
         return OptimizedPlan(
             plans_map=plan_map,
         )
+
+    def build_model_graph(self, model_name: str) -> ModelGraph:
+        model_profile_path = os.path.join(MODEL_PROFILES_DIR, model_name + ".pickle")
+        if os.path.isfile(model_profile_path):
+            with open(model_profile_path, "rb") as pickle_file:
+                model_graph: ModelGraph = pickle.load(pickle_file)
+        else:
+            model_path = os.path.join(MODEL_DIR, model_name + ".onnx")
+            model_graph: ModelGraph = OnnxModelProfiler(model_path).profile_model(
+                {"args_0": (1, 3, 448, 448)}
+            )
+            with open(model_profile_path, "wb") as pickle_file:
+                pickle.dump(model_graph, pickle_file)
+
+        return model_graph
 
     def write_whole_plan(self, plan_map: dict, deployer_id: str):
         for model_name, plan_string in plan_map.items():

@@ -1,5 +1,6 @@
 import abc
-import threading
+
+from readerwriterlock import rwlock
 
 from CommonServer.InferenceInfo import (
     ComponentInfo,
@@ -17,7 +18,7 @@ class ModelManager(abc.ABC):
         components_dict: dict[ComponentInfo, str],
     ):
 
-        self.pool_lock = threading.Lock()
+        self.pool_lock = rwlock.RWLockWriteD()
         self.input_pool = InputPool()
 
         self.component_input_dict: dict[ComponentInfo, list] = {
@@ -32,7 +33,7 @@ class ModelManager(abc.ABC):
         tensor_wrap_list: list[TensorWrapper],
     ):
 
-        with self.pool_lock:
+        with self.pool_lock.gen_wlock():
             for tensor_wrap in tensor_wrap_list:
                 self.input_pool.put_input(component_info, request_info, tensor_wrap)
 

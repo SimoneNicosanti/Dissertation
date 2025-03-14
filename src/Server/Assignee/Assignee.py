@@ -39,14 +39,12 @@ class Fetcher(AssigneeServicer):
         plans_map: dict[str, str] = optimized_plan.plans_map
 
         for _, model_plan_str in plans_map.items():
-            model_plan = json.loads(model_plan_str)
-            asyncio.run(self.__handle_model_plan(model_plan, deployer_id))
+            plan_wrapper = PlanWrapper(model_plan_str)
+            asyncio.run(self.__handle_model_plan(plan_wrapper, deployer_id))
 
         return AssignmentResponse()
 
-    async def __handle_model_plan(self, model_plan: dict[str], deployer_id: str):
-        plan_wrapper = PlanWrapper(model_plan)
-        print("Handling Model Plan for Deployer {}".format(deployer_id))
+    async def __handle_model_plan(self, plan_wrapper: PlanWrapper, deployer_id: str):
 
         assigned_components = plan_wrapper.get_assigned_components(self.server_id)
         paths_dict = {}
@@ -57,6 +55,7 @@ class Fetcher(AssigneeServicer):
             if plan_wrapper.is_only_input_component(
                 comp_info
             ) or plan_wrapper.is_only_output_component(comp_info):
+                ## These components will be handled by the front end
                 continue
             else:
 

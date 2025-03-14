@@ -34,8 +34,6 @@ class InputPool:
             tensor_wrap.tensor_name for tensor_wrap in current_inputs
         ]
 
-        print("Current Input Names >> ", current_inputs_names)
-        print("Input List >> ", input_list)
         if sorted(current_inputs_names) == sorted(input_list):
             return self.input_pool.pop(key), True
 
