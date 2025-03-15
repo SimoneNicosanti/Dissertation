@@ -57,7 +57,6 @@ class OutputSender:
             ## We have to consume it in order to unlock the computation
             ## The stream will actually be empty, but we have to do it anyway
             for _ in response_stream:
-                print("BELLAAAH")
                 pass
 
         pass

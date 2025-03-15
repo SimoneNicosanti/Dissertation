@@ -15,7 +15,7 @@ from proto_compiled.state_pool_pb2_grpc import StatePoolStub
 
 STATE_POOL_PORT = 50052
 REGISTRY_PORT = 50051
-MONITOR_TIMER = 15
+MONITOR_TIMER = 5
 
 PING_TIMES = 5
 MEGABYTE_SIZE = 1024 * 1024
@@ -114,7 +114,12 @@ class ServerMonitor:
 
             server_chan = self.server_chan_dict[server_info.server_id.server_id]
 
-            bandwidth = self.__eval_bandwidth(server_chan)
+            if self.server_id == "1" and server_info.server_id.server_id == "0":
+                bandwidth = 350
+            elif self.server_id == "0" and server_info.server_id.server_id == "1":
+                bandwidth = 125
+            else:
+                bandwidth = self.__eval_bandwidth(server_chan)
 
             with self.state_lock.gen_wlock():
                 self.bandwidths[server_info.server_id.server_id] = bandwidth

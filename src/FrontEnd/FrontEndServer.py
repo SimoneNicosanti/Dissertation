@@ -71,15 +71,12 @@ class FrontEndServer(InferenceServicer):
 
             ## If Input Component --> Yield output
             if plan_wrapper.is_only_input_component(component_info):
+                print("Yielding result")
                 with self.requests_lock.gen_wlock():
-                    inference_output = self.pending_request_dict.pop(request_info)
-
+                    inference_output = self.final_results_dict.pop(request_info)
                 yield from ResponseGenerator.yield_response(inference_output)
 
-            else:
-                yield
-        else:
-            yield
+        yield
 
     def lock_unlock_threads(
         self,
@@ -102,7 +99,7 @@ class FrontEndServer(InferenceServicer):
             ## We have to lock the thread until the response is received
             waiting_event.wait()
             end_time = time.time_ns()
-            ## Once the thread has been unlocked, we can compute the total time and yield the result
+            ## Once the thread has been unlocked, we can compute the total
             print(
                 f"Time for Request: {request_info.request_idx} >> {end_time - start_time}"
             )
@@ -110,8 +107,6 @@ class FrontEndServer(InferenceServicer):
         elif plan_wrapper.is_only_output_component(component_info):
             with self.requests_lock.gen_wlock():
                 self.final_results_dict[request_info] = out_tensor_wrap_list
-                if out_tensor_wrap_list is None:
-                    print("Where is it??")
                 waiting_event = self.pending_request_dict.pop(request_info)
 
             print("Unlocking Thread")

@@ -179,3 +179,29 @@ Da qui si vede che il GIL non è un problema con la *run* di ONNX: infatti dice 
 https://github.com/microsoft/onnxruntime/issues/11246.
 Di base quindi si potrebbero eseguire più modelli senza creare dei processi diversi.
 Ad esempio si potrebbe creare un wrap del modello e delle sue componenti che espone un metodo di Run: il metodo di run internamente gestisce un semaforo per limitare il numero di thread che contemporaneamente possono andare a chiamare quel servizio.
+
+
+## Bug in ottimizzazione
+Parametri del test:
+- Due server (server_0 e server_1)
+- Bande
+	- 0 --> 1 : 125
+	- 1 --> 0 : 300
+	- 0 --> 0 e 1 --> 1; prese con il monitor
+- Flops
+	- 0 --> $2.5 * 10^9$
+	- 1 --> $5 * 10^9$
+- Memoria
+	- 0 --> 10 MB
+	- 1 --> 16 GB
+
+In questa condizione l'ottimizzatore divide il modello in tante piccole componenti.
+tieni in conto il fatto che la banda per andare da un nodo a se stesso si divide in due tipi:
+- Banda per andare da un nodo di una componente al nodo di un'altra componente
+	- In questo caso si può modellare come zero perché è effettivamente nello stesso processo
+- Banda per andare da un nodo di una componente al nodo di un'altra componente sempre nello stesso nodo di rete
+	- In questo caso si dovrebbe considerare quella che viene restituita dal monitor
+
+Se entrambe le bande vengono modellate come 0, il problema non sembra presentarsi: bisogna quindi capire se il problema è proprio intrinseco della modellazione. Il problema è che quando si creano così tante componenti l'inferenza si blocca: non so quindi se il blocco è creato dalla gestione dell'inferenza o dalla post elaborazione sulle componenti che in realtà trascura delle dipendenze.
+
+Il problema si presenta quando il valore della funzione obiettivo è superiore a 5 o 5.5
