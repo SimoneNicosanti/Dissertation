@@ -47,6 +47,7 @@ class ConnectedComponentsFinder:
                 next_comp_dict[server_id] += 1
 
             elif node_info[SolvedNodeInfo.RECEIVER]:
+                ## They will be handled by a different component
                 next_comp_dict[server_id] += 1
                 curr_comp_idx = next_comp_dict[server_id]
                 node_comp = ComponentId(server_id, curr_comp_idx)
@@ -131,14 +132,18 @@ class ConnectedComponentsFinder:
             node_component = graph.nodes[node_id][SolvedNodeInfo.COMPONENT]
 
             component_graph.add_node(node_component)
-            component_graph.nodes[node_component].setdefault("nodes", [])
-            component_graph.nodes[node_component]["nodes"].append(node_id)
 
         for node_id in graph.nodes:
+            node_component = graph.nodes[node_id][SolvedNodeInfo.COMPONENT]
             for next_node in graph.successors(node_id):
                 next_node_component = graph.nodes[next_node][SolvedNodeInfo.COMPONENT]
 
                 if node_component != next_node_component:
                     component_graph.add_edge(node_component, next_node_component)
+
+        is_dag = nx.is_directed_acyclic_graph(component_graph)
+        if not is_dag:
+            cycles = nx.find_cycle(component_graph)
+            print(cycles)
 
         return nx.is_directed_acyclic_graph(component_graph)

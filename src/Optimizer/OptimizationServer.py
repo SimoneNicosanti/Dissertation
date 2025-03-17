@@ -75,21 +75,21 @@ class OptmizationServer(OptimizationServicer):
             partitioner = OnnxModelPartitioner(
                 MODEL_DIR + graph_name + ".onnx", DIVIDED_MODEL_DIR
             )
-            partitioner.partition_model(plan, graph_name, deployment_server)
+            # partitioner.partition_model(plan, graph_name, deployment_server)
 
             plan_map[graph_name] = plan.dump_plan()
 
-            self.model_distributor.distribute(
-                graph_name, plan, deployment_server.node_name
-            )
+            # self.model_distributor.distribute(
+            #     graph_name, plan, deployment_server.node_name
+            # )
         print("All Models Parts Distributed")
 
-        self.plan_distributor.distribute_plan(
-            plan_map, network_graph, deployment_server.node_name
-        )
-        print("Plan Distributed to Servers")
+        # self.plan_distributor.distribute_plan(
+        #     plan_map, network_graph, deployment_server.node_name
+        # )
+        # print("Plan Distributed to Servers")
 
-        self.write_whole_plan(plan_map, deployment_server.node_name)
+        # self.write_whole_plan(plan_map, deployment_server.node_name)
 
         return OptimizedPlan(
             plans_map=plan_map,

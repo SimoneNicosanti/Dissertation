@@ -47,6 +47,9 @@ class NetworkBuilder:
 
             node_idx += 1
 
+            print("Node {} added".format(server_id))
+            print(server_state)
+
         for server_id, server_state_str in state_dict.items():
             bandwidths: dict[str, str] = json.loads(server_state_str)["bandwidths"]
             for other_server_id, _ in state_dict.items():

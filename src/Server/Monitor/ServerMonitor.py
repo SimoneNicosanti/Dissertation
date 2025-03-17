@@ -115,9 +115,13 @@ class ServerMonitor:
             server_chan = self.server_chan_dict[server_info.server_id.server_id]
 
             if self.server_id == "1" and server_info.server_id.server_id == "0":
-                bandwidth = 350
+                bandwidth = 167
+            elif self.server_id == "1" and server_info.server_id.server_id == "1":
+                bandwidth = 104
             elif self.server_id == "0" and server_info.server_id.server_id == "1":
-                bandwidth = 125
+                bandwidth = 110
+            elif self.server_id == "0" and server_info.server_id.server_id == "0":
+                bandwidth = 110
             else:
                 bandwidth = self.__eval_bandwidth(server_chan)
 

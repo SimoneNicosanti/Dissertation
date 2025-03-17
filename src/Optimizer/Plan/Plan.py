@@ -5,7 +5,6 @@ import networkx as nx
 from Optimizer.Graph.Graph import (
     NodeId,
     SolvedEdgeInfo,
-    SolvedGraphInfo,
     SolvedNodeInfo,
 )
 from Optimizer.Graph.SolvedModelGraph import (

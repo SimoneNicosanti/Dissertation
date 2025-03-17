@@ -205,9 +205,9 @@ Per quanto riguarda la modellazione della banda da un server a se stesso ci poss
 Se entrambe le bande vengono modellate come 0, il problema non sembra presentarsi: bisogna quindi capire se il problema è proprio intrinseco della modellazione. Il problema è che quando si creano così tante componenti l'inferenza si blocca: non so quindi se il blocco è creato dalla gestione dell'inferenza o dalla post elaborazione sulle componenti che in realtà trascura delle dipendenze.
 
 Il problema si presenta quando il valore della funzione obiettivo è superiore a 5 o 5.5.
-
 Nell'immagine si vede il numero di componenti costruite: oltre le 100! Il costo è effettivamente oltre il 5.5 in questi casi.
-Ho aggiunto un controllo per testare che il grafo delle componenti non fosse ciclico: di fatto quando non lo è l'implementazione della fase di inferenza non si blocca. Ci sono stati dei casi in cui il grafo delle componenti prodotto veniva ciclico e credo fosse là che l'implementazione si bloccava (non riesco più a produrre quel caso, possibile che si sia risolto con qualche modifica che ho fatto). 
+Ho aggiunto un controllo per testare che il grafo delle componenti non fosse ciclico: di fatto quando non lo è l'implementazione della fase di inferenza non si blocca (vedere dopo).
+
 
 Facendo alcune prove ho visto che il problema si manifesta nel seguente contesto. Fino ad ora ho fatto gli esperimenti assumendo in fase di ottimizzazione che la banda per passare dati da un server a se stesso fosse infinita (e il conseguente tempo di trasmissione fosse nullo); inserito il monitor ho aggiunto nella risoluzione del problema ANCHE la modellazione del tempo di trasmissione da un sistema a se stesso (vedere considerazione successiva) e questo sembra portare in alcuni casi alla creazione di moltissime componenti. Nel test seguente si vede il contesto di esecuzione di uno di questi casi. 
 ![[Schermata del 2025-03-17 09-32-34.png|Risoluzione del Problema]]
@@ -216,9 +216,17 @@ Potrebbe essere o la prima, la seconda o la terza coppia di stati (più probabil
 ![[Schermata del 2025-03-17 09-32-55.png|Stato dei Server]]
 
 
-La cosa che non mi spiego è il motivo per cui l'ottimizzatore ritenga più conveniente un rimpallo di dati da una parte all'altra piuttosto che la divisione netta: considerando che il server può eseguire più operazioni in Floating point, non ha molto senso che ci sia questo rimpallo di dati visto che una volta trasferita la computazione comunque l'esecuzione sul server sarà più veloce.
+La cosa che non mi spiego è il motivo per cui l'ottimizzatore ritenga più conveniente un rimpallo di dati da una parte all'altra piuttosto che la divisione netta: considerando che il server può eseguire più operazioni in Floating Point, non ha molto senso che ci sia questo rimpallo di dati visto che una volta trasferita la computazione comunque l'esecuzione sul server sarà più veloce. In questo senso credo che ci sia qualcosa che manca nella modellazione dell'ottimizzazione.
 
 
-Per quanto riguarda il problema del blocco, sembra presentarsi a prescindere che il piano sia o meno un DAG!!. In questo caso si vede che il piano prodotto non è un DAG, ma comunque l'inferenza va in blocco. Credo che ci sia quindi un problema a livello di implementazione dell'inferenza (forse il raggiungimento del massimo numero di thread??)
+Per quanto riguarda il blocco nella fase di inferenza, credo che si verifichi quando c'è ciclicità nel DAG delle componenti: anche questa cosa è strana però visto che la risoluzione delle componenti dovrebbe rimuovere questa ciclicità. Nell'immagine si vede effettivamente un piano prodotto che non è un dag!
+![[Schermata del 2025-03-17 10-20-44.png|Piano Prodotto non DAG]]
 
-![[Schermata del 2025-03-17 09-55-21.png]]
+Caso di Piano Prodotto non DAG: di seguito un caso in cui il grafo prodotto non è un dag e lo stato dei server. A prescindere dal numero di componenti il fatto che il grafo delle componenti non sia un DAG è strano...
+![[Schermata del 2025-03-17 10-24-59.png|Ottimizzazione]]
+![[Schermata del 2025-03-17 10-28-12.png|Stato dei Server]]
+
+Da qui si può avere una panoramica migliore della situazione e delle interazioni possibili; notiamo che il tempo per andare da server_1 a server_0 è abbastanza più grande rispetto a quello per andare da server_1 a server_1. In questa situazione quindi l'ottimizzatore potrebbe scegliere di fare offloading delle operazioni con il numero di flops più basso verso il device server_0 scegliendo di pagare quel prezzo di trasmissione piuttosto che quello di trasmettere a se stesso quella stessa quantità di dati.
+
+Per quanto riguarda la creazione di un non DAG credo che il problema sia relativo alla gestione dei rami paralleli: probabilmente i controlli sulle dipendenze non sono sufficienti; infatti se tolgo la gestione dei rami paralleli il problema si risolve. Esempio di non DAG: come si vede in entrambe le componenti ci sono dei rami paralleli.
+![[Schermata del 2025-03-17 11-09-21.png]]![[Schermata del 2025-03-17 11-10-10.png]]
