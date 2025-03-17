@@ -91,7 +91,7 @@ class ServerMonitor:
     def __update_memory(self):
         ## Memory in MB
         if self.server_id == "0":
-            mem = 10
+            mem = 100
         else:
             mem = 16 * 1024
 

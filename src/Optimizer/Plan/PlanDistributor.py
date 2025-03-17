@@ -1,7 +1,7 @@
 import grpc
+import networkx as nx
 from readerwriterlock import rwlock
 
-from Optimizer.Graph.NetworkGraph import NetworkGraph
 from proto_compiled.common_pb2 import OptimizedPlan
 from proto_compiled.register_pb2 import ReachabilityInfo, ServerId
 from proto_compiled.register_pb2_grpc import RegisterStub
@@ -22,14 +22,14 @@ class PlanDistributor:
     def distribute_plan(
         self,
         plan_dict: dict[str, str],
-        network_graph: NetworkGraph,
+        network_graph: nx.DiGraph,
         deployment_server: str,
     ):
 
         optimized_plan = OptimizedPlan(
             deployer_id=deployment_server, plans_map=plan_dict
         )
-        for net_node_id in network_graph.get_nodes_id():
+        for net_node_id in network_graph.nodes:
 
             assignee_stub = self.__get_stub_for_assignee(net_node_id.node_name)
             assignee_stub.send_plan(optimized_plan)

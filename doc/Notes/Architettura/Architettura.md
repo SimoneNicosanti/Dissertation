@@ -187,7 +187,7 @@ Parametri del test:
 - Bande
 	- 0 --> 1 : 125
 	- 1 --> 0 : 300
-	- 0 --> 0 e 1 --> 1; prese con il monitor
+	- 0 --> 0 e 1 --> 1; prese con il monitor (vedere dopo)
 - Flops
 	- 0 --> $2.5 * 10^9$
 	- 1 --> $5 * 10^9$
@@ -196,12 +196,29 @@ Parametri del test:
 	- 1 --> 16 GB
 
 In questa condizione l'ottimizzatore divide il modello in tante piccole componenti.
-tieni in conto il fatto che la banda per andare da un nodo a se stesso si divide in due tipi:
-- Banda per andare da un nodo di una componente al nodo di un'altra componente
-	- In questo caso si può modellare come zero perché è effettivamente nello stesso processo
-- Banda per andare da un nodo di una componente al nodo di un'altra componente sempre nello stesso nodo di rete
-	- In questo caso si dovrebbe considerare quella che viene restituita dal monitor
+Per quanto riguarda la modellazione della banda da un server a se stesso ci possono essere due casi:
+- I nodi tra cui si trasferiscono i dati fanno parte della stessa componente
+	- In questo caso si potrebbe davvero assumere che il tempo di trasmissione sia nullo visto che è gestito dal 
+- I nodi tra cui si trasferiscono i dati fanno parte di due componenti diverse
+	- In questo caso bisognerebbe considerare il tempo di trasmissione monitorato per andare dal nodo a se stesso (sempre con il meccanismo di ping)
 
 Se entrambe le bande vengono modellate come 0, il problema non sembra presentarsi: bisogna quindi capire se il problema è proprio intrinseco della modellazione. Il problema è che quando si creano così tante componenti l'inferenza si blocca: non so quindi se il blocco è creato dalla gestione dell'inferenza o dalla post elaborazione sulle componenti che in realtà trascura delle dipendenze.
 
-Il problema si presenta quando il valore della funzione obiettivo è superiore a 5 o 5.5
+Il problema si presenta quando il valore della funzione obiettivo è superiore a 5 o 5.5.
+
+Nell'immagine si vede il numero di componenti costruite: oltre le 100! Il costo è effettivamente oltre il 5.5 in questi casi.
+Ho aggiunto un controllo per testare che il grafo delle componenti non fosse ciclico: di fatto quando non lo è l'implementazione della fase di inferenza non si blocca. Ci sono stati dei casi in cui il grafo delle componenti prodotto veniva ciclico e credo fosse là che l'implementazione si bloccava (non riesco più a produrre quel caso, possibile che si sia risolto con qualche modifica che ho fatto). 
+
+Facendo alcune prove ho visto che il problema si manifesta nel seguente contesto. Fino ad ora ho fatto gli esperimenti assumendo in fase di ottimizzazione che la banda per passare dati da un server a se stesso fosse infinita (e il conseguente tempo di trasmissione fosse nullo); inserito il monitor ho aggiunto nella risoluzione del problema ANCHE la modellazione del tempo di trasmissione da un sistema a se stesso (vedere considerazione successiva) e questo sembra portare in alcuni casi alla creazione di moltissime componenti. Nel test seguente si vede il contesto di esecuzione di uno di questi casi. 
+![[Schermata del 2025-03-17 09-32-34.png|Risoluzione del Problema]]
+
+Potrebbe essere o la prima, la seconda o la terza coppia di stati (più probabile che sia la prima)
+![[Schermata del 2025-03-17 09-32-55.png|Stato dei Server]]
+
+
+La cosa che non mi spiego è il motivo per cui l'ottimizzatore ritenga più conveniente un rimpallo di dati da una parte all'altra piuttosto che la divisione netta: considerando che il server può eseguire più operazioni in Floating point, non ha molto senso che ci sia questo rimpallo di dati visto che una volta trasferita la computazione comunque l'esecuzione sul server sarà più veloce.
+
+
+Per quanto riguarda il problema del blocco, sembra presentarsi a prescindere che il piano sia o meno un DAG!!. In questo caso si vede che il piano prodotto non è un DAG, ma comunque l'inferenza va in blocco. Credo che ci sia quindi un problema a livello di implementazione dell'inferenza (forse il raggiungimento del massimo numero di thread??)
+
+![[Schermata del 2025-03-17 09-55-21.png]]
