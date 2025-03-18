@@ -1,9 +1,8 @@
-import json
 from concurrent import futures
 
 import grpc
 
-from CommonServer.InferenceInfo import ModelInfo
+from Common import ConfigReader
 from CommonServer.PlanWrapper import PlanWrapper
 from FrontEnd.FrontEndServer import FrontEndServer
 from proto_compiled.common_pb2 import OptimizedPlan
@@ -11,19 +10,24 @@ from proto_compiled.optimizer_pb2 import OptimizationRequest
 from proto_compiled.optimizer_pb2_grpc import OptimizationStub
 from proto_compiled.server_pb2_grpc import add_InferenceServicer_to_server
 
-FRONTEND_PORT = 50090
-
 
 def main():
     print("Asking For Plan Optimization")
+
+    optimizer_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+        "addresses", "OPTIMIZER_ADDR"
+    )
+    optimizer_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        "ports", "OPTIMIZER_PORT"
+    )
     optimizer_stub: OptimizationStub = OptimizationStub(
-        grpc.insecure_channel("optimizer:50060")
+        grpc.insecure_channel("{}:{}".format(optimizer_addr, optimizer_port))
     )
     opt_req = OptimizationRequest(
-        model_names=["yolo11x-seg"],
+        model_names=["yolo11n-seg"],
         latency_weight=1,
-        energy_weight=0,
-        device_max_energy=1,
+        energy_weight=20,
+        device_max_energy=100,
         requests_number=[1],
         deployment_server="0",
     )
@@ -42,11 +46,14 @@ def main():
             model_info, plan_wrapper, components_dict, None
         )
 
+    frontend_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        "ports", "FRONTEND_PORT"
+    )
     add_InferenceServicer_to_server(frontend_servicer, server)
-    server.add_insecure_port(f"[::]:{FRONTEND_PORT}")
+    server.add_insecure_port(f"[::]:{frontend_port}")
 
     server.start()
-    print(f"Frontend Server running on port {FRONTEND_PORT}...")
+    print(f"Frontend Server running on port {frontend_port}...")
     server.wait_for_termination()
 
 

@@ -186,15 +186,20 @@ class ConstraintsBuilder:
         problem: pulp.LpProblem,
         model_graphs: list[nx.MultiDiGraph],
         network_graph: nx.DiGraph,
-        ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        requests_num: int,
-        net_node_id: str,
+        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        requests_num: dict[str, int],
+        net_node_id: NodeId,
         device_energy_limit: float,
     ):
 
         device_energy = EnergyComputer.compute_energy_cost_per_net_node(
-            model_graphs, network_graph, ass_vars, requests_num, net_node_id
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            edge_ass_vars,
+            requests_num,
+            net_node_id,
         )
-
         problem += device_energy <= device_energy_limit
         pass

@@ -1,20 +1,31 @@
+import os
 from concurrent import futures
 
 import grpc
 
+from Common import ConfigReader
 from Optimizer.OptimizationServer import OptmizationServer
 from proto_compiled.optimizer_pb2_grpc import add_OptimizationServicer_to_server
 
-OPTIMIZER_PORT = 50060
-
 
 def main():
+
+    optimizer_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        "ports", "OPTIMIZER_PORT"
+    )
+
+    dir_list = ConfigReader.ConfigReader("./config/config.ini").read_all_dirs(
+        "optimizer_dirs"
+    )
+    for dir in dir_list:
+        os.makedirs(dir, exist_ok=True)
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     add_OptimizationServicer_to_server(OptmizationServer(), server)
-    port = server.add_insecure_port(f"[::]:{OPTIMIZER_PORT}")
+    port = server.add_insecure_port(f"[::]:{optimizer_port}")
     print(port)
     server.start()
-    print(f"gRPC Optimizer Server running on port {OPTIMIZER_PORT}...")
+    print(f"gRPC Optimizer Server running on port {optimizer_port}...")
 
     server.wait_for_termination()
 

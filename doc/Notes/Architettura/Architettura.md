@@ -218,6 +218,7 @@ Potrebbe essere o la prima, la seconda o la terza coppia di stati (più probabil
 La cosa che non mi spiego è il motivo per cui l'ottimizzatore ritenga più conveniente un rimpallo di dati da una parte all'altra piuttosto che la divisione netta: considerando che il server può eseguire più operazioni in Floating Point, non ha molto senso che ci sia questo rimpallo di dati visto che una volta trasferita la computazione comunque l'esecuzione sul server sarà più veloce. In questo senso credo che ci sia qualcosa che manca nella modellazione dell'ottimizzazione.
 
 ## Bug in ricerca delle componenti
+^bug-ricerca-componenti
 Per quanto riguarda il blocco nella fase di inferenza, credo che si verifichi quando c'è ciclicità nel DAG delle componenti: anche questa cosa è strana però visto che la risoluzione delle componenti dovrebbe rimuovere questa ciclicità. Nell'immagine si vede effettivamente un piano prodotto che non è un dag!
 ![[Schermata del 2025-03-17 10-20-44.png|Piano Prodotto non DAG]]
 
@@ -240,6 +241,8 @@ In questa figura quello che si vede è che: l'output delle max-pool nella compon
 
 
 ### Bug Fix
+^bug-fix-components
+
 Per risolvere il problema ho fatto una modifica dell'algoritmo di ricerca delle componenti.
 In particolare si deve fare in modo che un nodo non venga messo in una componente tale che una componente da cui dipende sia a sua volta dipendente. Infatti nel caso della concat il problema è questo: quando scelgo di mettere concat in (0,30) il problema è che non ho nulla a dirmi che c'è già una dipendenza tra (0,30) e (1,32) data dalla dipendenza tra mul e max-pool
 

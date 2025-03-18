@@ -71,32 +71,33 @@ class ConnectedComponentsFinder:
                 node_dependency_dict[descendant_id].add(node_comp)
 
             ## Following nodes having the same server can be in the same component
-            for next_node_id in solved_model_graph.successors(node_id):
-                neigh_info: dict = solved_model_graph.nodes[next_node_id]
+            if not node_info[SolvedNodeInfo.GENERATOR]:
+                for next_node_id in solved_model_graph.successors(node_id):
+                    neigh_info: dict = solved_model_graph.nodes[next_node_id]
 
-                if (
-                    node_info[SolvedNodeInfo.NET_NODE_ID]
-                    == neigh_info[SolvedNodeInfo.NET_NODE_ID]
-                ):
-                    ## Same server --> Setting possible component
-                    node_possible_dict[next_node_id].add(node_comp)
+                    if (
+                        node_info[SolvedNodeInfo.NET_NODE_ID]
+                        == neigh_info[SolvedNodeInfo.NET_NODE_ID]
+                    ):
+                        ## Same server --> Setting possible component
+                        node_possible_dict[next_node_id].add(node_comp)
 
-            parallel_nodes = (
-                set(solved_model_graph.nodes)
-                - nx.descendants(solved_model_graph, node_id)
-                - nx.ancestors(solved_model_graph, node_id)
-            )
+                parallel_nodes = (
+                    set(solved_model_graph.nodes)
+                    - nx.descendants(solved_model_graph, node_id)
+                    - nx.ancestors(solved_model_graph, node_id)
+                )
 
-            ## Parallel nodes having the same server can be in the same component
-            for paral_node_id in parallel_nodes:
-                paral_node_info = solved_model_graph.nodes[paral_node_id]
+                ## Parallel nodes having the same server can be in the same component
+                for paral_node_id in parallel_nodes:
+                    paral_node_info = solved_model_graph.nodes[paral_node_id]
 
-                if (
-                    node_info[SolvedNodeInfo.NET_NODE_ID]
-                    == paral_node_info[SolvedNodeInfo.NET_NODE_ID]
-                ):
-                    ## Same server --> Setting possible component
-                    node_possible_dict[paral_node_id].add(node_comp)
+                    if (
+                        node_info[SolvedNodeInfo.NET_NODE_ID]
+                        == paral_node_info[SolvedNodeInfo.NET_NODE_ID]
+                    ):
+                        ## Same server --> Setting possible component
+                        node_possible_dict[paral_node_id].add(node_comp)
 
             ## Expanding component dependency
             ## Making sure that the component does not depend by itself

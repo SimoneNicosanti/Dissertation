@@ -7,13 +7,17 @@ import yaml
 from Client.InferenceCaller import InferenceCaller
 from Client.PPP.YoloPPP import YoloPPP
 from Client.PPP.YoloSegmentationPPP import YoloSegmentationPPP
+from Common import ConfigReader
 
 
 def main():
 
     interactor = InferenceCaller()
 
-    classes = yaml.safe_load(open("./Client/config/coco8.yaml"))["names"]
+    coco_config_path = ConfigReader.ConfigReader("./config/config.ini").read_str(
+        "device_paths", "COCO_CONFIG_PATH"
+    )
+    classes = yaml.safe_load(open(coco_config_path))["names"]
     yolo_segmentation_ppp = YoloSegmentationPPP(640, 640, classes)
 
     # Pre-process
@@ -25,7 +29,7 @@ def main():
         "yolo11n-seg",
     ]
     thr_list = []
-    for idx in range(1):
+    for idx in range(15):
         thr = threading.Thread(
             target=do_inference,
             args=(

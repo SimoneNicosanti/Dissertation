@@ -5,6 +5,7 @@ import time
 import grpc
 from readerwriterlock import rwlock
 
+from Common import ConfigReader
 from proto_compiled.common_pb2 import Empty
 from proto_compiled.ping_pb2 import PingMessage
 from proto_compiled.ping_pb2_grpc import PingStub
@@ -13,22 +14,30 @@ from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.state_pool_pb2 import ServerState
 from proto_compiled.state_pool_pb2_grpc import StatePoolStub
 
-STATE_POOL_PORT = 50052
-REGISTRY_PORT = 50051
-MONITOR_TIMER = 5
-
-PING_TIMES = 5
 MEGABYTE_SIZE = 1024 * 1024
-PING_MESSAGE_SIZE = 1 * MEGABYTE_SIZE  ## 1MB of Data
 
 
 class ServerMonitor:
     def __init__(self, server_id: str):
+        state_pool_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "STATE_POOL_ADDR"
+        )
+        state_pool_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "STATE_POOL_PORT"
+        )
         self.state_pool_chan = grpc.insecure_channel(
-            "{}:{}".format("registry", STATE_POOL_PORT)
+            "{}:{}".format(state_pool_addr, state_pool_port)
         )
 
-        self.registry_chan = grpc.insecure_channel("registry:{}".format(REGISTRY_PORT))
+        registry_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "REGISTRY_ADDR"
+        )
+        registry_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "REGISTRY_PORT"
+        )
+        self.registry_chan = grpc.insecure_channel(
+            "{}:{}".format(registry_addr, registry_port)
+        )
 
         self.server_chan_dict: dict[str, grpc.Channel] = {}
 
@@ -43,7 +52,10 @@ class ServerMonitor:
     def __update_and_send_state(self):
         self.__update_state()
         self.__send_state()
-        threading.Timer(MONITOR_TIMER, self.__update_and_send_state).start()
+        monitor_timer = ConfigReader.ConfigReader("./config/config.ini").read_float(
+            "monitor", "MONITOR_TIMER_SEC"
+        )
+        threading.Timer(monitor_timer, self.__update_and_send_state).start()
 
     def __send_state(self):
         send_state = {}
@@ -131,18 +143,27 @@ class ServerMonitor:
     def __eval_bandwidth(self, server_chan: grpc.Channel):
         ping_stub = PingStub(server_chan)
 
-        ping_message_content = bytearray(PING_MESSAGE_SIZE)  ## Sending 1MB of data
+        ping_message_size_mb = ConfigReader.ConfigReader(
+            "./config/config.ini"
+        ).read_float("monitor", "PING_MESSAGE_SIZE_MB")
+        ping_message_content = bytearray(
+            ping_message_size_mb * MEGABYTE_SIZE
+        )  ## Sending 1MB of data
+
+        ping_times = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "monitor", "PING_TIMES"
+        )
 
         start_time = time.perf_counter_ns()
-        for _ in range(PING_TIMES):
+        for _ in range(ping_times):
             ping_stub.ping(PingMessage(ping_bytes=bytes(ping_message_content)))
 
         total_time = time.perf_counter_ns() - start_time
 
-        avg_rtt = total_time / PING_TIMES  ## Avg round trip time
+        avg_rtt = total_time / ping_times  ## Avg round trip time
         avg_go_time = avg_rtt / 2  ## Avg go time
 
-        avg_bandwidth = (PING_MESSAGE_SIZE / MEGABYTE_SIZE) / (
+        avg_bandwidth = (ping_message_size_mb * ping_times) / (
             avg_go_time / 1e9
         )  ## Computing bandwidth in MB/s
 

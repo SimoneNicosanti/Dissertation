@@ -2,6 +2,7 @@ import os
 
 import networkx as nx
 
+from Common import ConfigReader
 from Optimizer.Graph import ConnectedComponents
 from Optimizer.Graph.Graph import NodeId, SolvedGraphInfo, SolvedNodeInfo
 from Optimizer.Network.NetworkBuilder import NetworkBuilder
@@ -19,15 +20,12 @@ from proto_compiled.common_pb2 import OptimizedPlan
 from proto_compiled.optimizer_pb2 import OptimizationRequest
 from proto_compiled.optimizer_pb2_grpc import OptimizationServicer
 
-MODEL_DIR = "/optimizer_data/models/"
-DIVIDED_MODEL_DIR = "/optimizer_data/divided_models/"
-
 
 class OptmizationServer(OptimizationServicer):
 
     def __init__(self):
         self.plan_distributor = PlanDistributor()
-        self.model_distributor = ModelDistributor(DIVIDED_MODEL_DIR)
+        self.model_distributor = ModelDistributor()
         self.network_builder = NetworkBuilder()
         pass
 
@@ -72,22 +70,21 @@ class OptmizationServer(OptimizationServicer):
 
             plan = Plan(solved_graph, deployer_id=deployment_server.node_name)
 
-            partitioner = OnnxModelPartitioner(
-                MODEL_DIR + graph_name + ".onnx", DIVIDED_MODEL_DIR
-            )
-            # partitioner.partition_model(plan, graph_name, deployment_server)
-
+            partitioner = OnnxModelPartitioner(None, None)
+            partitioner.partition_model(plan, graph_name, deployment_server)
+            print("Partitions Done")
             plan_map[graph_name] = plan.dump_plan()
 
-            # self.model_distributor.distribute(
-            #     graph_name, plan, deployment_server.node_name
-            # )
+            self.model_distributor.distribute(
+                graph_name, plan, deployment_server.node_name
+            )
+            print("Distribution Done")
         print("All Models Parts Distributed")
 
-        # self.plan_distributor.distribute_plan(
-        #     plan_map, network_graph, deployment_server.node_name
-        # )
-        # print("Plan Distributed to Servers")
+        self.plan_distributor.distribute_plan(
+            plan_map, network_graph, deployment_server.node_name
+        )
+        print("Plan Distributed to Servers")
 
         self.write_whole_plan(plan_map, deployment_server.node_name)
 
@@ -98,8 +95,11 @@ class OptmizationServer(OptimizationServicer):
     def build_model_graph(self, model_name: str) -> nx.MultiDiGraph:
         model_graph = ProfileSaver.read_profile(model_name)
 
+        models_dir = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "optimizer_dirs", "MODELS_DIR"
+        )
         if model_graph is None:
-            model_path = os.path.join(MODEL_DIR, model_name + ".onnx")
+            model_path = os.path.join(models_dir, model_name + ".onnx")
             model_graph: nx.MultiDiGraph = OnnxModelProfiler(model_path).profile_model(
                 {"args_0": (1, 3, 448, 448)}
             )
@@ -108,7 +108,11 @@ class OptmizationServer(OptimizationServicer):
         return model_graph
 
     def write_whole_plan(self, plan_map: dict, deployer_id: str):
+        plans_dir = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "optimizer_dirs", "PLANS_DIR"
+        )
         for model_name, plan_string in plan_map.items():
             plan_name = "plan_depl_{}_{}.json".format(deployer_id, model_name)
-            with open("/optimizer_data/plans/" + plan_name, "w") as plan_file:
+            plan_path = os.path.join(plans_dir, plan_name)
+            with open(plan_path, "w") as plan_file:
                 plan_file.write(plan_string)

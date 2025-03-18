@@ -86,16 +86,17 @@ class OptimizationHandler:
             mem_use_vars,
         )
 
-        ## TODO Activate this when known energy model
-        # ConstraintsBuilder.add_energy_constraints(
-        #     problem,
-        #     model_graphs,
-        #     network_graph,
-        #     node_ass_vars,
-        #     opt_params.requests_number,
-        #     deployment_server,
-        #     opt_params.device_max_energy,
-        # )
+        # TODO Activate this when known energy model
+        ConstraintsBuilder.add_energy_constraints(
+            problem,
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            edge_ass_vars,
+            opt_params.requests_number,
+            deployment_server,
+            opt_params.device_max_energy,
+        )
 
         ## Computing Latency Objective
         latency_cost = LatencyComputer.compute_latency_cost(

@@ -2,12 +2,11 @@ import grpc
 import networkx as nx
 from readerwriterlock import rwlock
 
+from Common import ConfigReader
 from proto_compiled.common_pb2 import OptimizedPlan
 from proto_compiled.register_pb2 import ReachabilityInfo, ServerId
 from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.server_pb2_grpc import AssigneeStub
-
-REGISTRY_PORT = 50051
 
 
 class PlanDistributor:
@@ -16,7 +15,15 @@ class PlanDistributor:
         self.assignee_dict_lock = rwlock.RWLockWriteD()
         self.assignee_channels: dict[str, grpc.Channel] = {}
 
-        self.registry_chan = grpc.insecure_channel("registry:{}".format(REGISTRY_PORT))
+        registry_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "REGISTRY_ADDR"
+        )
+        registry_port = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "ports", "REGISTRY_PORT"
+        )
+        self.registry_chan = grpc.insecure_channel(
+            "{}:{}".format(registry_addr, registry_port)
+        )
         pass
 
     def distribute_plan(

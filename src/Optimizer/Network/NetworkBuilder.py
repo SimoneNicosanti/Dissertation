@@ -3,6 +3,7 @@ import json
 import grpc
 import networkx as nx
 
+from Common import ConfigReader
 from Optimizer.Graph.Graph import NodeId
 from proto_compiled.common_pb2 import Empty
 from proto_compiled.state_pool_pb2 import StateMap
@@ -10,14 +11,18 @@ from proto_compiled.state_pool_pb2_grpc import StatePoolStub
 
 ## Do not contact the registry but the global monitor receiving the state from all servers
 
-STATE_POOL_PORT = 50052
-
 
 class NetworkBuilder:
     def __init__(self):
 
+        state_pool_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "STATE_POOL_ADDR"
+        )
+        state_pool_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "STATE_POOL_PORT"
+        )
         self.state_pool_chann = grpc.insecure_channel(
-            "{}:{}".format("registry", STATE_POOL_PORT)
+            "{}:{}".format(state_pool_addr, state_pool_port)
         )
         pass
 
