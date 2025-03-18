@@ -208,7 +208,6 @@ Il problema si presenta quando il valore della funzione obiettivo è superiore a
 Nell'immagine si vede il numero di componenti costruite: oltre le 100! Il costo è effettivamente oltre il 5.5 in questi casi.
 Ho aggiunto un controllo per testare che il grafo delle componenti non fosse ciclico: di fatto quando non lo è l'implementazione della fase di inferenza non si blocca (vedere dopo).
 
-
 Facendo alcune prove ho visto che il problema si manifesta nel seguente contesto. Fino ad ora ho fatto gli esperimenti assumendo in fase di ottimizzazione che la banda per passare dati da un server a se stesso fosse infinita (e il conseguente tempo di trasmissione fosse nullo); inserito il monitor ho aggiunto nella risoluzione del problema ANCHE la modellazione del tempo di trasmissione da un sistema a se stesso (vedere considerazione successiva) e questo sembra portare in alcuni casi alla creazione di moltissime componenti. Nel test seguente si vede il contesto di esecuzione di uno di questi casi. 
 ![[Schermata del 2025-03-17 09-32-34.png|Risoluzione del Problema]]
 
@@ -218,7 +217,7 @@ Potrebbe essere o la prima, la seconda o la terza coppia di stati (più probabil
 
 La cosa che non mi spiego è il motivo per cui l'ottimizzatore ritenga più conveniente un rimpallo di dati da una parte all'altra piuttosto che la divisione netta: considerando che il server può eseguire più operazioni in Floating Point, non ha molto senso che ci sia questo rimpallo di dati visto che una volta trasferita la computazione comunque l'esecuzione sul server sarà più veloce. In questo senso credo che ci sia qualcosa che manca nella modellazione dell'ottimizzazione.
 
-
+## Bug in ricerca delle componenti
 Per quanto riguarda il blocco nella fase di inferenza, credo che si verifichi quando c'è ciclicità nel DAG delle componenti: anche questa cosa è strana però visto che la risoluzione delle componenti dovrebbe rimuovere questa ciclicità. Nell'immagine si vede effettivamente un piano prodotto che non è un dag!
 ![[Schermata del 2025-03-17 10-20-44.png|Piano Prodotto non DAG]]
 
@@ -230,3 +229,66 @@ Da qui si può avere una panoramica migliore della situazione e delle interazion
 
 Per quanto riguarda la creazione di un non DAG credo che il problema sia relativo alla gestione dei rami paralleli: probabilmente i controlli sulle dipendenze non sono sufficienti; infatti se tolgo la gestione dei rami paralleli il problema si risolve. Esempio di non DAG: come si vede in entrambe le componenti ci sono dei rami paralleli.
 ![[Schermata del 2025-03-17 11-09-21.png]]![[Schermata del 2025-03-17 11-10-10.png]]
+
+
+![[Schermata del 2025-03-17 22-40-51.png]]
+In questa figura quello che si vede è che: l'output delle max-pool nella componente (1,32) viene dato come input alla concat della componente (0,30) e fin qui va benissimo. Il problema sorge nel momento in cui aggiungo la mul nella componente (0,30): infatti quando la aggiungo si crea la dipendenza circolare perché il suo output è input proprio della componente (1,32). Il problema probabilmente deriva dall'uso dell'ordinamento topologico: in questo ordinamento le max-pool devono stare prima della concat e la mul deve stare prima sia della concat sia della max-pool; in sintesi quindi abbiamo (mul --> max-pool --> concat). Probabilmente succede questo:
+1. Passo per mul e imposto come dipendenza di max-pool e concat la componente di mul
+2. Passo per max-pool e imposto come dipendenza della concat quella della max-pool
+3. A questo punto la concat ha per dipendenze ((0,30), (1,32)); ma visto che tra le componenti precedenti dirette c'è (0,30), questa componente viene tolta dalle dipendenze e quindi viene inserita in (0,30) creando la dipendenza...
+
+
+
+### Bug Fix
+Per risolvere il problema ho fatto una modifica dell'algoritmo di ricerca delle componenti.
+In particolare si deve fare in modo che un nodo non venga messo in una componente tale che una componente da cui dipende sia a sua volta dipendente. Infatti nel caso della concat il problema è questo: quando scelgo di mettere concat in (0,30) il problema è che non ho nulla a dirmi che c'è già una dipendenza tra (0,30) e (1,32) data dalla dipendenza tra mul e max-pool
+
+Si procede nel seguente modo:
+```python
+## Componenti da cui un nodo dipende
+node_dep_dict : dict[NodeId, set[ComponentId]]
+## Componenti possibili che un nodo può prendere (vedere dopo)
+node_possible_dict : dict[NodeId, set[ComponentId]]
+## Componenti da cui una componente dipende a sua volta (vedere dopo)
+comp_dep_dict : dict[ComponentId, set[ComponentId]]
+
+for node_id in graph.topological_order() :
+	dependency_set = node_dep_dict[node_id]
+	possible_set = node_possible_dict[node_id]
+
+	## Rappresenta l'insieme di componenti che dobbiamo escludere dalle possibili perché creerebbere una dipendenza circolare
+	## In particolare queste componenti da escludere sono quelle possibili p tali per cui esiste una componente d da cui il nodo dipende e per cui c'è dipendenza tra p e d
+	## Questo significa infatti che inserire il nodo nella componente p creerebbe un ciclo perché (p --> d) di base, ma inserire il nodo x in p farebbe sì che (d --> p) perché x dipende proprio da d
+	exclude_set = set()
+	for dep_comp_id in dependency_set :
+		for poss_comp_id in possible_set :
+			if poss_comp_id in comp_dep_dict[dep_comp_id] :
+				exclude_set.add(poss_comp_id)
+
+	difference_set = possible_set - exclude_set
+	if (difference_set.is_empty() or node_id.is_generator() or node_id.is_receiver()) :
+		## Generator and receiver will always be in different components to better handle input and output
+		node_comp = generate_new_component()
+	else :
+		node_comp = difference_set.pick_one_component()
+
+	for desc_id in graph.descendants(node_id) :
+		## Tutti i nodi che discendono da questo (i.e. che dipendono direttamente o indirettamente dall'output di questo nodo) hanno la dipendenza da questa componente
+		node_dep_dict[desc_id].add(node_comp)
+
+	for next_id in graph.successors(node_id) :
+		if node.server_id == next_node.server_id :
+			## Se il server è lo stesso, allora il nodo subito successore può essere gestito anche da questa componente
+			node_possible_dict[next_id].add(node_comp)
+
+	for parallel_id in graph.parallels(node_id) :
+		if node.server_id == parallel_node.server_id :
+			node_possible_dict[parallel_id].add(node_comp)
+			## Se il server è lo stesso, un nodo parallelo può essere gestito anche da questa componente
+
+	## Espando le dipendenze della componente in cui sto aggiungendo il nodo con quelle del nodo che sto aggiungendo. La rimozione della nodec_comp permette di assicurare che una componente non sia dipendente da se stessa; infatti per come propagate le dipendenze, la node_comp potrebbe trovarsi anche nel dependency_set del nodo: se così fosse sceglierei sempre delle componenti diverse
+	component_dependency_dict[node_comp].expand(dependency_set - node_comp)
+
+```
+
+

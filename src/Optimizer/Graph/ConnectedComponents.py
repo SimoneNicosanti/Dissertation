@@ -26,74 +26,85 @@ class ConnectedComponentsFinder:
         for net_node_id in used_net_nodes:
             next_comp_dict[net_node_id] = 0
 
-        dependency_dict: dict[NodeId, set[ComponentId]] = {}
-        possible_dict: dict[NodeId, set[ComponentId]] = {}
-        component_size_dict: dict[ComponentId, int] = {}
+        node_dependency_dict: dict[NodeId, set[ComponentId]] = {}
+        node_possible_dict: dict[NodeId, set[ComponentId]] = {}
+        component_dependency_dict: dict[ComponentId, set[ComponentId]] = {}
 
         for node_id in top_order:
-            dependency_dict[node_id] = set()
-            possible_dict[node_id] = set()
+            node_dependency_dict[node_id] = set()
+            node_possible_dict[node_id] = set()
 
         for node_id in top_order:
             node_info: dict = solved_model_graph.nodes[node_id]
             server_id = node_info[SolvedNodeInfo.NET_NODE_ID]
-            node_dipendency_set = dependency_dict[node_id]
-            node_possible_set = possible_dict[node_id]
 
-            if node_info[SolvedNodeInfo.GENERATOR]:
-                ## They will be handled by a different component
+            node_dependency_set = node_dependency_dict[node_id]
+            node_possible_set = node_possible_dict[node_id]
+
+            exclude_set = set()
+            for dep_comp_id in node_dependency_set:
+                for poss_comp_id in node_possible_set:
+                    if poss_comp_id in component_dependency_dict[dep_comp_id]:
+                        exclude_set.add(poss_comp_id)
+
+            difference_set = node_possible_set - exclude_set
+
+            if (
+                len(difference_set) == 0
+                or node_info[SolvedNodeInfo.GENERATOR]
+                or node_info[SolvedNodeInfo.RECEIVER]
+            ):
+                ## No possible component
+                ## Generate new component
                 curr_comp_idx = next_comp_dict[server_id]
                 node_comp = ComponentId(server_id, curr_comp_idx)
                 next_comp_dict[server_id] += 1
-
-            elif node_info[SolvedNodeInfo.RECEIVER]:
-                ## They will be handled by a different component
-                next_comp_dict[server_id] += 1
-                curr_comp_idx = next_comp_dict[server_id]
-                node_comp = ComponentId(server_id, curr_comp_idx)
-
             else:
-                ## Intermediate node
-                node_diff_set = node_possible_set.difference(node_dipendency_set)
-
-                if len(node_diff_set) == 0:
-                    ## No possible component
-                    ## Generate new component
-                    node_comp = ConnectedComponentsFinder.__generate_component_id(
-                        server_id, next_comp_dict, node_dipendency_set
-                    )
-                else:
-                    ## Take one component among the possible
-                    ## Taking the component with highest component size
-                    node_comp = max(
-                        node_diff_set,
-                        key=lambda comp: component_size_dict[comp],
-                    )
+                ## Take one component in the difference set
+                node_comp = list(difference_set)[0]
 
             ## Setting determined node comp
             node_info[SolvedNodeInfo.COMPONENT] = node_comp
-            component_size_dict.setdefault(node_comp, 0)
-            component_size_dict[node_comp] = component_size_dict[node_comp] + 1
 
-            for neigh_id in solved_model_graph.successors(node_id):
-                neigh_info: dict = solved_model_graph.nodes[neigh_id]
+            ## All descendants node will depend by this component
+            for descendant_id in nx.descendants(solved_model_graph, node_id):
+                node_dependency_dict[descendant_id].add(node_comp)
 
-                if node_info[SolvedNodeInfo.NET_NODE_ID] == neigh_info[
-                    SolvedNodeInfo.NET_NODE_ID
-                ] and not (
-                    node_info[SolvedNodeInfo.GENERATOR]
-                    or neigh_info[SolvedNodeInfo.RECEIVER]
+            ## Following nodes having the same server can be in the same component
+            for next_node_id in solved_model_graph.successors(node_id):
+                neigh_info: dict = solved_model_graph.nodes[next_node_id]
+
+                if (
+                    node_info[SolvedNodeInfo.NET_NODE_ID]
+                    == neigh_info[SolvedNodeInfo.NET_NODE_ID]
                 ):
                     ## Same server --> Setting possible component
-                    possible_dict[neigh_id].add(node_comp)
+                    node_possible_dict[next_node_id].add(node_comp)
 
-                else:
-                    ## Different server or Generator Node --> Setting dependency
-                    dependency_dict[neigh_id].add(node_comp)
+            parallel_nodes = (
+                set(solved_model_graph.nodes)
+                - nx.descendants(solved_model_graph, node_id)
+                - nx.ancestors(solved_model_graph, node_id)
+            )
 
-                dependency_dict[neigh_id] = dependency_dict[neigh_id].union(
-                    dependency_dict[node_id]
-                )
+            ## Parallel nodes having the same server can be in the same component
+            for paral_node_id in parallel_nodes:
+                paral_node_info = solved_model_graph.nodes[paral_node_id]
+
+                if (
+                    node_info[SolvedNodeInfo.NET_NODE_ID]
+                    == paral_node_info[SolvedNodeInfo.NET_NODE_ID]
+                ):
+                    ## Same server --> Setting possible component
+                    node_possible_dict[paral_node_id].add(node_comp)
+
+            ## Expanding component dependency
+            ## Making sure that the component does not depend by itself
+            component_dependency_dict.setdefault(node_comp, set())
+            component_dependency_dict[node_comp] = component_dependency_dict[
+                node_comp
+            ].union(node_dependency_dict[node_id] - set([node_comp]))
+
         print("Components found >> ", next_comp_dict)
 
         is_dag = ConnectedComponentsFinder.cycle_test(solved_model_graph)
@@ -101,28 +112,6 @@ class ConnectedComponentsFinder:
             print("The Components Graph is DAG")
         else:
             print("The Components Graph is not DAG")
-
-    @staticmethod
-    def __generate_component_id(
-        server_id: NodeId,
-        next_comp_idx_dict: dict[NodeId, int],
-        node_dep_set: set[ComponentId],
-    ):
-        ## If the current component is independent
-        ## Use this component
-        ## This can handle parallel branches of the model
-        curr_comp_idx = next_comp_idx_dict[server_id]
-        node_comp = ComponentId(server_id, curr_comp_idx)
-        if node_comp not in node_dep_set:
-            return node_comp
-
-        ## If there is a dependency with the current component
-        ## Generate a new component incrementing the current component index
-        next_comp_idx_dict[server_id] += 1
-        curr_comp_idx = next_comp_idx_dict[server_id]
-        node_comp = ComponentId(server_id, curr_comp_idx)
-
-        return node_comp
 
     @staticmethod
     def cycle_test(graph: nx.DiGraph):

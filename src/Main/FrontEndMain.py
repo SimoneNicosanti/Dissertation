@@ -20,7 +20,7 @@ def main():
         grpc.insecure_channel("optimizer:50060")
     )
     opt_req = OptimizationRequest(
-        model_names=["yolo11n-seg"],
+        model_names=["yolo11x-seg"],
         latency_weight=1,
         energy_weight=0,
         device_max_energy=1,

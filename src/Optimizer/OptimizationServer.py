@@ -89,7 +89,7 @@ class OptmizationServer(OptimizationServicer):
         # )
         # print("Plan Distributed to Servers")
 
-        # self.write_whole_plan(plan_map, deployment_server.node_name)
+        self.write_whole_plan(plan_map, deployment_server.node_name)
 
         return OptimizedPlan(
             plans_map=plan_map,
