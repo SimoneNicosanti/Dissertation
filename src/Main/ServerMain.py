@@ -85,8 +85,11 @@ def start_assignee_server(server_id: int, intermediate_server):
         "ports", "ASSIGNMENT_PORT"
     )
 
+    models_dir = ConfigReader.ConfigReader("./config/config.ini").read_str(
+        "inference_dirs", "MODELS_DIR"
+    )
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    fetcher = Fetcher(server_id, "/server_data/models", intermediate_server)
+    fetcher = Fetcher(server_id, models_dir, intermediate_server)
     add_AssigneeServicer_to_server(fetcher, server)
     server.add_insecure_port(f"[::]:{assignment_port}")
     print(f"Assignee Server running on port {assignment_port}...")

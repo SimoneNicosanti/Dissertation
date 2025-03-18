@@ -126,16 +126,16 @@ class ServerMonitor:
 
             server_chan = self.server_chan_dict[server_info.server_id.server_id]
 
-            if self.server_id == "1" and server_info.server_id.server_id == "0":
-                bandwidth = 167
-            elif self.server_id == "1" and server_info.server_id.server_id == "1":
-                bandwidth = 104
-            elif self.server_id == "0" and server_info.server_id.server_id == "1":
-                bandwidth = 110
-            elif self.server_id == "0" and server_info.server_id.server_id == "0":
-                bandwidth = 110
-            else:
-                bandwidth = self.__eval_bandwidth(server_chan)
+            # if self.server_id == "1" and server_info.server_id.server_id == "0":
+            #     bandwidth = 167
+            # elif self.server_id == "1" and server_info.server_id.server_id == "1":
+            #     bandwidth = 104
+            # elif self.server_id == "0" and server_info.server_id.server_id == "1":
+            #     bandwidth = 110
+            # elif self.server_id == "0" and server_info.server_id.server_id == "0":
+            #     bandwidth = 110
+            # else:
+            bandwidth = self.__eval_bandwidth(server_chan)
 
             with self.state_lock.gen_wlock():
                 self.bandwidths[server_info.server_id.server_id] = bandwidth
@@ -147,7 +147,7 @@ class ServerMonitor:
             "./config/config.ini"
         ).read_float("monitor", "PING_MESSAGE_SIZE_MB")
         ping_message_content = bytearray(
-            ping_message_size_mb * MEGABYTE_SIZE
+            int(ping_message_size_mb * MEGABYTE_SIZE)
         )  ## Sending 1MB of data
 
         ping_times = ConfigReader.ConfigReader("./config/config.ini").read_int(
