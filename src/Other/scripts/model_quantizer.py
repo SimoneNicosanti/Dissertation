@@ -38,7 +38,7 @@ def quantize(model_name, exclude_nodes):
     quantize_static(
         model_input=temp_mod_path,
         model_output=quant_model_path,
-        quant_format=QuantFormat.QOperator,
+        quant_format=QuantFormat.QDQ,
         activation_type=QuantType.QUInt8,
         weight_type=QuantType.QInt8,
         calibration_data_reader=MyDataReader(model_path),

@@ -101,7 +101,7 @@ class FrontEndServer(InferenceServicer):
             end_time = time.time_ns()
             ## Once the thread has been unlocked, we can compute the total
             print(
-                f"Time for Request: {request_info.request_idx} >> {end_time - start_time}"
+                f"Time for Request: {request_info.request_idx} >> {(end_time - start_time) / 1e9} s"
             )
 
         elif plan_wrapper.is_only_output_component(component_info):

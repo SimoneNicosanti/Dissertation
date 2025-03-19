@@ -97,7 +97,7 @@ locals {
 
 # Deploy Multiple Compute Engine Instances
 resource "google_compute_instance" "vm_instances" {
-  count        = 5  
+  count        = 5
   name         = local.names[count.index]
   machine_type = "e2-medium"
   zone         = "europe-west12-c"

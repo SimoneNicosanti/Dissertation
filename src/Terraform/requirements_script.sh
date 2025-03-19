@@ -3,8 +3,8 @@
 apt-get update
 apt-get install python3-pip -y
 apt-get install python3-venv -y
+apt-get install rsync -y
 cd
-python3 -m venv my_venv
 
 
 pip install grpcio
