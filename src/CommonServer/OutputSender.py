@@ -3,6 +3,7 @@ import io
 import grpc
 from readerwriterlock import rwlock
 
+from Common import ConfigReader
 from CommonServer.InferenceInfo import ComponentInfo, RequestInfo, TensorWrapper
 from CommonServer.PlanWrapper import PlanWrapper
 from proto_compiled.common_pb2 import ComponentId, ModelId, RequestId
@@ -11,12 +12,27 @@ from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.server_pb2 import InferenceInput, Tensor, TensorChunk, TensorInfo
 from proto_compiled.server_pb2_grpc import InferenceStub
 
-MAX_CHUNK_SIZE = 3 * 1024 * 1024
+MEGABYTE_SIZE = 1024 * 1024
 
 
 class OutputSender:
     def __init__(self):
-        self.registry_connection = grpc.insecure_channel("registry:50051")
+        registry_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "REGISTRY_ADDR"
+        )
+        registry_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "REGISTRY_PORT"
+        )
+        self.registry_connection = grpc.insecure_channel(
+            "{}:{}".format(registry_addr, registry_port)
+        )
+
+        self.chunk_size_bytes = int(
+            ConfigReader.ConfigReader("./config/config.ini").read_float(
+                "grpc", "MAX_CHUNK_SIZE_MB"
+            )
+            * MEGABYTE_SIZE
+        )
 
         self.server_channel_lock = rwlock.RWLockWriteD()
         self.next_server_channel: dict[str, grpc.Channel] = {}
@@ -90,7 +106,7 @@ class OutputSender:
             )
 
             byte_buffer = io.BytesIO(tensor_wrapper.numpy_array.tobytes())
-            while chunk_data := byte_buffer.read(MAX_CHUNK_SIZE):
+            while chunk_data := byte_buffer.read(self.chunk_size_bytes):
                 tensor_chunk = TensorChunk(
                     chunk_size=len(chunk_data), chunk_data=chunk_data
                 )

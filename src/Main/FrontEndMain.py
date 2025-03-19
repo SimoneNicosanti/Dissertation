@@ -1,9 +1,9 @@
-import json
 from concurrent import futures
 
 import grpc
+import argparse
 
-from CommonServer.InferenceInfo import ModelInfo
+from Common import ConfigReader
 from CommonServer.PlanWrapper import PlanWrapper
 from FrontEnd.FrontEndServer import FrontEndServer
 from proto_compiled.common_pb2 import OptimizedPlan
@@ -11,21 +11,26 @@ from proto_compiled.optimizer_pb2 import OptimizationRequest
 from proto_compiled.optimizer_pb2_grpc import OptimizationStub
 from proto_compiled.server_pb2_grpc import add_InferenceServicer_to_server
 
-FRONTEND_PORT = 50090
 
-
-def main():
+def main(args):
     print("Asking For Plan Optimization")
+
+    optimizer_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+        "addresses", "OPTIMIZER_ADDR"
+    )
+    optimizer_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        "ports", "OPTIMIZER_PORT"
+    )
     optimizer_stub: OptimizationStub = OptimizationStub(
-        grpc.insecure_channel("optimizer:50060")
+        grpc.insecure_channel("{}:{}".format(optimizer_addr, optimizer_port))
     )
     opt_req = OptimizationRequest(
-        model_names=["yolo11n-seg"],
-        latency_weight=1,
-        energy_weight=0,
-        device_max_energy=1,
-        requests_number=[1],
-        deployment_server="0",
+        model_names=args.model_list,
+        latency_weight=args.latency_weight,
+        energy_weight=args.energy_weight,
+        device_max_energy=args.device_max_energy,
+        requests_number=args.requests_number,
+        deployment_server=args.deployment_server,
     )
     optimized_plan: OptimizedPlan = optimizer_stub.serve_optimization(opt_req)
     plan_dict = optimized_plan.plans_map
@@ -42,13 +47,25 @@ def main():
             model_info, plan_wrapper, components_dict, None
         )
 
+    frontend_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        "ports", "FRONTEND_PORT"
+    )
     add_InferenceServicer_to_server(frontend_servicer, server)
-    server.add_insecure_port(f"[::]:{FRONTEND_PORT}")
+    server.add_insecure_port(f"[::]:{frontend_port}")
 
     server.start()
-    print(f"Frontend Server running on port {FRONTEND_PORT}...")
+    print(f"Frontend Server running on port {frontend_port}...")
     server.wait_for_termination()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Esempio di lista come argomento")
+    parser.add_argument("--model-list", type=str, nargs="+", help="Lista di numeri")
+    parser.add_argument("--latency-weight", type=float, help="Peso per la latenza")
+    parser.add_argument("--energy-weight", type=float, help="Peso per l'energia")
+    parser.add_argument("--device-max-energy", type=float, help="Energia massima device")
+    parser.add_argument("--requests-number", type=int, nargs="+", help="Numero di richieste per modello")
+    parser.add_argument("--deployment-server", type=str, help="Server di deployment", default="0")
+
+    args = parser.parse_args()
+    main(args)

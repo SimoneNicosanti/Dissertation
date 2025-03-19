@@ -4,6 +4,7 @@ from typing import Iterator
 
 import grpc
 
+from Common import ConfigReader
 from CommonServer.InferenceInfo import ComponentInfo
 from CommonServer.PlanWrapper import PlanWrapper
 from proto_compiled.common_pb2 import ComponentId, ModelId, OptimizedPlan
@@ -12,8 +13,6 @@ from proto_compiled.pool_pb2_grpc import ModelPoolStub
 from proto_compiled.server_pb2 import AssignmentResponse
 from proto_compiled.server_pb2_grpc import AssigneeServicer
 from Server.Inference.IntermediateServer import IntermediateServer
-
-POOL_SERVER_PORT = 50000
 
 
 class Fetcher(AssigneeServicer):
@@ -30,7 +29,15 @@ class Fetcher(AssigneeServicer):
 
         self.intermediate_server: IntermediateServer = intermediate_server
 
-        self.channel = grpc.insecure_channel("{}:{}".format("pool", POOL_SERVER_PORT))
+        model_pool_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "MODEL_POOL_ADDR"
+        )
+        model_pool_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "MODEL_POOL_PORT"
+        )
+        self.channel = grpc.insecure_channel(
+            "{}:{}".format(model_pool_addr, model_pool_port)
+        )
 
     def send_plan(self, optimized_plan: OptimizedPlan, context):
         print("Received Plan for Deployer {}".format(optimized_plan.deployer_id))

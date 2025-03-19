@@ -1,33 +1,40 @@
 import json
 
-from Optimizer.Graph.Graph import NodeId
-from Optimizer.Graph.ModelGraph import ModelGraph
+import networkx as nx
+
+from Optimizer.Graph.Graph import (
+    NodeId,
+    SolvedEdgeInfo,
+    SolvedNodeInfo,
+)
 from Optimizer.Graph.SolvedModelGraph import (
     ComponentId,
-    SolvedEdgeInfo,
-    SolvedModelGraph,
 )
 
 
 class Plan:
-    def __init__(self, solved_graph: SolvedModelGraph, deployer_id: str):
+    def __init__(self, solved_graph: nx.DiGraph, deployer_id: str):
 
         self.plan_dict = {}
         self.solved_graph = solved_graph
         self.deployer_id = deployer_id
 
-        self.__init_plan(solved_graph)
+        self.__init_plan()
 
     def dump_plan(self):
         dump_dict = {
-            "model_name": self.solved_graph.get_graph_name(),
+            "model_name": self.solved_graph.graph["name"],
             "deployer_id": self.deployer_id,
             "plan": self.plan_dict,
         }
         return json.dumps(dump_dict, sort_keys=True)
 
     def get_all_components(self) -> set[ComponentId]:
-        return self.solved_graph.get_all_components()
+        components_set = set()
+        for _, data in self.solved_graph.nodes(data=True):
+            components_set.add(data[SolvedNodeInfo.COMPONENT])
+
+        return components_set
 
     def is_component_only_input(self, component_id: ComponentId) -> bool:
         key = str(component_id)
@@ -45,14 +52,21 @@ class Plan:
         key = str(component_id)
         return self.plan_dict[key]["output_connections"].keys()
 
-    def __init_plan(self, solved_graph: SolvedModelGraph):
-        for component_id in solved_graph.get_all_components():
+    def __get_all_nodes_in_component(self, component_id: ComponentId) -> set[NodeId]:
+        nodes_set: set[NodeId] = set()
+        for node, data in self.solved_graph.nodes(data=True):
+            if data[SolvedNodeInfo.COMPONENT] == component_id:
+                nodes_set.add(node)
+        return nodes_set
+
+    def __init_plan(self):
+        for component_id in self.get_all_components():
 
             key = str(component_id)
 
             self.plan_dict.setdefault(key, {})
 
-            all_comp_nodes: set[NodeId] = solved_graph.get_all_nodes_in_component(
+            all_comp_nodes: set[NodeId] = self.__get_all_nodes_in_component(
                 component_id
             )
 
@@ -61,87 +75,98 @@ class Plan:
             self.plan_dict[key]["is_only_input"] = is_only_input
             self.plan_dict[key]["is_only_output"] = is_only_output
 
-            input_names = self.__find_input_names(all_comp_nodes, solved_graph)
-            output_connections = self.__find_output_names(
-                component_id, all_comp_nodes, solved_graph
-            )
+            input_names = self.__find_input_names(all_comp_nodes, component_id)
+            output_connections = self.__find_output_names(all_comp_nodes, component_id)
 
             self.plan_dict[key]["input_names"] = list(input_names)
             self.plan_dict[key]["output_connections"] = output_connections
 
     def __sub_graph_is_empty(self, comp_nodes_set: set[NodeId]) -> bool:
         if len(comp_nodes_set) == 1:
-            single_node: NodeId = list(comp_nodes_set)[0]
-            if ModelGraph.is_generator_node(single_node):
+            single_node_id: NodeId = list(comp_nodes_set)[0]
+            single_node_data = self.solved_graph.nodes[single_node_id]
+            if single_node_data[SolvedNodeInfo.GENERATOR]:
                 return True, False
-            if ModelGraph.is_receiver_node(single_node):
+            if single_node_data[SolvedNodeInfo.RECEIVER]:
                 return False, True
 
         return False, False
 
     def __find_input_names(
-        self, comp_nodes: set[NodeId], solved_graph: SolvedModelGraph
+        self, comp_nodes: set[NodeId], component_id: ComponentId
     ) -> list[str]:
         input_names = set()
 
-        for edge_id in solved_graph.get_edges_id():
-            edge_info: SolvedEdgeInfo = solved_graph.get_edge_info(edge_id)
-            if edge_id.second_node_id in comp_nodes:
+        for node_id in comp_nodes:
+            prev_nodes = self.solved_graph.predecessors(node_id)
 
-                if (
-                    ModelGraph.is_generator_node(edge_id.first_node_id)
-                    or edge_id.first_node_id not in comp_nodes
-                ):
-                    ## Input Node
-                    input_names = input_names.union(edge_info.get_tensor_names())
+            for prev_node_id in prev_nodes:
+                prev_comp_id: ComponentId = self.solved_graph.nodes[prev_node_id][
+                    SolvedNodeInfo.COMPONENT
+                ]
 
-            if edge_id.first_node_id in comp_nodes and ModelGraph.is_generator_node(
-                edge_id.first_node_id
-            ):
-                ## If a component contains the input node
-                ## Then it has to receive all inputs
-                input_names = input_names.union(edge_info.get_tensor_names())
+                ## It has to receive all tensors from other components
+                if prev_comp_id != component_id:
+                    edge_id = (prev_node_id, node_id)
+                    tensor_names_list = self.solved_graph.edges[edge_id][
+                        SolvedEdgeInfo.TENSOR_NAME_LIST
+                    ]
 
-        return input_names
+                    input_names = input_names.union(tensor_names_list)
+
+            ## If the component contains the generator node
+            ## It has to receive all the inputs
+            if self.solved_graph.nodes[node_id][SolvedNodeInfo.GENERATOR]:
+                out_edges = self.solved_graph.out_edges(node_id)
+
+                for edge_id in out_edges:
+                    tensor_names_list = self.solved_graph.edges[edge_id][
+                        SolvedEdgeInfo.TENSOR_NAME_LIST
+                    ]
+
+                    input_names = input_names.union(tensor_names_list)
+
+        return list(input_names)
 
     def __find_output_names(
         self,
-        curr_comp_id: ComponentId,
         comp_nodes: set[NodeId],
-        solved_graph: SolvedModelGraph,
+        component_id: ComponentId,
     ) -> list[str]:
+        ## TensorName --> List of receiver components
         output_connections: dict[str, set[ComponentId]] = {}
 
-        for edge_id in solved_graph.get_edges_id():
-            edge_info: SolvedEdgeInfo = solved_graph.get_edge_info(edge_id)
+        for node_id in comp_nodes:
+            next_nodes = self.solved_graph.successors(node_id)
+            for next_node_id in next_nodes:
+                next_comp_id: ComponentId = self.solved_graph.nodes[next_node_id][
+                    SolvedNodeInfo.COMPONENT
+                ]
 
-            if edge_id.first_node_id in comp_nodes and (
-                ModelGraph.is_receiver_node(edge_id.second_node_id)
-                or edge_id.second_node_id not in comp_nodes
-            ):
+                if next_comp_id != component_id:
+                    edge_id = (node_id, next_node_id)
+                    tensor_names_list = self.solved_graph.edges[edge_id][
+                        SolvedEdgeInfo.TENSOR_NAME_LIST
+                    ]
 
-                second_node_comp = solved_graph.get_node_info(
-                    edge_id.second_node_id
-                ).get_component()
+                    for tensor_name in tensor_names_list:
+                        output_connections.setdefault(tensor_name, set())
+                        output_connections[tensor_name].add(str(next_comp_id))
 
-                ## Output Node
-                output_names = edge_info.get_tensor_names()
-                for output_name in output_names:
-                    output_connections.setdefault(output_name, set())
+            ## If the component contains the receiver node
+            ## It has to output all the outputs
+            ## But there will be no next component
+            if self.solved_graph.nodes[node_id][SolvedNodeInfo.RECEIVER]:
+                in_edges = self.solved_graph.in_edges(node_id)
 
-                    if second_node_comp != curr_comp_id:
-                        output_connections[output_name].add(str(second_node_comp))
+                for edge_id in in_edges:
+                    tensor_names_list = self.solved_graph.edges[edge_id][
+                        SolvedEdgeInfo.TENSOR_NAME_LIST
+                    ]
 
-            if edge_id.second_node_id in comp_nodes and ModelGraph.is_receiver_node(
-                edge_id.second_node_id
-            ):
-                ## If a component contains the output node
-                ## Then it has to output all model outputs
-                ## But there will be no next component
-                output_names = edge_info.get_tensor_names()
-                for output_name in output_names:
-                    output_connections.setdefault(output_name, set())
-                    # output_connections[output_name].append(str(curr_comp_id))
+                    for tensor_name in tensor_names_list:
+                        output_connections.setdefault(tensor_name, set())
+                        # output_connections[tensor_name].add(str(component_id))
 
         for output_name in output_connections.keys():
             output_connections[output_name] = list(output_connections[output_name])

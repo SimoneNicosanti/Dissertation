@@ -5,6 +5,7 @@ import grpc
 import numpy
 from readerwriterlock import rwlock
 
+from Common import ConfigReader
 from proto_compiled.common_pb2 import ComponentId, ModelId, RequestId
 from proto_compiled.server_pb2 import (
     InferenceInput,
@@ -15,16 +16,28 @@ from proto_compiled.server_pb2 import (
 )
 from proto_compiled.server_pb2_grpc import InferenceStub
 
-MAX_CHUNK_SIZE = 3 * 1024 * 1024
+MEGABYTE_SIZE = 1024 * 1024
 
 
 class InferenceCaller:
 
     def __init__(self) -> None:
-        self.front_end_connection = grpc.insecure_channel("localhost:50090")
+        self.frontend_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "FRONTEND_PORT"
+        )
+        self.front_end_connection = grpc.insecure_channel(
+            "localhost:{}".format(self.frontend_port)
+        )
 
         self.index_lock = rwlock.RWLockWriteD()
         self.request_idx = 0
+
+        self.chunk_size_bytes = int(
+            ConfigReader.ConfigReader("./config/config.ini").read_float(
+                "grpc", "MAX_CHUNK_SIZE_MB"
+            )
+            * MEGABYTE_SIZE
+        )
         pass
 
     ## This has to be called with preprocessing already done on the image
@@ -57,12 +70,14 @@ class InferenceCaller:
                 component_idx="0",
             )
             request_id = RequestId(
-                requester_id="0", request_idx=request_idx, callback_port=50090
+                requester_id="0",
+                request_idx=request_idx,
+                callback_port=self.frontend_port,
             )
             tensor_info = TensorInfo(
                 name=input_name, type=str(input_tensor.dtype), shape=input_tensor.shape
             )
-            while chunk_data := byte_buffer.read(MAX_CHUNK_SIZE):
+            while chunk_data := byte_buffer.read(self.chunk_size_bytes):
                 tensor_chunk = TensorChunk(
                     chunk_size=len(chunk_data), chunk_data=chunk_data
                 )

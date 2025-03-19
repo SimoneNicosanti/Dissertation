@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "9a6c46e1472f5bdb",
+        "id": "fa486c79c8d37961",
         "type": "tabs",
         "children": [
           {
-            "id": "c53d94db1dadb52f",
+            "id": "ed2f44d3d36e3578",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -161,12 +161,25 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "c53d94db1dadb52f",
+  "active": "ed2f44d3d36e3578",
   "lastOpenFiles": [
-    "Notes/Ottimizzazione.md",
+    "Notes/MobileNetV3Large.md",
+    "Architettura^^bug-ricerca-componenti.md",
     "Notes/Architettura/Architettura.md",
-    "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Componenti Connesse.md",
+    "Architettura^bug-ricerca-componenti.md",
+    "Notes/Images/Schermata del 2025-03-17 22-40-51.png",
+    "Notes/Images/Schermata del 2025-03-17 09-27-00.png",
+    "Notes/Images/Schermata del 2025-03-17 11-10-10.png",
+    "Notes/Images/Schermata del 2025-03-17 11-09-21.png",
+    "Notes/Images/Schermata del 2025-03-17 10-28-12.png",
+    "Notes/Images/Schermata del 2025-03-17 10-25-43.png",
+    "Notes/Images/Schermata del 2025-03-17 10-24-59.png",
+    "Notes/Images/Schermata del 2025-03-17 10-20-44.png",
+    "Notes/Images/Schermata del 2025-03-17 09-55-21.png",
+    "Notes/Images/Schermata del 2025-03-17 09-32-55.png",
+    "Notes/Ottimizzazione.md",
+    "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Yolo.md",
     "Notes/Unnesting del Modello.md",
     "Notes/Split del Modello.md",
@@ -176,16 +189,6 @@
     "Notes/Colloqui/2025-01-10.md",
     "Notes/Colloqui/2025-02-05.md",
     "Notes/Colloqui/2025-02-20.md",
-    "Notes/Images/Schermata del 2025-03-04 09-16-10.png",
-    "Notes/Images/Schermata del 2025-03-03 12-21-06.png",
-    "Notes/Images/Schermata del 2025-03-03 12-09-24.png",
-    "Notes/Images/Schermata del 2025-03-03 10-26-58.png",
-    "Notes/Images/Schermata del 2025-03-03 10-28-16.png",
-    "Notes/Images/Schermata del 2025-03-03 10-50-25.png",
-    "Notes/Images/Schermata del 2025-03-03 10-39-15 1.png",
-    "Notes/Images/Schermata del 2025-03-03 10-49-00.png",
-    "Notes/Images/Schermata del 2025-03-03 10-39-15.png",
-    "Notes/Images/Schermata del 2025-03-03 10-36-33.png",
     "Notes/Ottimizzazione Errore Quantizzazione.md",
     "Notes/Colloqui/2024-12-17.md",
     "Notes/Consumo Energetico.md",
@@ -205,9 +208,6 @@
     "Paper/Gillis/gillis-icdcs21.pdf",
     "Paper/Furcifer/Furcifer - Notes.md",
     "Notes/Diagrams.md",
-    "Excalidraw/Drawing 2024-12-30 17.01.02.excalidraw.md",
-    "Excalidraw/Drawing 2024-12-30 17.01.42.excalidraw.md",
-    "Notes/Decoding.md",
-    "Notes/MobileNetV3Large.md"
+    "Excalidraw/Drawing 2024-12-30 17.01.02.excalidraw.md"
   ]
 }

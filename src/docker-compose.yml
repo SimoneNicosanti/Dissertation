@@ -15,7 +15,9 @@ services:
       - ./Optimizer:/src/Optimizer
       - ./proto_compiled:/src/proto_compiled
       - ./Main/OptimizerMain.py:/src/Main.py
+      - ./Common:/src/Common
       - ./start.sh:/src/start.sh
+      - ./config/local_config.ini:/src/config/config.ini
 
       - ./Other/models:/optimizer_data/models
       - ./Other/models_profiles:/optimizer_data/models_profiles
@@ -36,6 +38,8 @@ services:
       - ./StatePool:/src/StatePool
       - ./Main/RegistryMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
+      - ./config/local_config.ini:/src/config/config.ini
+      - ./Common:/src/Common
     working_dir: /src
 
   server:
@@ -51,6 +55,8 @@ services:
       - ./proto_compiled:/src/proto_compiled
       - ./Main/ServerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
+      - ./config/local_config.ini:/src/config/config.ini
+      - ./Common:/src/Common
     working_dir: /src
 
   client:
@@ -66,6 +72,8 @@ services:
       - ./FrontEnd:/src/FrontEnd
       - ./CommonServer:/src/CommonServer
       - ./proto_compiled:/src/proto_compiled
+      - ./config/local_config.ini:/src/config/config.ini
+      - ./Common:/src/Common
 
       - ./Main/ServerMain.py:/src/ServerMain.py
       - ./Main/FrontEndMain.py:/src/FrontEndMain.py
@@ -86,6 +94,8 @@ services:
       - ./proto_compiled:/src/proto_compiled
       - ./Main/ModelPoolMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
+      - ./config/local_config.ini:/src/config/config.ini
+      - ./Common:/src/Common
     working_dir: /src
 
   # edge:

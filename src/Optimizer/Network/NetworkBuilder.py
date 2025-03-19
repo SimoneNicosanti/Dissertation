@@ -1,30 +1,32 @@
 import json
-from typing import Iterator
 
 import grpc
+import networkx as nx
 
-from Optimizer.Graph.NetworkGraph import NetworkEdgeInfo, NetworkGraph, NetworkNodeInfo
+from Common import ConfigReader
+from Optimizer.Graph.Graph import NodeId
 from proto_compiled.common_pb2 import Empty
-from proto_compiled.register_pb2 import AllServerInfo
-from proto_compiled.register_pb2_grpc import RegisterStub
-from proto_compiled.state_pool_pb2 import ServerState, StateMap
+from proto_compiled.state_pool_pb2 import StateMap
 from proto_compiled.state_pool_pb2_grpc import StatePoolStub
 
-## TODO Implement Server Monitoring!!
 ## Do not contact the registry but the global monitor receiving the state from all servers
-
-STATE_POOL_PORT = 50052
 
 
 class NetworkBuilder:
     def __init__(self):
 
+        state_pool_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "STATE_POOL_ADDR"
+        )
+        state_pool_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "STATE_POOL_PORT"
+        )
         self.state_pool_chann = grpc.insecure_channel(
-            "{}:{}".format("registry", STATE_POOL_PORT)
+            "{}:{}".format(state_pool_addr, state_pool_port)
         )
         pass
 
-    def build_network(self) -> NetworkGraph:
+    def build_network(self) -> nx.DiGraph:
 
         state_pool_stub = StatePoolStub(self.state_pool_chann)
 
@@ -34,31 +36,33 @@ class NetworkBuilder:
         for server_id, server_state_str in state_map.state_map.items():
             state_dict[server_id] = server_state_str
 
-        graph = NetworkGraph("NetworkGraph")
+        graph = nx.DiGraph(name="NetworkGraph")
+        node_idx = 0
         for server_id, server_state_str in state_dict.items():
             server_state: dict[str] = json.loads(server_state_str)
 
-            node_id = graph.build_node_id(server_id)
-            node_info = NetworkNodeInfo(
-                net_node_flops_per_sec=server_state["flops"],
-                net_node_comp_energy_per_sec=server_state["comp_energy"],
-                net_node_trans_energy_per_sec=server_state["trans_energy"],
-                net_node_available_memory=server_state["memory"],
+            graph.add_node(
+                NodeId(server_id),
+                idx=node_idx,
+                flops_per_sec=server_state["flops"],
+                comp_energy_per_sec=server_state["comp_energy"],
+                trans_energy_per_sec=server_state["trans_energy"],
+                available_memory=server_state["memory"],
             )
-            graph.put_node(node_id, node_info)
+
+            node_idx += 1
+
+            print("Node {} added".format(server_id))
+            print(server_state)
 
         for server_id, server_state_str in state_dict.items():
             bandwidths: dict[str, str] = json.loads(server_state_str)["bandwidths"]
             for other_server_id, _ in state_dict.items():
                 if other_server_id in bandwidths.keys():
                     bandwidth = bandwidths[other_server_id]
-                    edge_id = graph.build_edge_id(
-                        node_name_1=server_id, node_name_2=other_server_id
+                    graph.add_edge(
+                        NodeId(server_id), NodeId(other_server_id), bandwidth=bandwidth
                     )
-                    edge_info = NetworkEdgeInfo(
-                        net_edge_bandwidth=bandwidth,
-                    )
-                    graph.put_edge(edge_id, edge_info)
 
         return graph
 

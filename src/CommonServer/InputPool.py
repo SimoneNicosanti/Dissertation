@@ -23,7 +23,7 @@ class InputPool:
         component_info: ComponentInfo,
         request_info: RequestInfo,
         input_list: list[str],
-    ) -> list[TensorWrapper] | None:
+    ) -> list[TensorWrapper]:
 
         key = (component_info, request_info)
         current_inputs = self.input_pool.get(key, None)
