@@ -3,19 +3,19 @@ import os
 import networkx as nx
 
 from Common import ConfigReader
+from Optimizer.Divider import ModelDivider
 from Optimizer.Graph import ConnectedComponents
-from Optimizer.Graph.Graph import NodeId, SolvedGraphInfo, SolvedNodeInfo
+from CommonProfile.NodeId import NodeId
+from Optimizer.Graph.SolvedModelGraph import SolvedGraphInfo
 from Optimizer.Network.NetworkBuilder import NetworkBuilder
 from Optimizer.Optimization.OptimizationHandler import (
     OptimizationHandler,
     OptimizationParams,
 )
-from Optimizer.Partitioner.OnnxModelPartitioner import OnnxModelPartitioner
-from Optimizer.Plan.ModelDistributor import ModelDistributor
+from Optimizer.Divider.ModelDivider import ModelDivider
 from Optimizer.Plan.Plan import Plan
 from Optimizer.Plan.PlanDistributor import PlanDistributor
-from Optimizer.Profiler import ProfileSaver
-from Optimizer.Profiler.OnnxModelProfiler import OnnxModelProfiler
+from Optimizer.Profiler.ProfileBuilder import ProfileBuilder
 from proto_compiled.common_pb2 import OptimizedPlan
 from proto_compiled.optimizer_pb2 import OptimizationRequest
 from proto_compiled.optimizer_pb2_grpc import OptimizationServicer
@@ -25,8 +25,9 @@ class OptmizationServer(OptimizationServicer):
 
     def __init__(self):
         self.plan_distributor = PlanDistributor()
-        self.model_distributor = ModelDistributor()
         self.network_builder = NetworkBuilder()
+        self.model_profiler = ProfileBuilder()
+        self.model_divider = ModelDivider(None)
         pass
 
     def serve_optimization(self, request: OptimizationRequest, context):
@@ -39,10 +40,10 @@ class OptmizationServer(OptimizationServicer):
         )
 
         model_graphs_dict: dict[str, nx.MultiDiGraph] = {}
-
+        print("Here")
         for model_name in request.model_names:
-            model_graph = self.build_model_graph(model_name)
-            model_graphs_dict[model_name] = model_graph
+            print("Profiling Model ", model_name)
+            model_graphs_dict[model_name] = self.model_profiler.profile_model(model_name)
         print("Built Model Graphs and Profiles")
 
         network_graph: nx.DiGraph = self.network_builder.build_network()
@@ -70,42 +71,23 @@ class OptmizationServer(OptimizationServicer):
 
             plan = Plan(solved_graph, deployer_id=deployment_server.node_name)
 
-            partitioner = OnnxModelPartitioner(None, None)
-            partitioner.partition_model(plan, graph_name, deployment_server)
-            print("Partitions Done")
-            plan_map[graph_name] = plan.dump_plan()
+        #     self.model_divider.divide_model(plan, solved_graph, deployment_server)
+        #     print("Partitions Done")
 
-            self.model_distributor.distribute(
-                graph_name, plan, deployment_server.node_name
-            )
-            print("Distribution Done")
-        print("All Models Parts Distributed")
+        #     plan_map[graph_name] = plan.dump_plan()
 
-        self.plan_distributor.distribute_plan(
-            plan_map, network_graph, deployment_server.node_name
-        )
-        print("Plan Distributed to Servers")
+        # print("All Models Parts Distributed")
 
-        self.write_whole_plan(plan_map, deployment_server.node_name)
+        # self.plan_distributor.distribute_plan(
+        #     plan_map, network_graph, deployment_server.node_name
+        # )
+        # print("Plan Distributed to Servers")
+
+        # self.write_whole_plan(plan_map, deployment_server.node_name)
 
         return OptimizedPlan(
             plans_map=plan_map,
         )
-
-    def build_model_graph(self, model_name: str) -> nx.MultiDiGraph:
-        model_graph = ProfileSaver.read_profile(model_name)
-
-        models_dir = ConfigReader.ConfigReader("./config/config.ini").read_str(
-            "optimizer_dirs", "MODELS_DIR"
-        )
-        if model_graph is None:
-            model_path = os.path.join(models_dir, model_name + ".onnx")
-            model_graph: nx.MultiDiGraph = OnnxModelProfiler(model_path).profile_model(
-                {"args_0": (1, 3, 448, 448)}
-            )
-            ProfileSaver.save_profile(model_graph)
-
-        return model_graph
 
     def write_whole_plan(self, plan_map: dict, deployer_id: str):
         plans_dir = ConfigReader.ConfigReader("./config/config.ini").read_str(

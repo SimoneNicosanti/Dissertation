@@ -5,11 +5,8 @@ import "common.proto";
 
 
 service ModelManager {
-    rpc deploy_model(stream DeployRequest) returns (DeployResponse);
     rpc profile_model(ProfileRequest) returns (ProfileResponse);
-
-    rpc partition_model(PartitionRequest) returns (PartitionResponse);
-    rpc pull_model_component(PullRequest) returns (PullResponse);
+    rpc divide_model(PartitionRequest) returns (PartitionResponse);
 }
 
 
@@ -19,4 +16,12 @@ message ProfileRequest {
 
 message ProfileResponse {
     string model_profile = 1 ;
+}
+
+message PartitionRequest {
+    common.ModelId model_id = 1;
+    string partition_plan = 2;
+}
+
+message PartitionResponse {
 }

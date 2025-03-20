@@ -2,13 +2,10 @@
 import networkx as nx
 import pulp
 
-from Optimizer.Graph.Graph import (
-    ModelEdgeInfo,
-    ModelNodeInfo,
-    NetworkEdgeInfo,
-    NetworkNodeInfo,
-    NodeId,
-)
+from CommonProfile.NodeId import NodeId
+from CommonProfile.ModelInfo import ModelNodeInfo, ModelEdgeInfo
+from Optimizer.Network.NetworkInfo import NetworkNodeInfo, NetworkEdgeInfo
+
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 
 

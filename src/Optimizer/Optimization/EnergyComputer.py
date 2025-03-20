@@ -1,7 +1,10 @@
 import networkx as nx
 import pulp
 
-from Optimizer.Graph.Graph import NetworkNodeInfo, NodeId
+from CommonProfile.NodeId import NodeId
+from Optimizer.Network.NetworkInfo import NetworkNodeInfo
+
+
 from Optimizer.Optimization import LatencyComputer
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 

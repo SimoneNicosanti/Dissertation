@@ -60,11 +60,11 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Esempio di lista come argomento")
-    parser.add_argument("--model-list", type=str, nargs="+", help="Lista di numeri")
-    parser.add_argument("--latency-weight", type=float, help="Peso per la latenza")
-    parser.add_argument("--energy-weight", type=float, help="Peso per l'energia")
-    parser.add_argument("--device-max-energy", type=float, help="Energia massima device")
-    parser.add_argument("--requests-number", type=int, nargs="+", help="Numero di richieste per modello")
+    parser.add_argument("--model-list", type=str, nargs="+", help="Lista di numeri", default=["yolo11n-seg"])
+    parser.add_argument("--latency-weight", type=float, help="Peso per la latenza", default=1.0)
+    parser.add_argument("--energy-weight", type=float, help="Peso per l'energia", default=0.0)
+    parser.add_argument("--device-max-energy", type=float, help="Energia massima device", default=-1.0)
+    parser.add_argument("--requests-number", type=int, nargs="+", help="Numero di richieste per modello", default=[1])
     parser.add_argument("--deployment-server", type=str, help="Server di deployment", default="0")
 
     args = parser.parse_args()

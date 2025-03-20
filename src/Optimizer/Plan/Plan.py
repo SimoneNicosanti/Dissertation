@@ -2,11 +2,9 @@ import json
 
 import networkx as nx
 
-from Optimizer.Graph.Graph import (
-    NodeId,
-    SolvedEdgeInfo,
-    SolvedNodeInfo,
-)
+from CommonProfile.NodeId import NodeId
+from Optimizer.Graph.SolvedModelGraph import SolvedNodeInfo, SolvedEdgeInfo
+
 from Optimizer.Graph.SolvedModelGraph import (
     ComponentId,
 )

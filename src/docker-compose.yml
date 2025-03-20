@@ -16,12 +16,12 @@ services:
       - ./proto_compiled:/src/proto_compiled
       - ./Main/OptimizerMain.py:/src/Main.py
       - ./Common:/src/Common
+      - ./CommonProfile:/src/CommonProfile
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
 
-      - ./Other/models:/optimizer_data/models
+      
       - ./Other/models_profiles:/optimizer_data/models_profiles
-      - ./Other/divided_models:/optimizer_data/divided_models
       - ./Other/plans/:/optimizer_data/plans
     working_dir: /src
 
@@ -82,20 +82,26 @@ services:
       - ./start.sh:/src/start.sh
     working_dir: /src
 
-  pool:
+  model_manager:
     build:
-      dockerfile: ./docker/pool.dockerfile
+      dockerfile: ./docker/manager.dockerfile
     tty: true
     stdin_open: true
     networks:
       - dissertation_network
     volumes:
       - ./ModelPool:/src/ModelPool
+      - ./ModelManager:/src/ModelManager
       - ./proto_compiled:/src/proto_compiled
-      - ./Main/ModelPoolMain.py:/src/Main.py
+      - ./Main/ModelManagerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
       - ./Common:/src/Common
+      - ./CommonProfile:/src/CommonProfile
+
+      - ./Other/models:/manager_data/models
+      - ./Other/divided_models:/model_pool_data/models
+
     working_dir: /src
 
   # edge:

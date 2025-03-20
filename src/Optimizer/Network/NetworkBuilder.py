@@ -4,7 +4,7 @@ import grpc
 import networkx as nx
 
 from Common import ConfigReader
-from Optimizer.Graph.Graph import NodeId
+from CommonProfile.NodeId import NodeId
 from proto_compiled.common_pb2 import Empty
 from proto_compiled.state_pool_pb2 import StateMap
 from proto_compiled.state_pool_pb2_grpc import StatePoolStub
