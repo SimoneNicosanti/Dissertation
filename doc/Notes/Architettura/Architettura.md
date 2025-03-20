@@ -179,12 +179,11 @@ Rispetto alla versione precedente, la profilazione del modello può essere fatta
 4. Spostate le componenti
 Con il ModelManager i punti 2 e 3 si possono evitare.
 
-Il problema nell'uso del ModelManager è l'accoppiamento di molte parti a lui... però di base per fare tutte le cose che lui deve fare il modello serve, quindi è meglio che stia da una sola parte; la tolleranza ai guasti eventualmente si può gestire con replicazione...
-
 ![[Architecture_Versione_2_Completa.svg|Visione Completa]]
 
 
-La parte di inferenza resta uguale più o meno (al netto della gestione del frontend).
+La parte di inferenza resta uguale più o meno (al netto della gestione del frontend). 
+Meglio separare le responsabilità in servizi diversi, ma mettendo i tre servizi sulla stessa macchina... separo le responsabilità in tre servizi ma almeno ho comunque località del servizio.
 
 
 
