@@ -12,7 +12,7 @@ from CommonServer.InputReceiver import InputReceiver
 from CommonServer.OutputSender import OutputSender
 from CommonServer.PlanWrapper import PlanWrapper
 from proto_compiled.server_pb2_grpc import InferenceServicer
-from Server.Inference.IntermediateModelManager import IntermediateModelManager
+from Server.Inference.IntermediateInferenceManager import IntermediateInferenceManager
 
 
 class IntermediateServer(InferenceServicer):
@@ -24,7 +24,7 @@ class IntermediateServer(InferenceServicer):
 
         self.lock = rwlock.RWLockWriteD()
         self.plan_wrapper_dict: dict[ModelInfo, PlanWrapper] = {}
-        self.model_managers: dict[ModelInfo, IntermediateModelManager] = {}
+        self.model_managers: dict[ModelInfo, IntermediateInferenceManager] = {}
 
     def do_inference(self, input_stream, context):
         ## 1. Receive Input
@@ -78,7 +78,7 @@ class IntermediateServer(InferenceServicer):
     ):
 
         with self.lock.gen_wlock():
-            self.model_managers[model_info] = IntermediateModelManager(
+            self.model_managers[model_info] = IntermediateInferenceManager(
                 plan_wrapper, components_dict, threads_per_model
             )
             self.plan_wrapper_dict[model_info] = plan_wrapper

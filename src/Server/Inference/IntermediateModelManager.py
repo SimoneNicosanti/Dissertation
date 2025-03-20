@@ -4,12 +4,12 @@ from CommonServer.InferenceInfo import (
     ComponentInfo,
     TensorWrapper,
 )
-from CommonServer.ModelManager import ModelManager
+from CommonServer.InferenceManager import InferenceManager
 from CommonServer.PlanWrapper import PlanWrapper
 from Server.Inference.ModelRunner import ModelRunner
 
 
-class IntermediateModelManager(ModelManager):
+class IntermediateInferenceManager(InferenceManager):
     def __init__(
         self,
         plan_wrapper: PlanWrapper,

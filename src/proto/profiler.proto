@@ -1,0 +1,22 @@
+syntax = "proto3";
+package pool;
+
+import "common.proto";
+
+
+service ModelManager {
+    rpc deploy_model(stream DeployRequest) returns (DeployResponse);
+    rpc profile_model(ProfileRequest) returns (ProfileResponse);
+
+    rpc partition_model(PartitionRequest) returns (PartitionResponse);
+    rpc pull_model_component(PullRequest) returns (PullResponse);
+}
+
+
+message ProfileRequest {
+    common.ModelId model_id = 1;
+}
+
+message ProfileResponse {
+    string model_profile = 1 ;
+}

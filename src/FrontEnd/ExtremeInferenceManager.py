@@ -1,8 +1,8 @@
 from CommonServer.InferenceInfo import ComponentInfo, TensorWrapper
-from CommonServer.ModelManager import ModelManager
+from CommonServer.InferenceManager import InferenceManager
 
 
-class ExtremeModelManager(ModelManager):
+class ExtremeInferenceManager(InferenceManager):
 
     def __init__(self, plan_wrapper, components_dict):
         super().__init__(plan_wrapper, components_dict)

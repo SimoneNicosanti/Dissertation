@@ -137,7 +137,6 @@ In alternativa si potrebbe fare un modello push: ogni server periodicamente invi
 
 
 ## Inferenza
-
 ![[Inference.svg|Inferenza]]
 Descrizione delle interazioni:
 1. **ClientFrontEnd** è la componente del client che riceve le richieste di inferenza; permette di disaccoppiare il sistema di raccolta delle immagini dall'inferenza sulle stesse
@@ -171,6 +170,22 @@ Esempio di Piani:
 ![[Plans.svg|Generazione di Piani Diversi|650]]
 
 
+## Aggiornamento dell'Architettura
+![[Deployment_Diagram_2.svg]]
+Rispetto alla versione precedente, la profilazione del modello può essere fatta anche una sola volta! E soprattutto viene fatta in fase di upload del modello. In questo caso il ruolo del ModelManager è quello di profilare e dividere il modello, così come quello di inviare le componenti quando richieste. In sostanza quindi unisce il ruolo di profiler e di pool. Infatti il problema è che sia per fare il profiling sia per dividere il modello, questo modello bisogna averlo. A questo punto può risultare più conveniente avere un servizio che si occupi di entrambi questi aspetti piuttosto che avere più servizi che lo fanno: in questo modo si evita di trasferire in lungo e in largo il modello, altrimenti il modello deve essere:
+1. Caricato nel pool
+2. Spostato per fare il profiling
+3. Spostato per fare la divisione
+4. Spostate le componenti
+Con il ModelManager i punti 2 e 3 si possono evitare.
+
+Il problema nell'uso del ModelManager è l'accoppiamento di molte parti a lui... però di base per fare tutte le cose che lui deve fare il modello serve, quindi è meglio che stia da una sola parte; la tolleranza ai guasti eventualmente si può gestire con replicazione...
+
+![[Architecture_Versione_2_Completa.svg|Visione Completa]]
+
+
+La parte di inferenza resta uguale più o meno (al netto della gestione del frontend).
+
 
 
 # Implementazione
@@ -179,6 +194,11 @@ Da qui si vede che il GIL non è un problema con la *run* di ONNX: infatti dice 
 https://github.com/microsoft/onnxruntime/issues/11246.
 Di base quindi si potrebbero eseguire più modelli senza creare dei processi diversi.
 Ad esempio si potrebbe creare un wrap del modello e delle sue componenti che espone un metodo di Run: il metodo di run internamente gestisce un semaforo per limitare il numero di thread che contemporaneamente possono andare a chiamare quel servizio.
+
+
+## Sviluppo del FrontEnd
+Nell'ottimizzazione del piano ho prodotto due componenti aggiuntive che contengono ognuna un solo nodo, cioè un nodo Generatore e un nodo Ricevitore; queste due componenti sono gestite da un Servizio apposito che diventa proprio il FrontEnd che riceve l'input per la richiesta.
+In funzione dell'aggiunta o meno di requisiti alla richiesta (e.g. si vuole scegliere un certo piano per certi requisiti di latenza o di energia), allora si può creare un servizio apposito diverso.
 
 
 ## Bug in ottimizzazione
@@ -289,7 +309,7 @@ for node_id in graph.topological_order() :
 			node_possible_dict[parallel_id].add(node_comp)
 			## Se il server è lo stesso, un nodo parallelo può essere gestito anche da questa componente
 
-	## Espando le dipendenze della componente in cui sto aggiungendo il nodo con quelle del nodo che sto aggiungendo. La rimozione della nodec_comp permette di assicurare che una componente non sia dipendente da se stessa; infatti per come propagate le dipendenze, la node_comp potrebbe trovarsi anche nel dependency_set del nodo: se così fosse sceglierei sempre delle componenti diverse
+	## Espando le dipendenze della componente in cui sto aggiungendo il nodo con quelle del nodo che sto aggiungendo. La rimozione della node_comp permette di assicurare che una componente non sia dipendente da se stessa; infatti per come propagate le dipendenze, la node_comp potrebbe trovarsi anche nel dependency_set del nodo: se così fosse verrebbero sempre scelte delle componenti diverse
 	component_dependency_dict[node_comp].expand(dependency_set - node_comp)
 
 ```

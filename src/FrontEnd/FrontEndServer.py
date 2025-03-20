@@ -11,11 +11,11 @@ from CommonServer.InferenceInfo import (
     TensorWrapper,
 )
 from CommonServer.InputReceiver import InputReceiver
-from CommonServer.ModelManager import ModelManager
+from CommonServer.InferenceManager import InferenceManager
 from CommonServer.OutputSender import OutputSender
 from CommonServer.PlanWrapper import PlanWrapper
 from FrontEnd import ResponseGenerator
-from FrontEnd.ExtremeModelManager import ExtremeModelManager
+from FrontEnd.ExtremeInferenceManager import ExtremeInferenceManager
 from proto_compiled.server_pb2_grpc import InferenceServicer
 
 ## This has to be a different service running on the client
@@ -31,7 +31,7 @@ class FrontEndServer(InferenceServicer):
 
         self.managers_lock = rwlock.RWLockWriteD()
         self.plan_wrapper_dict: dict[ModelInfo, PlanWrapper] = {}
-        self.model_managers: dict[ModelInfo, ModelManager] = {}
+        self.model_managers: dict[ModelInfo, InferenceManager] = {}
 
         self.requests_lock = rwlock.RWLockWriteD()
         self.pending_request_dict: dict[RequestInfo, threading.Event] = {}
@@ -139,7 +139,7 @@ class FrontEndServer(InferenceServicer):
         with self.managers_lock.gen_wlock():
             self.plan_wrapper_dict[model_info] = plan_wrapper
 
-            self.model_managers[model_info] = ExtremeModelManager(
+            self.model_managers[model_info] = ExtremeInferenceManager(
                 plan_wrapper, components_dict
             )
         pass

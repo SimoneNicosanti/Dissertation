@@ -39,7 +39,6 @@ class NetworkNodeInfo:
 
 class NetworkEdgeInfo:
     BANDWIDTH = "bandwidth"
-
     pass
 
 

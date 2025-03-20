@@ -11,7 +11,7 @@ from CommonServer.InputPool import InputPool
 from CommonServer.PlanWrapper import PlanWrapper
 
 
-class ModelManager(abc.ABC):
+class InferenceManager(abc.ABC):
     def __init__(
         self,
         plan_wrapper: PlanWrapper,
