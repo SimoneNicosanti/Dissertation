@@ -8,7 +8,7 @@ class ModelRunner:
 
     def __init__(self, component_dict: dict[ComponentInfo, str]):
 
-        self.component_sessions = {}
+        self.component_sessions : dict[ComponentInfo, ort.InferenceSession] = {}
 
         for comp_info, comp_path in component_dict.items():
             comp_session = ort.InferenceSession(comp_path)

@@ -4,41 +4,41 @@ from pathlib import Path
 import subprocess
 
 directory_dict = {
-    # "registry" : [
-    #     "../proto_compiled/", 
-    #     "../Registry/", "../StatePool/", 
-    #     "../Main/RegistryMain.py", "../start.sh", "../Common/"
-    # ],
-    # "optimizer" : [
-    #     "../proto_compiled/", 
-    #     "../Optimizer/", 
-    #     "../Main/OptimizerMain.py", "../start.sh", 
-    #     "../Common/", "../CommonProfile/", "../CommonPlan/"
-    # ],
-    # "model-manager" : [
-    #     "../proto_compiled/", 
-    #     "../ModelPool/", "../ModelManager/",
-    #     "../Main/ModelManagerMain.py", "../start.sh", 
-    #     "../Common/", "../CommonProfile/", "../CommonPlan/", 
-    # ],
-    "device" : [
-        # "../proto_compiled/", 
-        # "../Client/", "../Server/", "../FrontEnd/", 
-        "../Main/ServerMain.py", "../Main/FrontEndMain.py", "../Main/ClientMain.py", "../start.sh", 
-        # "../Common/", "../CommonServer/"
+    "registry" : [
+        "../proto_compiled/", 
+        "../Registry/", "../StatePool/", 
+        "../Main/RegistryMain.py", "../start.sh", "../Common/"
     ],
-    # "server-1" : [
-    #     "../proto_compiled/", 
-    #     "../Server/", 
-    #     "../Main/ServerMain.py", "../start.sh", 
-    #     "../Common/", "../CommonServer/"
-    # ],
-    # "server-2" :  [
-    #     "../proto_compiled/", 
-    #     "../Server/", 
-    #     "../Main/ServerMain.py", "../start.sh", 
-    #     "../Common/", "../CommonServer/"
-    # ],
+    "optimizer" : [
+        "../proto_compiled/", 
+        "../Optimizer/", 
+        "../Main/OptimizerMain.py", "../start.sh", 
+        "../Common/", "../CommonProfile/", "../CommonPlan/"
+    ],
+    "model-manager" : [
+        "../proto_compiled/", 
+        "../ModelPool/", "../ModelManager/",
+        "../Main/ModelManagerMain.py", "../start.sh", 
+        "../Common/", "../CommonProfile/", "../CommonPlan/", 
+    ],
+    "device" : [
+        "../proto_compiled/", 
+        "../Client/", "../Server/", "../FrontEnd/", 
+        "../Main/ServerMain.py", "../Main/FrontEndMain.py", "../Main/ClientMain.py", "../start.sh", 
+        "../Common/", "../CommonServer/"
+    ],
+    "server-1" : [
+        "../proto_compiled/", 
+        "../Server/", 
+        "../Main/ServerMain.py", "../start.sh", 
+        "../Common/", "../CommonServer/"
+    ],
+    "server-2" :  [
+        "../proto_compiled/", 
+        "../Server/", 
+        "../Main/ServerMain.py", "../start.sh", 
+        "../Common/", "../CommonServer/"
+    ],
 }
 
 
@@ -72,8 +72,8 @@ def main() :
     # copy_models()
     for machine_name, machine_ip in name_ip_map.items() :
         print("Sending to ", machine_name, machine_ip)
-        # copy_config(machine_ip)
-        transfer_files(machine_name, machine_ip)
+        copy_config(machine_ip)
+        # transfer_files(machine_name, machine_ip)
         pass
     pass
 
