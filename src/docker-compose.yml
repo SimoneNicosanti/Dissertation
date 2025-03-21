@@ -12,15 +12,18 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./Optimizer:/src/Optimizer
       - ./proto_compiled:/src/proto_compiled
+
+      - ./Optimizer:/src/Optimizer
+      
       - ./Main/OptimizerMain.py:/src/Main.py
-      - ./Common:/src/Common
-      - ./CommonProfile:/src/CommonProfile
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
 
-      
+      - ./Common:/src/Common
+      - ./CommonProfile:/src/CommonProfile
+      - ./CommonPlan:/src/CommonPlan
+
       - ./Other/models_profiles:/optimizer_data/models_profiles
       - ./Other/plans/:/optimizer_data/plans
     working_dir: /src
@@ -34,11 +37,14 @@ services:
       - dissertation_network
     volumes:
       - ./proto_compiled:/src/proto_compiled
+
       - ./Registry:/src/Registry
       - ./StatePool:/src/StatePool
+
       - ./Main/RegistryMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
+
       - ./Common:/src/Common
     working_dir: /src
 
@@ -50,12 +56,16 @@ services:
     networks:
       - dissertation_network
     volumes:
-      - ./Server:/src/Server
-      - ./CommonServer:/src/CommonServer
       - ./proto_compiled:/src/proto_compiled
+
+      - ./Server:/src/Server
+      
+      
       - ./Main/ServerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
+
+      - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
     working_dir: /src
 
@@ -67,19 +77,20 @@ services:
     networks:
       - dissertation_network
     volumes:
+      - ./proto_compiled:/src/proto_compiled
+
       - ./Client:/src/Client
       - ./Server:/src/Server
       - ./FrontEnd:/src/FrontEnd
-      - ./CommonServer:/src/CommonServer
-      - ./proto_compiled:/src/proto_compiled
-      - ./config/local_config.ini:/src/config/config.ini
-      - ./Common:/src/Common
-
+      
       - ./Main/ServerMain.py:/src/ServerMain.py
       - ./Main/FrontEndMain.py:/src/FrontEndMain.py
       - ./Main/ClientMain.py:/src/ClientMain.py
-
       - ./start.sh:/src/start.sh
+      - ./config/local_config.ini:/src/config/config.ini
+
+      - ./CommonServer:/src/CommonServer
+      - ./Common:/src/Common
     working_dir: /src
 
   model_manager:
@@ -90,42 +101,20 @@ services:
     networks:
       - dissertation_network
     volumes:
+      - ./proto_compiled:/src/proto_compiled
+
       - ./ModelPool:/src/ModelPool
       - ./ModelManager:/src/ModelManager
-      - ./proto_compiled:/src/proto_compiled
+      
       - ./Main/ModelManagerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
+
       - ./Common:/src/Common
       - ./CommonProfile:/src/CommonProfile
+      - ./CommonPlan:/src/CommonPlan
 
       - ./Other/models:/manager_data/models
       - ./Other/divided_models:/model_pool_data/models
 
     working_dir: /src
-
-  # edge:
-  #   build:
-  #     dockerfile: ./docker/edge.dockerfile
-  #   tty: true
-  #   stdin_open: true
-  #   networks:
-  #     - sdcc_network
-  #   volumes:
-  #     - type: tmpfs
-  #       target: /files
-  #       tmpfs:
-  #         size: 100M ## Va per pagine di memoria principale (4k)
-  #     - ./edge:/src
-  #     - ./proto:/proto
-  #     # - ./docker/edge_files:/files
-  #     - ./docker/aws:/aws
-  #   working_dir: /src
-  #   deploy:
-  #     resources:
-  #       limits: # Hard Limit
-  #         cpus: "1"
-  #         memory: 2G
-  #       # reservations: # Soft Limit
-  #       #   cpus: 0.25
-  #       #   memory: 128M

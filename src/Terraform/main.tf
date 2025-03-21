@@ -90,7 +90,7 @@ resource "google_compute_firewall" "allow_internal_egress" {
 # Define the IPs for each VM
 locals {
   instance_ips = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16"]  # Assign specific IPs
-  names = ["registry", "optimizer", "model-pool", "device", "server-1", "server-2"] ## Assign specific names
+  names = ["registry", "optimizer", "model-manager", "device", "server-1", "server-2"] ## Assign specific names
 }
 
 

@@ -1,7 +1,11 @@
+import json
 import networkx as nx
 
 
 
+from CommonPlan.Plan import Plan
+from ModelManager.Divide import PlanBuilder
+from ModelManager.Divide.OnnxModelPartitioner import OnnxModelPartitioner
 from ModelManager.Profile.OnnxModelProfiler import OnnxModelProfiler
 from ModelManager.Profile import ProfileSaver
 from proto_compiled.model_manager_pb2 import PartitionRequest, PartitionResponse, ProfileRequest, ProfileResponse
@@ -27,4 +31,10 @@ class ModelManagerServer(ModelManagerServicer) :
         return ProfileResponse(model_profile=profile)
     
     def divide_model(self, partition_request : PartitionRequest, context):
+        print("Received Partition Request")
+        model_plan : Plan = PlanBuilder.build_plan(partition_request.solved_graph, partition_request.model_id.model_name, partition_request.model_id.deployer_id)
+
+        model_partitioner = OnnxModelPartitioner()
+        model_partitioner.partition_model(model_plan, partition_request.model_id.model_name, partition_request.model_id.deployer_id)
+
         return PartitionResponse()

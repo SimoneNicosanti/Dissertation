@@ -18,12 +18,12 @@ class ProfileResponse(_message.Message):
     def __init__(self, model_profile: _Optional[str] = ...) -> None: ...
 
 class PartitionRequest(_message.Message):
-    __slots__ = ("model_id", "partition_plan")
+    __slots__ = ("model_id", "solved_graph")
     MODEL_ID_FIELD_NUMBER: _ClassVar[int]
-    PARTITION_PLAN_FIELD_NUMBER: _ClassVar[int]
+    SOLVED_GRAPH_FIELD_NUMBER: _ClassVar[int]
     model_id: _common_pb2.ModelId
-    partition_plan: str
-    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ..., partition_plan: _Optional[str] = ...) -> None: ...
+    solved_graph: str
+    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ..., solved_graph: _Optional[str] = ...) -> None: ...
 
 class PartitionResponse(_message.Message):
     __slots__ = ()

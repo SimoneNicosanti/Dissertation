@@ -6,14 +6,14 @@ from Common import ConfigReader
 from Optimizer.Divider import ModelDivider
 from Optimizer.Graph import ConnectedComponents
 from CommonProfile.NodeId import NodeId
-from Optimizer.Graph.SolvedModelGraph import SolvedGraphInfo
+from CommonPlan.SolvedModelGraph import SolvedGraphInfo
 from Optimizer.Network.NetworkBuilder import NetworkBuilder
 from Optimizer.Optimization.OptimizationHandler import (
     OptimizationHandler,
     OptimizationParams,
 )
 from Optimizer.Divider.ModelDivider import ModelDivider
-from Optimizer.Plan.Plan import Plan
+from CommonPlan.Plan import Plan
 from Optimizer.Plan.PlanDistributor import PlanDistributor
 from Optimizer.Profiler.ProfileBuilder import ProfileBuilder
 from proto_compiled.common_pb2 import OptimizedPlan
@@ -27,7 +27,7 @@ class OptmizationServer(OptimizationServicer):
         self.plan_distributor = PlanDistributor()
         self.network_builder = NetworkBuilder()
         self.model_profiler = ProfileBuilder()
-        self.model_divider = ModelDivider(None)
+        self.model_divider = ModelDivider()
         pass
 
     def serve_optimization(self, request: OptimizationRequest, context):
@@ -68,22 +68,18 @@ class OptmizationServer(OptimizationServicer):
             ConnectedComponents.ConnectedComponentsFinder.find_connected_components(
                 solved_graph
             )
+            self.model_divider.divide_model(solved_graph, deployment_server)
 
             plan = Plan(solved_graph, deployer_id=deployment_server.node_name)
+            plan_map[graph_name] = plan.dump_plan()
 
-        #     self.model_divider.divide_model(plan, solved_graph, deployment_server)
-        #     print("Partitions Done")
 
-        #     plan_map[graph_name] = plan.dump_plan()
+        self.plan_distributor.distribute_plan(
+            plan_map, network_graph, deployment_server.node_name
+        )
+        print("Plan Distributed to Servers")
 
-        # print("All Models Parts Distributed")
-
-        # self.plan_distributor.distribute_plan(
-        #     plan_map, network_graph, deployment_server.node_name
-        # )
-        # print("Plan Distributed to Servers")
-
-        # self.write_whole_plan(plan_map, deployment_server.node_name)
+        self.write_whole_plan(plan_map, deployment_server.node_name)
 
         return OptimizedPlan(
             plans_map=plan_map,

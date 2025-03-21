@@ -20,7 +20,7 @@ message ProfileResponse {
 
 message PartitionRequest {
     common.ModelId model_id = 1;
-    string partition_plan = 2;
+    string solved_graph = 2;
 }
 
 message PartitionResponse {

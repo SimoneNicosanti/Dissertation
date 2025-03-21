@@ -1,4 +1,5 @@
 import threading
+import time
 
 import cv2
 import numpy
@@ -29,7 +30,7 @@ def main():
         "yolo11n-seg",
     ]
     thr_list = []
-    for idx in range(15):
+    for idx in range(10):
         thr = threading.Thread(
             target=do_inference,
             args=(
@@ -43,11 +44,15 @@ def main():
         )
         thr_list.append(thr)
 
+    start = time.perf_counter_ns()
     for thr in thr_list:
         thr.start()
 
     for thr in thr_list:
         thr.join()
+    end = time.perf_counter_ns()
+
+    print("Total Inference Time >>> ", (end - start) / 1e9)
 
 
 def do_inference(
