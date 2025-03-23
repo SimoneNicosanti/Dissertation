@@ -4,7 +4,7 @@ import grpc
 import networkx as nx
 
 from Common import ConfigReader
-from Optimizer.Graph.Graph import NodeId
+from CommonProfile.NodeId import NodeId
 from proto_compiled.common_pb2 import Empty
 from proto_compiled.state_pool_pb2 import StateMap
 from proto_compiled.state_pool_pb2_grpc import StatePoolStub
@@ -57,11 +57,13 @@ class NetworkBuilder:
 
         for server_id, server_state_str in state_dict.items():
             bandwidths: dict[str, str] = json.loads(server_state_str)["bandwidths"]
+            latencies : dict[str, str] = json.loads(server_state_str)["latencies"]
             for other_server_id, _ in state_dict.items():
                 if other_server_id in bandwidths.keys():
                     bandwidth = bandwidths[other_server_id]
+                    latency = latencies[other_server_id]
                     graph.add_edge(
-                        NodeId(server_id), NodeId(other_server_id), bandwidth=bandwidth
+                        NodeId(server_id), NodeId(other_server_id), bandwidth=bandwidth, latency=latency
                     )
 
         return graph

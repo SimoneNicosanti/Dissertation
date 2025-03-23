@@ -74,7 +74,7 @@ class Fetcher(AssigneeServicer):
         if len(paths_dict) != 0:
             print("Registring Model for Deployer {}".format(deployer_id))
             self.intermediate_server.register_model(
-                model_info, plan_wrapper, paths_dict, 1
+                model_info, plan_wrapper, paths_dict, 10
             )
 
     def __fetch_component(self, componet_info: ComponentInfo):

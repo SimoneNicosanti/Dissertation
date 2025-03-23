@@ -8,14 +8,21 @@ import onnx
 import onnx_tool
 from onnx.mapping import TENSOR_TYPE_MAP
 
-from Optimizer.Graph.Graph import ModelEdgeInfo, ModelNodeInfo, NodeId
-from Optimizer.Profiler.ModelProfiler import ModelProfiler
+from Common.ConfigReader import ConfigReader
+from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
+from CommonProfile.NodeId import NodeId
+
+from ModelManager.Profile.ModelProfiler import ModelProfiler
 
 
 class OnnxModelProfiler(ModelProfiler):
 
-    def __init__(self, model_path: str) -> None:
-        super().__init__(model_path)
+    def __init__(self, model_name: str) -> None:
+        super().__init__(model_name)
+        model_dir = ConfigReader("./config/config.ini").read_str(
+            "model_manager_dirs", "MODELS_DIR"
+        )
+        self.model_path = os.path.join(model_dir, model_name) + ".onnx"
 
     def profile_model(self, input_shapes: dict[str, tuple]) -> nx.DiGraph:
 

@@ -194,11 +194,28 @@ https://github.com/microsoft/onnxruntime/issues/11246.
 Di base quindi si potrebbero eseguire più modelli senza creare dei processi diversi.
 Ad esempio si potrebbe creare un wrap del modello e delle sue componenti che espone un metodo di Run: il metodo di run internamente gestisce un semaforo per limitare il numero di thread che contemporaneamente possono andare a chiamare quel servizio.
 
+https://dagshub.com/Ultralytics/ultralytics/pulls/6583/files?page=0&path=docs%2Fen%2Fguides%2Fyolo-thread-safe-inference.md
+
+
+Per quanto riguarda il lock questo viene effettivamente rilasciato, ma c'è un aspetto diverso da considerare, cioè il numero di thread che viene prodotto internamente da Onnx per fare l'inferenza. Da documentazione (https://onnxruntime.ai/docs/performance/tune-performance/threading.html#set-number-of-intra-op-threads) ogni sessione alla chiamata di Run crea un numero di thread pari al numero di core fisici... la creazione di questo grande numero di thread crea contesa sulle CPU!
+
+Infatti l'uso del parallelismo non porta beneficio se non si imposta il massimo numero di thread utilizzabili per inferenza.
+![[Schermata del 2025-03-21 17-27-05.png|Esecuzione senza set dei thread]]
+
+
+Se si imposta il massimo numero di thread che può essere creato invece il risultato è quello che segue. 
+![[Schermata del 2025-03-21 17-30-09.png|Esecuzione con intra_op = 1]]
+In questo caso quindi l'esecuzione sequenziale si mostra davvero più lenta rispetto all'esecuzione parallela proprio perché nel secondo caso abbiamo due thread. Inoltre, a riprova del fatto che il GIL viene rilasciato il tempo di esecuzione con i thread è praticamente uguale al tempo di esecuzione con processi.
+
+Da due thread in poi il vantaggio di esecuzione si assottiglia.
+![[Schermata del 2025-03-21 17-40-43.png|Esecuzione con intra_op = 2]]
+
+
+Per avere l'esecuzione ottimale si dovrebbe analizzare il numero di core e dividerlo per il massimo numero di thread che possono eseguire i modelli, in modo da trovare la combinazione migliore tra numero di thread di inferenza e tracce di esecuzione.
 
 ## Sviluppo del FrontEnd
 Nell'ottimizzazione del piano ho prodotto due componenti aggiuntive che contengono ognuna un solo nodo, cioè un nodo Generatore e un nodo Ricevitore; queste due componenti sono gestite da un Servizio apposito che diventa proprio il FrontEnd che riceve l'input per la richiesta.
 In funzione dell'aggiunta o meno di requisiti alla richiesta (e.g. si vuole scegliere un certo piano per certi requisiti di latenza o di energia), allora si può creare un servizio apposito diverso.
-
 
 ## Bug in ottimizzazione
 Parametri del test:
@@ -243,6 +260,7 @@ Per quanto riguarda il blocco nella fase di inferenza, credo che si verifichi qu
 
 Caso di Piano Prodotto non DAG: di seguito un caso in cui il grafo prodotto non è un dag e lo stato dei server. A prescindere dal numero di componenti il fatto che il grafo delle componenti non sia un DAG è strano...
 ![[Schermata del 2025-03-17 10-24-59.png|Ottimizzazione]]
+
 ![[Schermata del 2025-03-17 10-28-12.png|Stato dei Server]]
 
 Da qui si può avere una panoramica migliore della situazione e delle interazioni possibili; notiamo che il tempo per andare da server_1 a server_0 è abbastanza più grande rispetto a quello per andare da server_1 a server_1. In questa situazione quindi l'ottimizzatore potrebbe scegliere di fare offloading delle operazioni con il numero di flops più basso verso il device server_0 scegliendo di pagare quel prezzo di trasmissione piuttosto che quello di trasmettere a se stesso quella stessa quantità di dati.
@@ -314,3 +332,12 @@ for node_id in graph.topological_order() :
 ```
 
 
+## Gestione della Memoria
+
+> [!TODO] Gestione dinamica della memoria
+
+La memoria si può monitorare usando il seguente:
+`psutil.virtual_memory().available / 1e6`
+Questo permette di ottenere la memoria disponibile sul dispositivo in MB!!
+
+Questa memoria sarà poi aggiornata dinamicamente in fase di monitoraggio! Una volta che il piano è stato trovato e i modelli assegnati, i vari server caricheranno le componenti a loro assegnate e faranno quindi partire le varie inferenze.

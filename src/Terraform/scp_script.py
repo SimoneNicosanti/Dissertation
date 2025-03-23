@@ -4,12 +4,42 @@ from pathlib import Path
 import subprocess
 
 directory_dict = {
-    "registry" : ["../proto_compiled/", "../Registry/", "../StatePool/", "../Main/RegistryMain.py", "../start.sh", "../Common/"],
-    "optimizer" : ["../proto_compiled/", "../Optimizer/", "../Main/OptimizerMain.py", "../start.sh", "../Common/"],
-    "model-pool" : ["../proto_compiled/", "../ModelPool/", "../Main/ModelPoolMain.py", "../start.sh", "../Common/"],
-    "device" : ["../proto_compiled/", "../Client/", "../Server/", "../FrontEnd/", "../CommonServer/", "../Main/ServerMain.py", "../Main/FrontEndMain.py", "../Main/ClientMain.py", "../start.sh", "../Common/"],
-    "server-1" : ["../proto_compiled/", "../Server/", "../CommonServer/", "../Main/ServerMain.py", "../start.sh", "../Common/"],
-    "server-2" : ["../proto_compiled/", "../Server/", "../CommonServer/", "../Main/ServerMain.py", "../start.sh", "../Common/"],
+    "registry" : [
+        "../proto_compiled/", 
+        "../Registry/", "../StatePool/", 
+        "../Main/RegistryMain.py", "../start.sh", "../Common/"
+    ],
+    "optimizer" : [
+        "../proto_compiled/", 
+        "../Optimizer/", 
+        "../Main/OptimizerMain.py", "../start.sh", 
+        "../Common/", "../CommonProfile/", "../CommonPlan/"
+    ],
+    "model-manager" : [
+        "../proto_compiled/", 
+        "../ModelPool/", "../ModelManager/",
+        "../Main/ModelManagerMain.py", "../start.sh", 
+        "../Common/", "../CommonProfile/", "../CommonPlan/", 
+    ],
+    "device" : [
+        "../proto_compiled/", 
+        "../Client/", "../Server/", "../FrontEnd/", 
+        "../Main/ServerMain.py", "../Main/FrontEndMain.py", "../Main/ClientMain.py", "../start.sh", 
+        "../Common/", "../CommonServer/",
+        "../Other/latency_scripts/"
+    ],
+    "server-1" : [
+        "../proto_compiled/", 
+        "../Server/", 
+        "../Main/ServerMain.py", "../start.sh", 
+        "../Common/", "../CommonServer/"
+    ],
+    "server-2" :  [
+        "../proto_compiled/", 
+        "../Server/", 
+        "../Main/ServerMain.py", "../start.sh", 
+        "../Common/", "../CommonServer/"
+    ],
 }
 
 
@@ -18,28 +48,14 @@ def transfer_files(machine_name, machine_ip) :
         return
     for dir in directory_dict[machine_name] :
         dest_dir = dir.replace("../", "")
-        dest_dir = dest_dir.replace("../Main/", "")
+        dest_dir = dest_dir.replace("Main/", "")
         print(dir, dest_dir)
         command = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --progress --mkpath --recursive --exclude '*.pyc' {} google@{}:~/src/{}".format(dir, machine_ip, dest_dir)
-        # print(command)
-        # # command = "gcloud compute scp --recurse {} --zone europe-west12-c --project ai-at-edge-442215 google@{}:~/src".format(dir, machine_name)
         os.system(command)
-
-# rsync -avz --progress --mkpath ../Other/models/ google@34.17.9.121:~/optimizer_data/models/
 
 def copy_config(machine_ip) :
     command = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --progress --mkpath --recursive --exclude '*.pyc' ../config/deploy_config.ini google@{}:~/src/config/config.ini".format(machine_ip)
     os.system(command)
-
-# def copy_models() :
-#     os.system("gcloud compute ssh --zone europe-west12-c --project ai-at-edge-442215 google@optimizer -- 'mkdir -p ~/optimizer_data/models && exit'")
-
-#     model_dir = Path("../Other/models/")
-#     for model_path in model_dir.rglob('*'): 
-#         if model_path.name.find("yolo11n") == -1 :
-#             continue
-#         command = "gcloud compute scp {} --zone europe-west12-c --project ai-at-edge-442215 google@optimizer:~/optimizer_data/models/".format(model_path, model_path.name)
-#         os.system(command)
 
 def get_nat_ips() :
     command = ['gcloud', 'compute', 'instances', 'list', '--format', 'json(name, networkInterfaces[].accessConfigs[].natIP)']

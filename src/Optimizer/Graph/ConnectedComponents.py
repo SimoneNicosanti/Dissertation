@@ -1,7 +1,9 @@
 import networkx as nx
 
-from Optimizer.Graph.Graph import NodeId, SolvedNodeInfo
-from Optimizer.Graph.SolvedModelGraph import (
+from CommonProfile.NodeId import NodeId
+from CommonPlan.SolvedModelGraph import SolvedNodeInfo
+
+from CommonPlan.SolvedModelGraph import (
     ComponentId,
 )
 

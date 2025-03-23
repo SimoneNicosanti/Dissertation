@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Optimizer.Graph.Graph import NodeId
+from CommonProfile.NodeId import NodeId
 
 
 @dataclass(frozen=True)

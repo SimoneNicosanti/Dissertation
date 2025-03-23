@@ -4,7 +4,8 @@ from dataclasses import dataclass
 import networkx as nx
 import pulp
 
-from Optimizer.Graph.Graph import ModelEdgeInfo, ModelNodeInfo, NodeId
+from CommonProfile.NodeId import NodeId
+from CommonProfile.ModelInfo import ModelNodeInfo, ModelEdgeInfo
 from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
 from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey

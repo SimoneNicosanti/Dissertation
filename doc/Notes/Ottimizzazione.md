@@ -209,6 +209,7 @@ Consideriamo $G_N$. Definiamo:
 	- $\psi_{v3}$ la memoria disponibile nel nodo
 - Dato un arco $e \in E_N$, una tupla $\epsilon_e$ di caratteristiche dell'arco della rete; in particolare sia: 
 	- $\epsilon_{e0}$ la banda di trasmissione dell'arco
+	- $\epsilon_{e1}$ la latenza di trasmissione dell'arco
 
 Dato una variante $G_M^a$ definiamo una tupla $\sigma^a$ di dimensione $|V_N|$, definita come:
 - $\sigma_k^a$ rappresenta lo speedup di esecuzione del modello $a$-esimo sul server $k$-esimo
@@ -220,10 +221,10 @@ Definiamo le variabili:
 - $x_{ik}^a \in \{0, 1\}$ tc   $x_{ik}^a = 1$ sse $i \in V_M^a$ assegnato a $k \in V_N$
 - $y_{mn}^a \in \{0, 1\}$ tc  $y_{mn}^a = 1$ sse $m \in E_M^a$ assegnato a $n \in E_N$
 
-## Modello di Latenza
+## Modello di Tempo
 
-### Latenza di Calcolo
-La latenza di calcolo sul server $k$ per richieste fatte alla variante $a$-esima la possiamo scrivere come:
+### Tempo di Calcolo
+Il tempo di calcolo sul server $k$ per richieste fatte alla variante $a$-esima la possiamo scrivere come:
 $$T_k^{c-a} =  \sum_{i \in V_M^a} \frac{\phi_{i0}}{\psi_{k0} * \sigma_k^a} x_{ik}^a$$
 Definiamo il tempo massimo di calcolo tra i vari nodi della variante $a$-esima sul server $k$ come:
 $$t_k^{c-a} = \max_{i \in V_M^a} \frac{\phi_{i0}}{\psi_{k_0} * \sigma_k^a}$$
@@ -233,19 +234,19 @@ $$T^{c-a} = \sum_{k \in V_N} T_k^{c-a}$$
 Definiamo il massimo dei tempi di calcolo dei nodi della variante $a$-esima come :
 $$t^{c-a} = \max_{k \in V_N} t^{c-a}_k$$
 
-### Latenza di Trasmissione
-La latenza di trasmissione dipende invece dalla somma delle latenze di trasmissione in funzione delle bande dei link fisici a cui i link logici sono assegnati. Per la variante $a$-esima sul server $k$:
+### Tempo di Trasmissione
+La latenza di trasmissione dipende invece dalla somma dei tempi di trasmissione in funzione delle bande dei link fisici a cui i link logici sono assegnati. Per la variante $a$-esima sul server $k$:
 
-$$T_{k}^{x-a} =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}y_{mn}^a$$
-Definiamo il tempo massimo di calcolo per la trasmissione tra i nodi della variante $a$-esima come:
-$$t^{x-a}_k = \max_{m \in E_M^a, n \in E_N \wedge k == n[0]} \frac{\eta_{m0}}{\epsilon_{n0}}$$
+$$T_{k}^{x-a} =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \left( \frac{\eta_{m0}}{\epsilon_{n0}} + \epsilon_{n1} \right) * y_{mn}^a$$
+Definiamo il tempo massimo per la trasmissione tra i nodi della variante $a$-esima come:
+$$t^{x-a}_k = \max_{m \in E_M^a, n \in E_N \wedge k == n[0]} \left( \frac{\eta_{m0}}{\epsilon_{n0}} + \epsilon_{n1} \right)$$
 
 Il tempo di trasmissione totale per singola richiesta sulla variante $a$-esima è dato da:
 $$T^{x-a} = \sum_{k \in V_N} T_k^{x-a}$$
 Il tempo di trasmissione massimo per singola richiesta ala variante $a$-esima è dato da:
 $$t^{x-a} = \max_{k \in V_N} t_k^{x-a}$$
 
-### Costo della latenza
+### Costo del tempo 
 Definiamo $\mu_t^a = \max \{t^{x-a}, t^{c-a}\}$ il termine di normalizzazione per la latenza del modello $a$-esimo
 Il costo dato dal tempo di inferenza del modello $a$-esimo è dato da:
 $$C^a_t = \lambda^a \frac{T^{c-a} + T^{x-a}}{\mu_t^a}$$

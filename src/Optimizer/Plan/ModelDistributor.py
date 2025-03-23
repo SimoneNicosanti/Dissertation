@@ -3,7 +3,7 @@ import os
 import grpc
 
 from Common import ConfigReader
-from Optimizer.Plan.Plan import Plan
+from CommonPlan.Plan import Plan
 from proto_compiled.common_pb2 import ComponentId, ModelId
 from proto_compiled.pool_pb2 import ModelChunk, PushRequest
 from proto_compiled.pool_pb2_grpc import ModelPoolStub

@@ -7,7 +7,6 @@ from readerwriterlock import rwlock
 
 from Common import ConfigReader
 from proto_compiled.common_pb2 import Empty
-from proto_compiled.ping_pb2 import PingMessage
 from proto_compiled.ping_pb2_grpc import PingStub
 from proto_compiled.register_pb2 import AllServerInfo
 from proto_compiled.register_pb2_grpc import RegisterStub
@@ -46,6 +45,7 @@ class ServerMonitor:
         self.state_lock = rwlock.RWLockWriteD()
         self.current_state: dict[str, float] = {}
         self.bandwidths: dict[str, float] = {}
+        self.latencies : dict[str, float] = {}
 
         pass
 
@@ -63,6 +63,9 @@ class ServerMonitor:
             send_state = {key: value for key, value in self.current_state.items()}
             send_state["bandwidths"] = {
                 key: value for key, value in self.bandwidths.items()
+            }
+            send_state["latencies"] = {
+                key: value for key, value in self.latencies.items()
             }
 
         send_state_str = json.dumps(send_state)
@@ -136,38 +139,36 @@ class ServerMonitor:
             #     bandwidth = 110
             # else:
             bandwidth = self.__eval_bandwidth(server_chan)
+            latency = self.__eval_latency(server_chan)
 
             with self.state_lock.gen_wlock():
                 self.bandwidths[server_info.server_id.server_id] = bandwidth
+                self.latencies[server_info.server_id.server_id] = latency
 
-    def __eval_bandwidth(self, server_chan: grpc.Channel):
+    def __eval_latency(self, server_chan: grpc.Channel):
         ping_stub = PingStub(server_chan)
-
-        ping_message_size_mb = ConfigReader.ConfigReader(
-            "./config/config.ini"
-        ).read_float("monitor", "PING_MESSAGE_SIZE_MB")
-        ping_message_content = bytearray(
-            int(ping_message_size_mb * MEGABYTE_SIZE)
-        )  ## Sending 1MB of data
 
         ping_times = ConfigReader.ConfigReader("./config/config.ini").read_int(
             "monitor", "PING_TIMES"
         )
-
-        start_time = time.perf_counter_ns()
+        start = time.perf_counter_ns()
         for _ in range(ping_times):
-            ping_stub.ping(PingMessage(ping_bytes=bytes(ping_message_content)))
+            ping_stub.latency_test(Empty())
+        end = time.perf_counter_ns()
+        rtt_ns = (end - start) / ping_times
 
-        total_time = time.perf_counter_ns() - start_time
+        latency_ns = rtt_ns / 2
+        latency = latency_ns / 1e9
+        return latency
 
-        avg_rtt = total_time / ping_times  ## Avg round trip time
-        avg_go_time = avg_rtt / 2  ## Avg go time
+    def __eval_bandwidth(self, server_chan: grpc.Channel):
+        bandwidth_gb_ps = ConfigReader.ConfigReader("./config/config.ini").read_float(
+            "monitor", "BANDWIDTH_GBPS")
+        
+        bandwidth_m_bytes_ps = bandwidth_gb_ps * 1e3 / 8
 
-        avg_bandwidth = (ping_message_size_mb * ping_times) / (
-            avg_go_time / 1e9
-        )  ## Computing bandwidth in MB/s
+        return bandwidth_m_bytes_ps
 
-        return avg_bandwidth
 
     def init_monitoring(self):
         self.__update_and_send_state()
