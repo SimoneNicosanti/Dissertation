@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Architettura/Architettura.md",
+                "file": "Notes/Indice Tesi.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Architettura"
+              "title": "Indice Tesi"
             }
           },
           {
@@ -27,16 +27,15 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Architettura/Architettura.md",
+                "file": "Notes/Esperimenti.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Architettura"
+              "title": "Esperimenti"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -176,13 +175,18 @@
       "callout-manager:Insert Callout": false
     }
   },
-  "active": "91b7cddbd5a0b39f",
+  "active": "837f61ab5e0e4567",
   "lastOpenFiles": [
+    "Notes/Architettura/Architettura.md",
+    "Notes/Esperimenti.md",
+    "Notes/Indice Tesi.md",
+    "Notes/Architettura/Architettura_Inviare.md",
+    "Notes/Colloqui/2025-03-22.md",
+    "Notes/Ottimizzazione.md",
+    "Notes/Colloqui/2025-03-04.md",
     "Schermata del 2025-03-21 17-40-43.png",
     "Schermata del 2025-03-21 17-30-09.png",
     "Schermata del 2025-03-21 17-27-05.png",
-    "Notes/Esperimenti.md",
-    "Notes/Architettura/Architettura.md",
     "Paper/CoEdge/CoEdge.pdf",
     "Paper/CoEdge/CoEdge - Notes.md",
     "Paper/CoEdge/Schermata del 2024-11-30 15-27-21.png",
@@ -200,29 +204,24 @@
     "Notes/Architettura/Diagrams/Architecture_Versione_2_Completa.svg",
     "Notes/Architettura/Diagrams/Deployment_Diagram_2.svg",
     "Diagram.svg.md",
-    "Notes/Architettura/Architettura_Inviare.md",
     "Notes/Images/Schermata del 2025-03-17 22-40-51.png",
     "Notes/Images/Schermata del 2025-03-17 11-10-10.png",
     "Notes/Images/Schermata del 2025-03-17 11-09-21.png",
     "Notes/Images/Schermata del 2025-03-17 10-28-12.png",
-    "Notes/Images/Schermata del 2025-03-17 10-25-43.png",
     "Notes/MobileNetV3Large.md",
     "Architettura^^bug-ricerca-componenti.md",
     "Notes/Componenti Connesse.md",
     "Architettura^bug-ricerca-componenti.md",
-    "Notes/Ottimizzazione.md",
     "Notes/Yolo.md",
     "Notes/Unnesting del Modello.md",
     "Notes/Split del Modello.md",
     "Notes/Segmentation.md",
     "Notes/Quantizzazione.md",
-    "Notes/Colloqui/2025-03-04.md",
     "Notes/Colloqui/2025-01-10.md",
     "Notes/Colloqui/2025-02-05.md",
     "Notes/Colloqui/2025-02-20.md",
     "Notes/Ottimizzazione Errore Quantizzazione.md",
     "Notes/Colloqui/2024-12-17.md",
-    "Notes/Consumo Energetico.md",
-    "Notes/LiteRT.md"
+    "Notes/Consumo Energetico.md"
   ]
 }

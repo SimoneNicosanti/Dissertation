@@ -4,7 +4,6 @@ import grpc
 import warnings
 
 import common_pb2 as common__pb2
-import ping_pb2 as ping__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
@@ -35,9 +34,9 @@ class PingStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ping = channel.unary_unary(
-                '/optimizer.Ping/ping',
-                request_serializer=ping__pb2.PingMessage.SerializeToString,
+        self.latency_test = channel.unary_unary(
+                '/optimizer.Ping/latency_test',
+                request_serializer=common__pb2.Empty.SerializeToString,
                 response_deserializer=common__pb2.Empty.FromString,
                 _registered_method=True)
 
@@ -45,7 +44,7 @@ class PingStub(object):
 class PingServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ping(self, request, context):
+    def latency_test(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -54,9 +53,9 @@ class PingServicer(object):
 
 def add_PingServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ping': grpc.unary_unary_rpc_method_handler(
-                    servicer.ping,
-                    request_deserializer=ping__pb2.PingMessage.FromString,
+            'latency_test': grpc.unary_unary_rpc_method_handler(
+                    servicer.latency_test,
+                    request_deserializer=common__pb2.Empty.FromString,
                     response_serializer=common__pb2.Empty.SerializeToString,
             ),
     }
@@ -71,7 +70,7 @@ class Ping(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ping(request,
+    def latency_test(request,
             target,
             options=(),
             channel_credentials=None,
@@ -84,8 +83,8 @@ class Ping(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/optimizer.Ping/ping',
-            ping__pb2.PingMessage.SerializeToString,
+            '/optimizer.Ping/latency_test',
+            common__pb2.Empty.SerializeToString,
             common__pb2.Empty.FromString,
             options,
             channel_credentials,

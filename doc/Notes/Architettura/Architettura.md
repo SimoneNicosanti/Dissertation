@@ -332,3 +332,12 @@ for node_id in graph.topological_order() :
 ```
 
 
+## Gestione della Memoria
+
+> [!TODO] Gestione dinamica della memoria
+
+La memoria si può monitorare usando il seguente:
+`psutil.virtual_memory().available / 1e6`
+Questo permette di ottenere la memoria disponibile sul dispositivo in MB!!
+
+Questa memoria sarà poi aggiornata dinamicamente in fase di monitoraggio! Una volta che il piano è stato trovato e i modelli assegnati, i vari server caricheranno le componenti a loro assegnate e faranno quindi partire le varie inferenze.

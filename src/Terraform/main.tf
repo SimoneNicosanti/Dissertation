@@ -99,7 +99,7 @@ locals {
 resource "google_compute_instance" "vm_instances" {
   count        = 5
   name         = local.names[count.index]
-  machine_type = "e2-medium"
+  machine_type = "e2-standard-2"
   zone         = "europe-west12-c"
 
   boot_disk {

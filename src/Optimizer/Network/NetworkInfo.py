@@ -10,4 +10,5 @@ class NetworkNodeInfo:
 
 class NetworkEdgeInfo:
     BANDWIDTH = "bandwidth"
+    LATENCY = "latency"
     pass

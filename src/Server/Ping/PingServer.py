@@ -7,5 +7,5 @@ class PingServer(PingServicer):
     def __init__(self):
         pass
 
-    def ping(self, request, context):
+    def latency_test(self, request, context):
         return Empty()

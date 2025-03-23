@@ -147,10 +147,12 @@ def __get_transmission_time(
     # if net_edge_id[0] == net_edge_id[1]:
     #     return 0
 
-    return (
+    transmission_time = (
         mod_edge_info[ModelEdgeInfo.TOT_TENSOR_SIZE]
         / net_edge_info[NetworkEdgeInfo.BANDWIDTH]
     )
+
+    return transmission_time + net_edge_info[NetworkEdgeInfo.LATENCY]
 
 
 def __get_computation_time(mod_node_info: dict, net_node_info: dict) -> float:

@@ -25,7 +25,8 @@ directory_dict = {
         "../proto_compiled/", 
         "../Client/", "../Server/", "../FrontEnd/", 
         "../Main/ServerMain.py", "../Main/FrontEndMain.py", "../Main/ClientMain.py", "../start.sh", 
-        "../Common/", "../CommonServer/"
+        "../Common/", "../CommonServer/",
+        "../Other/latency_scripts/"
     ],
     "server-1" : [
         "../proto_compiled/", 
@@ -73,7 +74,7 @@ def main() :
     for machine_name, machine_ip in name_ip_map.items() :
         print("Sending to ", machine_name, machine_ip)
         copy_config(machine_ip)
-        # transfer_files(machine_name, machine_ip)
+        transfer_files(machine_name, machine_ip)
         pass
     pass
 
