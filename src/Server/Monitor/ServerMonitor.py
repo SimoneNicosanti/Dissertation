@@ -2,7 +2,10 @@ import json
 import threading
 import time
 
+import os
+
 import grpc
+import numpy
 from readerwriterlock import rwlock
 
 from Common import ConfigReader
@@ -12,7 +15,7 @@ from proto_compiled.register_pb2 import AllServerInfo
 from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.state_pool_pb2 import ServerState
 from proto_compiled.state_pool_pb2_grpc import StatePoolStub
-
+import psutil
 MEGABYTE_SIZE = 1024 * 1024
 
 
@@ -41,6 +44,8 @@ class ServerMonitor:
         self.server_chan_dict: dict[str, grpc.Channel] = {}
 
         self.server_id = server_id
+
+        self.flops_value = None
 
         self.state_lock = rwlock.RWLockWriteD()
         self.current_state: dict[str, float] = {}
@@ -95,23 +100,51 @@ class ServerMonitor:
             self.current_state["trans_energy"] = energy
 
     def __update_flops(self):
-        if self.server_id == "0":
-            flops = 2.5 * 10**9
-        else:
-            flops = 5 * 10**9
+
+        if self.flops_value is None:
+            self.flops_value = self.__eval_flops()
+            pass
 
         with self.state_lock.gen_wlock():
-            self.current_state["flops"] = flops
+            self.current_state["flops"] = self.flops_value
+
+    def __eval_flops(self):
+        size = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "monitor", "FLOPS_SIZE"
+        )
+        runs = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "monitor", "FLOPS_RUNS"
+        )
+        mat_a, mat_b = numpy.random.rand(size, size), numpy.random.rand(size, size)
+
+        start = time.perf_counter_ns()
+        for _ in range(runs): 
+            numpy.dot(mat_a, mat_b)
+        end = time.perf_counter_ns()
+
+        total_ops = 2 * size**3 * runs
+        total_time = (end - start) / 1e9
+
+        return total_ops / total_time
 
     def __update_memory(self):
-        ## Memory in MB
-        if self.server_id == "0":
-            mem = 100
-        else:
-            mem = 16 * 1024
+        
+        try :
+        # if (os.path.isfile("/sys/fs/cgroup/memory.current") and os.path.isfile("/sys/fs/cgroup/memory.max")):
+            ## As psutil does not work properly inside a container, we have to read it from the cgroup
+            with open("/sys/fs/cgroup/memory.current", "r") as f:
+                memory_current = float(f.read())
+            with open("/sys/fs/cgroup/memory.max", "r") as f:
+                memory_max = float(f.read())
+            available_mem = memory_max - memory_current
+        except Exception as e:
+            available_mem = psutil.virtual_memory().available 
+            
+        
+        available_mem = available_mem / MEGABYTE_SIZE ## MB
 
         with self.state_lock.gen_wlock():
-            self.current_state["memory"] = mem
+            self.current_state["memory"] = available_mem
 
     def __update_bandwidth(self):
         registry_stub = RegisterStub(self.registry_chan)

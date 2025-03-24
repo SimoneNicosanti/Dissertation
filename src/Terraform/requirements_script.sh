@@ -1,12 +1,17 @@
 #!/bin/bash
 
-apt-get update
-apt-get install python3-pip -y
-apt-get install python3-venv -y
-apt-get install rsync -y
+
+sudo apt-get update
+
+## Installing python
+sudo apt-get install python3-pip -y
+sudo apt-get install python3-venv -y
+
+## Installing rsync
+sudo apt-get install rsync -y
 cd
 
-
+## Installing python dependencies
 pip install grpcio
 pip install grpcio-tools
 pip install onnx
@@ -20,9 +25,13 @@ pip install PuLP
 pip install readerwriterlock
 pip install networkx
 
-apt-get install -y libgl1 libglib2.0-0
-apt-get install glpk-utils libglpk-dev -y
+## Installing optimizer
+sudo apt-get install libgl1 libglib2.0-0 -y
+sudo apt-get install glpk-utils libglpk-dev -y
 
+## Installing and setting up docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+sudo usermod -aG docker $USER
 
-
-
+echo "Terminated"
