@@ -30,6 +30,49 @@ Anche la banda la posso limitare con tc!!
 `tc class add dev $DEV parent 1: classid 1:15 htb rate 100000Mbps quantum 1500`
 In questo caso (credo) che il rate rappresenti proprio questo, il tasso di trasmissione di pacchetti di quella categoria
 
+
+### Banda verso se stesso
+è importante che la banda da un dispositivo a se stesso sia valutata in modo accurato. Non posso mettere la stessa banda del dispositivo verso un altro perché non è realistico!! Inoltre l'ottimizzatore non riesce a dividere in queste situazioni.
+
+### Latenza
+Calcolata con il ping (e ok)
+
+### Banda di rete
+Non so come stimarla... o considero il thr assumendo che la latenza sia trascurabile, oppure considero la banda di rete come data dalle specifiche delle schede / della macchina.
+
+La banda viene monitorata usando iperf3 con pacchetti UDP.
+Il monitor di un server fa partire un server iperf3; le connessioni vengono ricevute sia dal monitor del server stesso (banda da x a se stesso), sia da altri monitor (effettiva banda di rete).
+
+Iperf3 sembra essere single thread! (https://github.com/esnet/iperf/issues/980) Quindi mi attacco dove so io!! Da qui vengono gli errori degli screen successivi:
+![[Schermata del 2025-03-25 17-41-30.png]]
+![[Schermata del 2025-03-25 17-41-42.png]]
+
+A questo punto tocca usare iperf2! Oppure semplicemente zompo il check della memoria
+
+Dalla versione 3.16, come indicato qui, iperf3 è diventato multithread https://fasterdata.es.net/performance-testing/network-troubleshooting-tools/iperf/, quindi bisogna impostare bene la versione!
+
+## Limite sulla banda di rete
+Il limite sulla banda di rete viene impostato come spiegato in https://netbeez.net/blog/how-to-use-the-linux-traffic-control/
+
+Il burst viene impostato come indicato da (LeMistral) (Cercare controprova di questa cosa online)
+![[Schermata del 2025-03-25 16-49-52.png]]
+
+Comunque impostare il burst in questo modo permette di monitorare una banda limitata come quella indicata nel limite sullo script.
+
+Usare tbf non sembra funzionare come dovrebbe.
+
+Seguento https://robert.nowotniak.com/security/htb/ e usando htb si riesce a configurare in modo opportuno: sembra che il trucco fosse la creazione di una classe intermedia genitore. Il problema è che quando uso netem per configurare la latenza, il limite sulla banda non viene più imposto! 
+
+Dalla documentazione di netem https://man7.org/linux/man-pages/man8/tc-netem.8.html
+sezione Limitations:
+> [!Quote] Limitations
+> Combining netem with other qdisc is possible but may not always work because netem use skb control block to set delays.
+
+Quindi bisogna fare attenzione a come il ritardo di rete viene simulato!
+
+
+In realtà facendo delle prove si vede che HTB la banda la limita comunque anche senza la seconda classe! Il problema è solo netem che scombina tutto quanto e fa cose strane rompendo il tutto.
+
 ## Configurazioni di Rete
 Le configurazioni di rete da analizzare sono:
 1. Banda da x --> y

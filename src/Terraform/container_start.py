@@ -24,7 +24,7 @@ def main() :
     print(command)
     os.system(command)
 
-    os.system("docker exec -it server-container /bin/bash")
+    os.system("docker exec -it --workdir /src server-container /bin/bash")
 
 
 

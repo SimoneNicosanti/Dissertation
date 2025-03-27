@@ -18,6 +18,11 @@ RUN groupadd -g 1234 customgroup && \
 
 RUN mkdir -p /server_data && chown -R customuser:customgroup /server_data
 
+## Iperf3 config
+RUN apt-get update
+RUN apt-get install iperf3 -y
+RUN pip install iperf3
+
 # USER customuser
 
 # Inference port

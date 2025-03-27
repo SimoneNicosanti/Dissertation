@@ -1,48 +1,60 @@
 import os
 import argparse
 
+
+
+
 def main() :
 
     parser = argparse.ArgumentParser()
 
     # Aggiungi argomenti
     parser.add_argument("--dev", type=str, help="Interface Name", required=True)
-    parser.add_argument("--classes", nargs="+", type=str, help="Delays for ips (bandwidth [Mbps], latency [ms], deviation [ms], handle)", required=True)
-    parser.add_argument("--ips-info", nargs="+", type=str, help="Ip and Classes (ip addr, class handle)", required=True)
+    parser.add_argument("--bandwidth", type=float, help="Bandwidth [MBps]", default=10_000)
+    parser.add_argument("--latencies", nargs = "+", type=float, help="Latencies To Add")
+    parser.add_argument("--ips", nargs = "+", type=str, help="Destination ips")
     args = parser.parse_args()
 
+    
+
     dev = args.dev
-
-    os.system("sudo iptables -F OUTPUT")
-    # Parse degli argomenti
-
+    bandwidth = args.bandwidth
+    destinations = args.ips
+    latencies = args.latencies
+    
+    # Clearing up root qdisc
     os.system(f"tc qdisc del dev {dev} root || true")
-    os.system(f"tc qdisc add dev {dev} handle 1: root htb")
-    
-    class_id = 15
-    class_info : str
-    for class_info in args.classes :
-        param_list = class_info.split(",")
-        cleaned_param_list = clean_input(param_list)
 
-        print(cleaned_param_list)
+   
+    ## Creating default class for unclassified packets
+    ## All unclassified packets will go here with limited bandwidth
+    ## Default bandwidth is 10 Gbps, otherwise it will be limited as specified
+    os.system(f"tc qdisc add dev {dev} root handle 1:0 htb default 1")
+    os.system(f"tc class add dev {dev} parent 1:0 classid 1:1 htb rate {bandwidth}mbps ceil {bandwidth}mbps")
 
-        bandwidth, latency, deviation, handle = cleaned_param_list
+    if latencies is not None and destinations is not None :
 
-        os.system(f"tc class add dev {dev} parent 1: classid 1:{class_id} htb rate {bandwidth}Mbit quantum 1500")
-        os.system(f"tc qdisc add dev {dev} parent 1:{class_id} handle {handle} netem delay {latency}ms {deviation}ms distribution normal")
-        os.system(f"tc filter add dev {dev} parent 1:0 prio 1 protocol ip handle {handle} fw flowid 1:{class_id}")
-        
-        class_id += 1
-    
-    ip_info : str
-    for ip_info in args.ips_info :
-        print(ip_info)
-        param_list = ip_info.split(",")
-        cleaned_param_list = clean_input(param_list)
+        if len(latencies) != len(destinations) :
+            raise Exception("Latencies and Destinations must have the same length")
 
-        ip, handle = cleaned_param_list
-        os.system(f"iptables -A OUTPUT -t mangle -d {ip} -j MARK --set-mark {handle}")
+        class_idx = 10
+        for i in range(0, len(latencies)) :
+            latency = latencies[i]
+            destination = destinations[i]
+
+            ## Setting up class for bandwidth limiting
+            os.system(f"tc class add dev {dev} parent 1:0 classid 1:{class_idx} htb rate {bandwidth}mbps ceil {bandwidth}mbps")
+            os.system(f"tc class add dev {dev} parent 1:{class_idx} classid 1:200 htb rate {bandwidth}mbps ceil {bandwidth}mbps")
+            ## Setting up latency add using netem
+            os.system(f"tc qdisc add dev {dev} parent 1:200 netem delay {latency}ms")
+
+            ## Setting up filter for packet redirection
+            os.system(f"tc filter add dev {dev} parent 1:0 protocol ip prio 1 u32 match ip dst {destination} flowid 1:{class_idx}")
+
+            class_idx += 1
+
+    return
+
 
         
 

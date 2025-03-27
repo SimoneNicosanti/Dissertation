@@ -1,6 +1,9 @@
+from concurrent.futures import thread
 import os
 import socket
 from concurrent import futures
+import subprocess
+import threading
 
 import grpc
 
@@ -23,6 +26,8 @@ def main():
     ## Register to Registry
     ## Start Assignee
 
+    threading.Thread(target=start_iperf3_server, daemon=True).start()
+
     dir_list = ConfigReader.ConfigReader("./config/config.ini").read_all_dirs(
         "inference_dirs"
     )
@@ -43,6 +48,8 @@ def main():
     ping_server.wait_for_termination()
     pass
 
+def start_iperf3_server():
+    subprocess.run(["iperf3", "-s", "-p", "5201"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def register_to_registry():
 
@@ -129,7 +136,6 @@ def start_ping_server():
 
 
 if __name__ == "__main__":
-    # import multiprocessing as mp
-
-    # mp.set_start_method("spawn")
+    import multiprocessing as mp
+    mp.set_start_method("spawn")
     main()

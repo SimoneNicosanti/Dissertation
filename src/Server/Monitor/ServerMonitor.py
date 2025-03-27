@@ -1,8 +1,11 @@
 import json
+import multiprocessing
+import subprocess
 import threading
 import time
 
 import os
+import iperf3
 
 import grpc
 import numpy
@@ -16,6 +19,7 @@ from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.state_pool_pb2 import ServerState
 from proto_compiled.state_pool_pb2_grpc import StatePoolStub
 import psutil
+
 MEGABYTE_SIZE = 1024 * 1024
 
 
@@ -162,46 +166,53 @@ class ServerMonitor:
 
             server_chan = self.server_chan_dict[server_info.server_id.server_id]
 
-            # if self.server_id == "1" and server_info.server_id.server_id == "0":
-            #     bandwidth = 167
-            # elif self.server_id == "1" and server_info.server_id.server_id == "1":
-            #     bandwidth = 104
-            # elif self.server_id == "0" and server_info.server_id.server_id == "1":
-            #     bandwidth = 110
-            # elif self.server_id == "0" and server_info.server_id.server_id == "0":
-            #     bandwidth = 110
-            # else:
-            bandwidth = self.__eval_bandwidth(server_chan)
             latency = self.__eval_latency(server_chan)
-
+            bandwidth = self.__eval_bandwidth(server_info.reachability_info.ip_address)
             with self.state_lock.gen_wlock():
-                self.bandwidths[server_info.server_id.server_id] = bandwidth
-                self.latencies[server_info.server_id.server_id] = latency
+                if bandwidth is not None and latency is not None:
+                    self.bandwidths[server_info.server_id.server_id] = bandwidth
+                    self.latencies[server_info.server_id.server_id] = latency
+                else :
+                    self.bandwidths.pop(server_info.server_id.server_id, None)
+                    self.latencies.pop(server_info.server_id.server_id, None)
 
     def __eval_latency(self, server_chan: grpc.Channel):
-        ping_stub = PingStub(server_chan)
+        try :
+            ping_stub = PingStub(server_chan)
 
-        ping_times = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "monitor", "PING_TIMES"
-        )
-        start = time.perf_counter_ns()
-        for _ in range(ping_times):
-            ping_stub.latency_test(Empty())
-        end = time.perf_counter_ns()
-        rtt_ns = (end - start) / ping_times
+            ping_times = ConfigReader.ConfigReader("./config/config.ini").read_int(
+                "monitor", "PING_TIMES"
+            )
+            start = time.perf_counter_ns()
+            for _ in range(ping_times):
+                ping_stub.latency_test(Empty())
+            end = time.perf_counter_ns()
+            rtt_ns = (end - start) / ping_times
 
-        latency_ns = rtt_ns / 2
-        latency = latency_ns / 1e9
+            latency_ns = rtt_ns / 2
+            latency = latency_ns / 1e9
+        except Exception as e:
+            latency = None
         return latency
 
-    def __eval_bandwidth(self, server_chan: grpc.Channel):
-        bandwidth_gb_ps = ConfigReader.ConfigReader("./config/config.ini").read_float(
-            "monitor", "BANDWIDTH_GBPS")
-        
-        bandwidth_m_bytes_ps = bandwidth_gb_ps * 1e3 / 8
+    def __eval_bandwidth(self, server_ip_addr: str):   
 
-        return bandwidth_m_bytes_ps
+        iperf3_client = iperf3.Client()
+        iperf3_client.server_hostname = server_ip_addr
+        iperf3_client.port = 5201
+        iperf3_client.protocol = "udp"
+        iperf3_client.duration = 1
+        iperf3_client.bandwidth = 50 * 10 ** 9 ## 100 Gbps max
+
+        test_result = iperf3_client.run()
+
+        if test_result.error:
+            print(test_result)
+            return None
+        return test_result.MB_s
 
 
     def init_monitoring(self):
         self.__update_and_send_state()
+
+    

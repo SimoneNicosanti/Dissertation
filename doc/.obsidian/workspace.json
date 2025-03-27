@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "banda",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -74,7 +74,8 @@
               "title": "Segnalibri"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -163,14 +164,18 @@
   },
   "active": "837f61ab5e0e4567",
   "lastOpenFiles": [
+    "Notes/Architettura/Architettura.md",
     "Notes/Esperimenti.md",
+    "Notes/Quantizzazione.md",
     "Notes/Monitoraggio.md",
+    "Schermata del 2025-03-25 17-41-42.png",
+    "Schermata del 2025-03-25 17-41-30.png",
+    "Schermata del 2025-03-25 16-49-52.png",
     "Notes/Distribuzione.md",
     "Notes/Componenti Connesse.md",
     "Notes/Consumo Energetico.md",
     "Notes/Calcolo FLOPS.md",
     "Notes/Architettura/Architettura_Inviare.md",
-    "Notes/Architettura/Architettura.md",
     "Schermata del 2025-03-21 17-40-43.png",
     "Schermata del 2025-03-21 17-30-09.png",
     "Schermata del 2025-03-21 17-27-05.png",
@@ -196,9 +201,6 @@
     "Notes/Architettura/Diagrams/Deployment_Diagram_2.svg",
     "Diagram.svg.md",
     "Notes/Images/Schermata del 2025-03-17 22-40-51.png",
-    "Notes/Images/Schermata del 2025-03-17 11-10-10.png",
-    "Notes/Images/Schermata del 2025-03-17 11-09-21.png",
-    "Notes/Images/Schermata del 2025-03-17 10-28-12.png",
     "Notes/MobileNetV3Large.md",
     "Architettura^^bug-ricerca-componenti.md",
     "Architettura^bug-ricerca-componenti.md",
@@ -206,8 +208,6 @@
     "Notes/Unnesting del Modello.md",
     "Notes/Split del Modello.md",
     "Notes/Segmentation.md",
-    "Notes/Quantizzazione.md",
-    "Notes/Colloqui/2025-01-10.md",
-    "Notes/Colloqui/2025-02-05.md"
+    "Notes/Colloqui/2025-01-10.md"
   ]
 }

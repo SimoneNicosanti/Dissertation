@@ -91,7 +91,10 @@ services:
 
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
+      - ./Other/latency_scripts:/src/latency_scripts
     working_dir: /src
+    cap_add:
+      - NET_ADMIN
 
   model_manager:
     build:

@@ -7,20 +7,21 @@ directory_dict = {
     "registry" : [
         "../proto_compiled/", 
         "../Registry/", "../StatePool/", 
-        "../Main/RegistryMain.py", "../start.sh", "../Common/"
+        "../Main/RegistryMain.py", "../start.sh", 
+        "../Common/"
     ],
-    "optimizer" : [
-        "../proto_compiled/", 
-        "../Optimizer/", 
-        "../Main/OptimizerMain.py", "../start.sh", 
-        "../Common/", "../CommonProfile/", "../CommonPlan/"
-    ],
-    "model-manager" : [
-        "../proto_compiled/", 
-        "../ModelPool/", "../ModelManager/",
-        "../Main/ModelManagerMain.py", "../start.sh", 
-        "../Common/", "../CommonProfile/", "../CommonPlan/", 
-    ],
+    # "optimizer" : [
+    #     "../proto_compiled/", 
+    #     "../Optimizer/", 
+    #     "../Main/OptimizerMain.py", "../start.sh", 
+    #     "../Common/", "../CommonProfile/", "../CommonPlan/"
+    # ],
+    # "model-manager" : [
+    #     "../proto_compiled/", 
+    #     "../ModelPool/", "../ModelManager/",
+    #     "../Main/ModelManagerMain.py", "../start.sh", 
+    #     "../Common/", "../CommonProfile/", "../CommonPlan/", 
+    # ],
     "device" : [
         "../proto_compiled/", 
         "../Client/", "../Server/", "../FrontEnd/", 
@@ -34,12 +35,12 @@ directory_dict = {
         "../Main/ServerMain.py", "../start.sh", 
         "../Common/", "../CommonServer/",
     ],
-    "server-2" :  [
-        "../proto_compiled/", 
-        "../Server/", 
-        "../Main/ServerMain.py", "../start.sh", 
-        "../Common/", "../CommonServer/",
-    ],
+    # "server-2" :  [
+    #     "../proto_compiled/", 
+    #     "../Server/", 
+    #     "../Main/ServerMain.py", "../start.sh", 
+    #     "../Common/", "../CommonServer/",
+    # ],
 }
 
 
