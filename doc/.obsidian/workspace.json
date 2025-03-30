@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "0dc091b4dc0ffd7e",
+        "id": "1b138686515169a6",
         "type": "tabs",
         "children": [
           {
-            "id": "837f61ab5e0e4567",
+            "id": "6b84e144d0896c6d",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "banda",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -74,8 +74,7 @@
               "title": "Segnalibri"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -159,32 +158,39 @@
       "daily-notes:Apri nota del giorno": false,
       "templates:Inserisci modello": false,
       "command-palette:Apri riquadro comandi": false,
-      "callout-manager:Insert Callout": false
+      "callout-manager:Insert Callout": false,
+      "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "837f61ab5e0e4567",
+  "active": "2026b6711c0dedcf",
   "lastOpenFiles": [
+    "Paper/CoEdge/CoEdge - Notes.md",
+    "Paper/CoEdge/CoEdge.pdf",
+    "Paper/Note Sugli Articoli.md",
+    "Highlights for 2021_chapter.md",
+    "Excalidraw/Drawing 2025-03-28 16.14.50.excalidraw.md",
+    "Excalidraw",
+    "Paper/2021_chapter.pdf",
+    "Paper/Graph_Partitioning.pdf",
+    "Notes/Images/Schermata del 2025-03-21 17-27-05.png",
+    "Notes/Images/Schermata del 2025-03-21 17-30-09.png",
+    "Notes/Monitoraggio.md",
     "Notes/Architettura/Architettura.md",
     "Notes/Esperimenti.md",
     "Notes/Quantizzazione.md",
-    "Notes/Monitoraggio.md",
-    "Schermata del 2025-03-25 17-41-42.png",
-    "Schermata del 2025-03-25 17-41-30.png",
-    "Schermata del 2025-03-25 16-49-52.png",
+    "Notes/Images/Schermata del 2025-03-25 17-41-42.png",
+    "Notes/Images/Schermata del 2025-03-25 17-41-30.png",
+    "Notes/Images/Schermata del 2025-03-25 16-49-52.png",
     "Notes/Distribuzione.md",
     "Notes/Componenti Connesse.md",
     "Notes/Consumo Energetico.md",
     "Notes/Calcolo FLOPS.md",
     "Notes/Architettura/Architettura_Inviare.md",
-    "Schermata del 2025-03-21 17-40-43.png",
-    "Schermata del 2025-03-21 17-30-09.png",
-    "Schermata del 2025-03-21 17-27-05.png",
+    "Notes/Images/Schermata del 2025-03-21 17-40-43.png",
     "Notes/Indice Tesi.md",
     "Notes/Colloqui/2025-03-22.md",
     "Notes/Ottimizzazione.md",
     "Notes/Colloqui/2025-03-04.md",
-    "Paper/CoEdge/CoEdge.pdf",
-    "Paper/CoEdge/CoEdge - Notes.md",
     "Paper/CoEdge/Schermata del 2024-11-30 15-27-21.png",
     "Paper/Furcifer/Furcifer_PerCom24.pdf",
     "Paper/Gillis/gillis-icdcs21.pdf",
@@ -194,9 +200,6 @@
     "Paper/Learning Optimal Partition/Splitting_2.pdf",
     "Paper/Others/Tuli_Splitting.pdf",
     "Paper/Others/splitCNN.pdf",
-    "Paper/2021_chapter.pdf",
-    "Paper/Survey Splitting/Survey_Splitting.pdf",
-    "Notes/Architettura/Diagrams/Architecture_Versione_2_Completa.svg.xml",
     "Notes/Architettura/Diagrams/Architecture_Versione_2_Completa.svg",
     "Notes/Architettura/Diagrams/Deployment_Diagram_2.svg",
     "Diagram.svg.md",
@@ -205,9 +208,6 @@
     "Architettura^^bug-ricerca-componenti.md",
     "Architettura^bug-ricerca-componenti.md",
     "Notes/Yolo.md",
-    "Notes/Unnesting del Modello.md",
-    "Notes/Split del Modello.md",
-    "Notes/Segmentation.md",
-    "Notes/Colloqui/2025-01-10.md"
+    "Notes/Unnesting del Modello.md"
   ]
 }

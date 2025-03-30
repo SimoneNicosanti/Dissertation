@@ -26,7 +26,7 @@ def main():
     ## Register to Registry
     ## Start Assignee
 
-    threading.Thread(target=start_iperf3_server, daemon=True).start()
+    threading.Thread(target=start_iperf3_server).start()
 
     dir_list = ConfigReader.ConfigReader("./config/config.ini").read_all_dirs(
         "inference_dirs"
@@ -35,21 +35,25 @@ def main():
         os.makedirs(dir, exist_ok=True)
 
     register_response: ServerId = register_to_registry()
-
-    inferencer, inference_server = start_inference_server()
-    assignee_server = start_assignee_server(register_response.server_id, inferencer)
     ping_server = start_ping_server()
+    
+    # inferencer, inference_server = start_inference_server()
+    # assignee_server = start_assignee_server(register_response.server_id, inferencer)
+    
 
-    server_monitor = ServerMonitor(register_response.server_id)
-    server_monitor.init_monitoring()
+    # server_monitor = ServerMonitor(register_response.server_id)
+    # server_monitor.init_monitoring()
 
-    assignee_server.wait_for_termination()
-    inference_server.wait_for_termination()
+    # assignee_server.wait_for_termination()
+    # inference_server.wait_for_termination()
     ping_server.wait_for_termination()
     pass
 
 def start_iperf3_server():
-    subprocess.run(["iperf3", "-s", "-p", "5201"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    iperf3_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        "ports", "IPERF3_PORT"
+    )
+    subprocess.run(["iperf3", "-s", "-p", f"{iperf3_port}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def register_to_registry():
 
@@ -136,6 +140,9 @@ def start_ping_server():
 
 
 if __name__ == "__main__":
-    import multiprocessing as mp
-    mp.set_start_method("spawn")
+
+    ## This is just not to print the warning from gRPC
+    ## About forking
+    os.environ["GRPC_VERBOSITY"] = "NONE"
+
     main()

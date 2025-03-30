@@ -197,19 +197,24 @@ class ServerMonitor:
 
     def __eval_bandwidth(self, server_ip_addr: str):   
 
+
         iperf3_client = iperf3.Client()
         iperf3_client.server_hostname = server_ip_addr
-        iperf3_client.port = 5201
-        iperf3_client.protocol = "udp"
-        iperf3_client.duration = 1
-        iperf3_client.bandwidth = 50 * 10 ** 9 ## 100 Gbps max
+        iperf3_client.port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "IPERF3_PORT"
+        )
+        iperf3_client.protocol = "tcp"
+        iperf3_client.duration = 2
+        iperf3_client.bandwidth = 50 * 10 ** 9 ## 50 Gbps max
 
         test_result = iperf3_client.run()
 
         if test_result.error:
-            print(test_result)
+            print("Error in Bandwidth Measurement")
+            print(test_result.error)
+            print()
             return None
-        return test_result.MB_s
+        return test_result.sent_MB_s
 
 
     def init_monitoring(self):

@@ -73,6 +73,23 @@ Quindi bisogna fare attenzione a come il ritardo di rete viene simulato!
 
 In realtà facendo delle prove si vede che HTB la banda la limita comunque anche senza la seconda classe! Il problema è solo netem che scombina tutto quanto e fa cose strane rompendo il tutto.
 
+In questo link, viene riportato che netem invia tutti quanti i dati immediatamente, senza aspettare.
+https://www.linuxquestions.org/questions/linux-networking-3/netem-the-network-emulator-issue-4175500681/
+
+In questo link viene suggerito l'uso di HFSC anziché di HTB 
+https://serverfault.com/questions/583788/implementing-htb-netem-and-tbf-traffic-control-simultaneously
+
+In questo link viene riportato un bug nel dettaglio (è del 2017, però può essere indicativo) https://patchwork.ozlabs.org/project/netdev/patch/20170313171658.18606-1-sthemmin@microsoft.com/
+
+
+### Conclusione
+Prima il monitoraggio della banda era fatto cercando di considerare la banda teorica, vedendo quindi quanto traffico UDP si potesse far passare in un certo tempo attraverso l'interfaccia di rete. Ragionando un attimo credo che la cosa migliore sia fare la misura usando TCP; è vero che TCP è influenzato dalla latenza che si imposta sul link, ma è altrettanto vero che è quello che bisogna considerare:
+- il sent_MB_s mi dice quanti MB di dati posso inviare al secondo usando TCP nelle condizioni attuali di rete
+- Visto che gRPC usa TCP considerare la banda calcolata con UDP lascia il tempo che trova e potrebbe essere deleterio in certa misura visto e considerato che comunque quella velocità teorica NON la posso raggiungere tenendo conto di tutto l'overhead dato da TCP
+
+In questo modo, quando imposto la latenza la banda possibile si abbassa inevitabilmente per via dell'attesa dell'ack da parte di TCP. Anche quando non viene introdotta latenza aggiuntiva, comunque la banda che trovo è minore di quella che imposto, sempre per Ack e tutte cose
+
+
 ## Configurazioni di Rete
 Le configurazioni di rete da analizzare sono:
 1. Banda da x --> y
