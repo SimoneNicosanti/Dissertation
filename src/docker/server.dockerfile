@@ -23,6 +23,8 @@ RUN apt-get update
 RUN apt-get install iperf3 -y
 RUN pip install iperf3
 
+RUN apt-get install iproute2 -y
+
 # USER customuser
 
 # Inference port

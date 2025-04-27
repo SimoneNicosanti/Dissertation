@@ -382,3 +382,194 @@ Analisi vincoli:
 
 > [!Warning] Gestione della memoria
 > La gestione della memoria potrebbe essere più complicata di così: dato un sottomodello c'è bisogno di mantenere tutti i suoi input in memoria prima di far partire l'inferenza su quel sotto modello. Questa cosa va modellata in qualche modo, altrimenti si perde la coerenza sulla memoria. Di fatto anche l'aspetto di riuso della memoria potrebbe non essere completamente verosimile perché (potrebbero) esserci più nodi in esecuzione contemporaneamente (parallelismo interno all'engine ignorato in teoria).
+
+
+
+# Ottimizzazione 3.0 - Con Quantizzazione
+
+Consideriamo un unico modello (Si dovrebbe poter adattare facilmente al deployment di n modelli).
+
+Siano dati:
+- Un modello visto come un DAG logico $G_M = (V_M, E_M)$
+- Un grafo di rete $G_N = (V_N, E_N)$; si tratta di un grafo diretto in cui è possibile la presenza di cappi, quindi di nodi $(v, v) \in E_N$ per rappresentare il passaggio di dati da un nodo a se stesso.
+- $Q = \{0, 1\}$ ad indicare quindi se il modello è non quantizzato o quantizzato.
+
+Il problema viene formulato come il mapping di un grafo logico (il dag del modello) sul grafo fisico (il grafo di rete).
+
+Definiamo le seguenti variabili:
+- $x_{ik} = 1$ se $i \in V_M$ assegnato a $k \in V_N$
+- $y_{mn} = 1$ se $m \in E_M$ assegnato a $n \in E_N$
+- $q_{i} = 1$ se $i \in V_M$ è quantizzato. Assumendo solo il caso di quantizzato vs non-quantizzato è sufficiente definire una solo variabile
+
+## Modello di Tempo
+
+### Tempo di Calcolo
+
+Indichiamo con $f_k(i,q)$ un modello che ci dà una stima del tempo di calcolo del livello $i$ quantizzato con $q$ sul server $k$. Questa $f$ viene calcolata in fase iniziale quando il server inizia a partecipare al sistema.
+
+Il tempo di esecuzione di un livello $i$ sul server $k$ è dato da:
+$$
+T^c_{ik} = f_k(i, 0)\cdot x_{ik} - (f_k(i,0) - f_k(i,1))\cdot x_{ik} \cdot q_i  = f_k(i, 0)\cdot x_{ik} - (f_k(i,0) - f_k(i,1))\cdot x_{ik}^q
+$$
+
+Notiamo che il termine tra parentesi rappresenta il guadagno di quantizzazione.
+
+Dove la variabile $x_{ik}^q = x_{ik} \cdot q_i$ con vincoli:
+1. $x_{ik}^q \le x_{ik}$
+2. $x_{ik}^q \le q_i$
+3. $x_{ik}^q \ge x_{ik} + q_i - 1$
+Cioè la variabile assume valore 1 sse il livello $i$ si trova sul server $k$ ed è quantizzato.
+
+Il tempo di calcolo del server $k$ è dato da:
+$$
+T_k^c = \sum_{i \in V_M} T_{ik}^c
+$$
+
+Il tempo di esecuzione del modello all'interno del sistema è dato quindi da:
+$$
+T^c = \sum_{k \in V_N} T_k^c
+$$
+
+### Tempo di Trasmissione
+
+Indichiamo con $g(m,n,q)$ la funzione che stima il tempo di trasmissione dell'arco logico $m$ sull'arco fisico $n$ quando $m[0]$ ha uno stato di quantizzazione $q$ (i.e. quantizzato vs non-quantizzato). Nel nostro caso possiamo dire ad esempio che:
+
+$$
+g(m,n,q) = \frac{m.data\_size}{n.bandwidth} \cdot (1-q) + \frac{m.data\_size}{n.bandwidth \cdot 8} \cdot q + n.latency
+$$
+
+
+Il tempo di trasmissione di un server $k$ è dato da:
+$$T_{k}^x =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \left[ g(m,n,0) \cdot y_{mn} - (g(m,n,0) - g(m,n,1))\cdot y_{mn}^q \right]$$
+
+Dove la variabile $y_{mn}^q = y_{mn} \cdot q_i$ con vincoli seguenti:
+- $y_{mn}^q \le y_{mn}$
+- $y_{mn}^q \le q_{i}$
+- $y_{mn}^q \ge y_{mn} + q_i -1$
+In particolare abbiamo che $m[0] = i$
+
+Il tempo di trasmissione totale per la richiesta è dato da:
+$$
+T^x = \sum_{k \in V_N} T_k^x
+$$
+
+### Costo del Tempo
+Definito $\mu_T$ il termine di normalizzazione per il tempo, abbiamo che:
+$$
+C_T = \frac{T^c + T^x}{\mu_T}
+$$
+
+
+## Modello di Energia
+
+### Energia di Calcolo
+
+Sia $h_k(t)$ la funzione che stima l'energia usata per il calcolo di durata $t$ dal dispositivo $k$.
+
+L'energia data dal calcolo sul server $k$ è definita come:
+$$E_k^{c} = h_k(T_k^c)$$
+Il consumo energetico complessivo dato dal calcolo  è dato da:
+$$E^{c} = \sum_{k \in V_N} E_k^{c}$$
+
+### Energia di Trasmissione
+
+Sia $l_k(t)$ la funzione che stima l'energia usata per la trasmissione di durata $t$ dal dispositivo $k$.
+
+L'energia data di trasmissione sul server $k$ è definita come:
+$$E_k^{x} = l_k(T_k^{x})$$
+
+Il consumo energetico complessivo per la trasmissione è dato da 
+$$E^{x} = \sum_{k \in V_N} E_k^{x}$$
+
+### Costo dell'energia
+Definiamo $\mu_E$ il termine di normalizzazione dell'energia; allora il costo dato dal consumo energetico è dato da:
+$$
+C_E = \frac{E^c + E^x}{\mu_E}
+$$
+
+### Energia del device
+Sia il device il server ad indice 0 in $V_N$.
+La quantità di energia consumata da questo nodo di rete è data da:
+$$E_0 = E_0^{x} + E_0^{c}$$
+
+## Modello di Memoria
+Il modello di memoria più o meno è sempre uguale, al netto dell'effetto della quantizzazione sui pesi.
+
+## Modello di Errore
+I problemi principali dell'uso della quantizzazione per livelli singoli è il seguente:
+1. Non sappiamo come le quantizzazioni tra livelli interagiscono tra di loro
+2. Ci sono molte possibili combinazioni di quantizzazione: se ogni livello della rete può essere quantizzato e non quantizzato, allora ci sono $2^{|V_M|}$ possibilità, troppo per indagarle tutte 
+3. Il tempo per la valutazione di una certa combinazione di quantizzazione non è poco: per ogni combinazione bisogna, calibrare, quantizzare e poi valutare l'errore
+
+Quello che si potrebbe fare è considerare un sottoinsieme di livelli della rete che siano significativi per la quantizzazione:
+- Livelli che hanno un carico alto (alto numero di flops)
+- Livelli che hanno un output grande in dimensione (ne beneficia il tempo di trasmissione)
+E quantizzare SOLO questo sottoinsieme, imponendo che gli altri non lo siano.
+
+Sia quindi $V_{Q} \subseteq V_M$ dove $V_Q = \{ i \in V_n : i.quantizable = True \}$ il sottoinsieme di possibili livelli quantizzabili.
+
+Comunque anche con pochi livelli (ad esempio tra i 12 e 15), il numero di possibilità è troppo alto per poter essere precisi. Si può introdurre un modello di regressione tale che:
+$$
+e : \{0,1\}^{|V_Q|} \rightarrow \mathbb{R}^{\ge 0}
+$$
+
+Di base serve un modello di regressione che sia esprimibile con vincoli lineari: a questo scopo si potrebbe usare un albero o una semplice regressione lineare.
+
+Alcune prove fanno vedere che (almeno per Yolo11n-seg) una regressione polinomiale funziona bene.
+
+
+Supponiamo di usare una regressione lineare. Sia $\hat{q} = (q_1, q_2, ..., q_{|V_Q|})$ il vettore delle variabili $q_i$ solo dei livelli quantizzabili: questa variabile ha valore 1 sse il livello in questione è quantizzato.
+
+Allora possiamo scrivere la funzione di errore come:
+$$
+e(\hat{q}) = w^T \cdot \hat{q} + c
+$$
+Per fare in modo che $e(0) = 0$, facciamo le seguenti modifiche:
+- $w^T \rightarrow [w^T, c]$
+- $\hat{q} \rightarrow [\hat{q}, p]$ 
+
+Dove $p$ è una variabile aggiuntiva tale che $p = 1$ sse $\exists i : q_i = 1$; da cui i vincoli diventano:
+- $p \ge q_i$   $\forall i \in V_Q$
+- $p \le \sum_{i \in V_Q} q_i$
+
+Da cui quindi otteniamo:
+$$
+e(\hat{q}) = w^T \cdot \hat{q}
+$$
+In questo modo la funzione di errore vale zero se nessun livello è quantizzato. Possiamo quindi aggiungere il seguente vincolo alla formulazione:
+
+$$
+e(\hat q) \le e_{max}
+$$
+Dove $e_{max}$ è il massimo errore che si è disposti ad accettare.
+
+La regressione (e quindi i pesi $w^T$ e $c$) si dovrebbe calcolare in fase di deployment del modello: a seconda di:
+- Numero di istanze di calibrazione 
+- Numero di livelli quantizzabili
+Il tempo per trovare questa parametrizzazione cambia
+
+
+Altri vincoli da aggiungere sono:
+$$
+q_i = 0 \hspace{0.5cm} \forall i \notin V_Q
+$$
+
+
+Facendo alcune prove si vede che un modello quadratico funziona molto meglio (quasi al pari di un albero) probabilmente perché riesce a tenere in conto le interazioni. Da notare che questo è valido in QUESTO contesto, potrebbe non esserlo in altri in cui magari le interazioni sono molto più sparse.
+
+Nel caso di una regressione quadratica, la cosa diventa leggermente più complicata, ma non troppo (anche se non scala). In questo caso si potrebbe usare la seguente strategia.
+
+In questo caso dobbiamo tenere in conto i prodotti delle variabili. Notiamo subito che essendo le variabili binarie, vale che $(q_i)^2 = q_i$   $\forall i \in V_Q$, quindi le interazioni di un termine con se stesso si possono trascurare senza problemi. Allo stesso modo abbiamo che $q_i \cdot q_j = q_j \cdot q_i$  $\forall i \neq j$ , quindi possiamo considerare metà dei prodotti, per un totale di:
+$$
+\binom{|V_Q|}{2}
+$$
+variabili prodotto da considerare. Sia data $q_{ij} = q_i \cdot q_j$ la variabile prodotto; questa variabile è soggetta a vincoli:
+1. $q_{ij} \le q_i$
+2. $q_{ij} \le q_j$
+3. $q_{ij} \ge q_i + q_j - 1$
+
+In totale quindi il regressore è esprimibile come:
+$$e(\hat q) = w^T \cdot \hat q = \sum_{i \in V_Q} w_{ii} \cdot q_i + \sum_{i < j} w_{ij} \cdot q_{ij}
+$$
+Ed è quindi ancora una funzione lineare. Notiamo che se in fase di addestramento le interazioni combinate sono poco significative (i.e. $w_{ij} = 0$) allora non ci sarà bisogno di definire la variabile prodotto e il numero di variabili/vincoli diminuisce.
+

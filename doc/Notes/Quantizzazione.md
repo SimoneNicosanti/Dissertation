@@ -515,3 +515,30 @@ Il test successivo è stato fatto con modello QDQ sempre per Yolo11x-seg sulla s
 
 Prova definitiva: eseguendo il profiling con l'opzione della InferenceSession, si può vedere come gli operatori che sono eseguiti sono proprio dei QOperators.
 ![[Schermata del 2025-03-04 09-16-10.png]]
+
+
+# Predizione dell'Errore
+
+I grafici che seguono mostrano il comportamento delle regressioni polinomiali per la predizione dell'errore.
+Parametri:
+- Numero livelli quantizzabili = 15 (15 a maggiori flops)
+- Modello = yolo11n-seg
+- Train-Set = 1000 Campioni
+- Test-Set = 100 Campioni
+- Dataset
+	- Creato casualmente mischiando combinazioni di livelli quantizzabili senza permettere ripetizioni
+- Calibrazione: 100 immagini dataset coco128
+- Test Errore
+	- 1 immagine dataset coco128 (non usata in calibrazione)
+	- Calcolato come $\frac{1}{tensor\_size} ||out - out_{quant}||$ 
+
+Dai grafici si vede come la regressione cubica è quella che si comporta meglio in testing mostrando un buonissimo comportamento anche in fase di training: questo è probabilmente dovuto al fatto che la regressione cubica riesce a tenere in conto le interazioni di un maggior numero di livelli. In generale comunque le regressioni che sembrano comportarsi meglio sono la quadratica e la cubica: in questi casi 
+![[linear_plot 2.png]]
+
+
+Quantizzare un sottoinsieme di livelli comunque porta ad un miglioramento del tempo di inferenza: nel test che segue (con yolo11x-seg) quantizzando:
+- 10 livelli con più flops si guadagnano 300 ms
+- 20 livelli con più flops si guadagnano 400 ms
+(Mediato su 50 run)
+Quindi si tratta di un'alternativa che potrebbe aver senso utilizzare
+![[Schermata del 2025-04-25 14-37-45.png]]

@@ -15,7 +15,7 @@ services:
       - ./proto_compiled:/src/proto_compiled
 
       - ./Optimizer:/src/Optimizer
-      
+
       - ./Main/OptimizerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
@@ -59,15 +59,23 @@ services:
       - ./proto_compiled:/src/proto_compiled
 
       - ./Server:/src/Server
-      
-      
+
       - ./Main/ServerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
 
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
+
+      - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src
+    cap_add:
+      - NET_ADMIN
+    deploy:
+      resources:
+        limits: # Hard Limit
+          cpus: "3"
+          memory: 6G
 
   client:
     build:
@@ -82,7 +90,7 @@ services:
       - ./Client:/src/Client
       - ./Server:/src/Server
       - ./FrontEnd:/src/FrontEnd
-      
+
       - ./Main/ServerMain.py:/src/ServerMain.py
       - ./Main/FrontEndMain.py:/src/FrontEndMain.py
       - ./Main/ClientMain.py:/src/ClientMain.py
@@ -91,10 +99,16 @@ services:
 
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
-      - ./Other/latency_scripts:/src/latency_scripts
+
+      - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src
     cap_add:
       - NET_ADMIN
+    deploy:
+      resources:
+        limits: # Hard Limit
+          cpus: "0.5"
+          memory: 2G
 
   model_manager:
     build:
@@ -108,7 +122,7 @@ services:
 
       - ./ModelPool:/src/ModelPool
       - ./ModelManager:/src/ModelManager
-      
+
       - ./Main/ModelManagerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini

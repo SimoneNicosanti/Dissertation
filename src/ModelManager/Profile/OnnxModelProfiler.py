@@ -11,7 +11,6 @@ from onnx.mapping import TENSOR_TYPE_MAP
 from Common.ConfigReader import ConfigReader
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.NodeId import NodeId
-
 from ModelManager.Profile.ModelProfiler import ModelProfiler
 
 

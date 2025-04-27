@@ -87,7 +87,12 @@ Prima il monitoraggio della banda era fatto cercando di considerare la banda teo
 - il sent_MB_s mi dice quanti MB di dati posso inviare al secondo usando TCP nelle condizioni attuali di rete
 - Visto che gRPC usa TCP considerare la banda calcolata con UDP lascia il tempo che trova e potrebbe essere deleterio in certa misura visto e considerato che comunque quella velocità teorica NON la posso raggiungere tenendo conto di tutto l'overhead dato da TCP
 
-In questo modo, quando imposto la latenza la banda possibile si abbassa inevitabilmente per via dell'attesa dell'ack da parte di TCP. Anche quando non viene introdotta latenza aggiuntiva, comunque la banda che trovo è minore di quella che imposto, sempre per Ack e tutte cose
+In questo modo, quando imposto la latenza la banda possibile si abbassa inevitabilmente per via dell'attesa dell'ack da parte di TCP. Anche quando non viene introdotta latenza aggiuntiva, comunque la banda che trovo è minore di quella che imposto, sempre per Ack e tutte cose.
+
+Quando alzata la latenza all'improvviso ci sono due fasi:
+1. In un primo momento la banda diminuisce tutta insieme
+2. Poi si alza e si stabilizza
+La cosa è probabilmente dovuta al fatto che quando la latenza viene alzata, TCP si deve un attimo riconfigurare con le finestre: bisogna fare attenzione a questo fatto e aspettare un po' prima di valutare il comportamento del sistema.
 
 
 ## Configurazioni di Rete

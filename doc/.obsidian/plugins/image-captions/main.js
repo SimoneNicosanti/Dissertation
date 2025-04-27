@@ -101,7 +101,8 @@ var ImageCaptions = class extends import_obsidian2.Plugin {
   getCaptionText(img) {
     let captionText = img.getAttribute("alt") || "";
     const src = img.getAttribute("src") || "";
-    if (captionText === src) {
+    const edge = captionText.replace(/ > /, "#");
+    if (captionText === src || edge === src) {
       return "";
     }
     if (this.settings.captionRegex) {

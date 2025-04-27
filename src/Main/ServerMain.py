@@ -1,9 +1,8 @@
-from concurrent.futures import thread
 import os
 import socket
-from concurrent import futures
 import subprocess
 import threading
+from concurrent import futures
 
 import grpc
 
@@ -36,24 +35,29 @@ def main():
 
     register_response: ServerId = register_to_registry()
     ping_server = start_ping_server()
-    
-    # inferencer, inference_server = start_inference_server()
-    # assignee_server = start_assignee_server(register_response.server_id, inferencer)
-    
 
-    # server_monitor = ServerMonitor(register_response.server_id)
-    # server_monitor.init_monitoring()
+    inferencer, inference_server = start_inference_server()
+    assignee_server = start_assignee_server(register_response.server_id, inferencer)
 
-    # assignee_server.wait_for_termination()
-    # inference_server.wait_for_termination()
+    server_monitor = ServerMonitor(register_response.server_id)
+    server_monitor.init_monitoring()
+
+    assignee_server.wait_for_termination()
+    inference_server.wait_for_termination()
     ping_server.wait_for_termination()
     pass
+
 
 def start_iperf3_server():
     iperf3_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
         "ports", "IPERF3_PORT"
     )
-    subprocess.run(["iperf3", "-s", "-p", f"{iperf3_port}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(
+        ["iperf3", "-s", "-p", f"{iperf3_port}"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
 
 def register_to_registry():
 

@@ -1,15 +1,11 @@
 import json
-import multiprocessing
-import subprocess
 import threading
 import time
 
-import os
-import iperf3
-
 import grpc
+import iperf3
 import numpy
-from readerwriterlock import rwlock
+import psutil
 
 from Common import ConfigReader
 from proto_compiled.common_pb2 import Empty
@@ -18,7 +14,6 @@ from proto_compiled.register_pb2 import AllServerInfo
 from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.state_pool_pb2 import ServerState
 from proto_compiled.state_pool_pb2_grpc import StatePoolStub
-import psutil
 
 MEGABYTE_SIZE = 1024 * 1024
 
@@ -51,10 +46,9 @@ class ServerMonitor:
 
         self.flops_value = None
 
-        self.state_lock = rwlock.RWLockWriteD()
         self.current_state: dict[str, float] = {}
         self.bandwidths: dict[str, float] = {}
-        self.latencies : dict[str, float] = {}
+        self.latencies: dict[str, float] = {}
 
         pass
 
@@ -64,18 +58,15 @@ class ServerMonitor:
         monitor_timer = ConfigReader.ConfigReader("./config/config.ini").read_float(
             "monitor", "MONITOR_TIMER_SEC"
         )
+
         threading.Timer(monitor_timer, self.__update_and_send_state).start()
 
     def __send_state(self):
-        send_state = {}
-        with self.state_lock.gen_rlock():
-            send_state = {key: value for key, value in self.current_state.items()}
-            send_state["bandwidths"] = {
-                key: value for key, value in self.bandwidths.items()
-            }
-            send_state["latencies"] = {
-                key: value for key, value in self.latencies.items()
-            }
+        send_state = {key: value for key, value in self.current_state.items()}
+        send_state["bandwidths"] = {
+            key: value for key, value in self.bandwidths.items()
+        }
+        send_state["latencies"] = {key: value for key, value in self.latencies.items()}
 
         send_state_str = json.dumps(send_state)
         state_pool_stub: StatePoolStub = StatePoolStub(self.state_pool_chan)
@@ -88,29 +79,27 @@ class ServerMonitor:
         ## Ping other devices
         ## Collect my state
 
-        self.__update_bandwidth()
-        self.__update_flops()
-        self.__update_memory()
-        self.__update_energy()
+        self.__evaluate_bandwidth_and_latency()
+        self.__evaluate_flops()
+        self.__evaluate_memory()
+        self.__evaluate_energy()
 
-    def __update_energy(self):
+    def __evaluate_energy(self):
         if self.server_id == "0":
             energy = 0.5  ## micro-joule / s
         else:
             energy = 1
 
-        with self.state_lock.gen_wlock():
-            self.current_state["comp_energy"] = energy
-            self.current_state["trans_energy"] = energy
+        self.current_state["comp_energy"] = energy
+        self.current_state["trans_energy"] = energy
 
-    def __update_flops(self):
+    def __evaluate_flops(self):
 
         if self.flops_value is None:
             self.flops_value = self.__eval_flops()
             pass
 
-        with self.state_lock.gen_wlock():
-            self.current_state["flops"] = self.flops_value
+        self.current_state["flops"] = self.flops_value
 
     def __eval_flops(self):
         size = ConfigReader.ConfigReader("./config/config.ini").read_int(
@@ -122,7 +111,7 @@ class ServerMonitor:
         mat_a, mat_b = numpy.random.rand(size, size), numpy.random.rand(size, size)
 
         start = time.perf_counter_ns()
-        for _ in range(runs): 
+        for _ in range(runs):
             numpy.dot(mat_a, mat_b)
         end = time.perf_counter_ns()
 
@@ -131,31 +120,30 @@ class ServerMonitor:
 
         return total_ops / total_time
 
-    def __update_memory(self):
-        
-        try :
-        # if (os.path.isfile("/sys/fs/cgroup/memory.current") and os.path.isfile("/sys/fs/cgroup/memory.max")):
+    def __evaluate_memory(self):
+
+        try:
+            # if (os.path.isfile("/sys/fs/cgroup/memory.current") and os.path.isfile("/sys/fs/cgroup/memory.max")):
             ## As psutil does not work properly inside a container, we have to read it from the cgroup
             with open("/sys/fs/cgroup/memory.current", "r") as f:
                 memory_current = float(f.read())
             with open("/sys/fs/cgroup/memory.max", "r") as f:
                 memory_max = float(f.read())
             available_mem = memory_max - memory_current
-        except Exception as e:
-            available_mem = psutil.virtual_memory().available 
-            
-        
-        available_mem = available_mem / MEGABYTE_SIZE ## MB
+        except Exception:
+            available_mem = psutil.virtual_memory().available
 
-        with self.state_lock.gen_wlock():
-            self.current_state["memory"] = available_mem
+        available_mem = available_mem / MEGABYTE_SIZE  ## MB
 
-    def __update_bandwidth(self):
+        self.current_state["memory"] = available_mem
+
+    def __evaluate_bandwidth_and_latency(self):
         registry_stub = RegisterStub(self.registry_chan)
         all_server_info: AllServerInfo = registry_stub.get_all_servers_info(Empty())
 
         for server_info in all_server_info.all_server_info:
             if server_info.server_id.server_id not in self.server_chan_dict.keys():
+                ## Opening channel for the first time to this server
                 server_chan = grpc.insecure_channel(
                     "{}:{}".format(
                         server_info.reachability_info.ip_address,
@@ -166,18 +154,33 @@ class ServerMonitor:
 
             server_chan = self.server_chan_dict[server_info.server_id.server_id]
 
-            latency = self.__eval_latency(server_chan)
-            bandwidth = self.__eval_bandwidth(server_info.reachability_info.ip_address)
-            with self.state_lock.gen_wlock():
-                if bandwidth is not None and latency is not None:
-                    self.bandwidths[server_info.server_id.server_id] = bandwidth
-                    self.latencies[server_info.server_id.server_id] = latency
-                else :
-                    self.bandwidths.pop(server_info.server_id.server_id, None)
-                    self.latencies.pop(server_info.server_id.server_id, None)
+            latency = self.__evaluate_latency(server_chan)
 
-    def __eval_latency(self, server_chan: grpc.Channel):
-        try :
+            if latency is not None:
+                ## Successfully pinged the server
+                self.latencies[server_info.server_id.server_id] = latency
+
+                bandwidth = self.__evaluate_bandwidth(
+                    server_info.reachability_info.ip_address
+                )
+
+                if bandwidth is not None:
+                    self.bandwidths[server_info.server_id.server_id] = bandwidth
+                else:
+                    if server_info.server_id.server_id not in self.latencies.keys():
+                        ## Assume server not available and remove latency info
+                        self.latencies.pop(server_info.server_id.server_id, None)
+                    else:
+                        ## Keep previous bandwidth
+                        pass
+            else:
+                ## Could not ping the server
+                ## Assume server not available and remove both info
+                self.latencies.pop(server_info.server_id.server_id, None)
+                self.bandwidths.pop(server_info.server_id.server_id, None)
+
+    def __evaluate_latency(self, server_chan: grpc.Channel):
+        try:
             ping_stub = PingStub(server_chan)
 
             ping_times = ConfigReader.ConfigReader("./config/config.ini").read_int(
@@ -191,33 +194,50 @@ class ServerMonitor:
 
             latency_ns = rtt_ns / 2
             latency = latency_ns / 1e9
-        except Exception as e:
+        except Exception:
             latency = None
         return latency
 
-    def __eval_bandwidth(self, server_ip_addr: str):   
-
-
+    def __evaluate_bandwidth(self, server_ip_addr: str):
         iperf3_client = iperf3.Client()
+
         iperf3_client.server_hostname = server_ip_addr
+
         iperf3_client.port = ConfigReader.ConfigReader("./config/config.ini").read_int(
             "ports", "IPERF3_PORT"
         )
+
         iperf3_client.protocol = "tcp"
-        iperf3_client.duration = 2
-        iperf3_client.bandwidth = 50 * 10 ** 9 ## 50 Gbps max
 
-        test_result = iperf3_client.run()
+        iperf3_client.duration = ConfigReader.ConfigReader(
+            "./config/config.ini"
+        ).read_int("monitor", "IPERF3_TEST_DURATION_SEC")
 
-        if test_result.error:
-            print("Error in Bandwidth Measurement")
-            print(test_result.error)
-            print()
-            return None
+        iperf3_client.bandwidth = (
+            ConfigReader.ConfigReader("./config/config.ini").read_int(
+                "monitor", "IPERF3_TEST_BANDWIDTH"
+            )
+            * 10**9
+        )
+
+        run_success = False
+        while not run_success:
+            test_result = iperf3_client.run()
+
+            if test_result.error:
+                run_success = False
+
+                error_string: str = test_result.error
+                if error_string.find("busy") == -1:
+                    ## Other kind of error
+                    return None
+                else:
+                    ## The server is just busy: wait and try again
+                    time.sleep(1)
+            else:
+                run_success = True
+
         return test_result.sent_MB_s
-
 
     def init_monitoring(self):
         self.__update_and_send_state()
-
-    

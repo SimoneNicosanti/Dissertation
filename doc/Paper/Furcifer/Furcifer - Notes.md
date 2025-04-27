@@ -53,7 +53,7 @@ I pro di questi approcci sono:
 Le prestazioni dei modelli si abbassano quando gli viene dato un input che è stato compresso con un algoritmo di compressione di immagini: serve quindi un compromesso tra prestazioni e dati trasferiti.
 > [!Quote]
 > these evaluations often overlook the significant performance degradation caused by image compression [15], [16], which is inevitable in practical EC systems. In partic- ular, widespread image compression techniques are designed for human perception rather than for image analysis. As a consequence, high performance requires the transfer of large volumes of data over capacity-constrained channel
-[[Furcifer_PerCom24.pdf#page=2&selection=249,15,259,49|Furcifer_PerCom24, pagina 2]]
+[[Furcifer_PerCom24.pdf#page=2&selection=249,15,259,49&color=note|Furcifer_PerCom24, pagina 2]]
 
 Per sopperire a questi problemi si può pensare di addestrare dei modelli sui dati già compressi o comunque su cui è stata fatta una preelaborazione volta ad estrarne le caratteristiche significative.
 > [!Quote]
@@ -64,7 +64,7 @@ Per sopperire a questi problemi si può pensare di addestrare dei modelli sui da
 
 > [!Quote]
 >  In the domain of real-time computer vision, energy con- sumption is not solely determined by the number of Floating Point Operations (FLOPs) or Multiply-Accumulate (MAC) op- erations indicative of the model’s complexity. Indeed, energy consumption is also proportional to the number of frame per seconds (F P S) processed by the system [27], [28].
-[[Furcifer_PerCom24.pdf#page=3&selection=44,0,51,37|Furcifer_PerCom24, pagina 3]]
+[[Furcifer_PerCom24.pdf#page=3&selection=44,0,51,37&color=note|Furcifer_PerCom24, pagina 3]]
 
 
 > [!Warning] FLOPS Calcolati

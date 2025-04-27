@@ -11,9 +11,10 @@ Aspetti da evidenziare:
 # Introduzione
 - Contesto del Lavoro
 - Motivazioni
+	- Descrizione del contesto edge e limitatezza delle risorse
 - Obiettivi
 - Scaletta delle parti successive
-- Descrizione del contesto edge e limitatezza delle risorse
+
 
 # Related Works e Stato dell'Arte
 - Contesto tecnologico
