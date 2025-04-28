@@ -112,3 +112,48 @@ Ci sono due alternative:
 		- Si possono escludere n livelli vicino all'output per attenuare questo effetto
 		- Anche l'esclusione dell'ultimo livello di Concatenazione porta ad avere delle predizioni con delle prestazioni buone, quindi ci si potrebbe limitare a questo livello
 
+
+# Analisi dell'Input-Output
+
+Gli output che vengono restituiti da un modello Yolo variano a seconda del task del modello: nello specifico l'output del task di detection è un sottoinsieme dell'output del task di segmentation.
+
+## Pre Elaborazione
+Data un'immagine bisogna fare in modo che la sua dimensione coincida con quella che il modello si aspetta di ricevere in input. Inoltre Yolo si aspetta di ricevere un input standardizzato.
+
+I passi da fare per la pre-elaborazione quindi sono i seguenti:
+1. Fare il ridimensionamento dell'immagine: questo ridimensionamento va fatto in maniera tale da mantenere le proporzioni corrette in modo da non creare problemi in fase di inferenza
+2. Aggiungere il padding all'immagine: quando ridimensiono mantenendo il rapporto dell'immagine, non è detto che ottengo un'immagini con le dimensioni che mi servono. Per compensare questo aspetto quindi posso aggiungere del padding all'immagine in modo da ottenere l'input della dimensione che mi serve
+3. Scambiare i canali: il modello yolo si aspetta un input in formato CHW, quindi se serve bisogna trasporre l'immagine mettendo prima il canale
+4. Normalizzare, dividendo il tutto per 255
+
+## Post Elaborazione
+Il modello di detection ha un singolo output, in formato (batch_size, 4 + num_classes, 8400); in questo output abbiamo che:
+- il 4 sono le informazioni sul bounding box in formato (x_centre, y_centre, width, height)
+- I num_classes valori sono gli score per ogni classe per quella specifica anchor
+- 8400 sono le anchor totali
+
+Il modello di segmentazione ha due output:
+- output0
+	- Questo output ha formato (batch_size, 4 + num_classes + mask_info_size, 8400)
+		- Come prima i 4 valori e i num_classes valori sono riferiti rispettivamente alle info delle bounding box e agli score per classe
+		- I mask_info valori invece sono valori che servono, combinati con l'altro output a trovare la mask di segmentazione
+- output1
+	- Ha formato (batch_size, mask_info_size, mask_width, mask_height)
+	- Questo output viene chiamato "prototype" e combinato con le mask info dell'altro output ci permette di trovare la mask di segmentazione
+
+La fase di post-elaborazione della parte di bounding boxes quindi è uguale in entrambi i casi:
+1. Si estraggono dall'output le parti relative alle bounding boxes
+2. Per ogni anchor si trova la classe a score maggiore e il valore corrispondente di score, ottenendo un tensore (batch_size, final_size, 6)
+3. Si applica la non-max-suppression prendendo solo le anchor con score e con iou maggiori di certa soglia.
+4. A questo punto si ridimensionano le bounding box in modo da adattarle alla dimensione dell'immagine originale
+
+La fase di post-elaborazione di masks e prototipi invece vale solo in caso di segmentazione; in questo caso:
+1. Si estrae da output0 la parte di masks, ottenendo un tensore di size (batch_size, masks_info_size, 8400)
+2. Per ogni elemento del batch, si fa il prodotto tra (8400, masks_info_size) con (masks_info_size, mask_width, mask_height)
+	1. In sostanza quello che si sta facendo in questa fase è pesare le masks ottenute con i prototipi
+	2. Otteniamo quindi un tensore di size (8400, mask_width, mask_height)
+3. Si fa l'upscale del tensore così ottenuto in modo da farlo combaciare con la dimensione dell'immagine originale
+
+La fase di moltiplicazione potrebbe essere onerosa in termini computazionali; c'è da dire però che questa non deve essere fatta su tutte le anchor, ma è sufficiente farla solo su quelle che passano la non maximum suppression, quindi il numero di calcoli da fare si riduce notevolmente.
+
+Usando la libreria *supervision*, fornendo le info in formato richiesto si possono fare varie cose, tra cui disegnare l'output delle predizioni e le maskere. Supervision può essere utile perché permette di fare anche analisi di video in modo abbastanza trasparente.

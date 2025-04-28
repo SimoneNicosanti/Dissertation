@@ -32,15 +32,15 @@ MODEL_NAME = "yolo11n"
 
 COCO_FILE_PATH = "../../../coco128/preprocessed"
 
-MAX_QUANTIZABLE_LAYERS = 15
+MAX_QUANTIZABLE_LAYERS = 10
 
-TRAIN_SIZE = 2200
-TEST_SIZE = 200
+TRAIN_SIZE = 550
+TEST_SIZE = 20
 
 CALIBRATION_DATA_SIZE = 10
 CALIBRATION_TEST_SIZE = 1
 
-PROCESSES_NUM = 8
+PROCESSES_NUM = 3
 
 
 class MyDataReader(CalibrationDataReader):
@@ -477,12 +477,15 @@ def post_process(output):
     boxes = predictions[:, :4]
     classes = predictions[:, 4:]
 
-    for row in boxes:
-        x, y, w, h = row
-        row[0] = x - w / 2
-        row[1] = y - h / 2
-        row[2] = x + w / 2
-        row[3] = y + h / 2
+    x = boxes[:, 0]
+    y = boxes[:, 1]
+    w = boxes[:, 2]
+    h = boxes[:, 3]
+
+    boxes[:, 0] = x - w / 2  # x1
+    boxes[:, 1] = y - h / 2  # y1
+    boxes[:, 2] = x + w / 2  # x2
+    boxes[:, 3] = y + h / 2  # y2
 
     scores = np.max(classes, axis=1)
     class_ids = np.argmax(classes, axis=1)
@@ -552,10 +555,14 @@ def supervision():
     print(mAP.map50_95)
 
 
-if __name__ == "__main__":
-    build_data()
+def test_supervision():
+    import supervision
 
-    # build_predictor()
+
+if __name__ == "__main__":
+    # build_data()
+
+    build_predictor()
 
     # modify_model()
 

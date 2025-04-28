@@ -14,7 +14,6 @@ from onnxruntime.quantization.quantize import (
 from onnxruntime.quantization.shape_inference import quant_pre_process
 from ultralytics import YOLO
 from YoloPPP import YoloPPP
-from YoloSegmentationPPP import YoloSegmentationPPP
 
 CALIBRATION_DATA_PATH = "./coco128/images/train2017/"
 
@@ -28,7 +27,7 @@ class MyDataReader:
         ]
         self.max_files = 1
         self.files.sort()
-        self.yolo_segmentation_ppp = YoloSegmentationPPP(640, 640)
+        self.yolo_segmentation_ppp = YoloPPP(640, 640)
         self.idx = 0
 
     def get_next(self):
