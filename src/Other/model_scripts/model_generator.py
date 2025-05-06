@@ -7,9 +7,9 @@ from ultralytics import YOLO
 def download_and_export(model_names: list[str]):
     for mod_name in model_names:
         model = YOLO(mod_name)
-        model.export(format="onnx", nms=True)
+        model.export(format="onnx", imgsz=640)
         mod_name = mod_name.replace(".pt", "")
-        shutil.move("./" + mod_name + ".onnx", "../models_1/" + mod_name + ".onnx")
+        shutil.move("./" + mod_name + ".onnx", "../models/" + mod_name + ".onnx")
         os.remove("./" + mod_name + ".pt")
 
 
@@ -23,8 +23,15 @@ def main():
     ]
     det_models = ["yolo11n.pt", "yolo11s.pt", "yolo11l.pt", "yolo11x.pt"]
 
-    download_and_export(seg_models)
-    download_and_export(det_models)
+    cls_models = [
+        "yolo11n-cls.pt",
+        "yolo11s-cls.pt",
+        "yolo11l-cls.pt",
+        "yolo11x-cls.pt",
+    ]
+    download_and_export(cls_models)
+    # download_and_export(seg_models)
+    # download_and_export(det_models)
 
 
 if __name__ == "__main__":

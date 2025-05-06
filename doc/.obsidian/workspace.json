@@ -4,55 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "01223e5878f36dc0",
+        "id": "ef469214210793e2",
         "type": "tabs",
         "children": [
           {
-            "id": "d25c2c8b91bf70c9",
+            "id": "ea6705b88afb4b0a",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "Paper/Survey Splitting/Survey_Splitting.pdf",
-                "page": 8,
-                "left": -5,
-                "top": 701,
-                "zoom": 2.7546296296296298
+                "file": "Notes/Quantizzazione.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-file-text",
-              "title": "Survey_Splitting"
-            }
-          },
-          {
-            "id": "b134bba77b1a5fd3",
-            "type": "leaf",
-            "state": {
-              "type": "pdf",
-              "state": {
-                "file": "Paper/Furcifer/Furcifer_PerCom24.pdf",
-                "page": 4,
-                "left": -17,
-                "top": 32,
-                "zoom": 0.8897058823529411
-              },
-              "icon": "lucide-file-text",
-              "title": "Furcifer_PerCom24"
-            }
-          },
-          {
-            "id": "4ac4d628604fa3e5",
-            "type": "leaf",
-            "state": {
-              "type": "pdf",
-              "state": {
-                "file": "Paper/Gillis/gillis-icdcs21.pdf",
-                "page": 1,
-                "left": -20,
-                "top": 795,
-                "zoom": 0.7352941176470589
-              },
-              "icon": "lucide-file-text",
-              "title": "gillis-icdcs21"
+              "icon": "lucide-file",
+              "title": "Quantizzazione"
             }
           }
         ]
@@ -112,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 252.50260543823242
+    "width": 394.5026054382324
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -198,11 +164,26 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "d25c2c8b91bf70c9",
+  "active": "ea6705b88afb4b0a",
   "lastOpenFiles": [
+    "Notes/Architettura/Architettura 2.md",
+    "Notes/Architettura/Diagrams/Architecture_Inference.svg.xml",
+    "Notes/Architettura/Diagrams/Architecture_Inference.svg",
+    "Notes/Architettura/Diagrams/Architecture_Optimization.svg.xml",
+    "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
+    "Notes/Architettura/Architettura.md",
+    "Notes/Architettura/Architettura_Inviare.md",
+    "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
+    "Notes/Architettura/Diagrams/Architecture_Control.svg",
+    "Notes/Architettura/Diagrams/Architecture_Control.svg.xml",
+    "Notes/Quantizzazione.md",
+    "Notes/Profiling.md",
+    "Paper/Gillis/gillis-icdcs21.pdf",
+    "Paper/Furcifer/Furcifer_PerCom24.pdf",
     "Notes/Yolo.md",
     "Notes/Ottimizzazione.md",
-    "Notes/Quantizzazione.md",
+    "Rumore.md",
+    "Paper/Survey Splitting/Survey_Splitting.pdf",
     "linear_plot 2.png",
     "Schermata del 2025-04-25 14-37-45.png",
     "Schermata del 2025-04-23 14-54-39.png",
@@ -211,40 +192,24 @@
     "Notes/Ottimizzazione - Altro.md",
     "Notes/Componenti Connesse.md",
     "Notes/Colloqui/HELO.md",
-    "Paper/Survey Splitting/Survey_Splitting.pdf",
     "Notes/Colloqui/2025-03-22.md",
-    "Notes/Architettura/Architettura.md",
     "Notes/Colloqui/2025-03-04.md",
-    "Paper/Gillis/gillis-icdcs21.pdf",
     "Paper/Gillis/Gillis - Notes.md",
     "Notes/Colloqui/14-04-2024.md",
     "Paper/Note Sugli Articoli.md",
     "Paper/CoEdge/CoEdge.pdf",
-    "Paper/Furcifer/Furcifer_PerCom24.pdf",
     "Notes/Indice Tesi.md",
     "Paper/Neurosurgeon.pdf",
     "Paper/Acyclic_DAG_Partitioning.pdf",
     "Paper/Graph_Partitioning.pdf",
     "Notes/Split del Modello.md",
-    "Paper/Distributed_inference_Acceleration.pdf",
-    "Paper/JointDNN.pdf",
-    "Paper/energy_optimal_mobile_application_execution.pdf",
     "26.md",
     "Paper/Furcifer/Furcifer - Notes.md",
     "Paper/CoEdge/Schermata del 2024-11-30 15-29-15.png",
-    "Paper/CoEdge/Schermata del 2024-11-30 15-27-21.png",
     "Paper/CoEdge/CoEdge - Notes.md",
-    "CoEdge 1.webp",
-    "CoEdge.webp",
     "Notes/Monitoraggio.md",
     "Highlights for 2021_chapter.md",
     "Excalidraw/Drawing 2025-03-28 16.14.50.excalidraw.md",
-    "Notes/Images/Schermata del 2025-03-21 17-27-05.png",
-    "Notes/Esperimenti.md",
-    "Notes/Distribuzione.md",
-    "Notes/Consumo Energetico.md",
-    "Notes/Calcolo FLOPS.md",
-    "Notes/Architettura/Architettura_Inviare.md",
-    "Paper/Jellyfish/Jellyfish - Notes.md"
+    "Notes/Esperimenti.md"
   ]
 }

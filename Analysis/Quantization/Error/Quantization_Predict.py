@@ -1,4 +1,5 @@
 import copy
+import itertools
 import json
 import multiprocessing
 import os
@@ -27,20 +28,20 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures
 
-MODEL_NAME = "yolo11n"
+MODEL_NAME = "yolo11n-seg"
 
 
 COCO_FILE_PATH = "../../../coco128/preprocessed"
 
 MAX_QUANTIZABLE_LAYERS = 10
 
-TRAIN_SIZE = 550
-TEST_SIZE = 20
+TRAIN_SIZE = 450
+TEST_SIZE = 100
 
 CALIBRATION_DATA_SIZE = 10
-CALIBRATION_TEST_SIZE = 1
+CALIBRATION_TEST_SIZE = 2
 
-PROCESSES_NUM = 3
+PROCESSES_NUM = 1
 
 
 class MyDataReader(CalibrationDataReader):
@@ -105,7 +106,7 @@ def test_model(
 ):
     options = onnxruntime.SessionOptions()
     # Imposta un solo thread intra-op (esecuzione interna a un'op)
-    options.intra_op_num_threads = 1
+    # options.intra_op_num_threads = 1
     # Imposta un solo thread inter-op (tra op diverse)
     # options.inter_op_num_threads = 1
 
@@ -123,12 +124,7 @@ def test_model(
 
     del session
 
-    post_processed = []
-    for i in range(len(values)):
-
-        post_processed.append(post_process(values[i][0]))
-
-    return post_processed
+    return values
 
 
 def build_model_graph():
@@ -217,13 +213,14 @@ def process_function(
 
             quant_val = quant_values[i]
             not_quant_val = not_quant_values[i]
-            not_quant_val = not_quant_val[:, :-1]
 
-            quant_mAP = compute_mAP(quant_values[i], not_quant_val)
-            noise += abs(1 - quant_mAP)
-
-            # for j in range(len(quant_val)):
-            #     noise += np.max(np.abs(quant_val[j] - not_quant_val[j]), axis=None)
+            curr_noise = 0
+            for j in range(len(quant_val)):
+                curr_noise += np.mean(
+                    np.abs(quant_val[j] - not_quant_val[j]),
+                    axis=None,
+                )
+            noise += curr_noise / len(quant_val)
 
         noise = noise / len(not_quant_values)
         Y_data.append(noise)
@@ -232,16 +229,6 @@ def process_function(
     os.remove(MODEL_NAME + f"_augmented_{proc_idx}.onnx")
 
     queue.put(Y_data)
-
-
-def compute_mAP(quant_values, target):
-    import supervision as sv
-
-    mAP = sv.MeanAveragePrecision.from_tensors(
-        predictions=[quant_values], targets=[target]
-    )
-
-    return mAP.map50_95
 
 
 def build_data():
@@ -261,9 +248,7 @@ def build_data():
         key=lambda x: model_graph.nodes[x]["flops"],
         reverse=True,
     )
-    quantizable_layers = []
-    while len(quantizable_layers) < MAX_QUANTIZABLE_LAYERS:
-        quantizable_layers.append(sorted_by_flops.pop(0))
+    quantizable_layers = sorted_by_flops[:MAX_QUANTIZABLE_LAYERS]
 
     for elem in quantizable_layers:
         print(elem, model_graph.nodes[elem]["flops"])
@@ -277,14 +262,19 @@ def build_data():
     X_data.append([1] * len(quantizable_layers))
 
     random_generator = np.random.default_rng(seed=1)
-    for _ in range(TRAIN_SIZE + TEST_SIZE - 1):
-        random_quant = random_generator.integers(0, 2, len(quantizable_layers))
 
-        while tuple(random_quant) in X_data_set or np.sum(random_quant) == 0:
+    if TRAIN_SIZE + TEST_SIZE >= 2**MAX_QUANTIZABLE_LAYERS:
+        for elem in itertools.product([0, 1], repeat=len(quantizable_layers)):
+            X_data.append(list(elem))
+    else:
+        for _ in range(TRAIN_SIZE + TEST_SIZE - 1):
             random_quant = random_generator.integers(0, 2, len(quantizable_layers))
 
-        X_data_set.add(tuple(random_quant))
-        X_data.append(random_quant)
+            while tuple(random_quant) in X_data_set or np.sum(random_quant) == 0:
+                random_quant = random_generator.integers(0, 2, len(quantizable_layers))
+
+            X_data_set.add(tuple(random_quant))
+            X_data.append(random_quant)
 
     Y_data = []
 
@@ -339,7 +329,7 @@ def build_predictor():
     X_train, Y_train = train_data.drop("Error", axis=1), train_data["Error"]
     X_test, Y_test = test_data.drop("Error", axis=1), test_data["Error"]
 
-    max_degree = 4
+    max_degree = 3
 
     # Crea figure con 2 subplot orizzontali
     fig, axes = plt.subplots(max_degree, 2, figsize=(12, 16))  # 1 riga, 2 colonne
@@ -502,68 +492,9 @@ def post_process(output):
     return final
 
 
-def supervision():
-    import supervision as sv
-
-    all_images = read_all_images()
-    test_image = [all_images[0]]
-
-    result = test_model(test_image, "yolo11n.onnx")
-
-    result = result[0][0]
-
-    predictions = np.squeeze(result, axis=0)
-    predictions = predictions.T
-    print(predictions.shape)
-
-    predictions = predictions[:, :84]
-    boxes = predictions[:, :4]
-    classes = predictions[:, 4:]
-
-    for row in boxes:
-        x, y, w, h = row
-        row[0] = x - w / 2
-        row[1] = y - h / 2
-        row[2] = x + w / 2
-        row[3] = y + h / 2
-
-    # x, y, w, h = outputs[i][0], outputs[i][1], outputs[i][2], outputs[i][3]
-
-    # # Calculate the scaled coordinates of the bounding box
-    # left = int((x - w / 2) * x_factor)
-    # top = int((y - h / 2) * y_factor)
-    # width = int(w * x_factor)
-    # height = int(h * y_factor)
-
-    scores = np.max(classes, axis=1)
-    class_ids = np.argmax(classes, axis=1)
-
-    final = np.concatenate(
-        [
-            boxes,
-            class_ids.reshape(-1, 1),
-            scores.reshape(-1, 1),
-        ],
-        axis=1,
-    )
-
-    target = final.copy()
-    target = target[:, :-1]
-
-    mAP = sv.MeanAveragePrecision.from_tensors([final], targets=[target])
-
-    print(mAP.map50_95)
-
-
-def test_supervision():
-    import supervision
-
-
 if __name__ == "__main__":
     # build_data()
 
     build_predictor()
 
     # modify_model()
-
-    # supervision()

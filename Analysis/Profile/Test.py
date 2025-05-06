@@ -4,60 +4,64 @@ import os
 import tempfile
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 import onnx
 import onnx_tool
 import onnxruntime as ort
-import pandas
-from onnx import TensorProto, helper
+from onnx.utils import Extractor
 from onnxruntime.quantization import (
     CalibrationDataReader,
     QuantType,
     quantize_static,
 )
 from onnxruntime.quantization.shape_inference import quant_pre_process
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import PolynomialFeatures
-from tqdm import tqdm
+
+# def create_conv_onnx(kernel_size, input_channels, output_channels, input_size):
+#     """Crea un modello ONNX con un singolo strato convoluzionale."""
+#     input_tensor = helper.make_tensor_value_info(
+#         "input", TensorProto.FLOAT, [1, input_channels, input_size, input_size]
+#     )
+#     output_tensor = helper.make_tensor_value_info(
+#         "output", TensorProto.FLOAT, [1, output_channels, -1, -1]
+#     )
+
+#     weight_shape = [output_channels, input_channels, kernel_size, kernel_size]
+#     weight = np.random.randn(*weight_shape).astype(np.float32)
+#     weight_initializer = helper.make_tensor(
+#         "conv_weight", TensorProto.FLOAT, weight_shape, weight.flatten()
+#     )
+
+#     conv_node = helper.make_node(
+#         "Conv",
+#         ["input", "conv_weight"],
+#         ["output"],
+#         kernel_shape=[kernel_size, kernel_size],
+#         name="Conv",
+#     )
+
+#     graph = helper.make_graph(
+#         [conv_node], "ConvModel", [input_tensor], [output_tensor], [weight_initializer]
+#     )
+#     model = helper.make_model(
+#         graph,
+#         producer_name="onnx-example",
+#         opset_imports=[helper.make_operatorsetid("", 21)],
+#     )
+
+#     onnx.save(model, "conv.onnx")
+#     return model
 
 
-def create_conv_onnx(kernel_size, input_channels, output_channels, input_size):
-    """Crea un modello ONNX con un singolo strato convoluzionale."""
-    input_tensor = helper.make_tensor_value_info(
-        "input", TensorProto.FLOAT, [1, input_channels, input_size, input_size]
-    )
-    output_tensor = helper.make_tensor_value_info(
-        "output", TensorProto.FLOAT, [1, output_channels, -1, -1]
-    )
+def create_model_from_node(
+    node: onnx.NodeProto,
+    model_path: str,
+):
 
-    weight_shape = [output_channels, input_channels, kernel_size, kernel_size]
-    weight = np.random.randn(*weight_shape).astype(np.float32)
-    weight_initializer = helper.make_tensor(
-        "conv_weight", TensorProto.FLOAT, weight_shape, weight.flatten()
-    )
+    model = onnx.load_model(model_path)
+    extractor = Extractor(model)
+    extracted_model = extractor.extract_model(node.input, node.output)
 
-    conv_node = helper.make_node(
-        "Conv",
-        ["input", "conv_weight"],
-        ["output"],
-        kernel_shape=[kernel_size, kernel_size],
-        name="Conv",
-    )
-
-    graph = helper.make_graph(
-        [conv_node], "ConvModel", [input_tensor], [output_tensor], [weight_initializer]
-    )
-    model = helper.make_model(
-        graph,
-        producer_name="onnx-example",
-        opset_imports=[helper.make_operatorsetid("", 21)],
-    )
-
-    onnx.save(model, "conv.onnx")
-    return model
+    return extracted_model
 
 
 def measure_execution_time(model_path, input_shape, runs):
@@ -149,297 +153,366 @@ def measure_quantized_execution_time(model_path, input_shape, runs):
     return measure_execution_time("conv_quantized.onnx", input_shape, runs)
 
 
+def extract_nodes_info(model_path: str):
+    model = onnx.load_model(model_path)
+    tool_model = onnx_tool.Model(m=model)
+
+    input = np.random.random(size=(1, 3, 640, 640))
+    tool_model.graph.shape_infer({"input": input})
+    tool_model.graph.profile()
+
+    tempfile_name: str = tempfile.mktemp() + ".csv"
+    tool_model.graph.print_node_map(tempfile_name, metric="FLOPs")
+
+    conv_names = [node.name for node in model.graph.node if node.op_type == "Conv"]
+    nodes_info = {node.name: node for node in model.graph.node}
+    flops_dict = {}
+
+    with open(tempfile_name, "r") as f:
+        reader = csv.reader(f)
+        for idx, row in enumerate(reader):
+            if idx == 0 or row[0] == "Total":
+                continue
+            name, flops = row[0], float(row[2])
+            if name in conv_names:
+                flops_dict.setdefault(flops, [])
+                flops_dict[flops].append(
+                    (model_path, nodes_info[name].input, nodes_info[name].output)
+                )
+    return flops_dict
+
+
+def read_all_models():
+
+    models_dir = "../../src/Other/models"
+
+    files = os.listdir(models_dir)
+
+    # Elenca solo i file (non le directory)
+    files_paths = [
+        os.path.join(models_dir, f)
+        for f in files
+        if os.path.isfile(os.path.join(models_dir, f)) and f.find("quant") == -1
+    ]
+
+    return files_paths
+
+
+def main():
+
+    model_paths = read_all_models()
+
+    all_flops_dict = {}
+    for model_path in model_paths:
+        print(model_path)
+        model_flops_dict = extract_nodes_info(model_path)
+        for flops, _ in model_flops_dict.items():
+            all_flops_dict.setdefault(flops, []).extend(model_flops_dict[flops])
+
+    ## Sorting list per flops
+    all_flops_values = list(all_flops_dict.keys())
+    all_flops_values.sort()
+
+    print(all_flops_dict)
+
+    pass
+
+
+if __name__ == "__main__":
+    main()
+
+
 # Parametri della rete
 
-generator = np.random.default_rng(0)
+# generator = np.random.default_rng(0)
 
-done_tests = set()
+# done_tests = set()
 
-num_models = 200
-runs_per_model = 3
+# num_models = 200
+# runs_per_model = 3
 
-flops_list = []
-times_list = []
-quan_times_list = []
+# flops_list = []
+# times_list = []
+# quan_times_list = []
 
-for _ in tqdm(range(num_models // 3)):
-    kernel = generator.integers(2, 9)
-    in_ch = generator.integers(3, 17)
-    out_ch = generator.integers(3, 17)
-    input_size = generator.integers(32, 257)
+# for _ in tqdm(range(num_models // 3)):
+#     kernel = generator.integers(2, 9)
+#     in_ch = generator.integers(3, 17)
+#     out_ch = generator.integers(3, 17)
+#     input_size = generator.integers(32, 257)
 
-    if (input_size, kernel, in_ch, out_ch) in done_tests:
-        continue
-    done_tests.add((input_size, kernel, in_ch, out_ch))
+#     if (input_size, kernel, in_ch, out_ch) in done_tests:
+#         continue
+#     done_tests.add((input_size, kernel, in_ch, out_ch))
 
-    model = create_conv_onnx(int(kernel), int(in_ch), int(out_ch), int(input_size))
+#     model = create_conv_onnx(int(kernel), int(in_ch), int(out_ch), int(input_size))
 
-    flops = measure_flops("conv.onnx", [1, in_ch, input_size, input_size])
+#     flops = measure_flops("conv.onnx", [1, in_ch, input_size, input_size])
 
-    time_exec = measure_execution_time(
-        "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
-    )
-    quantized_time_exec = measure_quantized_execution_time(
-        "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
-    )
+#     time_exec = measure_execution_time(
+#         "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
+#     )
+#     quantized_time_exec = measure_quantized_execution_time(
+#         "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
+#     )
 
-    flops_list.append(flops)
-    times_list.append(time_exec)
-    quan_times_list.append(quantized_time_exec)
+#     flops_list.append(flops)
+#     times_list.append(time_exec)
+#     quan_times_list.append(quantized_time_exec)
 
-for _ in tqdm(range(num_models // 3)):
-    kernel = generator.integers(9, 17)
-    in_ch = generator.integers(17, 33)
-    out_ch = generator.integers(17, 33)
-    input_size = generator.integers(257, 513)
+# # for _ in tqdm(range(num_models // 3)):
+# #     kernel = generator.integers(9, 17)
+# #     in_ch = generator.integers(17, 33)
+# #     out_ch = generator.integers(17, 33)
+# #     input_size = generator.integers(257, 513)
 
-    if (input_size, kernel, in_ch, out_ch) in done_tests:
-        continue
-    done_tests.add((input_size, kernel, in_ch, out_ch))
+# #     if (input_size, kernel, in_ch, out_ch) in done_tests:
+# #         continue
+# #     done_tests.add((input_size, kernel, in_ch, out_ch))
 
-    model = create_conv_onnx(int(kernel), int(in_ch), int(out_ch), int(input_size))
+# #     model = create_conv_onnx(int(kernel), int(in_ch), int(out_ch), int(input_size))
 
-    flops = measure_flops("conv.onnx", [1, in_ch, input_size, input_size])
+# #     flops = measure_flops("conv.onnx", [1, in_ch, input_size, input_size])
 
-    time_exec = measure_execution_time(
-        "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
-    )
-    quantized_time_exec = measure_quantized_execution_time(
-        "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
-    )
+# #     time_exec = measure_execution_time(
+# #         "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
+# #     )
+# #     quantized_time_exec = measure_quantized_execution_time(
+# #         "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
+# #     )
 
-    flops_list.append(flops)
-    times_list.append(time_exec)
-    quan_times_list.append(quantized_time_exec)
+# #     flops_list.append(flops)
+# #     times_list.append(time_exec)
+# #     quan_times_list.append(quantized_time_exec)
 
-for _ in tqdm(range(num_models // 3)):
-    kernel = generator.integers(9, 18)
-    in_ch = generator.integers(17, 33)
-    out_ch = generator.integers(17, 33)
-    input_size = generator.integers(513, 751)
+# # for _ in tqdm(range(num_models // 3)):
+# #     kernel = generator.integers(9, 18)
+# #     in_ch = generator.integers(17, 33)
+# #     out_ch = generator.integers(17, 33)
+# #     input_size = generator.integers(513, 751)
 
-    if (input_size, kernel, in_ch, out_ch) in done_tests:
-        continue
-    done_tests.add((input_size, kernel, in_ch, out_ch))
+# #     if (input_size, kernel, in_ch, out_ch) in done_tests:
+# #         continue
+# #     done_tests.add((input_size, kernel, in_ch, out_ch))
 
-    model = create_conv_onnx(int(kernel), int(in_ch), int(out_ch), int(input_size))
+# #     model = create_conv_onnx(int(kernel), int(in_ch), int(out_ch), int(input_size))
 
-    flops = measure_flops("conv.onnx", [1, in_ch, input_size, input_size])
+# #     flops = measure_flops("conv.onnx", [1, in_ch, input_size, input_size])
 
-    time_exec = measure_execution_time(
-        "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
-    )
-    quantized_time_exec = measure_quantized_execution_time(
-        "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
-    )
+# #     time_exec = measure_execution_time(
+# #         "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
+# #     )
+# #     quantized_time_exec = measure_quantized_execution_time(
+# #         "conv.onnx", [1, in_ch, input_size, input_size], runs_per_model
+# #     )
 
-    flops_list.append(flops)
-    times_list.append(time_exec)
-    quan_times_list.append(quantized_time_exec)
-
-
-data = {
-    "flops": flops_list + flops_list,  # Lista di flops
-    "is_quantized": (
-        [0] * len(flops_list)  # 1 per modelli quantizzati
-        + [1] * len(flops_list)  # 0 per modelli non quantizzati
-    ),
-    "execution_time": times_list
-    + quan_times_list,  # Tempi di esecuzione (non quantizzato + quantizzato)
-}
-
-# Crea un DataFrame con i dati
-df = pandas.DataFrame(data)
-
-# Separiamo i dati in due sottoinsiemi
-df_quantized = df[df["is_quantized"] == 1]
-df_non_quantized = df[df["is_quantized"] == 0]
+# #     flops_list.append(flops)
+# #     times_list.append(time_exec)
+# #     quan_times_list.append(quantized_time_exec)
 
 
-# Funzione per eseguire la regressione polinomiale
-def polynomial_regression(X, y, degree=2):
-    poly = PolynomialFeatures(degree=degree)
-    X_poly = poly.fit_transform(X)
-    regressor = LinearRegression()
-    regressor.fit(X_poly, y)
-    return poly, regressor
+# data = {
+#     "flops": flops_list + flops_list,  # Lista di flops
+#     "is_quantized": (
+#         [0] * len(flops_list)  # 1 per modelli quantizzati
+#         + [1] * len(flops_list)  # 0 per modelli non quantizzati
+#     ),
+#     "execution_time": times_list
+#     + quan_times_list,  # Tempi di esecuzione (non quantizzato + quantizzato)
+# }
+
+# # Crea un DataFrame con i dati
+# df = pandas.DataFrame(data)
+
+# # Separiamo i dati in due sottoinsiemi
+# df_quantized = df[df["is_quantized"] == 1]
+# df_non_quantized = df[df["is_quantized"] == 0]
 
 
-# Eseguiamo la regressione separata per modelli quantizzati e non quantizzati
-X_quantized = df_quantized[["flops", "is_quantized"]]
-y_quantized = df_quantized["execution_time"]
-poly_quantized, regressor_quantized = polynomial_regression(X_quantized, y_quantized)
-
-X_non_quantized = df_non_quantized[["flops", "is_quantized"]]
-y_non_quantized = df_non_quantized["execution_time"]
-poly_non_quantized, regressor_non_quantized = polynomial_regression(
-    X_non_quantized, y_non_quantized
-)
-
-# Generiamo i punti per la visualizzazione della regressione
-flops_range = np.linspace(min(df["flops"]), max(df["flops"]), 100)
-
-# Creiamo i punti di input per la previsione
-X_vis_quantized = np.array([[flop, 1] for flop in flops_range])  # is_quantized = 1
-X_vis_non_quantized = np.array([[flop, 0] for flop in flops_range])  # is_quantized = 0
-
-# Trasformiamo i punti in termini polinomiali
-X_vis_poly_quantized = poly_quantized.transform(X_vis_quantized)
-X_vis_poly_non_quantized = poly_non_quantized.transform(X_vis_non_quantized)
-
-# Previsioni della regressione
-y_vis_quantized = regressor_quantized.predict(X_vis_poly_quantized)
-y_vis_non_quantized = regressor_non_quantized.predict(X_vis_poly_non_quantized)
-
-# ---- Calcolo delle differenze tra quantizzati e non quantizzati ----
-df_diff = df_quantized.copy()
-df_diff["execution_time_diff"] = (
-    df_quantized["execution_time"].values - df_non_quantized["execution_time"].values
-)
-
-y_vis_diff = y_vis_quantized - y_vis_non_quantized
-
-# ---- Creazione del grafico ----
-fig, axes = plt.subplots(2, 1, figsize=(10, 18))
-
-# ---- Grafico della regressione ----
-axes[0].plot(
-    flops_range,
-    y_vis_quantized,
-    label="Regressione Quantizzata",
-    color="red",
-    linewidth=2,
-)
-axes[0].plot(
-    flops_range,
-    y_vis_non_quantized,
-    label="Regressione Non Quantizzata",
-    color="blue",
-    linewidth=2,
-)
-axes[0].scatter(
-    df["flops"],
-    df["execution_time"],
-    c=df["is_quantized"],
-    cmap="viridis",
-    label="Dati Originali",
-    alpha=0.6,
-)
-axes[0].set_xlabel("Flops")
-axes[0].set_ylabel("Tempo di esecuzione")
-axes[0].set_title("Regressione Polinomiale: Flops vs Tempo di Esecuzione")
-axes[0].legend()
-
-# ---- Grafico delle differenze tra quantizzati e non quantizzati ----
-axes[1].scatter(
-    df_quantized["flops"],
-    df_diff["execution_time_diff"],
-    color="purple",
-    label="Differenza Quantizzati - Non Quantizzati",
-)
-axes[1].set_xlabel("Flops")
-axes[1].set_ylabel("Differenza Tempo di Esecuzione")
-axes[1].set_title("Differenza tra Tempi di Esecuzione (Quantizzati - Non Quantizzati)")
-axes[1].legend()
-
-# ---- Grafico della differenza tra le funzioni di regressione ----
-axes[1].plot(
-    flops_range,
-    y_vis_diff,
-    label="Differenza tra le regressioni",
-    color="green",
-    linewidth=2,
-)
-axes[1].fill_between(
-    flops_range,
-    y_vis_diff - 0.05,
-    y_vis_diff + 0.05,
-    color="green",
-    alpha=0.2,
-)
-axes[1].set_xlabel("Flops")
-axes[1].set_ylabel("Differenza Tempo di Esecuzione Previsto")
-axes[1].set_title("Differenza tra le Funzioni di Regressione")
-axes[1].legend()
-
-plt.tight_layout()
-plt.savefig("regression_results.png")
+# # Funzione per eseguire la regressione polinomiale
+# def polynomial_regression(X, y, degree=2):
+#     poly = PolynomialFeatures(degree=degree)
+#     X_poly = poly.fit_transform(X)
+#     regressor = LinearRegression()
+#     regressor.fit(X_poly, y)
+#     return poly, regressor
 
 
-def calculate_rmse(y_true, y_pred):
-    return np.sqrt(mean_squared_error(y_true, y_pred))
+# # Eseguiamo la regressione separata per modelli quantizzati e non quantizzati
+# X_quantized = df_quantized[["flops", "is_quantized"]]
+# y_quantized = df_quantized["execution_time"]
+# poly_quantized, regressor_quantized = polynomial_regression(X_quantized, y_quantized)
+
+# X_non_quantized = df_non_quantized[["flops", "is_quantized"]]
+# y_non_quantized = df_non_quantized["execution_time"]
+# poly_non_quantized, regressor_non_quantized = polynomial_regression(
+#     X_non_quantized, y_non_quantized
+# )
+
+# # Generiamo i punti per la visualizzazione della regressione
+# flops_range = np.linspace(min(df["flops"]), max(df["flops"]), 100)
+
+# # Creiamo i punti di input per la previsione
+# X_vis_quantized = np.array([[flop, 1] for flop in flops_range])  # is_quantized = 1
+# X_vis_non_quantized = np.array([[flop, 0] for flop in flops_range])  # is_quantized = 0
+
+# # Trasformiamo i punti in termini polinomiali
+# X_vis_poly_quantized = poly_quantized.transform(X_vis_quantized)
+# X_vis_poly_non_quantized = poly_non_quantized.transform(X_vis_non_quantized)
+
+# # Previsioni della regressione
+# y_vis_quantized = regressor_quantized.predict(X_vis_poly_quantized)
+# y_vis_non_quantized = regressor_non_quantized.predict(X_vis_poly_non_quantized)
+
+# # ---- Calcolo delle differenze tra quantizzati e non quantizzati ----
+# df_diff = df_quantized.copy()
+# df_diff["execution_time_diff"] = (
+#     df_quantized["execution_time"].values - df_non_quantized["execution_time"].values
+# )
+
+# y_vis_diff = y_vis_quantized - y_vis_non_quantized
+
+# # ---- Creazione del grafico ----
+# fig, axes = plt.subplots(2, 1, figsize=(10, 18))
+
+# # ---- Grafico della regressione ----
+# axes[0].plot(
+#     flops_range,
+#     y_vis_quantized,
+#     label="Regressione Quantizzata",
+#     color="red",
+#     linewidth=2,
+# )
+# axes[0].plot(
+#     flops_range,
+#     y_vis_non_quantized,
+#     label="Regressione Non Quantizzata",
+#     color="blue",
+#     linewidth=2,
+# )
+# axes[0].scatter(
+#     df["flops"],
+#     df["execution_time"],
+#     c=df["is_quantized"],
+#     cmap="viridis",
+#     label="Dati Originali",
+#     alpha=0.6,
+# )
+# axes[0].set_xlabel("Flops")
+# axes[0].set_ylabel("Tempo di esecuzione")
+# axes[0].set_title("Regressione Polinomiale: Flops vs Tempo di Esecuzione")
+# axes[0].legend()
+
+# # ---- Grafico delle differenze tra quantizzati e non quantizzati ----
+# axes[1].scatter(
+#     df_quantized["flops"],
+#     df_diff["execution_time_diff"],
+#     color="purple",
+#     label="Differenza Quantizzati - Non Quantizzati",
+# )
+# axes[1].set_xlabel("Flops")
+# axes[1].set_ylabel("Differenza Tempo di Esecuzione")
+# axes[1].set_title("Differenza tra Tempi di Esecuzione (Quantizzati - Non Quantizzati)")
+# axes[1].legend()
+
+# # ---- Grafico della differenza tra le funzioni di regressione ----
+# axes[1].plot(
+#     flops_range,
+#     y_vis_diff,
+#     label="Differenza tra le regressioni",
+#     color="green",
+#     linewidth=2,
+# )
+# axes[1].fill_between(
+#     flops_range,
+#     y_vis_diff - 0.05,
+#     y_vis_diff + 0.05,
+#     color="green",
+#     alpha=0.2,
+# )
+# axes[1].set_xlabel("Flops")
+# axes[1].set_ylabel("Differenza Tempo di Esecuzione Previsto")
+# axes[1].set_title("Differenza tra le Funzioni di Regressione")
+# axes[1].legend()
+
+# plt.tight_layout()
+# plt.savefig("regression_results.png")
 
 
-# Separiamo i dati in training set e test set
-X_train_quantized, X_test_quantized, y_train_quantized, y_test_quantized = (
-    train_test_split(X_quantized, y_quantized, test_size=0.2, random_state=42)
-)
-(
-    X_train_non_quantized,
-    X_test_non_quantized,
-    y_train_non_quantized,
-    y_test_non_quantized,
-) = train_test_split(X_non_quantized, y_non_quantized, test_size=0.2, random_state=42)
+# def calculate_rmse(y_true, y_pred):
+#     return np.sqrt(mean_squared_error(y_true, y_pred))
 
-# Regressione polinomiale sui dati di addestramento
-poly_quantized, regressor_quantized = polynomial_regression(
-    X_train_quantized, y_train_quantized
-)
-poly_non_quantized, regressor_non_quantized = polynomial_regression(
-    X_train_non_quantized, y_train_non_quantized
-)
 
-# Eseguiamo le previsioni sui dati di test
-y_pred_quantized = regressor_quantized.predict(
-    poly_quantized.transform(X_test_quantized)
-)
-y_pred_non_quantized = regressor_non_quantized.predict(
-    poly_non_quantized.transform(X_test_non_quantized)
-)
+# # Separiamo i dati in training set e test set
+# X_train_quantized, X_test_quantized, y_train_quantized, y_test_quantized = (
+#     train_test_split(X_quantized, y_quantized, test_size=0.2, random_state=42)
+# )
+# (
+#     X_train_non_quantized,
+#     X_test_non_quantized,
+#     y_train_non_quantized,
+#     y_test_non_quantized,
+# ) = train_test_split(X_non_quantized, y_non_quantized, test_size=0.2, random_state=42)
 
-# Calcoliamo l'errore medio quadratico (RMSE) per entrambi i modelli
-rmse_quantized = calculate_rmse(y_test_quantized, y_pred_quantized)
-rmse_non_quantized = calculate_rmse(y_test_non_quantized, y_pred_non_quantized)
+# # Regressione polinomiale sui dati di addestramento
+# poly_quantized, regressor_quantized = polynomial_regression(
+#     X_train_quantized, y_train_quantized
+# )
+# poly_non_quantized, regressor_non_quantized = polynomial_regression(
+#     X_train_non_quantized, y_train_non_quantized
+# )
 
-print(f"RMSE per il modello quantizzato: {rmse_quantized}")
-print(f"RMSE per il modello non quantizzato: {rmse_non_quantized}")
+# # Eseguiamo le previsioni sui dati di test
+# y_pred_quantized = regressor_quantized.predict(
+#     poly_quantized.transform(X_test_quantized)
+# )
+# y_pred_non_quantized = regressor_non_quantized.predict(
+#     poly_non_quantized.transform(X_test_non_quantized)
+# )
 
-# Aggiungi i test su entrambe le regressioni nel grafico
-# Ora possiamo generare anche il grafico delle previsioni di test
+# # Calcoliamo l'errore medio quadratico (RMSE) per entrambi i modelli
+# rmse_quantized = calculate_rmse(y_test_quantized, y_pred_quantized)
+# rmse_non_quantized = calculate_rmse(y_test_non_quantized, y_pred_non_quantized)
 
-# ---- Grafico delle previsioni di test ----
-fig, axes = plt.subplots(2, 1, figsize=(10, 18))
+# print(f"RMSE per il modello quantizzato: {rmse_quantized}")
+# print(f"RMSE per il modello non quantizzato: {rmse_non_quantized}")
 
-# ---- Grafico delle previsioni di test ----
-axes[0].scatter(
-    X_test_quantized.iloc[:, 0],
-    y_test_quantized,
-    color="red",
-    label="Test Quantizzato (Reale)",
-)
-axes[0].scatter(
-    X_test_quantized.iloc[:, 0],
-    y_pred_quantized,
-    color="orange",
-    label="Test Quantizzato (Predetto)",
-)
-axes[0].scatter(
-    X_test_non_quantized.iloc[:, 0],
-    y_test_non_quantized,
-    color="blue",
-    label="Test Non Quantizzato (Reale)",
-)
-axes[0].scatter(
-    X_test_non_quantized.iloc[:, 0],
-    y_pred_non_quantized,
-    color="cyan",
-    label="Test Non Quantizzato (Predetto)",
-)
+# # Aggiungi i test su entrambe le regressioni nel grafico
+# # Ora possiamo generare anche il grafico delle previsioni di test
 
-axes[0].set_xlabel("Flops")
-axes[0].set_ylabel("Tempo di esecuzione")
-axes[0].set_title("Previsioni di Test: Quantizzato vs Non Quantizzato")
-axes[0].legend()
+# # ---- Grafico delle previsioni di test ----
+# fig, axes = plt.subplots(2, 1, figsize=(10, 18))
 
-plt.tight_layout()
-plt.savefig("test_predictions.png")
+# # ---- Grafico delle previsioni di test ----
+# axes[0].scatter(
+#     X_test_quantized.iloc[:, 0],
+#     y_test_quantized,
+#     color="red",
+#     label="Test Quantizzato (Reale)",
+# )
+# axes[0].scatter(
+#     X_test_quantized.iloc[:, 0],
+#     y_pred_quantized,
+#     color="orange",
+#     label="Test Quantizzato (Predetto)",
+# )
+# axes[0].scatter(
+#     X_test_non_quantized.iloc[:, 0],
+#     y_test_non_quantized,
+#     color="blue",
+#     label="Test Non Quantizzato (Reale)",
+# )
+# axes[0].scatter(
+#     X_test_non_quantized.iloc[:, 0],
+#     y_pred_non_quantized,
+#     color="cyan",
+#     label="Test Non Quantizzato (Predetto)",
+# )
+
+# axes[0].set_xlabel("Flops")
+# axes[0].set_ylabel("Tempo di esecuzione")
+# axes[0].set_title("Previsioni di Test: Quantizzato vs Non Quantizzato")
+# axes[0].legend()
+
+# plt.tight_layout()
+# plt.savefig("test_predictions.png")

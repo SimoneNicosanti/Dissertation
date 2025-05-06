@@ -495,7 +495,7 @@ $$E_0 = E_0^{x} + E_0^{c}$$
 ## Modello di Memoria
 Il modello di memoria più o meno è sempre uguale, al netto dell'effetto della quantizzazione sui pesi.
 
-## Modello di Errore
+## Modello di Rumore
 I problemi principali dell'uso della quantizzazione per livelli singoli è il seguente:
 1. Non sappiamo come le quantizzazioni tra livelli interagiscono tra di loro
 2. Ci sono molte possibili combinazioni di quantizzazione: se ogni livello della rete può essere quantizzato e non quantizzato, allora ci sono $2^{|V_M|}$ possibilità, troppo per indagarle tutte 
@@ -517,8 +517,8 @@ Di base serve un modello di regressione che sia esprimibile con vincoli lineari:
 
 Alcune prove fanno vedere che (almeno per Yolo11n-seg) una regressione polinomiale funziona bene.
 
-
-Supponiamo di usare una regressione lineare. Sia $\hat{q} = (q_1, q_2, ..., q_{|V_Q|})$ il vettore delle variabili $q_i$ solo dei livelli quantizzabili: questa variabile ha valore 1 sse il livello in questione è quantizzato.
+Sia 
+Supponiamo di usare una regressione polinomiale. Sia $\hat{q} = (q_1, q_2, ..., q_{|V_Q|})$ il vettore delle variabili $q_i$ solo dei livelli quantizzabili: questa variabile ha valore 1 sse il livello in questione è quantizzato.
 
 Allora possiamo scrivere la funzione di errore come:
 $$
@@ -572,4 +572,6 @@ In totale quindi il regressore è esprimibile come:
 $$e(\hat q) = w^T \cdot \hat q = \sum_{i \in V_Q} w_{ii} \cdot q_i + \sum_{i < j} w_{ij} \cdot q_{ij}
 $$
 Ed è quindi ancora una funzione lineare. Notiamo che se in fase di addestramento le interazioni combinate sono poco significative (i.e. $w_{ij} = 0$) allora non ci sarà bisogno di definire la variabile prodotto e il numero di variabili/vincoli diminuisce.
+
+Con regressioni di livello superiore la cosa è estendibile facilemente (fino ad un certo punto per non far esplodere il problema).
 

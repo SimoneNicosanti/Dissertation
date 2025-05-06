@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 import onnxruntime as ort
 import supervision as sv
 from ultralytics import YOLO
@@ -131,5 +132,5 @@ def test_segmentation():
 
 if __name__ == "__main__":
 
-    # test_detection()
+    test_detection()
     test_segmentation()
