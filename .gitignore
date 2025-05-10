@@ -6,3 +6,5 @@ runs/
 *.pt
 *.keras
 coco128/
+*.npy
+*.npz
