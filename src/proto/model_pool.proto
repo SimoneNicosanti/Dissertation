@@ -1,0 +1,58 @@
+
+
+syntax = "proto3";
+package pool;
+
+import "common.proto";
+
+service ModelPool {
+    rpc push_model(stream PushRequest) returns (PushResponse);
+
+    rpc pull_model(PullRequest) returns (stream PullResponse);
+    rpc pull_layer_models(PullRequest) returns (stream LayerPullResponse);
+
+    rpc push_calibration_dataset(stream CalibrationPushRequest) returns (PushResponse);
+    rpc pull_calibration_dataset(CalibrationPullRequest) returns (stream CalibrationChunk);
+}
+
+
+message ModelChunk {
+    int32 total_chunks = 2;
+    int32 chunk_idx = 3;
+    bytes chunk_data = 4 ;
+}
+
+message PushRequest {
+    common.ComponentId component_id = 1;
+    ModelChunk model_chunk = 2;
+}
+
+message CalibrationChunk {
+    bytes chunk_data = 1;
+}
+
+message CalibrationPushRequest {
+    common.ModelId model_id = 1;
+    CalibrationChunk calibration_chunk = 2;
+}
+
+message CalibrationPullRequest {
+    common.ModelId model_id = 1;
+}
+
+message PushResponse {
+    
+}
+
+message PullRequest {
+    common.ComponentId component_id = 1;
+}
+
+message PullResponse {
+    ModelChunk model_chunk = 1;
+}
+
+message LayerPullResponse {
+    string layer_name = 1;
+    ModelChunk model_chunk = 2;
+}

@@ -1,5 +1,7 @@
 import configparser
 
+MEGABYTE_SIZE = 1024 * 1024
+
 
 class ConfigReader:
 
@@ -10,7 +12,7 @@ class ConfigReader:
             cls.__instance = super().__new__(cls)
         return cls.__instance
 
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str = "./config/config.ini"):
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
         pass
@@ -29,3 +31,9 @@ class ConfigReader:
         for key in self.config.options(section):
             dir_list.append(self.config.get(section, key))
         return dir_list
+
+    def read_bytes_chunk_size(self) -> float:
+        m_bytes_chunk_size = self.read_float("grpc", "MAX_CHUNK_SIZE_MB")
+        bytes_chunk_size = int(m_bytes_chunk_size * MEGABYTE_SIZE)
+
+        return bytes_chunk_size

@@ -4,19 +4,12 @@ package pool;
 import "common.proto";
 
 
-service ModelManager {
-    rpc profile_model(ProfileRequest) returns (ProfileResponse);
+service ModelDivide {
     rpc divide_model(PartitionRequest) returns (PartitionResponse);
 }
 
 
-message ProfileRequest {
-    common.ModelId model_id = 1;
-}
 
-message ProfileResponse {
-    string model_profile = 1 ;
-}
 
 message PartitionRequest {
     common.ModelId model_id = 1;

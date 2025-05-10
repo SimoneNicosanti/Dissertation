@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Quantizzazione.md",
+                "file": "Notes/Architettura/Architettura 2.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Quantizzazione"
+              "title": "Architettura 2"
             }
           }
         ]
@@ -166,18 +166,19 @@
   },
   "active": "ea6705b88afb4b0a",
   "lastOpenFiles": [
-    "Notes/Architettura/Architettura 2.md",
-    "Notes/Architettura/Diagrams/Architecture_Inference.svg.xml",
-    "Notes/Architettura/Diagrams/Architecture_Inference.svg",
-    "Notes/Architettura/Diagrams/Architecture_Optimization.svg.xml",
-    "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
     "Notes/Architettura/Architettura.md",
-    "Notes/Architettura/Architettura_Inviare.md",
+    "Notes/Architettura/Architettura 2.md",
     "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
     "Notes/Architettura/Diagrams/Architecture_Control.svg",
-    "Notes/Architettura/Diagrams/Architecture_Control.svg.xml",
-    "Notes/Quantizzazione.md",
+    "Diagram.svg",
     "Notes/Profiling.md",
+    "Diagram.svg.xml",
+    "Notes/Architettura/Diagrams/Architecture_Inference.svg",
+    "Notes/Quantizzazione.md",
+    "Notes/Architettura/Diagrams/Architecture_Inference.svg.xml",
+    "Notes/Architettura/Diagrams/Architecture_Optimization.svg.xml",
+    "Notes/Architettura/Architettura_Inviare.md",
+    "Notes/Architettura/Diagrams/Architecture_Control.svg.xml",
     "Paper/Gillis/gillis-icdcs21.pdf",
     "Paper/Furcifer/Furcifer_PerCom24.pdf",
     "Notes/Yolo.md",
@@ -201,11 +202,9 @@
     "Notes/Indice Tesi.md",
     "Paper/Neurosurgeon.pdf",
     "Paper/Acyclic_DAG_Partitioning.pdf",
-    "Paper/Graph_Partitioning.pdf",
     "Notes/Split del Modello.md",
     "26.md",
     "Paper/Furcifer/Furcifer - Notes.md",
-    "Paper/CoEdge/Schermata del 2024-11-30 15-29-15.png",
     "Paper/CoEdge/CoEdge - Notes.md",
     "Notes/Monitoraggio.md",
     "Highlights for 2021_chapter.md",

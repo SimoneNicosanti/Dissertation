@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "common.proto";
+
+
+service ModelProfile {
+    rpc profile_model(ProfileRequest) returns (ProfileResponse);
+}
+
+message ProfileRequest {
+    common.ModelId model_id = 1;
+}
+
+message ProfileResponse {
+    string model_profile = 1 ;
+}

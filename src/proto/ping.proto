@@ -1,6 +1,3 @@
-
-
-
 syntax = "proto3";
 package optimizer;
 

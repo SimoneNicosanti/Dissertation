@@ -11,7 +11,7 @@ from StatePool.StatePoolServer import StatePoolServer
 
 def main():
 
-    config_reader = ConfigReader.ConfigReader("./config/config.ini")
+    config_reader = ConfigReader.ConfigReader()
 
     registry_addr = config_reader.read_str("addresses", "REGISTRY_ADDR")
     registry_port = config_reader.read_int("ports", "REGISTRY_PORT")

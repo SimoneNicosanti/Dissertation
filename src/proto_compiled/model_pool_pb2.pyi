@@ -23,6 +23,26 @@ class PushRequest(_message.Message):
     model_chunk: ModelChunk
     def __init__(self, component_id: _Optional[_Union[_common_pb2.ComponentId, _Mapping]] = ..., model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...
 
+class CalibrationChunk(_message.Message):
+    __slots__ = ("chunk_data",)
+    CHUNK_DATA_FIELD_NUMBER: _ClassVar[int]
+    chunk_data: bytes
+    def __init__(self, chunk_data: _Optional[bytes] = ...) -> None: ...
+
+class CalibrationPushRequest(_message.Message):
+    __slots__ = ("model_id", "calibration_chunk")
+    MODEL_ID_FIELD_NUMBER: _ClassVar[int]
+    CALIBRATION_CHUNK_FIELD_NUMBER: _ClassVar[int]
+    model_id: _common_pb2.ModelId
+    calibration_chunk: CalibrationChunk
+    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ..., calibration_chunk: _Optional[_Union[CalibrationChunk, _Mapping]] = ...) -> None: ...
+
+class CalibrationPullRequest(_message.Message):
+    __slots__ = ("model_id",)
+    MODEL_ID_FIELD_NUMBER: _ClassVar[int]
+    model_id: _common_pb2.ModelId
+    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ...) -> None: ...
+
 class PushResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
@@ -38,3 +58,11 @@ class PullResponse(_message.Message):
     MODEL_CHUNK_FIELD_NUMBER: _ClassVar[int]
     model_chunk: ModelChunk
     def __init__(self, model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...
+
+class LayerPullResponse(_message.Message):
+    __slots__ = ("layer_name", "model_chunk")
+    LAYER_NAME_FIELD_NUMBER: _ClassVar[int]
+    MODEL_CHUNK_FIELD_NUMBER: _ClassVar[int]
+    layer_name: str
+    model_chunk: ModelChunk
+    def __init__(self, layer_name: _Optional[str] = ..., model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...

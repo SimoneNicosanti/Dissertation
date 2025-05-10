@@ -27,7 +27,9 @@ if _version_not_supported:
 
 
 class InferenceStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """Inference
+    Inference service exposed by the server in order to do distributed inference
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -43,7 +45,9 @@ class InferenceStub(object):
 
 
 class InferenceServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """Inference
+    Inference service exposed by the server in order to do distributed inference
+    """
 
     def do_inference(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
@@ -68,7 +72,9 @@ def add_InferenceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class Inference(object):
-    """Missing associated documentation comment in .proto file."""
+    """Inference
+    Inference service exposed by the server in order to do distributed inference
+    """
 
     @staticmethod
     def do_inference(request_iterator,
@@ -99,7 +105,9 @@ class Inference(object):
 
 
 class AssigneeStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """Assignment
+    Assignment service used in order to tell each server the plan to follow
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -115,7 +123,9 @@ class AssigneeStub(object):
 
 
 class AssigneeServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """Assignment
+    Assignment service used in order to tell each server the plan to follow
+    """
 
     def send_plan(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -140,7 +150,9 @@ def add_AssigneeServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class Assignee(object):
-    """Missing associated documentation comment in .proto file."""
+    """Assignment
+    Assignment service used in order to tell each server the plan to follow
+    """
 
     @staticmethod
     def send_plan(request,
@@ -159,6 +171,84 @@ class Assignee(object):
             '/server.Assignee/send_plan',
             common__pb2.OptimizedPlan.SerializeToString,
             server__pb2.AssignmentResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class ExecutionProfileStub(object):
+    """Execution Profile
+    Service exposed in order to build execution profile for a certain model
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.profile_execution = channel.unary_unary(
+                '/server.ExecutionProfile/profile_execution',
+                request_serializer=server__pb2.ExecutionProfileRequest.SerializeToString,
+                response_deserializer=server__pb2.ExecutionProfileResponse.FromString,
+                _registered_method=True)
+
+
+class ExecutionProfileServicer(object):
+    """Execution Profile
+    Service exposed in order to build execution profile for a certain model
+    """
+
+    def profile_execution(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_ExecutionProfileServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'profile_execution': grpc.unary_unary_rpc_method_handler(
+                    servicer.profile_execution,
+                    request_deserializer=server__pb2.ExecutionProfileRequest.FromString,
+                    response_serializer=server__pb2.ExecutionProfileResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'server.ExecutionProfile', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('server.ExecutionProfile', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class ExecutionProfile(object):
+    """Execution Profile
+    Service exposed in order to build execution profile for a certain model
+    """
+
+    @staticmethod
+    def profile_execution(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/server.ExecutionProfile/profile_execution',
+            server__pb2.ExecutionProfileRequest.SerializeToString,
+            server__pb2.ExecutionProfileResponse.FromString,
             options,
             channel_credentials,
             insecure,

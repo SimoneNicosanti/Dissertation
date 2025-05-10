@@ -66,6 +66,7 @@ services:
 
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
+      - ./CommonModel:/src/CommonModel
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src
@@ -121,7 +122,8 @@ services:
       - ./proto_compiled:/src/proto_compiled
 
       - ./ModelPool:/src/ModelPool
-      - ./ModelManager:/src/ModelManager
+      - ./ModelDivider:/src/ModelDivider
+      - ./ModelProfiler:/src/ModelProfiler
 
       - ./Main/ModelManagerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
@@ -130,8 +132,11 @@ services:
       - ./Common:/src/Common
       - ./CommonProfile:/src/CommonProfile
       - ./CommonPlan:/src/CommonPlan
+      - ./CommonModel:/src/CommonModel
 
-      - ./Other/models:/manager_data/models
-      - ./Other/divided_models:/model_pool_data/models
+      - ./Other/models:/model_pool_data/models
+      - ./Other/models_profiles:/model_profiler_data/models_profiles
+      - ./Other/divided_models:/model_pool_data/components
+      - ./Other/calibration_dataset:/model_pool_data/calibration_dataset
 
     working_dir: /src

@@ -15,7 +15,7 @@ def main():
 
     interactor = InferenceCaller()
 
-    coco_config_path = ConfigReader.ConfigReader("./config/config.ini").read_str(
+    coco_config_path = ConfigReader.ConfigReader().read_str(
         "device_paths", "COCO_CONFIG_PATH"
     )
     classes = yaml.safe_load(open(coco_config_path))["names"]

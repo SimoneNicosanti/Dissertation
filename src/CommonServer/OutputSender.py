@@ -12,27 +12,18 @@ from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.server_pb2 import InferenceInput, Tensor, TensorChunk, TensorInfo
 from proto_compiled.server_pb2_grpc import InferenceStub
 
-MEGABYTE_SIZE = 1024 * 1024
-
 
 class OutputSender:
     def __init__(self):
-        registry_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+        registry_addr = ConfigReader.ConfigReader().read_str(
             "addresses", "REGISTRY_ADDR"
         )
-        registry_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "ports", "REGISTRY_PORT"
-        )
+        registry_port = ConfigReader.ConfigReader().read_int("ports", "REGISTRY_PORT")
         self.registry_connection = grpc.insecure_channel(
             "{}:{}".format(registry_addr, registry_port)
         )
 
-        self.chunk_size_bytes = int(
-            ConfigReader.ConfigReader("./config/config.ini").read_float(
-                "grpc", "MAX_CHUNK_SIZE_MB"
-            )
-            * MEGABYTE_SIZE
-        )
+        self.chunk_size_bytes = ConfigReader.ConfigReader().read_bytes_chunk_size()
 
         self.server_channel_lock = rwlock.RWLockWriteD()
         self.next_server_channel: dict[str, grpc.Channel] = {}

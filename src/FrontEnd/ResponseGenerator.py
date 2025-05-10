@@ -9,12 +9,7 @@ MEGABYTE_SIZE = 1024 * 1024
 
 def yield_response(out_tensor_wrap_list: list[TensorWrapper]):
 
-    chunk_size_bytes = int(
-        ConfigReader.ConfigReader("./config/config.ini").read_float(
-            "grpc", "MAX_CHUNK_SIZE_MB"
-        )
-        * MEGABYTE_SIZE
-    )
+    chunk_size_bytes = int(ConfigReader.ConfigReader().read_bytes_chunk_size())
 
     for tensor_wrap in out_tensor_wrap_list:
 

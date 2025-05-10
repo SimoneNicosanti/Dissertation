@@ -15,12 +15,8 @@ from proto_compiled.server_pb2_grpc import add_InferenceServicer_to_server
 def main(args):
     print("Asking For Plan Optimization")
 
-    optimizer_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
-        "addresses", "OPTIMIZER_ADDR"
-    )
-    optimizer_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-        "ports", "OPTIMIZER_PORT"
-    )
+    optimizer_addr = ConfigReader.ConfigReader().read_str("addresses", "OPTIMIZER_ADDR")
+    optimizer_port = ConfigReader.ConfigReader().read_int("ports", "OPTIMIZER_PORT")
     optimizer_stub: OptimizationStub = OptimizationStub(
         grpc.insecure_channel("{}:{}".format(optimizer_addr, optimizer_port))
     )
@@ -47,9 +43,7 @@ def main(args):
             model_info, plan_wrapper, components_dict, None
         )
 
-    frontend_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-        "ports", "FRONTEND_PORT"
-    )
+    frontend_port = ConfigReader.ConfigReader().read_int("ports", "FRONTEND_PORT")
     add_InferenceServicer_to_server(frontend_servicer, server)
     server.add_insecure_port(f"[::]:{frontend_port}")
 

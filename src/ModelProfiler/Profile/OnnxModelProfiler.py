@@ -8,25 +8,20 @@ import onnx
 import onnx_tool
 from onnx.mapping import TENSOR_TYPE_MAP
 
-from Common.ConfigReader import ConfigReader
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.NodeId import NodeId
-from ModelManager.Profile.ModelProfiler import ModelProfiler
+from ModelProfiler.Profile.AbsModelProfiler import AbsModelProfiler
 
 
-class OnnxModelProfiler(ModelProfiler):
+class OnnxModelProfiler(AbsModelProfiler):
 
-    def __init__(self, model_name: str) -> None:
-        super().__init__(model_name)
-        model_dir = ConfigReader("./config/config.ini").read_str(
-            "model_manager_dirs", "MODELS_DIR"
-        )
-        self.model_path = os.path.join(model_dir, model_name) + ".onnx"
+    def __init__(self) -> None:
+        super().__init__()
 
-    def profile_model(self, input_shapes: dict[str, tuple]) -> nx.DiGraph:
+    def profile_model(
+        self, model: onnx.ModelProto, model_name: str, input_shapes: dict[str, tuple]
+    ) -> nx.DiGraph:
 
-        model: onnx.ModelProto = onnx.load(self.model_path)
-        model_name = os.path.basename(self.model_path).removesuffix(".onnx")
         graph: nx.DiGraph = nx.DiGraph(name=model_name)
 
         self.init_model_graph(graph, model)
@@ -42,7 +37,7 @@ class OnnxModelProfiler(ModelProfiler):
         ## Adding Fake Input Node
         node_idx = 0
         model_graph.add_node(
-            NodeId(ModelProfiler.INPUT_GENERATOR_NAME),
+            NodeId(AbsModelProfiler.INPUT_GENERATOR_NAME),
             idx=node_idx,
             flops=0,
             weights_size=0,
@@ -86,7 +81,7 @@ class OnnxModelProfiler(ModelProfiler):
 
         ## Adding Fake Output Node
         model_graph.add_node(
-            NodeId(ModelProfiler.OUTPUT_RECEIVER_NAME),
+            NodeId(AbsModelProfiler.OUTPUT_RECEIVER_NAME),
             idx=node_idx,
             receiver=True,
             flops=0,
@@ -100,7 +95,7 @@ class OnnxModelProfiler(ModelProfiler):
             for node in model.graph.node:
                 if input.name in node.input:
                     model_graph.add_edge(
-                        NodeId(ModelProfiler.INPUT_GENERATOR_NAME),
+                        NodeId(AbsModelProfiler.INPUT_GENERATOR_NAME),
                         NodeId(node.name),
                     )
 
@@ -109,7 +104,7 @@ class OnnxModelProfiler(ModelProfiler):
             for node in model.graph.node:
                 if output.name in node.output:
                     model_graph.add_edge(
-                        NodeId(node.name), NodeId(ModelProfiler.OUTPUT_RECEIVER_NAME)
+                        NodeId(node.name), NodeId(AbsModelProfiler.OUTPUT_RECEIVER_NAME)
                     )
 
     def do_profile(self, graph: nx.DiGraph, onnx_model: onnx.ModelProto):
@@ -224,7 +219,7 @@ class OnnxModelProfiler(ModelProfiler):
         for input_receiver_info in input_receiver_info_list:
 
             edge_id = (
-                NodeId(ModelProfiler.INPUT_GENERATOR_NAME),
+                NodeId(AbsModelProfiler.INPUT_GENERATOR_NAME),
                 NodeId(onnx_node.name),
             )
             graph.edges[edge_id].setdefault(ModelEdgeInfo.TOT_TENSOR_SIZE, 0)
@@ -248,7 +243,7 @@ class OnnxModelProfiler(ModelProfiler):
 
             edge_id = (
                 NodeId(onnx_node.name),
-                NodeId(ModelProfiler.OUTPUT_RECEIVER_NAME),
+                NodeId(AbsModelProfiler.OUTPUT_RECEIVER_NAME),
             )
 
             graph.edges[edge_id].setdefault(ModelEdgeInfo.TOT_TENSOR_SIZE, 0)
@@ -341,7 +336,7 @@ class OnnxModelProfiler(ModelProfiler):
         m.graph.shape_infer(input_dict)
         m.graph.profile()
 
-        tempfile_name: str = tempfile.mktemp() + ".csv"
+        _, tempfile_name = tempfile.mkstemp(suffix=".csv")
         m.graph.print_node_map(tempfile_name, metric="FLOPs")
 
         flops_dict = {}

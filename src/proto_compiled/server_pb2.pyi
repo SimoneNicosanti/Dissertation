@@ -6,10 +6,6 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class AssignmentResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
 class InferenceInput(_message.Message):
     __slots__ = ("request_id", "component_id", "input_tensor")
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
@@ -51,3 +47,19 @@ class InferenceResponse(_message.Message):
     OUTPUT_TENSOR_FIELD_NUMBER: _ClassVar[int]
     output_tensor: Tensor
     def __init__(self, output_tensor: _Optional[_Union[Tensor, _Mapping]] = ...) -> None: ...
+
+class AssignmentResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class ExecutionProfileRequest(_message.Message):
+    __slots__ = ("model_id",)
+    MODEL_ID_FIELD_NUMBER: _ClassVar[int]
+    model_id: _common_pb2.ModelId
+    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ...) -> None: ...
+
+class ExecutionProfileResponse(_message.Message):
+    __slots__ = ("profile",)
+    PROFILE_FIELD_NUMBER: _ClassVar[int]
+    profile: str
+    def __init__(self, profile: _Optional[str] = ...) -> None: ...

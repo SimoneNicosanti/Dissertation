@@ -10,13 +10,9 @@ from proto_compiled.optimizer_pb2_grpc import add_OptimizationServicer_to_server
 
 def main():
 
-    optimizer_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-        "ports", "OPTIMIZER_PORT"
-    )
+    optimizer_port = ConfigReader.ConfigReader().read_int("ports", "OPTIMIZER_PORT")
 
-    dir_list = ConfigReader.ConfigReader("./config/config.ini").read_all_dirs(
-        "optimizer_dirs"
-    )
+    dir_list = ConfigReader.ConfigReader().read_all_dirs("optimizer_dirs")
     for dir in dir_list:
         os.makedirs(dir, exist_ok=True)
 

@@ -10,5 +10,7 @@ RUN pip install onnx
 RUN pip install onnxruntime
 RUN pip install onnxslim
 RUN pip install onnx-tool
+RUN pip install pandas
+RUN pip install scikit-learn
 
 CMD ["/bin/bash"]

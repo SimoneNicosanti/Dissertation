@@ -3,25 +3,17 @@ package server;
 
 import "common.proto";
 
+// Inference
+// Inference service exposed by the server in order to do distributed inference
 service Inference {
     rpc do_inference(stream InferenceInput) returns (stream InferenceResponse) ;
 }
-
-
-service Assignee {
-    rpc send_plan(common.OptimizedPlan) returns (AssignmentResponse);
-}
-
-message AssignmentResponse {}
-
 
 message InferenceInput {
     common.RequestId request_id = 1;
     common.ComponentId component_id = 2;
     Tensor input_tensor = 3;
 }
-
-
 
 message Tensor {
     TensorInfo info = 1;
@@ -42,4 +34,26 @@ message TensorChunk {
 
 message InferenceResponse {
     Tensor output_tensor = 1;
+}
+
+// Assignment
+// Assignment service used in order to tell each server the plan to follow
+service Assignee {
+    rpc send_plan(common.OptimizedPlan) returns (AssignmentResponse);
+}
+
+message AssignmentResponse {}
+
+// Execution Profile
+// Service exposed in order to build execution profile for a certain model
+service ExecutionProfile {
+    rpc profile_execution(ExecutionProfileRequest) returns (ExecutionProfileResponse);
+}
+
+message ExecutionProfileRequest {
+    common.ModelId model_id = 1 ;
+}
+
+message ExecutionProfileResponse {
+    string profile = 1 ;
 }
