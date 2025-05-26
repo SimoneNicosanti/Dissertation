@@ -57,6 +57,8 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             layer_exec_times = profiler.profile_exec_time(
                 layer_model, self.layer_run_times
             )
+
+            print(f"Profiled {layer_name} >> {layer_exec_times}")
             model_profile[layer_name] = layer_exec_times
 
         self.save_profile(model_id, model_profile)

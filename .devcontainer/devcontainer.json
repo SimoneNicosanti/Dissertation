@@ -24,7 +24,9 @@
         "vincent-templier.vscode-netron",
         "eamodio.gitlens",
         "trunk.io",
-        "GrapeCity.gc-excelviewer"
+        "GrapeCity.gc-excelviewer",
+        "codeium.codeium"
+
       ]
     }
   }

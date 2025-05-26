@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "ef469214210793e2",
+        "id": "d22f206bc3e108ae",
         "type": "tabs",
         "children": [
           {
-            "id": "ea6705b88afb4b0a",
+            "id": "75523d1393ddf165",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Notes/Architettura/Architettura 2.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Architettura 2"
+              "title": "Nuova scheda"
             }
           }
         ]
@@ -164,10 +160,10 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "ea6705b88afb4b0a",
+  "active": "75523d1393ddf165",
   "lastOpenFiles": [
-    "Notes/Architettura/Architettura.md",
     "Notes/Architettura/Architettura 2.md",
+    "Notes/Architettura/Architettura.md",
     "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
     "Notes/Architettura/Diagrams/Architecture_Control.svg",
     "Diagram.svg",

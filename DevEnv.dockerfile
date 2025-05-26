@@ -39,7 +39,7 @@ RUN pip install onnx
 RUN pip install onnxruntime
 RUN pip install onnxslim
 RUN pip install onnxruntime-extensions
-RUN pip install onnx-tools
+RUN pip install onnx-tool
 RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
 RUN pip install PuLP
 RUN apt-get install glpk-utils libglpk-dev -y

@@ -18,7 +18,6 @@ from proto_compiled.model_profile_pb2_grpc import ModelProfileServicer
 class ModelProfileServer(ModelProfileServicer):
 
     def __init__(self):
-
         self.model_pool_interface = PoolInterface()
 
         pass
@@ -41,19 +40,24 @@ class ModelProfileServer(ModelProfileServicer):
                 onnx_model, model_name, {}
             )
 
+            train_set_size = 750
+            test_set_size = 50
+            calibration_size = 100
+            noise_set_size = 1
+
             dataframe: pd.DataFrame = QuantizationProfile().profile_quantization(
                 onnx_model,
                 model_profile,
                 max_quantizable=10,
                 calibration_dataset=dataset,
-                train_set_size=750,
-                test_set_size=50,
-                calibration_size=100,
-                noise_test_size=1,
+                train_set_size=train_set_size,
+                test_set_size=test_set_size,
+                calibration_size=calibration_size,
+                noise_test_size=noise_set_size,
             )
 
             regressor, train_score, test_score = QuantizationRegressor.build_regressor(
-                dataframe, 10, 2, 3
+                dataframe, train_set_size, test_set_size, 3
             )
 
             QuantizationRegressor.embed_regressor_in_profile(
@@ -61,8 +65,6 @@ class ModelProfileServer(ModelProfileServicer):
             )
 
             self.save_profile(model_name, model_profile)
-
-            ## TODO Add Quantization Evaluation in profiling
 
         model_profile = self.read_profile(model_name)
 

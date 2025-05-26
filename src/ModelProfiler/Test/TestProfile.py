@@ -8,7 +8,7 @@ from proto_compiled.common_pb2 import ModelId
 from proto_compiled.model_profile_pb2 import ProfileRequest, ProfileResponse
 from proto_compiled.model_profile_pb2_grpc import ModelProfileStub
 
-model_name = "yolo11n"
+model_name = "yolo11n-seg"
 
 model_profiler = ModelProfileStub(grpc.insecure_channel("localhost:50004"))
 

@@ -4,7 +4,7 @@ import grpc
 import warnings
 
 import common_pb2 as common__pb2
-import state_pool_pb2 as state__pool__pb2
+import deployment_pb2 as deployment__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
@@ -19,14 +19,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in state_pool_pb2_grpc.py depends on'
+        + f' but the generated code in deployment_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class StatePoolStub(object):
+class DeploymentStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -35,59 +35,59 @@ class StatePoolStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.push_state = channel.unary_unary(
-                '/pool.StatePool/push_state',
-                request_serializer=state__pool__pb2.ServerState.SerializeToString,
+        self.deploy_model = channel.unary_unary(
+                '/pool.Deployment/deploy_model',
+                request_serializer=deployment__pb2.DeploymentRequest.SerializeToString,
+                response_deserializer=deployment__pb2.DeploymentResponse.FromString,
+                _registered_method=True)
+        self.deploy_plan = channel.unary_unary(
+                '/pool.Deployment/deploy_plan',
+                request_serializer=common__pb2.OptimizedPlan.SerializeToString,
                 response_deserializer=common__pb2.Empty.FromString,
                 _registered_method=True)
-        self.pull_all_states = channel.unary_unary(
-                '/pool.StatePool/pull_all_states',
-                request_serializer=common__pb2.Empty.SerializeToString,
-                response_deserializer=state__pool__pb2.StateMap.FromString,
-                _registered_method=True)
 
 
-class StatePoolServicer(object):
+class DeploymentServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def push_state(self, request, context):
+    def deploy_model(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def pull_all_states(self, request, context):
+    def deploy_plan(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_StatePoolServicer_to_server(servicer, server):
+def add_DeploymentServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'push_state': grpc.unary_unary_rpc_method_handler(
-                    servicer.push_state,
-                    request_deserializer=state__pool__pb2.ServerState.FromString,
-                    response_serializer=common__pb2.Empty.SerializeToString,
+            'deploy_model': grpc.unary_unary_rpc_method_handler(
+                    servicer.deploy_model,
+                    request_deserializer=deployment__pb2.DeploymentRequest.FromString,
+                    response_serializer=deployment__pb2.DeploymentResponse.SerializeToString,
             ),
-            'pull_all_states': grpc.unary_unary_rpc_method_handler(
-                    servicer.pull_all_states,
-                    request_deserializer=common__pb2.Empty.FromString,
-                    response_serializer=state__pool__pb2.StateMap.SerializeToString,
+            'deploy_plan': grpc.unary_unary_rpc_method_handler(
+                    servicer.deploy_plan,
+                    request_deserializer=common__pb2.OptimizedPlan.FromString,
+                    response_serializer=common__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'pool.StatePool', rpc_method_handlers)
+            'pool.Deployment', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('pool.StatePool', rpc_method_handlers)
+    server.add_registered_method_handlers('pool.Deployment', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class StatePool(object):
+class Deployment(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def push_state(request,
+    def deploy_model(request,
             target,
             options=(),
             channel_credentials=None,
@@ -100,9 +100,9 @@ class StatePool(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/pool.StatePool/push_state',
-            state__pool__pb2.ServerState.SerializeToString,
-            common__pb2.Empty.FromString,
+            '/pool.Deployment/deploy_model',
+            deployment__pb2.DeploymentRequest.SerializeToString,
+            deployment__pb2.DeploymentResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -114,7 +114,7 @@ class StatePool(object):
             _registered_method=True)
 
     @staticmethod
-    def pull_all_states(request,
+    def deploy_plan(request,
             target,
             options=(),
             channel_credentials=None,
@@ -127,9 +127,9 @@ class StatePool(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/pool.StatePool/pull_all_states',
-            common__pb2.Empty.SerializeToString,
-            state__pool__pb2.StateMap.FromString,
+            '/pool.Deployment/deploy_plan',
+            common__pb2.OptimizedPlan.SerializeToString,
+            common__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

@@ -43,8 +43,11 @@ def build_regressor(
 
     ## Sorting per max Test Score
     ## We can also add a threshold to consider when not to use the regression
-    regressors_info.sort(key=lambda x: x[2], reverse=True)
     print(regressors_info)
+    for idx, elem in enumerate(regressors_info):
+        print(f"Degree {idx + 1} ; TR Score {elem[1]} ; TE Score {elem[2]}")
+
+    regressors_info.sort(key=lambda x: x[2], reverse=True)
 
     best_regressor_info = regressors_info[0]
 

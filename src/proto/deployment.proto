@@ -1,0 +1,26 @@
+syntax = "proto3";
+package pool;
+
+import "common.proto";
+
+
+service Deployment {
+    rpc deploy_model(DeploymentRequest) returns (DeploymentResponse);
+    rpc deploy_plan(common.OptimizedPlan) returns (common.Empty);
+}
+
+
+message DeploymentRequest {
+    repeated common.ModelId models_ids = 1 ;
+    float latency_weight = 2;
+    float energy_weight = 3;
+    float device_max_energy = 4 ;
+    repeated int32 requests_number = 5 ;
+    repeated float max_noises = 6 ;
+    string start_server = 7;
+}
+
+message DeploymentResponse {
+    common.OptimizedPlan optimized_plan = 1 ;
+}
+

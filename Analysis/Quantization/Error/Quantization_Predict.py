@@ -35,11 +35,11 @@ COCO_FILE_PATH = "../../../coco128/preprocessed"
 
 MAX_QUANTIZABLE_LAYERS = 10
 
-TRAIN_SIZE = 450
-TEST_SIZE = 100
+TRAIN_SIZE = 750
+TEST_SIZE = 50
 
-CALIBRATION_DATA_SIZE = 10
-CALIBRATION_TEST_SIZE = 2
+CALIBRATION_DATA_SIZE = 100
+CALIBRATION_TEST_SIZE = 1
 
 PROCESSES_NUM = 1
 
@@ -334,6 +334,8 @@ def build_predictor():
     # Crea figure con 2 subplot orizzontali
     fig, axes = plt.subplots(max_degree, 2, figsize=(12, 16))  # 1 riga, 2 colonne
 
+    max_true_value = Y_train[0]
+
     test_scores = []
     models = []
     for degree in range(1, max_degree + 1):
@@ -400,6 +402,10 @@ def build_predictor():
         curr_axes[1].set_title(f"Test - Degree {degree} - Score {test_score:.4f} ")
         curr_axes[1].set_xlabel("True Values")
         curr_axes[1].set_ylabel("Predictions")
+
+        curr_axes[0].axvline(
+            x=max_true_value, color="red", linestyle="--", linewidth=2
+        )  # Linea verticale a x=2
 
     plt.tight_layout()
     plt.savefig(f"regression_plot_{MODEL_NAME}.png")
