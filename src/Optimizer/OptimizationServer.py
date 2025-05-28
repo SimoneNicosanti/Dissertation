@@ -4,17 +4,17 @@ import networkx as nx
 
 from CommonPlan.Plan import Plan
 from CommonPlan.SolvedModelGraph import SolvedGraphInfo
+from CommonPlan.WholePlan import WholePlan
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelProfile import ModelProfile
 from CommonProfile.NetworkProfile import NetworkProfile
 from CommonProfile.NodeId import NodeId
-from Optimizer.Graph import ConnectedComponents
+from Optimizer.Builder.PlanBuilder import PlanBuilder
 from Optimizer.Optimization.OptimizationHandler import (
     OptimizationHandler,
     OptimizationParams,
 )
 from Optimizer.PostProcessing.PostProcessor import PostProcessor
-from proto_compiled.common_pb2 import OptimizedPlan
 from proto_compiled.optimizer_pb2 import OptimizationRequest, OptimizationResponse
 from proto_compiled.optimizer_pb2_grpc import OptimizationServicer
 
@@ -71,7 +71,7 @@ class OptmizationServer(OptimizationServicer):
             return OptimizationResponse(optimized_plan="")
 
         ## Problem Post Processing
-        plan_map = {}
+        whole_plan = WholePlan()
         for solved_graph in solved_graphs:
             graph_name = solved_graph.graph["name"]
             if not solved_graph.graph[SolvedGraphInfo.SOLVED]:
@@ -80,11 +80,12 @@ class OptmizationServer(OptimizationServicer):
 
             PostProcessor.post_process_solution_graph(solved_graph)
 
-            plan = Plan(solved_graph, deployer_id=start_server.node_name)
-            plan_map[graph_name] = plan.dump_plan()
+            plan = PlanBuilder.build_plan(solved_graph)
 
-        return OptimizationResponse(optimized_plan="")
+            whole_plan.put_model_plan(graph_name, plan)
 
-        return OptimizedPlan(
-            plans_map=plan_map,
-        )
+        encoded_whole_plan = whole_plan.encode()
+
+        whole_plan_json = json.dumps(encoded_whole_plan)
+
+        return OptimizationResponse(optimized_plan=whole_plan_json)

@@ -5,6 +5,7 @@ from CommonProfile.NodeId import NodeId
 
 @dataclass(frozen=True, repr=False)
 class ComponentId:
+    model_name: str
     net_node_id: NodeId
     component_idx: int
 

@@ -3,7 +3,7 @@ from CommonPlan.Plan import Plan
 
 class WholePlan:
     def __init__(self):
-        self.plan_dict = {}
+        self.plan_dict: dict[str, Plan] = {}
         ## Add other info about the prodeced plan
         ## Example the costs of latencies and energy
 

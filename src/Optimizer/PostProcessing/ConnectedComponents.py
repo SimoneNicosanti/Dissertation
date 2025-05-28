@@ -1,11 +1,10 @@
 import networkx as nx
 
-from CommonProfile.NodeId import NodeId
-from CommonPlan.SolvedModelGraph import SolvedNodeInfo
-
 from CommonPlan.SolvedModelGraph import (
     ComponentId,
+    SolvedNodeInfo,
 )
+from CommonProfile.NodeId import NodeId
 
 
 class ConnectedComponentsFinder:
@@ -14,7 +13,7 @@ class ConnectedComponentsFinder:
     def find_connected_components(
         solved_model_graph: nx.DiGraph,
     ):
-
+        model_name = solved_model_graph.graph["model_name"]
         top_order: list[NodeId] = list(nx.topological_sort(solved_model_graph))
 
         next_comp_dict: dict[NodeId, int] = {}
@@ -59,7 +58,7 @@ class ConnectedComponentsFinder:
                 ## No possible component
                 ## Generate new component
                 curr_comp_idx = next_comp_dict[server_id]
-                node_comp = ComponentId(server_id, curr_comp_idx)
+                node_comp = ComponentId(model_name, server_id, curr_comp_idx)
                 next_comp_dict[server_id] += 1
             else:
                 ## Take one component in the difference set
