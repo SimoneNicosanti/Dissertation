@@ -1,63 +1,76 @@
-import os
+import json
 
 import networkx as nx
 
-from Common import ConfigReader
-from Optimizer.Divider import ModelDivider
-from Optimizer.Graph import ConnectedComponents
-from CommonProfile.NodeId import NodeId
+from CommonPlan.Plan import Plan
 from CommonPlan.SolvedModelGraph import SolvedGraphInfo
-from Optimizer.Network.NetworkBuilder import NetworkBuilder
+from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
+from CommonProfile.ModelProfile import ModelProfile
+from CommonProfile.NetworkProfile import NetworkProfile
+from CommonProfile.NodeId import NodeId
+from Optimizer.Graph import ConnectedComponents
 from Optimizer.Optimization.OptimizationHandler import (
     OptimizationHandler,
     OptimizationParams,
 )
-from Optimizer.Divider.ModelDivider import ModelDivider
-from CommonPlan.Plan import Plan
-from Optimizer.Plan.PlanDistributor import PlanDistributor
-from Optimizer.Profiler.ProfileBuilder import ProfileBuilder
+from Optimizer.PostProcessing.PostProcessor import PostProcessor
 from proto_compiled.common_pb2 import OptimizedPlan
-from proto_compiled.optimizer_pb2 import OptimizationRequest
+from proto_compiled.optimizer_pb2 import OptimizationRequest, OptimizationResponse
 from proto_compiled.optimizer_pb2_grpc import OptimizationServicer
 
 
 class OptmizationServer(OptimizationServicer):
 
     def __init__(self):
-        self.plan_distributor = PlanDistributor()
-        self.network_builder = NetworkBuilder()
-        self.model_profiler = ProfileBuilder()
-        self.model_divider = ModelDivider()
         pass
 
-    def serve_optimization(self, request: OptimizationRequest, context):
+    def serve_optimization(self, opt_request: OptimizationRequest, context):
         print("Received Optimization Request")
+
+        models_profile_list: list[ModelProfile] = []
+        for encoded_model_profile in opt_request.models_profiles:
+            model_profile = ModelProfile.decode(json.loads(encoded_model_profile))
+            models_profile_list.append(model_profile)
+        print("Decoded Model Profiles")
+
+        network_profile: NetworkProfile = NetworkProfile.decode(
+            json.loads(opt_request.network_profile)
+        )
+        print("Decoded Network Profile")
+
+        execution_profile_pool: ServerExecutionProfilePool = (
+            ServerExecutionProfilePool.decode(
+                json.loads(opt_request.execution_profile_pool)
+            )
+        )
+        print("Decoded Execution Profile Pool")
+
+        model_names = [
+            model_profile.get_model_name() for model_profile in models_profile_list
+        ]
+
         optimization_params = OptimizationParams(
-            latency_weight=request.latency_weight,
-            energy_weight=request.energy_weight,
-            device_max_energy=request.device_max_energy,
-            requests_number=dict(zip(request.model_names, request.requests_number)),
+            latency_weight=opt_request.latency_weight,
+            energy_weight=opt_request.energy_weight,
+            device_max_energy=opt_request.device_max_energy,
+            requests_number=dict(zip(model_names, opt_request.requests_number)),
+            max_noises=dict(zip(model_names, opt_request.max_noises)),
         )
 
-        model_graphs_dict: dict[str, nx.MultiDiGraph] = {}
-        print("Here")
-        for model_name in request.model_names:
-            print("Profiling Model ", model_name)
-            model_graphs_dict[model_name] = self.model_profiler.profile_model(model_name)
-        print("Built Model Graphs and Profiles")
+        start_server = NodeId(opt_request.start_server)
 
-        network_graph: nx.DiGraph = self.network_builder.build_network()
-        print("Built Network Graph")
-        deployment_server = NodeId(request.deployment_server)
-
-        solved_graphs: list[nx.DiGraph] = OptimizationHandler().optimize(
-            list(model_graphs_dict.values()),
-            network_graph,
-            deployment_server,
+        solved_graphs: list[nx.DiGraph] = OptimizationHandler.optimize(
+            [model_profile.get_model_graph() for model_profile in models_profile_list],
+            network_profile.get_network_graph(),
+            start_server,
             opt_params=optimization_params,
         )
-        print("Problem Solved!")
 
+        if solved_graphs is None:
+            print("No Solution Found")
+            return OptimizationResponse(optimized_plan="")
+
+        ## Problem Post Processing
         plan_map = {}
         for solved_graph in solved_graphs:
             graph_name = solved_graph.graph["name"]
@@ -65,32 +78,13 @@ class OptmizationServer(OptimizationServicer):
                 print(graph_name + " is not solved")
                 continue
 
-            ConnectedComponents.ConnectedComponentsFinder.find_connected_components(
-                solved_graph
-            )
-            self.model_divider.divide_model(solved_graph, deployment_server)
+            PostProcessor.post_process_solution_graph(solved_graph)
 
-            plan = Plan(solved_graph, deployer_id=deployment_server.node_name)
+            plan = Plan(solved_graph, deployer_id=start_server.node_name)
             plan_map[graph_name] = plan.dump_plan()
 
-
-        self.plan_distributor.distribute_plan(
-            plan_map, network_graph, deployment_server.node_name
-        )
-        print("Plan Distributed to Servers")
-
-        self.write_whole_plan(plan_map, deployment_server.node_name)
+        return OptimizationResponse(optimized_plan="")
 
         return OptimizedPlan(
             plans_map=plan_map,
         )
-
-    def write_whole_plan(self, plan_map: dict, deployer_id: str):
-        plans_dir = ConfigReader.ConfigReader("./config/config.ini").read_str(
-            "optimizer_dirs", "PLANS_DIR"
-        )
-        for model_name, plan_string in plan_map.items():
-            plan_name = "plan_depl_{}_{}.json".format(deployer_id, model_name)
-            plan_path = os.path.join(plans_dir, plan_name)
-            with open(plan_path, "w") as plan_file:
-                plan_file.write(plan_string)

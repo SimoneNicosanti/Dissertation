@@ -33,7 +33,7 @@ def main():
     for dir in dir_list:
         os.makedirs(dir, exist_ok=True)
 
-    # register_response: ServerId = register_to_registry()
+    register_response: ServerId = register_to_registry()
 
     execution_profile_server = start_execution_profiler()
     execution_profile_server.wait_for_termination()

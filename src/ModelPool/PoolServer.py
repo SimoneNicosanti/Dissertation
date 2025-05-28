@@ -143,7 +143,6 @@ class PoolServer(ModelPoolServicer):
     def build_file_name(self, component_id: ComponentId) -> str:
 
         model_name: str = component_id.model_id.model_name
-        deployer_id: str = component_id.model_id.deployer_id
 
         file_name = f"{model_name}"
 
@@ -151,7 +150,6 @@ class PoolServer(ModelPoolServicer):
         model_component_idx: str = component_id.component_idx
 
         if len(server_id) > 0 and len(model_component_idx) > 0:
-            file_name += f"_depl_{deployer_id}"
             file_name += f"_server_{server_id}_comp_{model_component_idx}"
 
         return file_name + ".onnx"

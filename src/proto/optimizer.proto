@@ -4,14 +4,22 @@ package optimizer;
 import "common.proto";
 
 service Optimization {
-    rpc serve_optimization(OptimizationRequest) returns (common.OptimizedPlan);
+    rpc serve_optimization(OptimizationRequest) returns (OptimizationResponse);
 }
 
+
 message OptimizationRequest {
-    repeated string model_names = 1 ; // List of model to ask optimization for
-    float latency_weight=2 ;
-    float energy_weight=3 ;
-    float device_max_energy=4 ;
-    repeated int32 requests_number=5;
-    string deployment_server = 6;
+    repeated string models_profiles = 1 ; // Models Profiles encoded as JSON
+    string network_profile = 2; // NetworkProfile encoded as in JSON
+    string execution_profile_pool = 3 ; // ServerExecutionProfilePool encoded as JSON
+    float latency_weight = 4 ;
+    float energy_weight = 5 ;
+    float device_max_energy = 6 ;
+    repeated int32 requests_number = 7 ;
+    repeated float max_noises = 8 ;
+    string start_server = 9 ;
+}
+
+message OptimizationResponse {
+    string optimized_plan = 1 ; // PlanPool Encoded as JSON
 }

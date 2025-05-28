@@ -8,7 +8,7 @@ from proto_compiled.server_pb2 import ExecutionProfileRequest, ExecutionProfileR
 from proto_compiled.server_pb2_grpc import ExecutionProfileStub
 
 execution_profile_request = ExecutionProfileRequest(
-    model_id=ModelId(model_name="yolo11x-seg", deployer_id="0")
+    model_id=ModelId(model_name="yolo11n-seg")
 )
 
 port = ConfigReader.ConfigReader("../../../config/config.ini").read_int(

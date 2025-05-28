@@ -28,6 +28,27 @@ services:
       - ./Other/plans/:/optimizer_data/plans
     working_dir: /src
 
+  deployer:
+    build:
+      dockerfile: ./docker/optimizer.dockerfile
+    tty: true
+    stdin_open: true
+    networks:
+      - dissertation_network
+    volumes:
+      - ./proto_compiled:/src/proto_compiled
+
+      - ./Deployer:/src/Deployer
+
+      - ./Main/DeployerMain.py:/src/Main.py
+      - ./start.sh:/src/start.sh
+      - ./config/local_config.ini:/src/config/config.ini
+
+      - ./Common:/src/Common
+      - ./CommonProfile:/src/CommonProfile
+      - ./CommonPlan:/src/CommonPlan
+    working_dir: /src
+
   registry:
     build:
       dockerfile: ./docker/registry.dockerfile
@@ -67,6 +88,7 @@ services:
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
       - ./CommonModel:/src/CommonModel
+      - ./CommonProfile:/src/CommonProfile
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src

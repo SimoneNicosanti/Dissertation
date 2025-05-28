@@ -6,6 +6,8 @@ import grpc
 import onnx
 
 from Common import ConfigReader
+from CommonProfile.ExecutionProfile import ModelExecutionProfile
+from CommonProfile.NodeId import NodeId
 from proto_compiled.common_pb2 import ComponentId, ModelId
 from proto_compiled.model_pool_pb2 import LayerPullResponse, PullRequest
 from proto_compiled.model_pool_pb2_grpc import ModelPoolStub
@@ -42,28 +44,34 @@ class ExecutionProfileServer(ExecutionProfileServicer):
     ) -> ExecutionProfileResponse:
         print("Received Execution Profile Request")
         print(request.model_id)
-        model_profile = self.read_profile(request.model_id)
+        model_exec_profile = self.read_profile(request.model_id)
 
-        if model_profile is not None:
-            return ExecutionProfileResponse(profile=model_profile)
-        else:
-            model_profile = {}
+        if model_exec_profile is None:
+            model_exec_profile = ModelExecutionProfile()
 
-        profiler = ExecutionProfiler()
+            profiler = ExecutionProfiler()
 
-        model_id: ModelId = request.model_id
+            model_id: ModelId = request.model_id
 
-        for layer_name, layer_model in self.retrieve_layers(model_id):
-            layer_exec_times = profiler.profile_exec_time(
-                layer_model, self.layer_run_times
-            )
+            for layer_name, layer_model in self.retrieve_layers(model_id):
+                layer_exec_times = profiler.profile_exec_time(
+                    layer_model, self.layer_run_times
+                )
+                layer_exec_times_list = [
+                    layer_exec_times[False],
+                    layer_exec_times[True],
+                ]
+                node_id = NodeId(layer_name)
+                model_exec_profile.put_layer_execution_profile(
+                    node_id, layer_exec_times_list
+                )
 
-            print(f"Profiled {layer_name} >> {layer_exec_times}")
-            model_profile[layer_name] = layer_exec_times
+                print(f"Profiled {layer_name} >> {layer_exec_times_list}")
 
-        self.save_profile(model_id, model_profile)
+            self.save_profile(model_id, model_exec_profile)
 
-        return ExecutionProfileResponse(profile=str(model_profile))
+        model_exec_profile_json = json.dumps(model_exec_profile.encode())
+        return ExecutionProfileResponse(profile=model_exec_profile_json)
 
     def retrieve_layers(self, model_id: ModelId) -> Iterator[onnx.ModelProto]:
         model_pool_stub = ModelPoolStub(self.model_pool_chann)
@@ -99,25 +107,31 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             )
             yield layer_name, layer_model
 
-    def read_profile(self, model_id: ModelId) -> str:
+    def read_profile(self, model_id: ModelId) -> ModelExecutionProfile:
 
         file_name = self.build_file_name(model_id)
         file_path = os.path.join(self.model_profiles_dir, file_name)
 
         if os.path.exists(file_path):
-            with open(file_path, "r") as file:
-                return file.read()
+            with open(file_path, "r") as json_file:
+                encoded_execution_profile = json.load(json_file)
+                model_execution_profile = ModelExecutionProfile().decode(
+                    encoded_execution_profile
+                )
+                return model_execution_profile
 
         return None
 
-    def save_profile(self, model_id: ModelId, profile: dict):
+    def save_profile(
+        self,
+        model_id: ModelId,
+        model_execution_profile: ModelExecutionProfile,
+    ):
         file_name = self.build_file_name(model_id)
         file_path = os.path.join(self.model_profiles_dir, file_name)
-
-        profile_str = json.dumps(profile)
-
-        with open(file_path, "w") as file:
-            file.write(profile_str)
+        encoded_model_execution_profile = model_execution_profile.encode()
+        with open(file_path, "w") as json_file:
+            json.dump(encoded_model_execution_profile, json_file)
 
     def build_file_name(self, model_id: ModelId) -> str:
-        return f"{model_id.model_name}_depl_{model_id.deployer_id}_profile.json"
+        return f"{model_id.model_name}_profile.json"

@@ -4,8 +4,8 @@ from dataclasses import dataclass
 import networkx as nx
 import pulp
 
+from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.NodeId import NodeId
-from CommonProfile.ModelInfo import ModelNodeInfo, ModelEdgeInfo
 from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
 from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
@@ -20,17 +20,19 @@ class OptimizationParams:
 
     requests_number: dict[str, int]
 
+    max_noises: dict[str, float]
+
 
 class OptimizationHandler:
 
     def __init__(self):
         pass
 
+    @staticmethod
     def optimize(
-        self,
         model_graphs: list[nx.MultiDiGraph],
         network_graph: nx.DiGraph,
-        deployment_server: NodeId,
+        start_server: NodeId,
         opt_params: OptimizationParams = None,
     ) -> list[nx.DiGraph]:
         problem: pulp.LpProblem = pulp.LpProblem("Partitioning", pulp.LpMinimize)
@@ -46,13 +48,13 @@ class OptimizationHandler:
                 VarsBuilder.define_node_assignment_vars(curr_mod_graph, network_graph)
             )
             node_ass_vars.update(curr_node_ass_vars)
-            print("Done Defining Vars")
+            print("Done Defining Node Ass Vars")
 
             curr_edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = (
                 VarsBuilder.define_edge_assignment_vars(curr_mod_graph, network_graph)
             )
             edge_ass_vars.update(curr_edge_ass_vars)
-            print("Done Defining Vars")
+            print("Done Defining Edge Ass Vars")
 
             curr_mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = (
                 VarsBuilder.define_memory_use_vars(
@@ -61,12 +63,12 @@ class OptimizationHandler:
             )
             mem_use_vars.update(curr_mem_use_vars)
 
-            print("Done Defining Vars")
+            print("Done Defining Memory Usage Vars")
 
         ## Adding Constraints
         for curr_mod_graph in model_graphs:
             ConstraintsBuilder.add_node_assignment_constraints(
-                problem, curr_mod_graph, node_ass_vars, deployment_server
+                problem, curr_mod_graph, node_ass_vars, start_server
             )
             ConstraintsBuilder.add_edge_assignment_constraints(
                 problem, curr_mod_graph, edge_ass_vars
@@ -96,7 +98,7 @@ class OptimizationHandler:
                 node_ass_vars,
                 edge_ass_vars,
                 opt_params.requests_number,
-                deployment_server,
+                start_server,
                 opt_params.device_max_energy,
             )
 
@@ -131,27 +133,22 @@ class OptimizationHandler:
 
         problem.solve(pulp.GLPK_CMD())
 
-        # with open("./Optimizer/solved_problem/VarFile.txt", "w") as f:
-        #     for var in problem.variables():
-        #         f.write(f"{var.name} = {var.varValue}\n")
-
-        # # Print the objective function value
-        # print(f"Objective value = {pulp.value(problem.objective)}")
-
-        # problem.writeLP("./solved_problem/solved_problem.lp")
+        if pulp.LpStatus[problem.status] != "Optimal":
+            return None
 
         solved_model_graphs: list[nx.DiGraph] = []
         for mod_graph in model_graphs:
             time.perf_counter_ns()
-            solved_model_graph: nx.DiGraph = self.build_solved_model_graph(
-                problem, mod_graph, node_ass_vars, edge_ass_vars
+            solved_model_graph: nx.DiGraph = (
+                OptimizationHandler.build_solved_model_graph(
+                    problem, mod_graph, node_ass_vars, edge_ass_vars
+                )
             )
             solved_model_graphs.append(solved_model_graph)
             time.perf_counter_ns()
         return solved_model_graphs
 
     def build_solved_model_graph(
-        self,
         problem: pulp.LpProblem,
         model_graph: nx.DiGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],

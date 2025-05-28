@@ -2,10 +2,9 @@
 import networkx as nx
 import pulp
 
+from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
+from CommonProfile.NetworkInfo import NetworkEdgeInfo, NetworkNodeInfo
 from CommonProfile.NodeId import NodeId
-from CommonProfile.ModelInfo import ModelNodeInfo, ModelEdgeInfo
-from Optimizer.Network.NetworkInfo import NetworkNodeInfo, NetworkEdgeInfo
-
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 
 
@@ -149,7 +148,7 @@ def __get_transmission_time(
 
     if net_edge_id[0] == net_edge_id[1]:
         transmission_time = 0
-    else :
+    else:
         transmission_time = (
             mod_edge_info[ModelEdgeInfo.TOT_TENSOR_SIZE]
             / net_edge_info[NetworkEdgeInfo.BANDWIDTH]

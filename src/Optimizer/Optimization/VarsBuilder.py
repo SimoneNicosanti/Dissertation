@@ -1,9 +1,9 @@
 import networkx as nx
 import pulp
 
-from CommonProfile.NodeId import NodeId
 from CommonProfile.ModelInfo import ModelNodeInfo
-from Optimizer.Network.NetworkInfo import NetworkNodeInfo
+from CommonProfile.NetworkInfo import NetworkNodeInfo
+from CommonProfile.NodeId import NodeId
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
 
 

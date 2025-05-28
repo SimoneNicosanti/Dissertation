@@ -2,22 +2,30 @@ import json
 
 import networkx as nx
 
-from CommonProfile.NodeId import NodeId
-from CommonPlan.SolvedModelGraph import SolvedNodeInfo, SolvedEdgeInfo
-
 from CommonPlan.SolvedModelGraph import (
     ComponentId,
+    SolvedEdgeInfo,
+    SolvedNodeInfo,
 )
+from CommonProfile.NodeId import NodeId
 
 
 class Plan:
-    def __init__(self, solved_graph: nx.DiGraph, deployer_id: str):
+    def __init__(self, solved_graph: nx.DiGraph):
 
         self.plan_dict = {}
         self.solved_graph = solved_graph
-        self.deployer_id = deployer_id
 
         self.__init_plan()
+
+    ## TODO Change to encode and decode
+    def encode(self) -> dict:
+        return json.dumps(self.plan_dict, sort_keys=True)
+
+    ## TODO Change to encode and decode
+    @staticmethod
+    def decode(self, plan_dict: dict):
+        self.plan_dict = plan_dict
 
     def dump_plan(self):
         dump_dict = {

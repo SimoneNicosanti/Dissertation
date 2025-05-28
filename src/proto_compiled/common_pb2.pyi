@@ -6,12 +6,10 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ModelId(_message.Message):
-    __slots__ = ("model_name", "deployer_id")
+    __slots__ = ("model_name",)
     MODEL_NAME_FIELD_NUMBER: _ClassVar[int]
-    DEPLOYER_ID_FIELD_NUMBER: _ClassVar[int]
     model_name: str
-    deployer_id: str
-    def __init__(self, model_name: _Optional[str] = ..., deployer_id: _Optional[str] = ...) -> None: ...
+    def __init__(self, model_name: _Optional[str] = ...) -> None: ...
 
 class ComponentId(_message.Message):
     __slots__ = ("model_id", "server_id", "component_idx")
