@@ -77,7 +77,7 @@ def start_model_profiler():
     model_profile_server.add_insecure_port(f"[::]:{model_profile_port}")
     model_profile_server.start()
 
-    print(f"gRPC Model Divider Server running on port {model_profile_port}...")
+    print(f"gRPC Model Profiler Server running on port {model_profile_port}...")
 
     return model_profile_server
     pass

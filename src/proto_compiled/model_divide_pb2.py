@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12model_divide.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"K\n\x10PartitionRequest\x12!\n\x08model_id\x18\x01 \x01(\x0b\x32\x0f.common.ModelId\x12\x14\n\x0csolved_graph\x18\x02 \x01(\t\"\x13\n\x11PartitionResponse2N\n\x0bModelDivide\x12?\n\x0c\x64ivide_model\x12\x16.pool.PartitionRequest\x1a\x17.pool.PartitionResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12model_divide.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"*\n\x10PartitionRequest\x12\x16\n\x0eoptimized_plan\x18\x01 \x01(\t\"\x13\n\x11PartitionResponse2N\n\x0bModelDivide\x12?\n\x0c\x64ivide_model\x12\x16.pool.PartitionRequest\x1a\x17.pool.PartitionResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,9 +33,9 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'model_divide_pb2', _globals
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_PARTITIONREQUEST']._serialized_start=42
-  _globals['_PARTITIONREQUEST']._serialized_end=117
-  _globals['_PARTITIONRESPONSE']._serialized_start=119
-  _globals['_PARTITIONRESPONSE']._serialized_end=138
-  _globals['_MODELDIVIDE']._serialized_start=140
-  _globals['_MODELDIVIDE']._serialized_end=218
+  _globals['_PARTITIONREQUEST']._serialized_end=84
+  _globals['_PARTITIONRESPONSE']._serialized_start=86
+  _globals['_PARTITIONRESPONSE']._serialized_end=105
+  _globals['_MODELDIVIDE']._serialized_start=107
+  _globals['_MODELDIVIDE']._serialized_end=185
 # @@protoc_insertion_point(module_scope)

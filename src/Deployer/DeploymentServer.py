@@ -30,7 +30,7 @@ class DeploymentServer(DeploymentServicer):
 
         self.optimizer_caller = OptimizerCaller()
         self.divider_caller = ModelDivider()
-        self.fetcher_caller = FetcherCaller()
+        # self.fetcher_caller = FetcherCaller()
 
     def produce_plan(self, deployment_req: ProducePlanRequest, context):
         print("Received Deployment Request")
@@ -69,7 +69,7 @@ class DeploymentServer(DeploymentServicer):
         return ProducePlanResponse(optimized_plan=json.dumps(whole_plan.encode()))
 
     def deploy_plan(self, deployment_request: DeploymentRequest, context):
-
+        print("Received Plan Deployment Request")
         whole_plan: WholePlan = WholePlan.decode(
             json.loads(deployment_request.optimized_plan)
         )

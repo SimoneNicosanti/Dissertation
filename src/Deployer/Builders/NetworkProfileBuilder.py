@@ -23,7 +23,7 @@ class NetworkProfileBuilder:
             first_node = NodeId(node_name=str(i))
             second_node = NodeId(node_name=str(j))
             if i == j:
-                network_graph.add_edge(first_node, second_node, bandwidth=1000)
+                network_graph.add_edge(first_node, second_node, bandwidth=100)
                 network_graph.add_edge(first_node, second_node, latency=0)
 
             else:
@@ -36,7 +36,7 @@ class NetworkProfileBuilder:
         for i in range(2):
             node_id = NodeId(node_name=str(i))
             if i == 0:
-                network_graph.nodes[node_id][NetworkNodeInfo.FLOPS_PER_SEC] = 3 * 10**9
+                network_graph.nodes[node_id][NetworkNodeInfo.FLOPS_PER_SEC] = 2 * 10**9
                 network_graph.nodes[node_id][NetworkNodeInfo.COMP_ENERGY_PER_SEC] = 2
                 network_graph.nodes[node_id][NetworkNodeInfo.TRANS_ENERGY_PER_SEC] = 1
                 network_graph.nodes[node_id][NetworkNodeInfo.AVAILABLE_MEMORY] = 1_000

@@ -87,8 +87,6 @@ class OptmizationServer(OptimizationServicer):
 
         encoded_whole_plan = whole_plan.encode()
 
-        print(encoded_whole_plan)
-
         whole_plan_json = json.dumps(encoded_whole_plan)
 
         return OptimizationResponse(optimized_plan=whole_plan_json)

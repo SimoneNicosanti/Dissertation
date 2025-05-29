@@ -9,50 +9,31 @@ from CommonPlan.SolvedModelGraph import ComponentId
 from CommonPlan.WholePlan import WholePlan
 from CommonProfile.NodeId import NodeId
 from proto_compiled.common_pb2 import ModelId
+from proto_compiled.model_divide_pb2 import PartitionRequest
+from proto_compiled.model_divide_pb2_grpc import ModelDivideStub
 
 
 class ModelDivider:
 
     def __init__(self) -> None:
-        manager_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
-            "addresses", "MODEL_MANAGER_ADDR"
+        divider_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
+            "addresses", "MODEL_DIVIDER_ADDR"
         )
-        manager_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "ports", "MODEL_MANAGER_PORT"
+        divider_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "ports", "MODEL_DIVIDER_PORT"
         )
-        self.manager_chann = grpc.insecure_channel(
-            "{}:{}".format(manager_addr, manager_port)
+        self.divider_chann = grpc.insecure_channel(
+            "{}:{}".format(divider_addr, divider_port)
         )
 
     def divide_model(self, whole_plan: WholePlan):
 
-        manager_stub = ModelManagerStub(self.manager_chann)
-
-        model_id = ModelId(
-            model_name=solved_graph.graph["name"],
-            deployer_id=deployment_server.node_name,
-        )
-
-        solved_graph_json = json.dumps(
-            nx.node_link_data(solved_graph), default=self.encode_complex_info
-        )
+        model_divider_stub = ModelDivideStub(self.divider_chann)
 
         partition_request = PartitionRequest(
-            model_id=model_id, solved_graph=solved_graph_json
+            optimized_plan=json.dumps(whole_plan.encode())
         )
 
-        manager_stub.divide_model(partition_request)
+        model_divider_stub.divide_model(partition_request)
 
         pass
-
-    def encode_complex_info(self, obj):
-        if isinstance(obj, NodeId):
-            return {"type": "NodeId", "node_name": obj.node_name}
-        if isinstance(obj, ComponentId):
-            return {
-                "type": "ComponentId",
-                "net_node_id": obj.net_node_id.node_name,
-                "component_idx": obj.component_idx,
-            }
-
-        raise TypeError("Object {} not serializable".format(obj))

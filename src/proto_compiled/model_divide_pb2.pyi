@@ -1,17 +1,15 @@
 import common_pb2 as _common_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class PartitionRequest(_message.Message):
-    __slots__ = ("model_id", "solved_graph")
-    MODEL_ID_FIELD_NUMBER: _ClassVar[int]
-    SOLVED_GRAPH_FIELD_NUMBER: _ClassVar[int]
-    model_id: _common_pb2.ModelId
-    solved_graph: str
-    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ..., solved_graph: _Optional[str] = ...) -> None: ...
+    __slots__ = ("optimized_plan",)
+    OPTIMIZED_PLAN_FIELD_NUMBER: _ClassVar[int]
+    optimized_plan: str
+    def __init__(self, optimized_plan: _Optional[str] = ...) -> None: ...
 
 class PartitionResponse(_message.Message):
     __slots__ = ()

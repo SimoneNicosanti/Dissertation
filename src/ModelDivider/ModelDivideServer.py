@@ -23,13 +23,13 @@ class ModelDivideServer(ModelDivideServicer):
     def divide_model(
         self, partition_request: PartitionRequest, context
     ) -> PartitionResponse:
-
+        print("Received Partition Request")
         whole_plan: WholePlan = WholePlan.decode(
-            json.loads(partition_request.solved_graph_json)
+            json.loads(partition_request.optimized_plan)
         )
 
         for model_name in whole_plan.get_model_names():
-            model_id: ModelId = ModelId(model_name=model_name, deployer_id="")
+            model_id: ModelId = ModelId(model_name=model_name)
 
             grpc_component_id = GrpcComponentId(
                 model_id=model_id, server_id="", component_idx=""
