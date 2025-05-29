@@ -1,5 +1,4 @@
 import ast
-import json
 
 from CommonPlan.SolvedModelGraph import ComponentId
 from CommonProfile.NodeId import NodeId
@@ -13,18 +12,20 @@ class Plan:
 
     def encode(self) -> dict:
 
-        encoded_plan = {}
-        for component_id in self.plan_dict.keys():
+        encoded_plan_dict = {}
+        for component_id, model_plan in self.plan_dict.items():
             component_id_tuple = (
                 component_id.model_name,
                 component_id.net_node_id.node_name,
                 component_id.component_idx,
             )
             encoded_component_id = str(component_id_tuple)
-            encoded_plan[encoded_component_id] = self.plan_dict[component_id]
+            encoded_plan_dict[encoded_component_id] = model_plan
+
+        encoded_plan = {}
 
         encoded_plan["model_name"] = self.model_name
-        encoded_plan["plan_dict"] = encoded_plan
+        encoded_plan["plan_dict"] = encoded_plan_dict
 
         return encoded_plan
 
@@ -55,3 +56,6 @@ class Plan:
 
     def get_output_names_per_component(self, key: ComponentId) -> list[str]:
         return self.plan_dict[key]["output_connections"].keys()
+
+    def get_all_components(self) -> list[ComponentId]:
+        return list(self.plan_dict.keys())

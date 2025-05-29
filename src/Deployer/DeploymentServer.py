@@ -1,13 +1,21 @@
+import json
+
+from CommonPlan.WholePlan import WholePlan
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelProfile import ModelProfile
 from CommonProfile.NetworkProfile import NetworkProfile
-from Deployer.Builders import ModelProfileBuilder
 from Deployer.Builders.ExecutionProfileBuilder import ExecutionProfileBuilder
 from Deployer.Builders.ModelProfileBuilder import ModelProfileBuilder
 from Deployer.Builders.NetworkProfileBuilder import NetworkProfileBuilder
-from Deployer.Optimization.OptimizerCaller import OptimizerCaller
+from Deployer.Caller.DividerCaller import ModelDivider
+from Deployer.Caller.OptimizerCaller import OptimizerCaller
 from proto_compiled.common_pb2 import ModelId, OptimizedPlan
-from proto_compiled.deployment_pb2 import DeploymentRequest, DeploymentResponse
+from proto_compiled.deployment_pb2 import (
+    DeploymentRequest,
+    DeploymentResponse,
+    ProducePlanRequest,
+    ProducePlanResponse,
+)
 from proto_compiled.deployment_pb2_grpc import DeploymentServicer
 
 
@@ -21,8 +29,10 @@ class DeploymentServer(DeploymentServicer):
         self.network_profile_builder = NetworkProfileBuilder()
 
         self.optimizer_caller = OptimizerCaller()
+        self.divider_caller = ModelDivider()
+        self.fetcher_caller = FetcherCaller()
 
-    def deploy_model(self, deployment_req: DeploymentRequest, context):
+    def produce_plan(self, deployment_req: ProducePlanRequest, context):
         print("Received Deployment Request")
         models_ids: list[ModelId] = deployment_req.models_ids
 
@@ -44,7 +54,7 @@ class DeploymentServer(DeploymentServicer):
         )
         print("Built Network Profile")
 
-        self.optimizer_caller.call_optimizer(
+        whole_plan: WholePlan = self.optimizer_caller.call_optimizer(
             models_profiles,
             network_profile,
             server_exec_profiles_pool,
@@ -56,11 +66,18 @@ class DeploymentServer(DeploymentServicer):
             deployment_req.start_server,
         )
 
-        return DeploymentResponse(
-            optimized_plan=OptimizedPlan(deployer_id="", plans_map={})
+        return ProducePlanResponse(optimized_plan=json.dumps(whole_plan.encode()))
+
+    def deploy_plan(self, deployment_request: DeploymentRequest, context):
+
+        whole_plan: WholePlan = WholePlan.decode(
+            json.loads(deployment_request.optimized_plan)
         )
 
-    def deploy_plan(self, optimized_plan: OptimizedPlan, context):
-        ## TODO Call Fetchers to get their sub models
+        self.divider_caller.divide_model(whole_plan)
+        # self.fetcher_caller.distribute_plan(whole_plan)
 
-        return super().deploy_plan(optimized_plan, context)
+        ## TODO Model Division
+        ## TODO Fetcher Calls
+
+        return DeploymentResponse()

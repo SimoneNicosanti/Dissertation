@@ -38,6 +38,7 @@ class OptmizationServer(OptimizationServicer):
         )
         print("Decoded Network Profile")
 
+        ## TODO Integrate the execution profile!!
         execution_profile_pool: ServerExecutionProfilePool = (
             ServerExecutionProfilePool.decode(
                 json.loads(opt_request.execution_profile_pool)
@@ -80,11 +81,13 @@ class OptmizationServer(OptimizationServicer):
 
             PostProcessor.post_process_solution_graph(solved_graph)
 
-            plan = PlanBuilder.build_plan(solved_graph)
+            plan: Plan = PlanBuilder.build_plan(solved_graph)
 
             whole_plan.put_model_plan(graph_name, plan)
 
         encoded_whole_plan = whole_plan.encode()
+
+        print(encoded_whole_plan)
 
         whole_plan_json = json.dumps(encoded_whole_plan)
 

@@ -5,12 +5,12 @@ import "common.proto";
 
 
 service Deployment {
-    rpc deploy_model(DeploymentRequest) returns (DeploymentResponse);
-    rpc deploy_plan(common.OptimizedPlan) returns (common.Empty);
+    rpc produce_plan(ProducePlanRequest) returns (ProducePlanResponse);
+    rpc deploy_plan(DeploymentRequest) returns (DeploymentResponse);
 }
 
 
-message DeploymentRequest {
+message ProducePlanRequest {
     repeated common.ModelId models_ids = 1 ;
     float latency_weight = 2;
     float energy_weight = 3;
@@ -20,7 +20,13 @@ message DeploymentRequest {
     string start_server = 7;
 }
 
-message DeploymentResponse {
-    common.OptimizedPlan optimized_plan = 1 ;
+message ProducePlanResponse {
+    string optimized_plan = 1 ;
 }
 
+message DeploymentRequest {
+    string optimized_plan = 1;
+}
+
+message DeploymentResponse {
+}

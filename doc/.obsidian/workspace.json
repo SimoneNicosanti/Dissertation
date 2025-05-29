@@ -11,10 +11,14 @@
             "id": "75523d1393ddf165",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Notes/Architettura/Architettura.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Nuova scheda"
+              "title": "Architettura"
             }
           }
         ]

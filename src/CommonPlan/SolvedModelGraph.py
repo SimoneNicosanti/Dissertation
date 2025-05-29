@@ -16,6 +16,7 @@ class ComponentId:
 class SolvedGraphInfo:
     SOLVED = "solved"
     VALUE = "value"
+    MODEL_NAME = "model_name"
 
     pass
 

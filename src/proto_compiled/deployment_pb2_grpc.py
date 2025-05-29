@@ -3,7 +3,6 @@
 import grpc
 import warnings
 
-import common_pb2 as common__pb2
 import deployment_pb2 as deployment__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
@@ -35,22 +34,22 @@ class DeploymentStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.deploy_model = channel.unary_unary(
-                '/pool.Deployment/deploy_model',
-                request_serializer=deployment__pb2.DeploymentRequest.SerializeToString,
-                response_deserializer=deployment__pb2.DeploymentResponse.FromString,
+        self.produce_plan = channel.unary_unary(
+                '/pool.Deployment/produce_plan',
+                request_serializer=deployment__pb2.ProducePlanRequest.SerializeToString,
+                response_deserializer=deployment__pb2.ProducePlanResponse.FromString,
                 _registered_method=True)
         self.deploy_plan = channel.unary_unary(
                 '/pool.Deployment/deploy_plan',
-                request_serializer=common__pb2.OptimizedPlan.SerializeToString,
-                response_deserializer=common__pb2.Empty.FromString,
+                request_serializer=deployment__pb2.DeploymentRequest.SerializeToString,
+                response_deserializer=deployment__pb2.DeploymentResponse.FromString,
                 _registered_method=True)
 
 
 class DeploymentServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def deploy_model(self, request, context):
+    def produce_plan(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -65,15 +64,15 @@ class DeploymentServicer(object):
 
 def add_DeploymentServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'deploy_model': grpc.unary_unary_rpc_method_handler(
-                    servicer.deploy_model,
-                    request_deserializer=deployment__pb2.DeploymentRequest.FromString,
-                    response_serializer=deployment__pb2.DeploymentResponse.SerializeToString,
+            'produce_plan': grpc.unary_unary_rpc_method_handler(
+                    servicer.produce_plan,
+                    request_deserializer=deployment__pb2.ProducePlanRequest.FromString,
+                    response_serializer=deployment__pb2.ProducePlanResponse.SerializeToString,
             ),
             'deploy_plan': grpc.unary_unary_rpc_method_handler(
                     servicer.deploy_plan,
-                    request_deserializer=common__pb2.OptimizedPlan.FromString,
-                    response_serializer=common__pb2.Empty.SerializeToString,
+                    request_deserializer=deployment__pb2.DeploymentRequest.FromString,
+                    response_serializer=deployment__pb2.DeploymentResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -87,7 +86,7 @@ class Deployment(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def deploy_model(request,
+    def produce_plan(request,
             target,
             options=(),
             channel_credentials=None,
@@ -100,9 +99,9 @@ class Deployment(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/pool.Deployment/deploy_model',
-            deployment__pb2.DeploymentRequest.SerializeToString,
-            deployment__pb2.DeploymentResponse.FromString,
+            '/pool.Deployment/produce_plan',
+            deployment__pb2.ProducePlanRequest.SerializeToString,
+            deployment__pb2.ProducePlanResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -128,8 +127,8 @@ class Deployment(object):
             request,
             target,
             '/pool.Deployment/deploy_plan',
-            common__pb2.OptimizedPlan.SerializeToString,
-            common__pb2.Empty.FromString,
+            deployment__pb2.DeploymentRequest.SerializeToString,
+            deployment__pb2.DeploymentResponse.FromString,
             options,
             channel_credentials,
             insecure,

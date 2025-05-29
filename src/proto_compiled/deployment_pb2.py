@@ -25,17 +25,21 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x64\x65ployment.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"\xc5\x01\n\x11\x44\x65ploymentRequest\x12#\n\nmodels_ids\x18\x01 \x03(\x0b\x32\x0f.common.ModelId\x12\x16\n\x0elatency_weight\x18\x02 \x01(\x02\x12\x15\n\renergy_weight\x18\x03 \x01(\x02\x12\x19\n\x11\x64\x65vice_max_energy\x18\x04 \x01(\x02\x12\x17\n\x0frequests_number\x18\x05 \x03(\x05\x12\x12\n\nmax_noises\x18\x06 \x03(\x02\x12\x14\n\x0cstart_server\x18\x07 \x01(\t\"C\n\x12\x44\x65ploymentResponse\x12-\n\x0eoptimized_plan\x18\x01 \x01(\x0b\x32\x15.common.OptimizedPlan2\x84\x01\n\nDeployment\x12\x41\n\x0c\x64\x65ploy_model\x12\x17.pool.DeploymentRequest\x1a\x18.pool.DeploymentResponse\x12\x33\n\x0b\x64\x65ploy_plan\x12\x15.common.OptimizedPlan\x1a\r.common.Emptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x64\x65ployment.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"\xc6\x01\n\x12ProducePlanRequest\x12#\n\nmodels_ids\x18\x01 \x03(\x0b\x32\x0f.common.ModelId\x12\x16\n\x0elatency_weight\x18\x02 \x01(\x02\x12\x15\n\renergy_weight\x18\x03 \x01(\x02\x12\x19\n\x11\x64\x65vice_max_energy\x18\x04 \x01(\x02\x12\x17\n\x0frequests_number\x18\x05 \x03(\x05\x12\x12\n\nmax_noises\x18\x06 \x03(\x02\x12\x14\n\x0cstart_server\x18\x07 \x01(\t\"-\n\x13ProducePlanResponse\x12\x16\n\x0eoptimized_plan\x18\x01 \x01(\t\"+\n\x11\x44\x65ploymentRequest\x12\x16\n\x0eoptimized_plan\x18\x01 \x01(\t\"\x14\n\x12\x44\x65ploymentResponse2\x93\x01\n\nDeployment\x12\x43\n\x0cproduce_plan\x12\x18.pool.ProducePlanRequest\x1a\x19.pool.ProducePlanResponse\x12@\n\x0b\x64\x65ploy_plan\x12\x17.pool.DeploymentRequest\x1a\x18.pool.DeploymentResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'deployment_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_DEPLOYMENTREQUEST']._serialized_start=41
-  _globals['_DEPLOYMENTREQUEST']._serialized_end=238
-  _globals['_DEPLOYMENTRESPONSE']._serialized_start=240
-  _globals['_DEPLOYMENTRESPONSE']._serialized_end=307
-  _globals['_DEPLOYMENT']._serialized_start=310
-  _globals['_DEPLOYMENT']._serialized_end=442
+  _globals['_PRODUCEPLANREQUEST']._serialized_start=41
+  _globals['_PRODUCEPLANREQUEST']._serialized_end=239
+  _globals['_PRODUCEPLANRESPONSE']._serialized_start=241
+  _globals['_PRODUCEPLANRESPONSE']._serialized_end=286
+  _globals['_DEPLOYMENTREQUEST']._serialized_start=288
+  _globals['_DEPLOYMENTREQUEST']._serialized_end=331
+  _globals['_DEPLOYMENTRESPONSE']._serialized_start=333
+  _globals['_DEPLOYMENTRESPONSE']._serialized_end=353
+  _globals['_DEPLOYMENT']._serialized_start=356
+  _globals['_DEPLOYMENT']._serialized_end=503
 # @@protoc_insertion_point(module_scope)

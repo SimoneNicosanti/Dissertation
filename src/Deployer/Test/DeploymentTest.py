@@ -1,8 +1,11 @@
+import json
+
 import grpc
 
 from Common import ConfigReader
+from CommonPlan.WholePlan import WholePlan
 from proto_compiled.common_pb2 import ModelId
-from proto_compiled.deployment_pb2 import DeploymentRequest
+from proto_compiled.deployment_pb2 import ProducePlanRequest, ProducePlanResponse
 from proto_compiled.deployment_pb2_grpc import DeploymentStub
 
 
@@ -20,7 +23,7 @@ def main():
         grpc.insecure_channel("{}:{}".format(deployer_addr, deployer_port))
     )
 
-    deployment_request = DeploymentRequest(
+    produce_plan_request = ProducePlanRequest(
         models_ids=[ModelId(model_name="yolo11n-seg")],
         latency_weight=1,
         energy_weight=1,
@@ -30,7 +33,13 @@ def main():
         start_server="0",
     )
 
-    deployer_stub.deploy_model(deployment_request)
+    produce_plan_response: ProducePlanResponse = deployer_stub.produce_plan(
+        produce_plan_request
+    )
+
+    whole_plan = WholePlan.decode(json.loads(produce_plan_response.optimized_plan))
+
+    print(whole_plan.encode())
 
     pass
 

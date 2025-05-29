@@ -13,7 +13,7 @@ class ConnectedComponentsFinder:
     def find_connected_components(
         solved_model_graph: nx.DiGraph,
     ):
-        model_name = solved_model_graph.graph["model_name"]
+        model_name = solved_model_graph.graph["name"]
         top_order: list[NodeId] = list(nx.topological_sort(solved_model_graph))
 
         next_comp_dict: dict[NodeId, int] = {}

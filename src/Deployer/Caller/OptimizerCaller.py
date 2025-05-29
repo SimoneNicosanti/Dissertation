@@ -3,6 +3,7 @@ import json
 import grpc
 
 from Common import ConfigReader
+from CommonPlan.WholePlan import WholePlan
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelProfile import ModelProfile
 from CommonProfile.NetworkProfile import NetworkProfile
@@ -59,7 +60,8 @@ class OptimizerCaller:
             optimization_req
         )
 
-        produced_plan = optimization_response.optimized_plan
+        whole_plan: WholePlan = WholePlan.decode(
+            json.loads(optimization_response.optimized_plan)
+        )
 
-        ## Decode this and return Plan object
-        return produced_plan
+        return whole_plan

@@ -12,8 +12,7 @@ service ModelDivide {
 
 
 message PartitionRequest {
-    common.ModelId model_id = 1;
-    string solved_graph = 2;
+    string optimized_plan = 1;
 }
 
 message PartitionResponse {

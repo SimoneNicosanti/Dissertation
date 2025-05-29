@@ -11,7 +11,7 @@ class PlanBuilder:
 
     @staticmethod
     def build_plan(solved_graph: nx.DiGraph) -> Plan:
-        model_name = solved_graph.graph[SolvedNodeInfo.MODEL_NAME]
+        model_name = solved_graph.graph["name"]
         plan_dict: dict[ComponentId, dict] = {}
 
         ## Init Component Keys
