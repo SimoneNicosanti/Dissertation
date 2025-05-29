@@ -44,8 +44,10 @@ RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
 RUN pip install PuLP
 RUN apt-get install glpk-utils libglpk-dev -y
 RUN pip install networkx
+RUN pip install readerwriterlock
 
 RUN apt-get install iperf3 -y
+
 
 ## Shell Settings
 ENV SHELL=/usr/bin/bash

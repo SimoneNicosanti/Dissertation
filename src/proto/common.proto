@@ -19,8 +19,3 @@ message RequestId {
 }
 
 message Empty {}
-
-message OptimizedPlan {
-    string deployer_id = 1;
-    map<string, string> plans_map = 2;
-}

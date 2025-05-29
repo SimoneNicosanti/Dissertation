@@ -2,9 +2,9 @@ import itertools
 
 import networkx as nx
 
+from CommonIds.NodeId import NodeId
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from CommonProfile.NetworkProfile import NetworkProfile
-from CommonProfile.NodeId import NodeId
 
 
 class NetworkProfileBuilder:

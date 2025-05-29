@@ -1,14 +1,9 @@
-import abc
 import json
 
 import grpc
-import networkx as nx
 
 from Common import ConfigReader
-from CommonPlan.SolvedModelGraph import ComponentId
 from CommonPlan.WholePlan import WholePlan
-from CommonProfile.NodeId import NodeId
-from proto_compiled.common_pb2 import ModelId
 from proto_compiled.model_divide_pb2 import PartitionRequest
 from proto_compiled.model_divide_pb2_grpc import ModelDivideStub
 

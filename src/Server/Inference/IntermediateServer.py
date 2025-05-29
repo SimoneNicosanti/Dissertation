@@ -2,15 +2,14 @@ import threading
 
 from readerwriterlock import rwlock
 
+from CommonIds.ComponentId import ComponentId
+from CommonPlan.Plan import Plan
 from CommonServer.InferenceInfo import (
-    ComponentInfo,
-    ModelInfo,
     RequestInfo,
     TensorWrapper,
 )
 from CommonServer.InputReceiver import InputReceiver
 from CommonServer.OutputSender import OutputSender
-from CommonServer.PlanWrapper import PlanWrapper
 from proto_compiled.server_pb2_grpc import InferenceServicer
 from Server.Inference.IntermediateInferenceManager import IntermediateInferenceManager
 
@@ -23,8 +22,8 @@ class IntermediateServer(InferenceServicer):
         self.output_sender = OutputSender()
 
         self.lock = rwlock.RWLockWriteD()
-        self.plan_wrapper_dict: dict[ModelInfo, PlanWrapper] = {}
-        self.model_managers: dict[ModelInfo, IntermediateInferenceManager] = {}
+        self.plan_dict: dict[str, Plan] = {}
+        self.model_managers: dict[str, IntermediateInferenceManager] = {}
 
     def do_inference(self, input_stream, context):
         ## 1. Receive Input
@@ -46,39 +45,39 @@ class IntermediateServer(InferenceServicer):
 
     def __do_inference_and_send_output(
         self,
-        component_info: ComponentInfo,
+        component_id: ComponentId,
         request_info: RequestInfo,
         tensor_wrapper_list: TensorWrapper,
     ):
         with self.lock.gen_rlock():
-            model_manager = self.model_managers[component_info.model_info]
+            model_manager = self.model_managers[component_id.model_name]
 
         output_tensor_info = model_manager.pass_input_and_infer(
-            component_info, request_info, tensor_wrapper_list
+            component_id, request_info, tensor_wrapper_list
         )
 
         if output_tensor_info is not None:
             ## 3. Send Output
             with self.lock.gen_rlock():
-                plan_wrapper = self.plan_wrapper_dict[component_info.model_info]
+                plan_wrapper = self.plan_dict[component_id.model_name]
 
             self.output_sender.send_output(
                 plan_wrapper,
-                component_info,
+                component_id,
                 request_info,
                 output_tensor_info,
             )
 
     def register_model(
         self,
-        model_info: ModelInfo,
-        plan_wrapper: PlanWrapper,
-        components_dict: dict[ComponentInfo, str],
+        model_name: str,
+        plan: Plan,
+        components_dict: dict[ComponentId, str],
         threads_per_model: int,
     ):
 
         with self.lock.gen_wlock():
-            self.model_managers[model_info] = IntermediateInferenceManager(
-                plan_wrapper, components_dict, threads_per_model
+            self.model_managers[model_name] = IntermediateInferenceManager(
+                plan, components_dict, threads_per_model
             )
-            self.plan_wrapper_dict[model_info] = plan_wrapper
+            self.plan_dict[model_name] = plan

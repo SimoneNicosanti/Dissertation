@@ -1,31 +1,30 @@
-from CommonServer.InferenceInfo import ComponentInfo, RequestInfo, TensorWrapper
+from CommonIds import ComponentId
+from CommonServer.InferenceInfo import RequestInfo, TensorWrapper
 
 
 class InputPool:
     def __init__(self):
-        self.input_pool: dict[
-            tuple[ComponentInfo, RequestInfo], list[TensorWrapper]
-        ] = {}
+        self.input_pool: dict[tuple[ComponentId, RequestInfo], list[TensorWrapper]] = {}
 
     def put_input(
         self,
-        component_info: ComponentInfo,
+        component_id: ComponentId,
         request_info: RequestInfo,
         tensor_wrapper: TensorWrapper,
     ):
 
-        key = (component_info, request_info)
+        key = (component_id, request_info)
         self.input_pool.setdefault(key, [])
         self.input_pool[key].append(tensor_wrapper)
 
     def get_input_if_ready(
         self,
-        component_info: ComponentInfo,
+        component_id: ComponentId,
         request_info: RequestInfo,
         input_list: list[str],
     ) -> list[TensorWrapper]:
 
-        key = (component_info, request_info)
+        key = (component_id, request_info)
         current_inputs = self.input_pool.get(key, None)
         if current_inputs is None:
             return [], False

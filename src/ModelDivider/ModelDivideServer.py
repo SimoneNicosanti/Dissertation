@@ -2,9 +2,9 @@ import json
 
 import onnx
 
+from CommonIds.ComponentId import ComponentId
 from CommonModel.PoolInterface import PoolInterface
 from CommonPlan.Plan import Plan
-from CommonPlan.SolvedModelGraph import ComponentId
 from CommonPlan.WholePlan import WholePlan
 from ModelDivider.Divide.OnnxModelPartitioner import OnnxModelPartitioner
 from proto_compiled.common_pb2 import ComponentId as GrpcComponentId

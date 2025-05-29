@@ -3,7 +3,6 @@
 import grpc
 import warnings
 
-import common_pb2 as common__pb2
 import server_pb2 as server__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
@@ -117,7 +116,7 @@ class AssigneeStub(object):
         """
         self.send_plan = channel.unary_unary(
                 '/server.Assignee/send_plan',
-                request_serializer=common__pb2.OptimizedPlan.SerializeToString,
+                request_serializer=server__pb2.AssignmentRequest.SerializeToString,
                 response_deserializer=server__pb2.AssignmentResponse.FromString,
                 _registered_method=True)
 
@@ -138,7 +137,7 @@ def add_AssigneeServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'send_plan': grpc.unary_unary_rpc_method_handler(
                     servicer.send_plan,
-                    request_deserializer=common__pb2.OptimizedPlan.FromString,
+                    request_deserializer=server__pb2.AssignmentRequest.FromString,
                     response_serializer=server__pb2.AssignmentResponse.SerializeToString,
             ),
     }
@@ -169,7 +168,7 @@ class Assignee(object):
             request,
             target,
             '/server.Assignee/send_plan',
-            common__pb2.OptimizedPlan.SerializeToString,
+            server__pb2.AssignmentRequest.SerializeToString,
             server__pb2.AssignmentResponse.FromString,
             options,
             channel_credentials,

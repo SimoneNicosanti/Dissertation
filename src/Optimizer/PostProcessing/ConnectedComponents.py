@@ -1,10 +1,10 @@
 import networkx as nx
 
+from CommonIds.ComponentId import ComponentId
+from CommonIds.NodeId import NodeId
 from CommonPlan.SolvedModelGraph import (
-    ComponentId,
     SolvedNodeInfo,
 )
-from CommonProfile.NodeId import NodeId
 
 
 class ConnectedComponentsFinder:

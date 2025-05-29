@@ -8,8 +8,9 @@ from Deployer.Builders.ExecutionProfileBuilder import ExecutionProfileBuilder
 from Deployer.Builders.ModelProfileBuilder import ModelProfileBuilder
 from Deployer.Builders.NetworkProfileBuilder import NetworkProfileBuilder
 from Deployer.Caller.DividerCaller import ModelDivider
+from Deployer.Caller.FetcherCaller import FetcherCaller
 from Deployer.Caller.OptimizerCaller import OptimizerCaller
-from proto_compiled.common_pb2 import ModelId, OptimizedPlan
+from proto_compiled.common_pb2 import ModelId
 from proto_compiled.deployment_pb2 import (
     DeploymentRequest,
     DeploymentResponse,
@@ -30,7 +31,7 @@ class DeploymentServer(DeploymentServicer):
 
         self.optimizer_caller = OptimizerCaller()
         self.divider_caller = ModelDivider()
-        # self.fetcher_caller = FetcherCaller()
+        self.fetcher_caller = FetcherCaller()
 
     def produce_plan(self, deployment_req: ProducePlanRequest, context):
         print("Received Deployment Request")
@@ -75,7 +76,7 @@ class DeploymentServer(DeploymentServicer):
         )
 
         self.divider_caller.divide_model(whole_plan)
-        # self.fetcher_caller.distribute_plan(whole_plan)
+        self.fetcher_caller.distribute_plan(whole_plan)
 
         ## TODO Model Division
         ## TODO Fetcher Calls

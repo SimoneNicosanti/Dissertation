@@ -1,7 +1,7 @@
 import onnx
 
+from CommonIds.ComponentId import ComponentId
 from CommonPlan.Plan import Plan
-from CommonPlan.SolvedModelGraph import ComponentId
 from ModelDivider.Divide.ModelPartitioner import ModelPartitioner
 
 

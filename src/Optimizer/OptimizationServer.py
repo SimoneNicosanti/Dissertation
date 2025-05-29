@@ -2,13 +2,13 @@ import json
 
 import networkx as nx
 
+from CommonIds.NodeId import NodeId
 from CommonPlan.Plan import Plan
 from CommonPlan.SolvedModelGraph import SolvedGraphInfo
 from CommonPlan.WholePlan import WholePlan
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelProfile import ModelProfile
 from CommonProfile.NetworkProfile import NetworkProfile
-from CommonProfile.NodeId import NodeId
 from Optimizer.Builder.PlanBuilder import PlanBuilder
 from Optimizer.Optimization.OptimizationHandler import (
     OptimizationHandler,

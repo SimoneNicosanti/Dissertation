@@ -1,22 +1,22 @@
 import threading
 
+from CommonIds.ComponentId import ComponentId
+from CommonPlan.Plan import Plan
 from CommonServer.InferenceInfo import (
-    ComponentInfo,
     TensorWrapper,
 )
 from CommonServer.InferenceManager import InferenceManager
-from CommonServer.PlanWrapper import PlanWrapper
 from Server.Inference.ModelRunner import ModelRunner
 
 
 class IntermediateInferenceManager(InferenceManager):
     def __init__(
         self,
-        plan_wrapper: PlanWrapper,
-        components_dict: dict[ComponentInfo, str],
+        plan: Plan,
+        components_dict: dict[ComponentId, str],
         threads_per_model: int,
     ):
-        super().__init__(plan_wrapper, components_dict)
+        super().__init__(plan, components_dict)
 
         self.execution_semaphore = threading.Semaphore(threads_per_model)
         self.runner_lock_list = [threading.Lock() for _ in range(threads_per_model)]
@@ -30,7 +30,7 @@ class IntermediateInferenceManager(InferenceManager):
 
     def do_inference(
         self,
-        component_info: ComponentInfo,
+        component_id: ComponentId,
         tensor_wrapper_list: list[TensorWrapper],
     ):
         ## Firt of all we have to take the semaphore
@@ -49,7 +49,7 @@ class IntermediateInferenceManager(InferenceManager):
                 ## Run Inference
                 model_runner = self.model_runners[idx]
                 output_info_list = model_runner.run_component(
-                    component_info, tensor_wrapper_list
+                    component_id, tensor_wrapper_list
                 )
                 print("Inference Done")
 

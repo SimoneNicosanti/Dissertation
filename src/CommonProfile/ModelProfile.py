@@ -4,7 +4,7 @@ import copy
 import networkx as nx
 from networkx.readwrite import json_graph
 
-from CommonProfile.NodeId import NodeId
+from CommonIds.NodeId import NodeId
 
 
 class Regressor:

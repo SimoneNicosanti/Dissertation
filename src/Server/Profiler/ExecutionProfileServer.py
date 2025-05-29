@@ -6,8 +6,8 @@ import grpc
 import onnx
 
 from Common import ConfigReader
+from CommonIds.NodeId import NodeId
 from CommonProfile.ExecutionProfile import ModelExecutionProfile
-from CommonProfile.NodeId import NodeId
 from proto_compiled.common_pb2 import ComponentId, ModelId
 from proto_compiled.model_pool_pb2 import LayerPullResponse, PullRequest
 from proto_compiled.model_pool_pb2_grpc import ModelPoolStub

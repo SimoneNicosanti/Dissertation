@@ -1,15 +1,10 @@
 syntax = "proto3";
 package pool;
 
-import "common.proto";
-
 
 service ModelDivide {
     rpc divide_model(PartitionRequest) returns (PartitionResponse);
 }
-
-
-
 
 message PartitionRequest {
     string optimized_plan = 1;

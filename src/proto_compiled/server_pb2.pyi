@@ -48,6 +48,12 @@ class InferenceResponse(_message.Message):
     output_tensor: Tensor
     def __init__(self, output_tensor: _Optional[_Union[Tensor, _Mapping]] = ...) -> None: ...
 
+class AssignmentRequest(_message.Message):
+    __slots__ = ("optimized_plan",)
+    OPTIMIZED_PLAN_FIELD_NUMBER: _ClassVar[int]
+    optimized_plan: str
+    def __init__(self, optimized_plan: _Optional[str] = ...) -> None: ...
+
 class AssignmentResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...

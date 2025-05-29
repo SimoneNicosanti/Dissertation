@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from CommonProfile.NodeId import NodeId
+from CommonIds.NodeId import NodeId
 
 
 @dataclass(frozen=True)

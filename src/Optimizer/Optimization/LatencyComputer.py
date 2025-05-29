@@ -2,9 +2,9 @@
 import networkx as nx
 import pulp
 
+from CommonIds.NodeId import NodeId
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.NetworkInfo import NetworkEdgeInfo, NetworkNodeInfo
-from CommonProfile.NodeId import NodeId
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
 
 

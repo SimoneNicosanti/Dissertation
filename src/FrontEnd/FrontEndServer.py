@@ -4,16 +4,14 @@ from typing import Generator
 
 from readerwriterlock import rwlock
 
+from CommonPlan.Plan import Plan
 from CommonServer.InferenceInfo import (
-    ComponentInfo,
-    ModelInfo,
     RequestInfo,
     TensorWrapper,
 )
-from CommonServer.InputReceiver import InputReceiver
 from CommonServer.InferenceManager import InferenceManager
+from CommonServer.InputReceiver import InputReceiver
 from CommonServer.OutputSender import OutputSender
-from CommonServer.PlanWrapper import PlanWrapper
 from FrontEnd import ResponseGenerator
 from FrontEnd.ExtremeInferenceManager import ExtremeInferenceManager
 from proto_compiled.server_pb2_grpc import InferenceServicer
@@ -30,7 +28,7 @@ class FrontEndServer(InferenceServicer):
         self.output_sender = OutputSender()
 
         self.managers_lock = rwlock.RWLockWriteD()
-        self.plan_wrapper_dict: dict[ModelInfo, PlanWrapper] = {}
+        self.plan_wrapper_dict: dict[ModelInfo, Plan] = {}
         self.model_managers: dict[ModelInfo, InferenceManager] = {}
 
         self.requests_lock = rwlock.RWLockWriteD()
@@ -131,15 +129,15 @@ class FrontEndServer(InferenceServicer):
     def register_model(
         self,
         model_info: ModelInfo,
-        plan_wrapper: PlanWrapper,
+        plan: Plan,
         components_dict: dict[ComponentInfo, str],
         threads_per_model: int,
     ):
 
         with self.managers_lock.gen_wlock():
-            self.plan_wrapper_dict[model_info] = plan_wrapper
+            self.plan_wrapper_dict[model_info] = plan
 
             self.model_managers[model_info] = ExtremeInferenceManager(
-                plan_wrapper, components_dict
+                plan, components_dict
             )
         pass

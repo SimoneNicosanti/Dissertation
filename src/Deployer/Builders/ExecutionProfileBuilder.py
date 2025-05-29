@@ -3,12 +3,12 @@ import json
 import grpc
 
 from Common import ConfigReader
+from CommonIds.NodeId import NodeId
 from CommonProfile.ExecutionProfile import (
     ModelExecutionProfile,
     ServerExecutionProfile,
     ServerExecutionProfilePool,
 )
-from CommonProfile.NodeId import NodeId
 from proto_compiled.common_pb2 import Empty, ModelId
 from proto_compiled.register_pb2 import AllServerInfo
 from proto_compiled.register_pb2_grpc import RegisterStub

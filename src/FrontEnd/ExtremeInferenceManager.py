@@ -1,4 +1,4 @@
-from CommonServer.InferenceInfo import ComponentInfo, TensorWrapper
+from CommonServer.InferenceInfo import TensorWrapper
 from CommonServer.InferenceManager import InferenceManager
 
 

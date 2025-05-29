@@ -39,7 +39,11 @@ message InferenceResponse {
 // Assignment
 // Assignment service used in order to tell each server the plan to follow
 service Assignee {
-    rpc send_plan(common.OptimizedPlan) returns (AssignmentResponse);
+    rpc send_plan(AssignmentRequest) returns (AssignmentResponse);
+}
+
+message AssignmentRequest {
+    string optimized_plan = 1;
 }
 
 message AssignmentResponse {}

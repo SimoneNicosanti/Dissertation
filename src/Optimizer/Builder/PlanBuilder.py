@@ -1,8 +1,9 @@
 import networkx as nx
 
+from CommonIds.ComponentId import ComponentId
+from CommonIds.NodeId import NodeId
 from CommonPlan.Plan import Plan
-from CommonPlan.SolvedModelGraph import ComponentId, SolvedEdgeInfo, SolvedNodeInfo
-from CommonProfile.NodeId import NodeId
+from CommonPlan.SolvedModelGraph import SolvedEdgeInfo, SolvedNodeInfo
 
 
 class PlanBuilder:
@@ -131,7 +132,7 @@ class PlanBuilder:
 
                     for tensor_name in tensor_names_list:
                         output_connections.setdefault(tensor_name, set())
-                        output_connections[tensor_name].add(str(next_comp_id))
+                        output_connections[tensor_name].add(next_comp_id)
 
             ## If the component contains the receiver node
             ## It has to output all the outputs

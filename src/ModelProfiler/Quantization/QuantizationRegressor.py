@@ -3,8 +3,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures
 
+from CommonIds.NodeId import NodeId
 from CommonProfile.ModelProfile import Regressor
-from CommonProfile.NodeId import NodeId
 
 
 def build_regressor(

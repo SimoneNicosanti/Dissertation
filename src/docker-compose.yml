@@ -23,6 +23,7 @@ services:
       - ./Common:/src/Common
       - ./CommonProfile:/src/CommonProfile
       - ./CommonPlan:/src/CommonPlan
+      - ./CommonIds:/src/CommonIds
 
       - ./Other/models_profiles:/optimizer_data/models_profiles
       - ./Other/plans/:/optimizer_data/plans
@@ -47,6 +48,7 @@ services:
       - ./Common:/src/Common
       - ./CommonProfile:/src/CommonProfile
       - ./CommonPlan:/src/CommonPlan
+      - ./CommonIds:/src/CommonIds
     working_dir: /src
 
   registry:
@@ -89,6 +91,8 @@ services:
       - ./Common:/src/Common
       - ./CommonModel:/src/CommonModel
       - ./CommonProfile:/src/CommonProfile
+      - ./CommonPlan:/src/CommonPlan
+      - ./CommonIds:/src/CommonIds
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src
@@ -122,6 +126,7 @@ services:
 
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
+      - ./CommonIds:/src/CommonIds
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src
@@ -155,6 +160,7 @@ services:
       - ./CommonProfile:/src/CommonProfile
       - ./CommonPlan:/src/CommonPlan
       - ./CommonModel:/src/CommonModel
+      - ./CommonIds:/src/CommonIds
 
       - ./Other/models:/model_pool_data/models
       - ./Other/models_profiles:/model_profiler_data/models_profiles

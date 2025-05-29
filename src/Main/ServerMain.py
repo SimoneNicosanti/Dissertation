@@ -36,18 +36,18 @@ def main():
     register_response: ServerId = register_to_registry()
 
     execution_profile_server = start_execution_profiler()
-    execution_profile_server.wait_for_termination()
 
     # ping_server = start_ping_server()
 
-    # inferencer, inference_server = start_inference_server()
-    # assignee_server = start_assignee_server(register_response.server_id, inferencer)
+    inferencer, inference_server = start_inference_server()
+    assignee_server = start_assignee_server(register_response.server_id, inferencer)
 
     # server_monitor = ServerMonitor(register_response.server_id)
     # server_monitor.init_monitoring()
 
-    # assignee_server.wait_for_termination()
-    # inference_server.wait_for_termination()
+    assignee_server.wait_for_termination()
+    inference_server.wait_for_termination()
+    execution_profile_server.wait_for_termination()
     # ping_server.wait_for_termination()
     pass
 
@@ -90,9 +90,8 @@ def start_assignee_server(server_id: int, intermediate_server):
 
     assignment_port = ConfigReader.ConfigReader().read_int("ports", "ASSIGNMENT_PORT")
 
-    models_dir = ConfigReader.ConfigReader().read_str("inference_dirs", "MODELS_DIR")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    fetcher = Fetcher(server_id, models_dir, intermediate_server)
+    fetcher = Fetcher(server_id, intermediate_server)
     add_AssigneeServicer_to_server(fetcher, server)
     server.add_insecure_port(f"[::]:{assignment_port}")
     print(f"Assignee Server running on port {assignment_port}...")

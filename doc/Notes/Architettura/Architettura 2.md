@@ -33,3 +33,15 @@ Essendo tutte in esecuzione sullo stesso modello, anche se stiamo usando gRPC, c
 # Livello di Inferenza
 
 ![[Architecture_Inference.svg]]
+
+
+# Fasi di Esecuzione
+
+## Fase 1 : Produzione Piano
+![[Diagram 1.svg]]
+
+## Fase 2 : Deployment Piano
+![[Diagram 2.svg]]
+
+## Fase 3 : Inferenza
+Questa è normale, con i messaggi e i tensori che viaggiano tra i vari server

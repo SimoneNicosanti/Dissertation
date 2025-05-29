@@ -2,9 +2,9 @@ from typing import Iterator
 
 import numpy
 
+from CommonIds.ComponentId import ComponentId
+from CommonIds.NodeId import NodeId
 from CommonServer.InferenceInfo import (
-    ComponentInfo,
-    ModelInfo,
     RequestInfo,
     TensorWrapper,
 )
@@ -18,9 +18,9 @@ class InputReceiver:
 
     def handle_input_stream(
         self, input_stream: Iterator[InferenceInput]
-    ) -> tuple[ComponentInfo, RequestInfo, list[TensorWrapper]]:
+    ) -> tuple[ComponentId, RequestInfo, list[TensorWrapper]]:
 
-        component_info = None
+        component_id = None
         request_info = None
         tensor_wrapper_list = []
 
@@ -29,15 +29,12 @@ class InputReceiver:
         current_tensor_type = None
         current_tensor_buffer = bytearray()
         for input in input_stream:
-            if component_info is None:
-                model_info = ModelInfo(
-                    model_name=input.component_id.model_id.model_name,
-                    deployer_id=input.component_id.model_id.deployer_id,
-                )
-                component_info = ComponentInfo(
-                    model_info=model_info,
-                    server_id=input.component_id.server_id,
-                    component_idx=input.component_id.component_idx,
+            if component_id is None:
+                model_name = (input.component_id.model_id.model_name,)
+                component_id = ComponentId(
+                    model_name=model_name,
+                    net_node_id=NodeId(node_name=input.component_id.server_id),
+                    component_idx=int(input.component_id.component_idx),
                 )
             if request_info is None:
                 request_info = RequestInfo(
@@ -84,4 +81,4 @@ class InputReceiver:
         )
         tensor_wrapper_list.append(tensor_wrapper)
 
-        return component_info, request_info, tensor_wrapper_list
+        return component_id, request_info, tensor_wrapper_list

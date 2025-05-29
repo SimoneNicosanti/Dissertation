@@ -1,4 +1,3 @@
-from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
@@ -34,18 +33,3 @@ class RequestId(_message.Message):
 class Empty(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
-
-class OptimizedPlan(_message.Message):
-    __slots__ = ("deployer_id", "plans_map")
-    class PlansMapEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: str
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-    DEPLOYER_ID_FIELD_NUMBER: _ClassVar[int]
-    PLANS_MAP_FIELD_NUMBER: _ClassVar[int]
-    deployer_id: str
-    plans_map: _containers.ScalarMap[str, str]
-    def __init__(self, deployer_id: _Optional[str] = ..., plans_map: _Optional[_Mapping[str, str]] = ...) -> None: ...

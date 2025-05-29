@@ -1,8 +1,6 @@
 syntax = "proto3";
 package optimizer;
 
-import "common.proto";
-
 service Optimization {
     rpc serve_optimization(OptimizationRequest) returns (OptimizationResponse);
 }

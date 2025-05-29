@@ -7,7 +7,7 @@ import onnxruntime
 import pandas as pd
 from onnxruntime.quantization.calibrate import CalibrationDataReader
 
-from CommonProfile.NodeId import NodeId
+from CommonIds.NodeId import NodeId
 from ModelProfiler.Quantization import SoftQuantization
 
 

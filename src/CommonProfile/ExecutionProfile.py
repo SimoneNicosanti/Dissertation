@@ -1,4 +1,4 @@
-from CommonProfile.NodeId import NodeId
+from CommonIds.NodeId import NodeId
 
 
 class ModelExecutionProfile:

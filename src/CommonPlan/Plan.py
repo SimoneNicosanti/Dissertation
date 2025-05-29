@@ -1,7 +1,6 @@
-import ast
+import copy
 
-from CommonPlan.SolvedModelGraph import ComponentId
-from CommonProfile.NodeId import NodeId
+from CommonIds.ComponentId import ComponentId
 
 
 class Plan:
@@ -13,14 +12,23 @@ class Plan:
     def encode(self) -> dict:
 
         encoded_plan_dict = {}
-        for component_id, model_plan in self.plan_dict.items():
-            component_id_tuple = (
-                component_id.model_name,
-                component_id.net_node_id.node_name,
-                component_id.component_idx,
-            )
-            encoded_component_id = str(component_id_tuple)
-            encoded_plan_dict[encoded_component_id] = model_plan
+        for component_id, component_info in self.plan_dict.items():
+
+            encoded_plan_dict[component_id.encode()] = copy.deepcopy(component_info)
+
+            encoded_out_connections = {}
+            for tensor_name, next_comp_list in component_info[
+                "output_connections"
+            ].items():
+                next_comp_list: list[ComponentId]
+                encoded_out_connections[tensor_name] = [
+                    next_comp_id.encode() for next_comp_id in next_comp_list
+                ]
+                pass
+
+            encoded_plan_dict[component_id.encode()][
+                "output_connections"
+            ] = encoded_out_connections
 
         encoded_plan = {}
 
@@ -34,13 +42,23 @@ class Plan:
 
         model_name = encoded_plan["model_name"]
         plan_dict = {}
-        for encoded_component_id in encoded_plan["plan_dict"].keys():
-            component_id_tuple = ast.literal_eval(encoded_component_id)
-            component_id = ComponentId(
-                model_name=component_id_tuple[0],
-                net_node_id=NodeId(node_name=component_id_tuple[1]),
-                component_idx=component_id_tuple[2],
-            )
+        for encoded_component_id, encoded_comp_info in encoded_plan[
+            "plan_dict"
+        ].items():
+            component_id = ComponentId.decode(encoded_component_id)
+
+            decoded_out_connections = {}
+            for tensor_name, encoded_next_comp_list in encoded_comp_info[
+                "output_connections"
+            ].items():
+                decoded_out_connections[tensor_name] = [
+                    ComponentId.decode(encoded_next_comp_id)
+                    for encoded_next_comp_id in encoded_next_comp_list
+                ]
+                pass
+
+            encoded_comp_info["output_connections"] = decoded_out_connections
+
             plan_dict[component_id] = encoded_plan["plan_dict"][encoded_component_id]
 
         return Plan(model_name, plan_dict)
@@ -59,3 +77,41 @@ class Plan:
 
     def get_all_components(self) -> list[ComponentId]:
         return list(self.plan_dict.keys())
+
+    def get_server_components(self, server_id: str) -> list[ComponentId]:
+        return [
+            key
+            for key in self.plan_dict.keys()
+            if key.net_node_id.node_name == server_id
+        ]
+
+    def get_model_info(self) -> str:
+        return self.model_name
+
+    def get_input_names_for_component(self, component_id: ComponentId) -> list[str]:
+        return self.plan_dict[component_id]["input_names"]
+
+    def find_next_connections(
+        self, comp_id: ComponentId
+    ) -> dict[ComponentId, list[str]]:
+        connections_dict: dict[ComponentId, set[str]] = {}
+
+        component_info: dict = self.plan_dict[comp_id]
+
+        out_connections: dict[str, ComponentId] = component_info["output_connections"]
+        for tensor_name, next_comp_id_list in out_connections.items():
+            next_comp_id_list: list[ComponentId]
+            for next_comp_id in next_comp_id_list:
+
+                connections_dict.setdefault(next_comp_id, set())
+                connections_dict[next_comp_id].add(tensor_name)
+
+        return connections_dict
+
+    def get_input_and_output_component(self) -> tuple[ComponentId, ComponentId]:
+
+        output_list = []
+        for key in self.plan_dict.keys():
+            if self.is_component_only_input(key) or self.is_component_only_output(key):
+                output_list.append(key)
+        return output_list
