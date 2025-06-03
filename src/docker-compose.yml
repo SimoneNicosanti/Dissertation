@@ -133,11 +133,11 @@ services:
     working_dir: /src
     cap_add:
       - NET_ADMIN
-    deploy:
-      resources:
-        limits: # Hard Limit
-          cpus: "0.5"
-          memory: 2G
+    # deploy:
+    #   resources:
+    #     limits: # Hard Limit
+    #       cpus: "0.5"
+    #       memory: 2G
 
   model_manager:
     build:

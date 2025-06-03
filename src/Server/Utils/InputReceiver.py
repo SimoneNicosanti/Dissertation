@@ -4,11 +4,11 @@ import numpy
 
 from CommonIds.ComponentId import ComponentId
 from CommonIds.NodeId import NodeId
-from CommonServer.InferenceInfo import (
+from proto_compiled.server_pb2 import InferenceInput
+from Server.Utils.InferenceInfo import (
     RequestInfo,
     TensorWrapper,
 )
-from proto_compiled.server_pb2 import InferenceInput
 
 
 class InputReceiver:

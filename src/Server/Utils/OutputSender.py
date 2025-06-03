@@ -7,13 +7,13 @@ from Common import ConfigReader
 from CommonIds.ComponentId import ComponentId
 from CommonIds.NodeId import NodeId
 from CommonPlan.Plan import Plan
-from CommonServer.InferenceInfo import RequestInfo, TensorWrapper
 from proto_compiled.common_pb2 import ComponentId as GrpcComponentId
 from proto_compiled.common_pb2 import ModelId, RequestId
 from proto_compiled.register_pb2 import ReachabilityInfo, ServerId
 from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.server_pb2 import InferenceInput, Tensor, TensorChunk, TensorInfo
 from proto_compiled.server_pb2_grpc import InferenceStub
+from Server.Utils.InferenceInfo import RequestInfo, TensorWrapper
 
 
 class OutputSender:

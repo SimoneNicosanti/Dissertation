@@ -8,16 +8,16 @@ from Common.ConfigReader import ConfigReader
 from CommonIds.ComponentId import ComponentId
 from CommonPlan.Plan import Plan
 from CommonPlan.WholePlan import WholePlan
-from CommonServer.InferenceInfo import (
-    RequestInfo,
-    TensorWrapper,
-)
-from CommonServer.InputReceiver import InputReceiver
-from CommonServer.OutputSender import OutputSender
 from proto_compiled.server_pb2 import AssignmentRequest, AssignmentResponse
 from proto_compiled.server_pb2_grpc import InferenceServicer, InferenceStub
 from Server.Fetcher.Fetcher import Fetcher
 from Server.Inference.IntermediateInferenceManager import IntermediateInferenceManager
+from Server.Utils.InferenceInfo import (
+    RequestInfo,
+    TensorWrapper,
+)
+from Server.Utils.InputReceiver import InputReceiver
+from Server.Utils.OutputSender import OutputSender
 
 
 class IntermediateServer(InferenceServicer):

@@ -1,5 +1,5 @@
 from CommonIds.ComponentId import ComponentId
-from CommonServer.InferenceInfo import RequestInfo, TensorWrapper
+from Server.Utils.InferenceInfo import RequestInfo, TensorWrapper
 
 
 class InputPool:

@@ -1,8 +1,8 @@
 import io
 
 from Common import ConfigReader
-from CommonServer.InferenceInfo import TensorWrapper
 from proto_compiled.server_pb2 import InferenceResponse, Tensor, TensorChunk, TensorInfo
+from Server.Utils.InferenceInfo import TensorWrapper
 
 MEGABYTE_SIZE = 1024 * 1024
 

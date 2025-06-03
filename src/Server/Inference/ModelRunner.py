@@ -2,7 +2,7 @@ import numpy
 import onnxruntime as ort
 
 from CommonIds.ComponentId import ComponentId
-from CommonServer.InferenceInfo import TensorWrapper
+from Server.Utils.InferenceInfo import TensorWrapper
 
 
 class ModelRunner:

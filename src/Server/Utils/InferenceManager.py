@@ -4,11 +4,11 @@ from readerwriterlock import rwlock
 
 from CommonIds.ComponentId import ComponentId
 from CommonPlan.Plan import Plan
-from CommonServer.InferenceInfo import (
+from Server.Utils.InferenceInfo import (
     RequestInfo,
     TensorWrapper,
 )
-from CommonServer.InputPool import InputPool
+from Server.Utils.InputPool import InputPool
 
 
 class InferenceManager(abc.ABC):

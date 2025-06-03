@@ -8,17 +8,17 @@ from readerwriterlock import rwlock
 from CommonIds.ComponentId import ComponentId
 from CommonPlan.Plan import Plan
 from CommonPlan.WholePlan import WholePlan
-from CommonServer.InferenceInfo import (
-    RequestInfo,
-    TensorWrapper,
-)
-from CommonServer.InferenceManager import InferenceManager
-from CommonServer.InputReceiver import InputReceiver
-from CommonServer.OutputSender import OutputSender
 from proto_compiled.server_pb2 import AssignmentRequest, AssignmentResponse
 from proto_compiled.server_pb2_grpc import InferenceServicer
 from Server.FrontEnd import ResponseGenerator
 from Server.FrontEnd.ExtremeInferenceManager import ExtremeInferenceManager
+from Server.Utils.InferenceInfo import (
+    RequestInfo,
+    TensorWrapper,
+)
+from Server.Utils.InferenceManager import InferenceManager
+from Server.Utils.InputReceiver import InputReceiver
+from Server.Utils.OutputSender import OutputSender
 
 ## This has to be a different service running on the client
 ## Actually it should be started by the deployer --> I.E. The one asking for the plan optimization

@@ -1,6 +1,6 @@
 from CommonIds.ComponentId import ComponentId
-from CommonServer.InferenceInfo import TensorWrapper
-from CommonServer.InferenceManager import InferenceManager
+from Server.Utils.InferenceInfo import TensorWrapper
+from Server.Utils.InferenceManager import InferenceManager
 
 
 class ExtremeInferenceManager(InferenceManager):

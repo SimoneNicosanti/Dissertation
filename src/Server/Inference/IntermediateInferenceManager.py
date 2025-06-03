@@ -2,11 +2,11 @@ import threading
 
 from CommonIds.ComponentId import ComponentId
 from CommonPlan.Plan import Plan
-from CommonServer.InferenceInfo import (
+from Server.Inference.ModelRunner import ModelRunner
+from Server.Utils.InferenceInfo import (
     TensorWrapper,
 )
-from CommonServer.InferenceManager import InferenceManager
-from Server.Inference.ModelRunner import ModelRunner
+from Server.Utils.InferenceManager import InferenceManager
 
 
 class IntermediateInferenceManager(InferenceManager):
