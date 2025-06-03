@@ -1,25 +1,34 @@
+import json
 import threading
 
+import grpc
 from readerwriterlock import rwlock
 
+from Common.ConfigReader import ConfigReader
 from CommonIds.ComponentId import ComponentId
 from CommonPlan.Plan import Plan
+from CommonPlan.WholePlan import WholePlan
 from CommonServer.InferenceInfo import (
     RequestInfo,
     TensorWrapper,
 )
 from CommonServer.InputReceiver import InputReceiver
 from CommonServer.OutputSender import OutputSender
-from proto_compiled.server_pb2_grpc import InferenceServicer
+from proto_compiled.server_pb2 import AssignmentRequest, AssignmentResponse
+from proto_compiled.server_pb2_grpc import InferenceServicer, InferenceStub
+from Server.Fetcher.Fetcher import Fetcher
 from Server.Inference.IntermediateInferenceManager import IntermediateInferenceManager
 
 
 class IntermediateServer(InferenceServicer):
-    def __init__(self):
+    def __init__(self, server_id: str):
         super().__init__()
 
         self.input_receiver = InputReceiver()
         self.output_sender = OutputSender()
+
+        self.fetcher = Fetcher(server_id)
+        self.server_id: str = server_id
 
         self.lock = rwlock.RWLockWriteD()
         self.plan_dict: dict[str, Plan] = {}
@@ -55,6 +64,7 @@ class IntermediateServer(InferenceServicer):
         output_tensor_info = model_manager.pass_input_and_infer(
             component_id, request_info, tensor_wrapper_list
         )
+        print("Completed Inference")
 
         if output_tensor_info is not None:
             ## 3. Send Output
@@ -67,14 +77,41 @@ class IntermediateServer(InferenceServicer):
                 request_info,
                 output_tensor_info,
             )
+            print("Sent Output")
+
+    def assign_plan(self, assignment_request: AssignmentRequest, context):
+
+        whole_plan: WholePlan = WholePlan.decode(
+            json.loads(assignment_request.optimized_plan)
+        )
+
+        for model_name in whole_plan.get_model_names():
+            model_plan = whole_plan.get_model_plan(model_name)
+            self.register_model(
+                model_name,
+                model_plan,
+            )
+
+        ## If this is the start server, then we send the plan to the local FrontEnd Component
+        if whole_plan.get_start_server() == self.server_id:
+            addr = "localhost"
+            port = ConfigReader().read_int("ports", "FRONTEND_PORT")
+            conn = grpc.insecure_channel("{}:{}".format(addr, port))
+            frontend_server = InferenceStub(conn)
+            frontend_server.assign_plan(assignment_request)
+
+        return AssignmentResponse()
 
     def register_model(
         self,
         model_name: str,
         plan: Plan,
-        components_dict: dict[ComponentId, str],
-        threads_per_model: int,
     ):
+        ## Fetch model
+        ## Fetch components
+        components_dict = self.fetcher.fetch_components(plan)
+
+        threads_per_model = 10
 
         with self.lock.gen_wlock():
             self.model_managers[model_name] = IntermediateInferenceManager(

@@ -65,7 +65,7 @@ class InferenceCaller:
             byte_buffer = io.BytesIO(input_tensor.tobytes())
 
             component_id = ComponentId(
-                model_id=ModelId(model_name=model_name, deployer_id="0"),
+                model_id=ModelId(model_name=model_name),
                 server_id="0",
                 component_idx="0",
             )

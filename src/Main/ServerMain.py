@@ -11,11 +11,10 @@ from proto_compiled.ping_pb2_grpc import add_PingServicer_to_server
 from proto_compiled.register_pb2 import ReachabilityInfo, ServerId
 from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.server_pb2_grpc import (
-    add_AssigneeServicer_to_server,
     add_ExecutionProfileServicer_to_server,
     add_InferenceServicer_to_server,
 )
-from Server.Assignee.Assignee import Fetcher
+from Server.FrontEnd.FrontEndServer import FrontEndServer
 from Server.Inference.IntermediateServer import IntermediateServer
 from Server.Monitor.ServerMonitor import ServerMonitor
 from Server.Ping.PingServer import PingServer
@@ -35,20 +34,22 @@ def main():
 
     register_response: ServerId = register_to_registry()
 
+    if register_response.server_id == "0":
+        frontend_server = start_frontend_server()
+
     execution_profile_server = start_execution_profiler()
-
-    # ping_server = start_ping_server()
-
-    inferencer, inference_server = start_inference_server()
-    assignee_server = start_assignee_server(register_response.server_id, inferencer)
+    ping_server = start_ping_server()
+    inference_server = start_inference_server(register_response.server_id)
 
     # server_monitor = ServerMonitor(register_response.server_id)
     # server_monitor.init_monitoring()
 
-    assignee_server.wait_for_termination()
     inference_server.wait_for_termination()
     execution_profile_server.wait_for_termination()
-    # ping_server.wait_for_termination()
+    ping_server.wait_for_termination()
+
+    if register_response.server_id == "0":
+        frontend_server.wait_for_termination()
     pass
 
 
@@ -86,30 +87,16 @@ def register_to_registry():
     return register_response
 
 
-def start_assignee_server(server_id: int, intermediate_server):
-
-    assignment_port = ConfigReader.ConfigReader().read_int("ports", "ASSIGNMENT_PORT")
-
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    fetcher = Fetcher(server_id, intermediate_server)
-    add_AssigneeServicer_to_server(fetcher, server)
-    server.add_insecure_port(f"[::]:{assignment_port}")
-    print(f"Assignee Server running on port {assignment_port}...")
-
-    server.start()
-    return server
-
-
-def start_inference_server():
+def start_inference_server(server_id: str):
     inference_port = ConfigReader.ConfigReader().read_int("ports", "INFERENCE_PORT")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    inferencer = IntermediateServer()
+    inferencer = IntermediateServer(server_id)
     add_InferenceServicer_to_server(inferencer, server)
     server.add_insecure_port(f"[::]:{inference_port}")
 
     server.start()
     print(f"Inference Server running on port {inference_port}...")
-    return inferencer, server
+    return server
 
 
 def start_ping_server():
@@ -137,6 +124,18 @@ def start_execution_profiler():
     server.add_insecure_port(f"[::]:{execution_profiler_port}")
     server.start()
     print(f"Execution Profiler Server running on port {execution_profiler_port}...")
+
+    return server
+
+
+def start_frontend_server():
+    frontend_port = ConfigReader.ConfigReader().read_int("ports", "FRONTEND_PORT")
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
+    add_InferenceServicer_to_server(FrontEndServer(), server)
+
+    server.add_insecure_port(f"[::]:{frontend_port}")
+    server.start()
+    print(f"Frontend Server running on port {frontend_port}...")
 
     return server
 

@@ -11,7 +11,7 @@ class ComponentId:
     component_idx: int
 
     def __repr__(self):
-        return f"({self.net_node_id}, {self.component_idx})"
+        return f"({self.model_name}, {self.net_node_id}, {self.component_idx})"
 
     def encode(self):
         return str((self.model_name, self.net_node_id.node_name, self.component_idx))

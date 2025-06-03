@@ -7,6 +7,8 @@ import "common.proto";
 // Inference service exposed by the server in order to do distributed inference
 service Inference {
     rpc do_inference(stream InferenceInput) returns (stream InferenceResponse) ;
+
+    rpc assign_plan(AssignmentRequest) returns (AssignmentResponse);
 }
 
 message InferenceInput {
@@ -34,12 +36,6 @@ message TensorChunk {
 
 message InferenceResponse {
     Tensor output_tensor = 1;
-}
-
-// Assignment
-// Assignment service used in order to tell each server the plan to follow
-service Assignee {
-    rpc send_plan(AssignmentRequest) returns (AssignmentResponse);
 }
 
 message AssignmentRequest {

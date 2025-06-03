@@ -1,4 +1,3 @@
-import json
 import os
 
 import onnx
@@ -7,20 +6,15 @@ from Common import ConfigReader
 from CommonIds.ComponentId import ComponentId
 from CommonModel.PoolInterface import PoolInterface
 from CommonPlan.Plan import Plan
-from CommonPlan.WholePlan import WholePlan
 from proto_compiled.common_pb2 import ComponentId as GrpcComponentId
 from proto_compiled.common_pb2 import ModelId
-from proto_compiled.server_pb2 import AssignmentRequest, AssignmentResponse
-from proto_compiled.server_pb2_grpc import AssigneeServicer
-from Server.Inference.IntermediateServer import IntermediateServer
 
 
-class Fetcher(AssigneeServicer):
+class Fetcher:
 
     def __init__(
         self,
         server_id: str,
-        intermediate_server: IntermediateServer,
     ):
         self.server_id: str = server_id
 
@@ -29,30 +23,14 @@ class Fetcher(AssigneeServicer):
         )
         self.local_model_dir: str = local_model_dir
 
-        self.intermediate_server: IntermediateServer = intermediate_server
-
         self.model_pool_interface = PoolInterface()
 
-    def send_plan(self, assignment_request: AssignmentRequest, context):
-        print("Received Plan")
-
-        whole_plan: WholePlan = WholePlan.decode(
-            json.loads(assignment_request.optimized_plan)
-        )
-
-        for model_name in whole_plan.get_model_names():
-            model_plan = whole_plan.get_model_plan(model_name)
-            self.__handle_model_plan(model_plan)
-
-        return AssignmentResponse()
-
-    def __handle_model_plan(self, plan: Plan):
+    def fetch_components(self, plan: Plan) -> dict[ComponentId, str]:
 
         assigned_components: list[ComponentId] = plan.get_server_components(
             self.server_id
         )
         paths_dict = {}
-        model_info = plan.get_model_info()
 
         for comp_id in assigned_components:
 
@@ -68,9 +46,7 @@ class Fetcher(AssigneeServicer):
 
                 paths_dict[comp_id] = component_path
 
-        if len(paths_dict) != 0:
-            print("Registring Model")
-            self.intermediate_server.register_model(model_info, plan, paths_dict, 10)
+        return paths_dict
 
     def __fetch_component(self, component_id: ComponentId):
 

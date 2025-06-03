@@ -36,10 +36,12 @@ class InferenceManager(abc.ABC):
         with self.pool_lock.gen_wlock():
             for tensor_wrap in tensor_wrap_list:
                 self.input_pool.put_input(component_id, request_info, tensor_wrap)
+            print("Put Input")
 
             input_list, is_ready = self.input_pool.get_input_if_ready(
                 component_id, request_info, self.component_input_dict[component_id]
             )
+            print("Got Input")
 
         if is_ready:
             print("Is Ready")

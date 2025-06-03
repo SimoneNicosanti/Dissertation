@@ -108,7 +108,7 @@ class Plan:
 
         return connections_dict
 
-    def get_input_and_output_component(self) -> tuple[ComponentId, ComponentId]:
+    def get_input_and_output_component(self) -> list[ComponentId]:
 
         output_list = []
         for key in self.plan_dict.keys():

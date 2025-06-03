@@ -30,9 +30,8 @@ class InputReceiver:
         current_tensor_buffer = bytearray()
         for input in input_stream:
             if component_id is None:
-                model_name = (input.component_id.model_id.model_name,)
                 component_id = ComponentId(
-                    model_name=model_name,
+                    model_name=input.component_id.model_id.model_name,
                     net_node_id=NodeId(node_name=input.component_id.server_id),
                     component_idx=int(input.component_id.component_idx),
                 )

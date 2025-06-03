@@ -7,7 +7,7 @@ from CommonPlan.WholePlan import WholePlan
 from proto_compiled.common_pb2 import Empty
 from proto_compiled.register_pb2_grpc import RegisterStub
 from proto_compiled.server_pb2 import AssignmentRequest
-from proto_compiled.server_pb2_grpc import AssigneeStub
+from proto_compiled.server_pb2_grpc import InferenceStub
 
 
 class FetcherCaller:
@@ -34,17 +34,20 @@ class FetcherCaller:
         registry_stub = RegisterStub(self.registry_chan)
         all_server_info = registry_stub.get_all_servers_info(Empty())
 
+        ## Giving Plan to Inference Servers
         for server_info in all_server_info.all_server_info:
             server_addr = server_info.reachability_info.ip_address
-            assignment_port = server_info.reachability_info.assignment_port
+            assignment_port = server_info.reachability_info.inference_port
 
             server_chann = grpc.insecure_channel(
                 "{}:{}".format(server_addr, assignment_port)
             )
 
-            assignee_stub = AssigneeStub(server_chann)
+            assignee_stub = InferenceStub(server_chann)
 
-            assignee_stub.send_plan(assignment_request)
+            assignee_stub.assign_plan(assignment_request)
+
+        ## Giving Plan to FrontEnd Server
 
     # def __get_stub_for_assignee(self, assignee_id: str) -> AssigneeStub:
 

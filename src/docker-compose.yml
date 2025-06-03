@@ -116,10 +116,8 @@ services:
 
       - ./Client:/src/Client
       - ./Server:/src/Server
-      - ./FrontEnd:/src/FrontEnd
 
       - ./Main/ServerMain.py:/src/ServerMain.py
-      - ./Main/FrontEndMain.py:/src/FrontEndMain.py
       - ./Main/ClientMain.py:/src/ClientMain.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
@@ -127,6 +125,9 @@ services:
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
       - ./CommonIds:/src/CommonIds
+      - ./CommonModel:/src/CommonModel
+      - ./CommonProfile:/src/CommonProfile
+      - ./CommonPlan:/src/CommonPlan
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src

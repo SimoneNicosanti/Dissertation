@@ -72,7 +72,7 @@ class OptmizationServer(OptimizationServicer):
             return OptimizationResponse(optimized_plan="")
 
         ## Problem Post Processing
-        whole_plan = WholePlan()
+        whole_plan = WholePlan(start_server)
         for solved_graph in solved_graphs:
             graph_name = solved_graph.graph["name"]
             if not solved_graph.graph[SolvedGraphInfo.SOLVED]:

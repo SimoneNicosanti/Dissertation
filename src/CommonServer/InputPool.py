@@ -1,4 +1,4 @@
-from CommonIds import ComponentId
+from CommonIds.ComponentId import ComponentId
 from CommonServer.InferenceInfo import RequestInfo, TensorWrapper
 
 
@@ -12,8 +12,8 @@ class InputPool:
         request_info: RequestInfo,
         tensor_wrapper: TensorWrapper,
     ):
-
         key = (component_id, request_info)
+        print(key)
         self.input_pool.setdefault(key, [])
         self.input_pool[key].append(tensor_wrapper)
 
@@ -23,12 +23,14 @@ class InputPool:
         request_info: RequestInfo,
         input_list: list[str],
     ) -> list[TensorWrapper]:
-
+        print("Here")
         key = (component_id, request_info)
+        print(key)
+
         current_inputs = self.input_pool.get(key, None)
         if current_inputs is None:
             return [], False
-
+        print("Got Inputs from Dict")
         current_inputs_names = [
             tensor_wrap.tensor_name for tensor_wrap in current_inputs
         ]

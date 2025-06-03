@@ -41,6 +41,11 @@ class InferenceStub(object):
                 request_serializer=server__pb2.InferenceInput.SerializeToString,
                 response_deserializer=server__pb2.InferenceResponse.FromString,
                 _registered_method=True)
+        self.assign_plan = channel.unary_unary(
+                '/server.Inference/assign_plan',
+                request_serializer=server__pb2.AssignmentRequest.SerializeToString,
+                response_deserializer=server__pb2.AssignmentResponse.FromString,
+                _registered_method=True)
 
 
 class InferenceServicer(object):
@@ -54,6 +59,12 @@ class InferenceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def assign_plan(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_InferenceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -61,6 +72,11 @@ def add_InferenceServicer_to_server(servicer, server):
                     servicer.do_inference,
                     request_deserializer=server__pb2.InferenceInput.FromString,
                     response_serializer=server__pb2.InferenceResponse.SerializeToString,
+            ),
+            'assign_plan': grpc.unary_unary_rpc_method_handler(
+                    servicer.assign_plan,
+                    request_deserializer=server__pb2.AssignmentRequest.FromString,
+                    response_serializer=server__pb2.AssignmentResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -102,59 +118,8 @@ class Inference(object):
             metadata,
             _registered_method=True)
 
-
-class AssigneeStub(object):
-    """Assignment
-    Assignment service used in order to tell each server the plan to follow
-    """
-
-    def __init__(self, channel):
-        """Constructor.
-
-        Args:
-            channel: A grpc.Channel.
-        """
-        self.send_plan = channel.unary_unary(
-                '/server.Assignee/send_plan',
-                request_serializer=server__pb2.AssignmentRequest.SerializeToString,
-                response_deserializer=server__pb2.AssignmentResponse.FromString,
-                _registered_method=True)
-
-
-class AssigneeServicer(object):
-    """Assignment
-    Assignment service used in order to tell each server the plan to follow
-    """
-
-    def send_plan(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-
-def add_AssigneeServicer_to_server(servicer, server):
-    rpc_method_handlers = {
-            'send_plan': grpc.unary_unary_rpc_method_handler(
-                    servicer.send_plan,
-                    request_deserializer=server__pb2.AssignmentRequest.FromString,
-                    response_serializer=server__pb2.AssignmentResponse.SerializeToString,
-            ),
-    }
-    generic_handler = grpc.method_handlers_generic_handler(
-            'server.Assignee', rpc_method_handlers)
-    server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('server.Assignee', rpc_method_handlers)
-
-
- # This class is part of an EXPERIMENTAL API.
-class Assignee(object):
-    """Assignment
-    Assignment service used in order to tell each server the plan to follow
-    """
-
     @staticmethod
-    def send_plan(request,
+    def assign_plan(request,
             target,
             options=(),
             channel_credentials=None,
@@ -167,7 +132,7 @@ class Assignee(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/server.Assignee/send_plan',
+            '/server.Inference/assign_plan',
             server__pb2.AssignmentRequest.SerializeToString,
             server__pb2.AssignmentResponse.FromString,
             options,

@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 394.5026054382324,
-    "collapsed": true
+    "width": 394.5026054382324
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -167,12 +166,12 @@
   },
   "active": "75523d1393ddf165",
   "lastOpenFiles": [
+    "Notes/Architettura/Architettura.md",
+    "Notes/Architettura/Architettura 2.md",
     "Diagram 2.svg.xml",
     "Diagram 2.svg",
     "Diagram 1.svg.xml",
     "Diagram 1.svg",
-    "Notes/Architettura/Architettura.md",
-    "Notes/Architettura/Architettura 2.md",
     "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
     "Notes/Architettura/Diagrams/Architecture_Control.svg",
     "Diagram.svg",
@@ -204,7 +203,6 @@
     "Paper/Note Sugli Articoli.md",
     "Paper/CoEdge/CoEdge.pdf",
     "Notes/Indice Tesi.md",
-    "Paper/Neurosurgeon.pdf",
     "Notes/Split del Modello.md",
     "26.md",
     "Paper/Furcifer/Furcifer - Notes.md",
