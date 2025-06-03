@@ -2,6 +2,7 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
+from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from Optimizer.Optimization import LatencyComputer
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
@@ -15,6 +16,7 @@ def compute_energy_cost(
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
     edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
     requests_number: dict[str, int],
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> pulp.LpAffineExpression:
 
     tot_energy_cost = 0
@@ -25,7 +27,7 @@ def compute_energy_cost(
         model_weight = requests_number.get(model_graph.graph["name"]) / total_requests
 
         model_comp_energy, max_model_comp_energy = compute_comp_energy_per_model(
-            model_graph, network_graph, node_ass_vars
+            model_graph, network_graph, node_ass_vars, server_execution_profile_pool
         )
         model_trans_energy, max_model_trans_energy = compute_trans_energy_per_model(
             model_graph, network_graph, edge_ass_vars
@@ -46,6 +48,7 @@ def compute_comp_energy_per_model(
     model_graph: nx.MultiDiGraph,
     network_graph: nx.DiGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> tuple[pulp.LpAffineExpression, float]:
     tot_comp_energy = 0
     max_comp_energy = 0
@@ -54,7 +57,11 @@ def compute_comp_energy_per_model(
 
         node_comp_latency_per_model, node_max_comp_latency_per_model = (
             LatencyComputer.compute_model_comp_latency_per_node(
-                model_graph, network_graph, node_ass_vars, net_node_id
+                model_graph,
+                network_graph,
+                node_ass_vars,
+                net_node_id,
+                server_execution_profile_pool,
             )
         )
 

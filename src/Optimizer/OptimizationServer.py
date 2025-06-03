@@ -65,6 +65,7 @@ class OptmizationServer(OptimizationServicer):
             network_profile.get_network_graph(),
             start_server,
             opt_params=optimization_params,
+            server_execution_profile_pool=execution_profile_pool,
         )
 
         if solved_graphs is None:

@@ -5,6 +5,7 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
+from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
 from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
@@ -34,6 +35,7 @@ class OptimizationHandler:
         network_graph: nx.DiGraph,
         start_server: NodeId,
         opt_params: OptimizationParams = None,
+        server_execution_profile_pool: ServerExecutionProfilePool = None,
     ) -> list[nx.DiGraph]:
         problem: pulp.LpProblem = pulp.LpProblem("Partitioning", pulp.LpMinimize)
 
@@ -109,6 +111,7 @@ class OptimizationHandler:
             node_ass_vars,
             edge_ass_vars,
             opt_params.requests_number,
+            server_execution_profile_pool,
         )
 
         ## Computing Energy Objective
@@ -118,6 +121,7 @@ class OptimizationHandler:
             node_ass_vars,
             edge_ass_vars,
             opt_params.requests_number,
+            server_execution_profile_pool,
         )
 
         latency_weight = opt_params.latency_weight / (

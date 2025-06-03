@@ -31,9 +31,13 @@ class ModelExecutionProfile:
         self.model_execution_profile_dict[node_id] = layer_execution_profile
 
     def get_not_quantized_layer_time(self, node_id: NodeId) -> float:
+        if node_id not in self.model_execution_profile_dict:
+            return 0
         return self.model_execution_profile_dict[node_id][0]
 
     def get_quantized_layer_time(self, node_id: NodeId) -> float:
+        if node_id not in self.model_execution_profile_dict:
+            return 0
         return self.model_execution_profile_dict[node_id][1]
 
 
@@ -50,6 +54,9 @@ class ServerExecutionProfile:
         self.execution_profile_dict[model_name] = model_execution_profile
 
         pass
+
+    def get_model_execution_profile(self, model_name: str) -> ModelExecutionProfile:
+        return self.execution_profile_dict[model_name]
 
     def encode(self) -> dict:
         transformed_dict = {}

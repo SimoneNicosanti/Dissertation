@@ -3,6 +3,10 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
+from CommonProfile.ExecutionProfile import (
+    ModelExecutionProfile,
+    ServerExecutionProfilePool,
+)
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.NetworkInfo import NetworkEdgeInfo, NetworkNodeInfo
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
@@ -14,6 +18,7 @@ def compute_latency_cost(
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
     edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
     requests_number: dict[str, int],
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> pulp.LpAffineExpression:
 
     tot_latency_cost = 0
@@ -24,7 +29,7 @@ def compute_latency_cost(
         model_weight = requests_number.get(model_graph.graph["name"]) / total_requests
 
         model_comp_latency, max_model_comp_latency = compute_comp_latency_per_model(
-            model_graph, network_graph, node_ass_vars
+            model_graph, network_graph, node_ass_vars, server_execution_profile_pool
         )
         model_trans_latency, max_model_trans_latency = compute_trans_latency_per_model(
             model_graph, network_graph, edge_ass_vars
@@ -45,13 +50,18 @@ def compute_comp_latency_per_model(
     model_graph: nx.DiGraph,
     network_graph: nx.DiGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> tuple[pulp.LpAffineExpression, float]:
     tot_comp_latency = 0
     max_comp_latency = 0
     for net_node_id in network_graph.nodes:
         node_comp_latency_per_model, node_max_comp_latency_per_model = (
             compute_model_comp_latency_per_node(
-                model_graph, network_graph, node_ass_vars, net_node_id
+                model_graph,
+                network_graph,
+                node_ass_vars,
+                net_node_id,
+                server_execution_profile_pool,
             )
         )
         tot_comp_latency += node_comp_latency_per_model
@@ -85,16 +95,23 @@ def compute_model_comp_latency_per_node(
     network_graph: nx.DiGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
     net_node_id: NodeId,
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> tuple[pulp.LpAffineExpression, float]:
     sum_elems = []
     max_comp_latency = 0
     for mod_node_id in model_graph.nodes:
+        server_model_execution_profile: ModelExecutionProfile = (
+            server_execution_profile_pool.get_execution_profiles_for_server(
+                net_node_id
+            ).get_model_execution_profile(model_graph.graph["name"])
+        )
         x_var_key = NodeAssKey(mod_node_id, net_node_id, model_graph.graph["name"])
         x_var = node_ass_vars[x_var_key]
 
         comp_time = __get_computation_time(
-            model_graph.nodes[mod_node_id],
-            network_graph.nodes[net_node_id],
+            mod_node_id,
+            net_node_id,
+            server_model_execution_profile,
         )
         max_comp_latency = max(max_comp_latency, comp_time)
         sum_elems.append(x_var * comp_time)
@@ -157,8 +174,10 @@ def __get_transmission_time(
     return transmission_time + net_edge_info[NetworkEdgeInfo.LATENCY]
 
 
-def __get_computation_time(mod_node_info: dict, net_node_info: dict) -> float:
-    return (
-        mod_node_info[ModelNodeInfo.FLOPS]
-        / net_node_info[NetworkNodeInfo.FLOPS_PER_SEC]
-    )
+def __get_computation_time(
+    mod_node_id: NodeId,
+    net_node_id: NodeId,
+    model_execution_profile: ModelExecutionProfile,
+) -> float:
+
+    return model_execution_profile.get_not_quantized_layer_time(mod_node_id)
