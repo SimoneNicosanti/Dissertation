@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Architettura/Architettura 2.md",
+                "file": "Notes/Ottimizzazione.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Architettura 2"
+              "title": "Ottimizzazione"
             }
           }
         ]
@@ -166,8 +166,10 @@
   },
   "active": "75523d1393ddf165",
   "lastOpenFiles": [
-    "Notes/Architettura/Architettura.md",
+    "Notes/Ottimizzazione - Altro.md",
+    "Notes/Quantizzazione.md",
     "Notes/Architettura/Architettura 2.md",
+    "Notes/Architettura/Architettura.md",
     "Diagram 2.svg.xml",
     "Diagram 2.svg",
     "Diagram 1.svg.xml",
@@ -178,7 +180,6 @@
     "Notes/Profiling.md",
     "Diagram.svg.xml",
     "Notes/Architettura/Diagrams/Architecture_Inference.svg",
-    "Notes/Quantizzazione.md",
     "Notes/Architettura/Diagrams/Architecture_Inference.svg.xml",
     "Notes/Architettura/Diagrams/Architecture_Optimization.svg.xml",
     "Notes/Architettura/Architettura_Inviare.md",
@@ -193,7 +194,6 @@
     "Schermata del 2025-04-25 14-37-45.png",
     "Schermata del 2025-04-23 14-54-39.png",
     "linear_plot 1.png",
-    "Notes/Ottimizzazione - Altro.md",
     "Notes/Componenti Connesse.md",
     "Notes/Colloqui/HELO.md",
     "Notes/Colloqui/2025-03-22.md",

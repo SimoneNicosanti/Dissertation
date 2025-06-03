@@ -5,6 +5,7 @@ class ModelNodeInfo:
     IDX = "idx"
     GENERATOR = "generator"
     RECEIVER = "receiver"
+    QUANTIZABLE = "quantizable"
 
     pass
 
