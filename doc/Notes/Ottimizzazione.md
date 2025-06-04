@@ -435,12 +435,15 @@ $$
 Indichiamo con $g(m,n,q)$ la funzione che stima il tempo di trasmissione dell'arco logico $m$ sull'arco fisico $n$ quando $m[0]$ ha uno stato di quantizzazione $q$ (i.e. quantizzato vs non-quantizzato). Nel nostro caso possiamo dire ad esempio che:
 
 $$
-g(m,n,q) = \frac{m.data\_size}{n.bandwidth} \cdot (1-q) + \frac{m.data\_size}{n.bandwidth \cdot 8} \cdot q + n.latency
+base\_tx\_time(m,n) = \frac{m.dataSize}{n.bandWidth}
 $$
 
+$$
+T_{ik}^x = base\_tx\_time(m,n) \cdot y_{mn} - \left(base\_tx\_time(m,n) - \frac{base\_tx\_time(m,n)}{8} \right) \cdot y_{mn}^q + n.latency
+$$
 
 Il tempo di trasmissione di un server $k$ è dato da:
-$$T_{k}^x =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} \left[ g(m,n,0) \cdot y_{mn} - (g(m,n,0) - g(m,n,1))\cdot y_{mn}^q \right]$$
+$$T_{k}^x =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} T_{ik}^x$$
 
 Dove la variabile $y_{mn}^q = y_{mn} \cdot q_i$ con vincoli seguenti:
 - $y_{mn}^q \le y_{mn}$

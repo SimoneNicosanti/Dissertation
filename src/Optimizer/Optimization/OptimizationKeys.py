@@ -26,6 +26,13 @@ class EdgeAssKey:
 
 
 @dataclass(frozen=True)
+class QuantizationKey:
+    mod_node_id: NodeId
+    mod_name: str
+
+
+## TODO Fix Memory Usage with Quantization
+@dataclass(frozen=True)
 class MemoryUseKey:
     mod_name: str
     net_node_id: NodeId

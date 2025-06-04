@@ -4,7 +4,12 @@ import pulp
 from CommonIds.NodeId import NodeId
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from Optimizer.Optimization import EnergyComputer
-from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
+from Optimizer.Optimization.OptimizationKeys import (
+    EdgeAssKey,
+    MemoryUseKey,
+    NodeAssKey,
+    QuantizationKey,
+)
 
 
 class ConstraintsBuilder:
@@ -203,4 +208,64 @@ class ConstraintsBuilder:
             net_node_id,
         )
         problem += device_energy <= device_energy_limit
+        pass
+
+    @staticmethod
+    def add_node_ass_vars_product_constraint(
+        problem: pulp.LpProblem,
+        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+        quantization_vars: dict[QuantizationKey, pulp.LpVariable],
+    ):
+        quant_node_ass_keys = filter(lambda x: x.is_quantized, node_ass_vars.keys())
+        for quant_node_ass_key in quant_node_ass_keys:
+            quant_node_ass_var = node_ass_vars[quant_node_ass_key]
+
+            node_ass_key = NodeAssKey(
+                quant_node_ass_key.mod_node_id,
+                quant_node_ass_key.net_node_id,
+                quant_node_ass_key.mod_name,
+            )
+            node_ass_var = node_ass_vars[node_ass_key]
+
+            quant_key = QuantizationKey(
+                quant_node_ass_key.mod_node_id, quant_node_ass_key.mod_name
+            )
+            quant_var = quantization_vars[quant_key]
+
+            ## quant_node_ass_var == node_ass_var * quant_var
+            problem += quant_node_ass_var <= node_ass_var
+            problem += quant_node_ass_var <= quant_var
+            problem += quant_node_ass_var >= node_ass_var + quant_var - 1
+
+        pass
+
+    @staticmethod
+    def add_edge_ass_vars_product_constraint(
+        problem: pulp.LpProblem,
+        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        quantization_vars: dict[QuantizationKey, pulp.LpVariable],
+    ):
+
+        quant_edge_ass_keys = filter(lambda x: x.is_quantized, edge_ass_vars.keys())
+
+        for quant_edge_ass_key in quant_edge_ass_keys:
+            quant_edge_ass_var = edge_ass_vars[quant_edge_ass_key]
+
+            edge_ass_key = EdgeAssKey(
+                quant_edge_ass_key.mod_edge_id,
+                quant_edge_ass_key.net_edge_id,
+                quant_edge_ass_key.mod_name,
+            )
+            edge_ass_var = edge_ass_vars[edge_ass_key]
+
+            quant_key = QuantizationKey(
+                quant_edge_ass_key.mod_edge_id[0], quant_edge_ass_key.mod_name
+            )
+            quant_var = quantization_vars[quant_key]
+
+            ## Constraints for product var
+            problem += quant_edge_ass_var <= edge_ass_var
+            problem += quant_edge_ass_var <= quant_var
+            problem += quant_edge_ass_var >= edge_ass_var + quant_var - 1
+
         pass

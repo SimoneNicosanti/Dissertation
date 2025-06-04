@@ -4,7 +4,12 @@ import pulp
 from CommonIds.NodeId import NodeId
 from CommonProfile.ModelInfo import ModelNodeInfo
 from CommonProfile.NetworkInfo import NetworkNodeInfo
-from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
+from Optimizer.Optimization.OptimizationKeys import (
+    EdgeAssKey,
+    MemoryUseKey,
+    NodeAssKey,
+    QuantizationKey,
+)
 
 
 def define_node_assignment_vars(
@@ -27,6 +32,14 @@ def define_node_assignment_vars(
             table_key = NodeAssKey(mod_node_id, net_node_id, model_graph.graph["name"])
             vars_table[table_key] = lp_variable
 
+            if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+                quant_table_key = NodeAssKey(
+                    mod_node_id, net_node_id, model_graph.graph["name"], True
+                )
+                quant_var_name = var_name + "_q"
+                quant_lp_var = pulp.LpVariable(quant_var_name, cat=pulp.LpBinary)
+                vars_table[quant_table_key] = quant_lp_var
+
     return vars_table
 
 
@@ -45,9 +58,18 @@ def define_edge_assignment_vars(
             table_key = EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])
             vars_table[table_key] = lp_variable
 
+            if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
+                quant_table_key = EdgeAssKey(
+                    mod_edge_id, net_edge_id, model_graph.graph["name"], True
+                )
+                quant_var_name = var_name + "_q"
+                quant_lp_var = pulp.LpVariable(quant_var_name, cat=pulp.LpBinary)
+                vars_table[quant_table_key] = quant_lp_var
+
     return vars_table
 
 
+## TODO Fix memory with quantization
 def define_memory_use_vars(
     network_graph: nx.DiGraph, graph_name: str
 ) -> dict[MemoryUseKey, pulp.LpVariable]:
@@ -60,6 +82,23 @@ def define_memory_use_vars(
         vars_table[var_key] = pulp.LpVariable(
             var_name, cat=pulp.LpContinuous, lowBound=0
         )
+
+    return vars_table
+
+
+def define_quantization_vars(
+    model_graph: nx.DiGraph,
+) -> dict[QuantizationKey, pulp.LpVariable]:
+    mod_name = model_graph.graph["name"]
+    vars_table: dict[QuantizationKey, pulp.LpVariable] = {}
+    for mod_node_id in model_graph.nodes:
+        if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+            quant_key = QuantizationKey(mod_node_id, mod_name)
+            mod_node_idx = model_graph.nodes[mod_node_id][ModelNodeInfo.IDX]
+
+            var_name = f"q_{mod_node_idx}_{mod_name}"
+            vars_table[quant_key] = pulp.LpVariable(name=var_name, cat=pulp.LpBinary)
+        pass
 
     return vars_table
 

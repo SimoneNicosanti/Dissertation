@@ -9,7 +9,12 @@ from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
 from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
-from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, MemoryUseKey, NodeAssKey
+from Optimizer.Optimization.OptimizationKeys import (
+    EdgeAssKey,
+    MemoryUseKey,
+    NodeAssKey,
+    QuantizationKey,
+)
 
 
 @dataclass
@@ -37,11 +42,13 @@ class OptimizationHandler:
         opt_params: OptimizationParams = None,
         server_execution_profile_pool: ServerExecutionProfilePool = None,
     ) -> list[nx.DiGraph]:
+
         problem: pulp.LpProblem = pulp.LpProblem("Partitioning", pulp.LpMinimize)
 
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = {}
         edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = {}
         mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = {}
+        quantization_vars: dict[QuantizationKey, pulp.LpVariable] = {}
 
         time.perf_counter_ns()
         ## Defining variables
@@ -64,8 +71,13 @@ class OptimizationHandler:
                 )
             )
             mem_use_vars.update(curr_mem_use_vars)
-
             print("Done Defining Memory Usage Vars")
+
+            curr_quant_vars: dict[QuantizationKey, pulp.LpVariable] = (
+                VarsBuilder.define_quantization_vars(curr_mod_graph)
+            )
+            quantization_vars.update(curr_quant_vars)
+            print("Done Defining Quantization Vars")
 
         ## Adding Constraints
         for curr_mod_graph in model_graphs:
@@ -82,6 +94,13 @@ class OptimizationHandler:
             ConstraintsBuilder.add_output_flow_constraints(
                 problem, curr_mod_graph, network_graph, node_ass_vars, edge_ass_vars
             )
+
+        ConstraintsBuilder.add_node_ass_vars_product_constraint(
+            problem, node_ass_vars, quantization_vars
+        )
+        ConstraintsBuilder.add_edge_ass_vars_product_constraint(
+            problem, edge_ass_vars, quantization_vars
+        )
 
         ConstraintsBuilder.add_memory_constraints(
             problem,
@@ -137,6 +156,9 @@ class OptimizationHandler:
 
         problem.solve(pulp.GLPK_CMD())
 
+        # for quant_key in quantization_vars.keys():
+        #     print(quant_key.mod_node_id, quantization_vars[quant_key].varValue)
+
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
 
@@ -190,6 +212,14 @@ class OptimizationHandler:
                         ModelNodeInfo.RECEIVER, False
                     ),
                 )
+
+                if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+                    quant_node_ass_key = NodeAssKey(
+                        mod_node_id, net_node_id, graph_name, True
+                    )
+                    quant_node_ass_var = node_ass_vars[quant_node_ass_key]
+                    if quant_node_ass_var.varValue == 1.0:
+                        print("Quantized Node")
 
             pass
 

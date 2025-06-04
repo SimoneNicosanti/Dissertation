@@ -159,29 +159,24 @@ def __get_transmission_time(
     ## TODO Check This
     # if net_edge_id[0] == net_edge_id[1]:
     #     return 0
-
+    not_quant_ass_key = EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])
     not_quant_tx_time = model_graph.edges[mod_edge_id][
         ModelEdgeInfo.TOT_TENSOR_SIZE
     ] / (network_graph.edges[net_edge_id][NetworkEdgeInfo.BANDWIDTH])
 
-    trans_expr = (
-        not_quant_tx_time
-        * edge_ass_vars[EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])]
-    )
+    trans_expr = not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
 
-    # if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
-    #     quant_tx_time = model_graph.edges[mod_edge_id][
-    #         ModelEdgeInfo.TOT_TENSOR_SIZE
-    #     ] / (network_graph.edges[net_edge_id][NetworkEdgeInfo.BANDWIDTH] * 8)
+    if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
+        quant_tx_time = not_quant_tx_time / 8
 
-    #     quant_ass_key = EdgeAssKey(
-    #         mod_edge_id, net_edge_id, model_graph.graph["name"], True
-    #     )
+        quant_ass_key = EdgeAssKey(
+            mod_edge_id, net_edge_id, model_graph.graph["name"], True
+        )
 
-    #     trans_expr = (
-    #         trans_expr
-    #         - (not_quant_tx_time - quant_tx_time) * edge_ass_vars[quant_ass_key]
-    #     )
+        trans_expr = (
+            not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
+            - (not_quant_tx_time - quant_tx_time) * edge_ass_vars[quant_ass_key]
+        )
 
     latency = network_graph.edges[net_edge_id][NetworkEdgeInfo.LATENCY]
     trans_expr = trans_expr + latency
@@ -203,14 +198,24 @@ def __get_computation_time(
 
     max_comp_time = not_quant_time
 
-    # if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
-    #     quant_time = model_execution_profile.get_quantized_layer_time(mod_node_id)
-    #     quant_ass_key = NodeAssKey(
-    #         mod_node_id, net_node_id, model_graph.graph["name"], True
-    #     )
+    if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+        quant_time = model_execution_profile.get_quantized_layer_time(mod_node_id)
+        quant_ass_key = NodeAssKey(
+            mod_node_id, net_node_id, model_graph.graph["name"], True
+        )
 
-    #     time_expr = time_expr - (not_quant_time - quant_time) * quant_ass_key
+        time_expr = (
+            not_quant_time * node_ass_vars[not_quant_ass_key]
+            - (not_quant_time - quant_time) * node_ass_vars[quant_ass_key]
+        )
 
-    #     max_comp_time = max(max_comp_time, quant_time)
+        print(not_quant_time)
+        print(quant_time)
+        print(not_quant_time - quant_time)
+        print(not_quant_time - (not_quant_time - quant_time))
+
+        max_comp_time = max(max_comp_time, quant_time)
+
+        print("Computed for Quantization")
 
     return time_expr, max_comp_time
