@@ -61,7 +61,7 @@ class OptmizationServer(OptimizationServicer):
         start_server = NodeId(opt_request.start_server)
 
         solved_graphs: list[nx.DiGraph] = OptimizationHandler.optimize(
-            [model_profile.get_model_graph() for model_profile in models_profile_list],
+            models_profile_list,
             network_profile.get_network_graph(),
             start_server,
             opt_params=optimization_params,

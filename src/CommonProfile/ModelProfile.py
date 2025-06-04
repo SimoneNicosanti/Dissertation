@@ -18,6 +18,12 @@ class Regressor:
         self.train_score = None
         self.test_score = None
 
+    def get_intercept(self) -> float:
+        return self.intercept
+
+    def get_interactions(self) -> dict[tuple[NodeId], float]:
+        return self.interactions
+
     def set_scores(self, train_score, test_score) -> None:
         self.train_score = train_score
         self.test_score = test_score
@@ -93,6 +99,9 @@ class ModelProfile:
 
     def set_regressor(self, regressor: Regressor) -> None:
         self.regressor = regressor
+
+    def get_regressor(self) -> Regressor:
+        return self.regressor
 
     def encode(self) -> dict:
         graph_copy = copy.deepcopy(self.model_graph)

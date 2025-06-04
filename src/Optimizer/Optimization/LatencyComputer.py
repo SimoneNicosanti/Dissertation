@@ -34,6 +34,8 @@ def compute_latency_cost(
         model_trans_latency, max_model_trans_latency = compute_trans_latency_per_model(
             model_graph, network_graph, edge_ass_vars
         )
+        model_trans_latency = 0
+        max_model_trans_latency = 0
 
         normalization_factor = max(max_model_comp_latency, max_model_trans_latency)
 
@@ -167,6 +169,7 @@ def __get_transmission_time(
     trans_expr = not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
 
     if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
+        print(f"Here we have {mod_edge_id} >> {net_edge_id}")
         quant_tx_time = not_quant_tx_time / 8
 
         quant_ass_key = EdgeAssKey(
@@ -181,7 +184,7 @@ def __get_transmission_time(
     latency = network_graph.edges[net_edge_id][NetworkEdgeInfo.LATENCY]
     trans_expr = trans_expr + latency
 
-    return trans_expr, not_quant_tx_time + latency
+    return trans_expr, (not_quant_tx_time + latency)
 
 
 def __get_computation_time(
@@ -209,13 +212,6 @@ def __get_computation_time(
             - (not_quant_time - quant_time) * node_ass_vars[quant_ass_key]
         )
 
-        print(not_quant_time)
-        print(quant_time)
-        print(not_quant_time - quant_time)
-        print(not_quant_time - (not_quant_time - quant_time))
-
         max_comp_time = max(max_comp_time, quant_time)
-
-        print("Computed for Quantization")
 
     return time_expr, max_comp_time

@@ -7,6 +7,7 @@ import pulp
 from CommonIds.NodeId import NodeId
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
+from CommonProfile.ModelProfile import ModelProfile, Regressor
 from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
 from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
 from Optimizer.Optimization.OptimizationKeys import (
@@ -15,6 +16,7 @@ from Optimizer.Optimization.OptimizationKeys import (
     NodeAssKey,
     QuantizationKey,
 )
+from Optimizer.Optimization.RegressorBuilder import RegressorBuilder
 
 
 @dataclass
@@ -36,12 +38,16 @@ class OptimizationHandler:
 
     @staticmethod
     def optimize(
-        model_graphs: list[nx.MultiDiGraph],
+        model_profile_list: list[ModelProfile],
         network_graph: nx.DiGraph,
         start_server: NodeId,
         opt_params: OptimizationParams = None,
         server_execution_profile_pool: ServerExecutionProfilePool = None,
     ) -> list[nx.DiGraph]:
+
+        model_graphs: list[nx.DiGraph] = [
+            model_profile.get_model_graph() for model_profile in model_profile_list
+        ]
 
         problem: pulp.LpProblem = pulp.LpProblem("Partitioning", pulp.LpMinimize)
 
@@ -123,6 +129,18 @@ class OptimizationHandler:
                 opt_params.device_max_energy,
             )
 
+        for model_profile in model_profile_list:
+            regressor: Regressor = model_profile.get_regressor()
+
+            regressor_expression = RegressorBuilder.build_regressor_expression(
+                problem, regressor, model_profile.get_model_graph(), quantization_vars
+            )
+
+            problem += (
+                regressor_expression
+                <= opt_params.max_noises[model_profile.get_model_name()]
+            )
+
         ## Computing Latency Objective
         latency_cost = LatencyComputer.compute_latency_cost(
             model_graphs,
@@ -156,12 +174,14 @@ class OptimizationHandler:
 
         problem.solve(pulp.GLPK_CMD())
 
-        # for quant_key in quantization_vars.keys():
-        #     print(quant_key.mod_node_id, quantization_vars[quant_key].varValue)
+        for quant_key in quantization_vars.keys():
+            print(quant_key.mod_node_id, quantization_vars[quant_key].varValue)
+        print(regressor_expression.value())
 
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
 
+        print("Solved With Cost >> ", problem.objective.value())
         solved_model_graphs: list[nx.DiGraph] = []
         for mod_graph in model_graphs:
             time.perf_counter_ns()
@@ -218,8 +238,6 @@ class OptimizationHandler:
                         mod_node_id, net_node_id, graph_name, True
                     )
                     quant_node_ass_var = node_ass_vars[quant_node_ass_key]
-                    if quant_node_ass_var.varValue == 1.0:
-                        print("Quantized Node")
 
             pass
 
