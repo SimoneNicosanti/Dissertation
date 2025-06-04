@@ -181,6 +181,9 @@ class OptimizationHandler:
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
 
+        # with open("/optimizer_data/plans/solved.lp", "w") as _:
+        #     problem.writeLP("/optimizer_data/plans/solved.lp")
+
         print("Solved With Cost >> ", problem.objective.value())
         solved_model_graphs: list[nx.DiGraph] = []
         for mod_graph in model_graphs:

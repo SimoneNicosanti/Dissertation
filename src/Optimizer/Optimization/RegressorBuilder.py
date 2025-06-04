@@ -17,12 +17,13 @@ class RegressorBuilder:
 
         model_name = model_graph.graph["name"]
         ## Set up var for existence
-        exist_var = pulp.LpVariable("exist", cat=pulp.LpBinary)
 
         model_quant_keys = filter(
             lambda x: x.mod_name == model_name,
             quant_vars.keys(),
         )
+
+        exist_var = pulp.LpVariable(f"{model_name}_has_quantized", cat=pulp.LpBinary)
         sum_vars = 0
         for quant_key in model_quant_keys:
             quant_var = quant_vars[quant_key]
@@ -46,7 +47,7 @@ class RegressorBuilder:
 
                 quant_sum_vars += quant_var
 
-            problem += prod_var <= quant_sum_vars
+            problem += prod_var >= quant_sum_vars - (len(interaction_key) - 1)
 
             regressor_expression += interaction_value * prod_var
 

@@ -216,7 +216,10 @@ class ConstraintsBuilder:
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
         quantization_vars: dict[QuantizationKey, pulp.LpVariable],
     ):
-        quant_node_ass_keys = filter(lambda x: x.is_quantized, node_ass_vars.keys())
+        quant_node_ass_keys = list(
+            filter(lambda x: x.is_quantized, node_ass_vars.keys())
+        )
+
         for quant_node_ass_key in quant_node_ass_keys:
             quant_node_ass_var = node_ass_vars[quant_node_ass_key]
 

@@ -34,8 +34,6 @@ def compute_latency_cost(
         model_trans_latency, max_model_trans_latency = compute_trans_latency_per_model(
             model_graph, network_graph, edge_ass_vars
         )
-        model_trans_latency = 0
-        max_model_trans_latency = 0
 
         normalization_factor = max(max_model_comp_latency, max_model_trans_latency)
 
@@ -158,18 +156,17 @@ def __get_transmission_time(
 ) -> float:
     ## Note --> Assuming Bandwidth in MB / s
 
-    ## TODO Check This
+    # TODO Check This
     # if net_edge_id[0] == net_edge_id[1]:
-    #     return 0
+    #     return 0, 0
+
     not_quant_ass_key = EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])
     not_quant_tx_time = model_graph.edges[mod_edge_id][
         ModelEdgeInfo.TOT_TENSOR_SIZE
     ] / (network_graph.edges[net_edge_id][NetworkEdgeInfo.BANDWIDTH])
 
     trans_expr = not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
-
     if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
-        print(f"Here we have {mod_edge_id} >> {net_edge_id}")
         quant_tx_time = not_quant_tx_time / 8
 
         quant_ass_key = EdgeAssKey(
@@ -181,10 +178,12 @@ def __get_transmission_time(
             - (not_quant_tx_time - quant_tx_time) * edge_ass_vars[quant_ass_key]
         )
 
+        print(not_quant_tx_time, quant_tx_time)
+
     latency = network_graph.edges[net_edge_id][NetworkEdgeInfo.LATENCY]
     trans_expr = trans_expr + latency
 
-    return trans_expr, (not_quant_tx_time + latency)
+    return trans_expr, not_quant_tx_time + latency
 
 
 def __get_computation_time(

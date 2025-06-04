@@ -29,7 +29,7 @@ def main():
         energy_weight=0,
         device_max_energy=0,  ## TODO Check this out !!
         requests_number=[1],
-        max_noises=[0.1],
+        max_noises=[0.2],
         start_server="0",
     )
 
