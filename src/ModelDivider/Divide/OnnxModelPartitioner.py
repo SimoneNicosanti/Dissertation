@@ -1,3 +1,5 @@
+import tempfile
+
 import onnx
 
 from CommonIds.ComponentId import ComponentId
@@ -14,9 +16,10 @@ class OnnxModelPartitioner(ModelPartitioner):
         self, model_plan: Plan, onnx_model: onnx.ModelProto
     ) -> dict[ComponentId, onnx.ModelProto]:
 
-        divided_components = {}
+        _, model_temp_file = tempfile.mkstemp(suffix=".onnx")
+        onnx.save_model(onnx_model, model_temp_file)
 
-        extractor: onnx.utils.Extractor = onnx.utils.Extractor(onnx_model)
+        divided_components = {}
 
         for component_id in model_plan.get_all_components():
 
@@ -27,12 +30,19 @@ class OnnxModelPartitioner(ModelPartitioner):
                 continue
 
             input_names = model_plan.get_input_names_per_component(component_id)
-            print("I >> ", input_names)
             output_names = model_plan.get_output_names_per_component(component_id)
-            print("O >> ", output_names)
 
-            extracted_model: onnx.ModelProto = extractor.extract_model(
-                input_names, output_names
+            _, extracted_model_temp_file = tempfile.mkstemp(suffix=".onnx")
+
+            onnx.utils.extract_model(
+                model_temp_file,
+                extracted_model_temp_file,
+                input_names=input_names,
+                output_names=output_names,
+            )
+
+            extracted_model: onnx.ModelProto = onnx.load_model(
+                extracted_model_temp_file
             )
 
             divided_components[component_id] = extracted_model
