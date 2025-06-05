@@ -156,10 +156,6 @@ def __get_transmission_time(
 ) -> float:
     ## Note --> Assuming Bandwidth in MB / s
 
-    # TODO Check This
-    # if net_edge_id[0] == net_edge_id[1]:
-    #     return 0.01, 0
-
     not_quant_ass_key = EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])
     not_quant_tx_time = model_graph.edges[mod_edge_id][
         ModelEdgeInfo.TOT_TENSOR_SIZE

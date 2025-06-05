@@ -13,12 +13,24 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Ottimizzazione.md",
+                "file": "Notes/Architettura/Architettura 2.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Ottimizzazione"
+              "title": "Architettura 2"
+            }
+          },
+          {
+            "id": "4537872bee154826",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "Diagram 1.svg"
+              },
+              "icon": "lucide-image",
+              "title": "Diagram 1"
             }
           }
         ]
@@ -78,7 +90,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 394.5026054382324
+    "width": 200
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -166,14 +178,15 @@
   },
   "active": "75523d1393ddf165",
   "lastOpenFiles": [
+    "Diagram 1.svg",
+    "Notes/Architettura/Architettura 2.md",
+    "Notes/Ottimizzazione.md",
     "Notes/Ottimizzazione - Altro.md",
     "Notes/Quantizzazione.md",
-    "Notes/Architettura/Architettura 2.md",
     "Notes/Architettura/Architettura.md",
     "Diagram 2.svg.xml",
     "Diagram 2.svg",
     "Diagram 1.svg.xml",
-    "Diagram 1.svg",
     "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
     "Notes/Architettura/Diagrams/Architecture_Control.svg",
     "Diagram.svg",
@@ -187,7 +200,6 @@
     "Paper/Gillis/gillis-icdcs21.pdf",
     "Paper/Furcifer/Furcifer_PerCom24.pdf",
     "Notes/Yolo.md",
-    "Notes/Ottimizzazione.md",
     "Rumore.md",
     "Paper/Survey Splitting/Survey_Splitting.pdf",
     "linear_plot 2.png",

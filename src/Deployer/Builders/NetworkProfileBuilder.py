@@ -23,15 +23,15 @@ class NetworkProfileBuilder:
             first_node = NodeId(node_name=str(i))
             second_node = NodeId(node_name=str(j))
             if i == j:
-                network_graph.add_edge(first_node, second_node, bandwidth=1000)
+                network_graph.add_edge(first_node, second_node, bandwidth=50)
                 network_graph.add_edge(first_node, second_node, latency=0)
 
             else:
                 network_graph.add_edge(first_node, second_node, bandwidth=7.5)
-                network_graph.add_edge(first_node, second_node, latency=0.5)
+                network_graph.add_edge(first_node, second_node, latency=0.05)
 
                 network_graph.add_edge(second_node, first_node, bandwidth=7.5)
-                network_graph.add_edge(second_node, first_node, latency=0.5)
+                network_graph.add_edge(second_node, first_node, latency=0.05)
 
         for i in range(2):
             node_id = NodeId(node_name=str(i))

@@ -27,7 +27,9 @@ class OnnxModelPartitioner(ModelPartitioner):
                 continue
 
             input_names = model_plan.get_input_names_per_component(component_id)
+            print("I >> ", input_names)
             output_names = model_plan.get_output_names_per_component(component_id)
+            print("O >> ", output_names)
 
             extracted_model: onnx.ModelProto = extractor.extract_model(
                 input_names, output_names

@@ -5,6 +5,7 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
+from CommonPlan.SolvedModelGraph import SolvedNodeInfo
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.ModelProfile import ModelProfile, Regressor
@@ -176,7 +177,7 @@ class OptimizationHandler:
 
         for quant_key in quantization_vars.keys():
             print(quant_key.mod_node_id, quantization_vars[quant_key].varValue)
-        print(regressor_expression.value())
+        print("Regressor Value >> ", regressor_expression.value())
 
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
@@ -190,7 +191,7 @@ class OptimizationHandler:
             time.perf_counter_ns()
             solved_model_graph: nx.DiGraph = (
                 OptimizationHandler.build_solved_model_graph(
-                    problem, mod_graph, node_ass_vars, edge_ass_vars
+                    problem, mod_graph, node_ass_vars, edge_ass_vars, quantization_vars
                 )
             )
             solved_model_graphs.append(solved_model_graph)
@@ -202,6 +203,7 @@ class OptimizationHandler:
         model_graph: nx.DiGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
         edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        quantization_vars: dict[QuantizationKey, pulp.LpVariable] = None,
     ) -> nx.DiGraph:
 
         graph_name = model_graph.graph["name"]
@@ -227,6 +229,12 @@ class OptimizationHandler:
                 edge_ass_vars.items(),
             )
         )
+        filtered_quant_vars: dict[QuantizationKey, pulp.LpVariable] = dict(
+            filter(
+                lambda item: item[0].mod_name == graph_name,
+                quantization_vars.items(),
+            )
+        )
 
         for node_ass_key, node_ass_var in filtered_node_ass.items():
             if node_ass_var.varValue == 1.0:
@@ -244,12 +252,6 @@ class OptimizationHandler:
                     ),
                 )
 
-                # if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
-                #     quant_node_ass_key = NodeAssKey(
-                #         mod_node_id, net_node_id, graph_name, True
-                #     )
-                #     quant_node_ass_var = node_ass_vars[quant_node_ass_key]
-
             pass
 
         for edge_ass_key, edge_ass_var in filtered_edge_ass.items():
@@ -257,15 +259,40 @@ class OptimizationHandler:
                 mod_edge_id = edge_ass_key.mod_edge_id
                 net_edge_id = edge_ass_key.net_edge_id
 
+                ## Renaming tensors according to quantization
+                ## TODO This would be better placed in other class (like plan builder)
+                quantization_key = QuantizationKey(
+                    mod_edge_id[0], edge_ass_key.mod_name
+                )
+                tensor_name_list = []
+                if (
+                    quantization_key in quantization_vars
+                    and quantization_vars[quantization_key].varValue == 1.0
+                ):
+                    for elem in model_graph.edges[mod_edge_id].get(
+                        ModelEdgeInfo.TENSOR_NAME_LIST, []
+                    ):
+                        renamed_elem = elem + "_QuantizeLinear_Output"
+                        tensor_name_list.append(renamed_elem)
+                        pass
+                else:
+                    tensor_name_list = model_graph.edges[mod_edge_id].get(
+                        ModelEdgeInfo.TENSOR_NAME_LIST, []
+                    )
+
                 solved_model_graph.add_edge(
                     mod_edge_id[0],
                     mod_edge_id[1],
                     net_edge_id=net_edge_id,
-                    tensor_name_list=model_graph.edges[mod_edge_id].get(
-                        ModelEdgeInfo.TENSOR_NAME_LIST, []
-                    ),
+                    tensor_name_list=tensor_name_list,
                 )
 
             pass
+
+        for quant_key, quant_var in filtered_quant_vars.items():
+            if quant_var.varValue == 1.0:
+
+                mod_node_id = quant_key.mod_node_id
+                solved_model_graph.nodes[mod_node_id][SolvedNodeInfo.QUANTIZED] = True
 
         return solved_model_graph
