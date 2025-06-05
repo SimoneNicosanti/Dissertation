@@ -132,6 +132,6 @@ def __build_edge_var_name(
     model_name = model_graph.graph["name"]
     mod_edge_str = "({}_{})".format(mod_src_idx, mod_dst_idx)
     net_edge_str = "({}_{})".format(net_src_idx, net_dst_idx)
-    return "y_(mod_node_{})(net_node_{})({})".format(
+    return "y_(mod_edge_{})(net_edge_{})({})".format(
         mod_edge_str, net_edge_str, model_name
     )

@@ -23,7 +23,7 @@ class NetworkProfileBuilder:
             first_node = NodeId(node_name=str(i))
             second_node = NodeId(node_name=str(j))
             if i == j:
-                network_graph.add_edge(first_node, second_node, bandwidth=100)
+                network_graph.add_edge(first_node, second_node, bandwidth=1000)
                 network_graph.add_edge(first_node, second_node, latency=0)
 
             else:

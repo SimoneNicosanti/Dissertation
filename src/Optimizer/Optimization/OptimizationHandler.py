@@ -181,8 +181,8 @@ class OptimizationHandler:
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
 
-        # with open("/optimizer_data/plans/solved.lp", "w") as _:
-        #     problem.writeLP("/optimizer_data/plans/solved.lp")
+        with open("/optimizer_data/plans/solved.lp", "w") as _:
+            problem.writeLP("/optimizer_data/plans/solved.lp")
 
         print("Solved With Cost >> ", problem.objective.value())
         solved_model_graphs: list[nx.DiGraph] = []
@@ -214,10 +214,18 @@ class OptimizationHandler:
         )
 
         filtered_node_ass: dict[NodeAssKey, pulp.LpVariable] = dict(
-            filter(lambda item: item[0].mod_name == graph_name, node_ass_vars.items())
+            filter(
+                lambda item: item[0].mod_name == graph_name
+                and not item[0].is_quantized,
+                node_ass_vars.items(),
+            )
         )
         filtered_edge_ass: dict[EdgeAssKey, pulp.LpVariable] = dict(
-            filter(lambda item: item[0].mod_name == graph_name, edge_ass_vars.items())
+            filter(
+                lambda item: item[0].mod_name == graph_name
+                and not item[0].is_quantized,
+                edge_ass_vars.items(),
+            )
         )
 
         for node_ass_key, node_ass_var in filtered_node_ass.items():
@@ -236,11 +244,11 @@ class OptimizationHandler:
                     ),
                 )
 
-                if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
-                    quant_node_ass_key = NodeAssKey(
-                        mod_node_id, net_node_id, graph_name, True
-                    )
-                    quant_node_ass_var = node_ass_vars[quant_node_ass_key]
+                # if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+                #     quant_node_ass_key = NodeAssKey(
+                #         mod_node_id, net_node_id, graph_name, True
+                #     )
+                #     quant_node_ass_var = node_ass_vars[quant_node_ass_key]
 
             pass
 
