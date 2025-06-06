@@ -80,7 +80,7 @@ class ServerMonitor:
         ## Collect my state
 
         self.__evaluate_bandwidth_and_latency()
-        self.__evaluate_flops()
+        # self.__evaluate_flops()
         self.__evaluate_memory()
         self.__evaluate_energy()
 
@@ -93,13 +93,13 @@ class ServerMonitor:
         self.current_state["comp_energy"] = energy
         self.current_state["trans_energy"] = energy
 
-    def __evaluate_flops(self):
+    # def __evaluate_flops(self):
 
-        if self.flops_value is None:
-            self.flops_value = self.__eval_flops()
-            pass
+    #     if self.flops_value is None:
+    #         self.flops_value = self.__eval_flops()
+    #         pass
 
-        self.current_state["flops"] = self.flops_value
+    #     self.current_state["flops"] = self.flops_value
 
     def __eval_flops(self):
         size = ConfigReader.ConfigReader("./config/config.ini").read_int(
