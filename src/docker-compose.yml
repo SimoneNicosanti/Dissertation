@@ -93,6 +93,7 @@ services:
       - ./CommonProfile:/src/CommonProfile
       - ./CommonPlan:/src/CommonPlan
       - ./CommonIds:/src/CommonIds
+      - ./CommonQuantization:/src/CommonQuantization
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src
@@ -128,6 +129,7 @@ services:
       - ./CommonModel:/src/CommonModel
       - ./CommonProfile:/src/CommonProfile
       - ./CommonPlan:/src/CommonPlan
+      - ./CommonQuantization:/src/CommonQuantization
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
     working_dir: /src
@@ -162,6 +164,7 @@ services:
       - ./CommonPlan:/src/CommonPlan
       - ./CommonModel:/src/CommonModel
       - ./CommonIds:/src/CommonIds
+      - ./CommonQuantization:/src/CommonQuantization
 
       - ./Other/models:/model_pool_data/models
       - ./Other/models_profiles:/model_profiler_data/models_profiles

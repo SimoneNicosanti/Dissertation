@@ -9,7 +9,7 @@ from onnxruntime.quantization.calibrate import CalibrationDataReader
 
 from CommonIds.NodeId import NodeId
 from CommonProfile.ModelInfo import ModelNodeInfo
-from ModelProfiler.Quantization import SoftQuantization
+from CommonQuantization import SoftQuantization
 
 
 class NoiseEvaluator:

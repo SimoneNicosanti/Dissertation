@@ -20,15 +20,20 @@ class ModelExecutionProfile:
 
         for node_name, layer_execution_profile in transformed_dict.items():
             model_execution_profile.put_layer_execution_profile(
-                NodeId(node_name), layer_execution_profile
+                NodeId(node_name), layer_execution_profile[0], False
+            )
+            model_execution_profile.put_layer_execution_profile(
+                NodeId(node_name), layer_execution_profile[1], True
             )
 
         return model_execution_profile
 
     def put_layer_execution_profile(
-        self, node_id: NodeId, layer_execution_profile: list
+        self, node_id: NodeId, execution_time: float, is_quantized: bool
     ):
-        self.model_execution_profile_dict[node_id] = layer_execution_profile
+        self.model_execution_profile_dict.setdefault(node_id, [0, 0])
+        idx = 1 if is_quantized else 0
+        self.model_execution_profile_dict[node_id][idx] = execution_time
 
     def get_not_quantized_layer_time(self, node_id: NodeId) -> float:
         if node_id not in self.model_execution_profile_dict:

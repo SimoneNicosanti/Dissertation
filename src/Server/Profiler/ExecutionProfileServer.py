@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from typing import Iterator
 
 import grpc
@@ -53,27 +54,27 @@ class ExecutionProfileServer(ExecutionProfileServicer):
 
             model_id: ModelId = request.model_id
 
-            for layer_name, layer_model in self.retrieve_layers(model_id):
-                layer_exec_times = profiler.profile_exec_time(
-                    layer_model, self.layer_run_times
+            for layer_name, layer_model, is_quantized in self.retrieve_layers(model_id):
+                layer_exec_time = profiler.profile_exec_time(
+                    layer_model, self.layer_run_times, is_quantized
                 )
-                layer_exec_times_list = [
-                    layer_exec_times[False],
-                    layer_exec_times[True],
-                ]
+
                 node_id = NodeId(layer_name)
                 model_exec_profile.put_layer_execution_profile(
-                    node_id, layer_exec_times_list
+                    node_id, layer_exec_time, is_quantized
                 )
 
-                print(f"Profiled {layer_name} >> {layer_exec_times_list}")
+                # print(f"Profiled {layer_name} {is_quantized} >> {layer_exec_time}")
 
-            self.save_profile(model_id, model_exec_profile)
+        print("Done Profiling for model {}".format(model_id.model_name))
+        # self.save_profile(model_id, model_exec_profile)
 
         model_exec_profile_json = json.dumps(model_exec_profile.encode())
         return ExecutionProfileResponse(profile=model_exec_profile_json)
 
-    def retrieve_layers(self, model_id: ModelId) -> Iterator[onnx.ModelProto]:
+    def retrieve_layers(
+        self, model_id: ModelId
+    ) -> Iterator[tuple[str, onnx.ModelProto, bool]]:
         model_pool_stub = ModelPoolStub(self.model_pool_chann)
         component_id = ComponentId(model_id=model_id, server_id="", component_idx="")
 
@@ -85,6 +86,7 @@ class ExecutionProfileServer(ExecutionProfileServicer):
 
         layer_name = None
         layer_model_bytes = None
+        is_quantized = None
         for layer_pull_response in response_stream:
             curr_layer_name = layer_pull_response.layer_name
 
@@ -94,10 +96,11 @@ class ExecutionProfileServer(ExecutionProfileServicer):
                     layer_model: onnx.ModelProto = onnx.load_from_string(
                         bytes(layer_model_bytes)
                     )
-                    yield layer_name, layer_model
+                    yield layer_name, layer_model, is_quantized
 
                 layer_name = curr_layer_name
                 layer_model_bytes = bytearray()
+                is_quantized = layer_pull_response.is_quantized
 
             layer_model_bytes.extend(layer_pull_response.model_chunk.chunk_data)
 
@@ -105,7 +108,7 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             layer_model: onnx.ModelProto = onnx.load_from_string(
                 bytes(layer_model_bytes)
             )
-            yield layer_name, layer_model
+            yield layer_name, layer_model, is_quantized
 
     def read_profile(self, model_id: ModelId) -> ModelExecutionProfile:
 

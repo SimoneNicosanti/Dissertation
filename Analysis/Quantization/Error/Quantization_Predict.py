@@ -39,7 +39,7 @@ TRAIN_SIZE = 750
 TEST_SIZE = 50
 
 CALIBRATION_DATA_SIZE = 100
-CALIBRATION_TEST_SIZE = 1
+CALIBRATION_TEST_SIZE = 20
 
 PROCESSES_NUM = 1
 
@@ -499,7 +499,7 @@ def post_process(output):
 
 
 if __name__ == "__main__":
-    # build_data()
+    build_data()
 
     build_predictor()
 

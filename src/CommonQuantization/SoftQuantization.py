@@ -1,4 +1,6 @@
 import copy
+import os
+import tempfile
 from pathlib import Path
 
 import onnx
@@ -15,6 +17,7 @@ from onnxruntime.quantization.registry import QDQRegistry, QLinearOpsRegistry
 def prepare_quantization(
     model_path: str, calibration_data_reader: CalibrationDataReader
 ) -> tuple[onnx.ModelProto, TensorsData]:
+
     augmented_model_path = model_path.replace(".onnx", "_augmented.onnx")
 
     calibrator = create_calibrator(
@@ -27,6 +30,12 @@ def prepare_quantization(
     tensors_range = calibrator.compute_data()
 
     model = load_model_with_shape_infer(Path(model_path))
+
+    try:
+        os.remove(augmented_model_path)
+        # os.close(aug_file_desc)
+    except Exception as e:
+        pass
 
     return model, tensors_range
 
