@@ -47,12 +47,12 @@ class ExecutionProfileServer(ExecutionProfileServicer):
         print(request.model_id)
         model_exec_profile = self.read_profile(request.model_id)
 
+        model_id: ModelId = request.model_id
+
         if model_exec_profile is None:
             model_exec_profile = ModelExecutionProfile()
 
             profiler = ExecutionProfiler()
-
-            model_id: ModelId = request.model_id
 
             for layer_name, layer_model, is_quantized in self.retrieve_layers(model_id):
                 layer_exec_time = profiler.profile_exec_time(
@@ -67,7 +67,7 @@ class ExecutionProfileServer(ExecutionProfileServicer):
                 # print(f"Profiled {layer_name} {is_quantized} >> {layer_exec_time}")
 
         print("Done Profiling for model {}".format(model_id.model_name))
-        # self.save_profile(model_id, model_exec_profile)
+        self.save_profile(model_id, model_exec_profile)
 
         model_exec_profile_json = json.dumps(model_exec_profile.encode())
         return ExecutionProfileResponse(profile=model_exec_profile_json)
