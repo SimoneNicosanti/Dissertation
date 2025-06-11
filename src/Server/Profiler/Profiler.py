@@ -1,15 +1,13 @@
 import json
 import os
 import tempfile
+import time
 
 import numpy as np
 import onnx
 import onnxruntime as ort
-from onnxruntime.quantization import (
-    CalibrationDataReader,
-    quant_pre_process,
-    quantize_static,
-)
+
+from CommonQuantization import SoftQuantization
 
 
 class ExecutionProfiler:
@@ -18,48 +16,73 @@ class ExecutionProfiler:
         pass
 
     def profile_exec_time(
-        self, onnx_model: onnx.ModelProto, run_times: int
+        self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ) -> dict[bool, float]:
 
-        exec_time = self.profile_normal_model_exec_time(onnx_model, run_times)
-        quant_exec_time = self.profile_quant_model_exec_time(onnx_model, run_times)
+        exec_time = self.profile_normal_model_exec_time(
+            onnx_model, run_times, is_quantized
+        )
+        # quant_exec_time = self.profile_quant_model_exec_time(onnx_model, run_times)
 
-        return {False: float(exec_time), True: float(quant_exec_time)}
+        return float(exec_time)
 
     def profile_normal_model_exec_time(
-        self, onnx_model: onnx.ModelProto, run_times: int
+        self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ):
         sess_options = ort.SessionOptions()
-        sess_options.enable_profiling = True
+        # sess_options.enable_profiling = True
         sess = ort.InferenceSession(
             onnx_model.SerializeToString(), sess_options=sess_options
         )
 
         input = {}
         for elem in sess.get_inputs():
-            input[elem.name] = np.zeros(elem.shape, dtype=np.float32)
+            elem_type = elem.type
+            input[elem.name] = np.zeros(elem.shape, dtype=self.onnx_to_numpy(elem_type))
+            # if is_quantized:
 
-        for _ in range(run_times):
+            # else:
+            #     input[elem.name] = np.zeros(elem.shape, dtype=np.float32)
+
+        ## Cold Stard
+        sess.run(None, input_feed=input)
+
+        execution_times: np.ndarray = np.zeros(run_times)
+        for idx in range(run_times):
+            start = time.perf_counter_ns()
             sess.run(None, input_feed=input)
+            end = time.perf_counter_ns()
 
-        profile_file_name = sess.end_profiling()
-        execution_times: np.ndarray = self.__read_execution_profile(profile_file_name)
+            execution_times[idx] = end - start
 
-        os.remove(profile_file_name)
+        # profile_file_name = sess.end_profiling()
+        # execution_times: np.ndarray = self.__read_execution_profile(profile_file_name)
 
-        return np.mean(execution_times) * 1e-6  ## Returning mean execution time
+        # os.remove(profile_file_name)
 
-    def profile_quant_model_exec_time(
-        self, onnx_model: onnx.ModelProto, run_times: int
-    ):
-        _, temp_file = tempfile.mkstemp(suffix=".onnx")
-        quant_pre_process(onnx_model, temp_file)
-        quantize_static(temp_file, temp_file, ZeroDataReader(onnx_model))
-        quantized_model = onnx.load_model(temp_file)
+        return np.mean(execution_times) * 1e-9  ## Returning mean execution time
 
-        exec_time = self.profile_normal_model_exec_time(quantized_model, run_times)
+    # def profile_quant_model_exec_time(
+    #     self, onnx_model: onnx.ModelProto, run_times: int
+    # ):
+    #     temp_file = "hello.onnx"
+    #     # temp_file_desc, temp_file = tempfile.mkstemp(suffix=".onnx")
+    #     onnx.save_model(onnx_model, temp_file)
 
-        return exec_time
+    #     prep_model, tensors_range = SoftQuantization.prepare_quantization(
+    #         temp_file, ZeroDataReader(onnx_model)
+    #     )
+    #     quant_model = SoftQuantization.soft_quantization(prep_model, tensors_range)
+
+    #     exec_time = self.profile_normal_model_exec_time(quant_model, run_times)
+
+    #     try:
+    #         # os.close(temp_file_desc)
+    #         os.remove(temp_file)
+    #     except Exception as _:
+    #         pass
+
+    #     return exec_time
 
     def __read_execution_profile(self, profile_file_name: str) -> np.ndarray:
         with open(profile_file_name, "r") as profile:
@@ -73,23 +96,18 @@ class ExecutionProfiler:
 
         return np.array([])
 
+    def onnx_to_numpy(self, onnx_type: str):
 
-class ZeroDataReader(CalibrationDataReader):
+        onnx_to_numpy = {
+            "tensor(float)": np.float32,
+            "tensor(float16)": np.float16,
+            "tensor(double)": np.float64,
+            "tensor(int32)": np.int32,
+            "tensor(int64)": np.int64,
+            "tensor(uint8)": np.uint8,
+            "tensor(int8)": np.int8,
+            "tensor(bool)": np.bool_,
+            # Add others as needed
+        }
 
-    def __init__(self, onnx_model: onnx.ModelProto) -> None:
-        self.onnx_model = onnx_model
-
-        sess = ort.InferenceSession(onnx_model.SerializeToString())
-        self.input = {}
-        for elem in sess.get_inputs():
-            self.input[elem.name] = np.zeros(elem.shape, dtype=np.float32)
-
-        self.idx = 0
-
-    def get_next(self):
-
-        if self.idx == 1:
-            return None
-
-        self.idx += 1
-        return self.input
+        return onnx_to_numpy[onnx_type]

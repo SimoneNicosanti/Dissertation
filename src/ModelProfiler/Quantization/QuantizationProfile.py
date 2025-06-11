@@ -8,7 +8,8 @@ import pandas as pd
 from onnxruntime.quantization.calibrate import CalibrationDataReader
 
 from CommonIds.NodeId import NodeId
-from ModelProfiler.Quantization import SoftQuantization
+from CommonProfile.ModelInfo import ModelNodeInfo
+from CommonQuantization import SoftQuantization
 
 
 class NoiseEvaluator:
@@ -145,7 +146,7 @@ class QuantizationProfile:
 
     def mark_layers(self, model_graph: nx.DiGraph, quantizable_layers: list[str]):
         for layer in quantizable_layers:
-            model_graph.nodes[layer]["quantizable"] = True
+            model_graph.nodes[layer][ModelNodeInfo.QUANTIZABLE] = True
 
     def build_points(self, quantizable_layers, train_set_size, test_set_size):
         total_size = train_set_size + test_set_size

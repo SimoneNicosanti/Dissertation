@@ -89,15 +89,15 @@ resource "google_compute_firewall" "allow_internal_egress" {
 
 # Define the IPs for each VM
 locals {
-  instance_ips = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16"]  # Assign specific IPs
-  names = ["registry", "optimizer", "model-manager", "device", "server-1", "server-2"] ## Assign specific names
+  instance_ips = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
+  names = ["registry", "optimizer", "model-manager", "deployer", "device", "server-1", "server-2"] ## Assign specific names
 }
 
 
 
 # Deploy Multiple Compute Engine Instances
 resource "google_compute_instance" "vm_instances" {
-  count        = 5
+  count        = 7
   name         = local.names[count.index]
   machine_type = "e2-standard-2"
   zone         = "europe-west12-c"

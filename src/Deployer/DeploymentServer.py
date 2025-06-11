@@ -37,6 +37,11 @@ class DeploymentServer(DeploymentServicer):
         print("Received Deployment Request")
         models_ids: list[ModelId] = deployment_req.models_ids
 
+        network_profile: NetworkProfile = (
+            self.network_profile_builder.build_network_profile()
+        )
+        print("Built Network Profile")
+
         ## Model and Server profiling will be done only once
         ## Then they will be saved in server and model file systems
         ## In case a deployer local cache can be implemented in order to avoid other requests
@@ -49,11 +54,6 @@ class DeploymentServer(DeploymentServicer):
             self.execution_profile_builder.build_execution_profiles(models_ids)
         )
         print("Built Server Profiles")
-
-        network_profile: NetworkProfile = (
-            self.network_profile_builder.build_network_profile()
-        )
-        print("Built Network Profile")
 
         whole_plan: WholePlan = self.optimizer_caller.call_optimizer(
             models_profiles,

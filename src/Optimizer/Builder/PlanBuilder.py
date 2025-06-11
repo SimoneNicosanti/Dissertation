@@ -15,6 +15,13 @@ class PlanBuilder:
         model_name = solved_graph.graph["name"]
         plan_dict: dict[ComponentId, dict] = {}
 
+        quantized_list = [
+            node
+            for node, data in solved_graph.nodes(data=True)
+            if data.get(SolvedNodeInfo.QUANTIZED, False)
+        ]
+        print(quantized_list)
+
         ## Init Component Keys
         for _, data in solved_graph.nodes(data=True):
             plan_dict.setdefault(data[SolvedNodeInfo.COMPONENT], {})
@@ -33,6 +40,7 @@ class PlanBuilder:
             plan_dict[component_id]["is_only_input"] = is_only_input
             plan_dict[component_id]["is_only_output"] = is_only_output
 
+            ## TODO Modify to support quantization cuts
             input_names = PlanBuilder.__find_input_names(
                 solved_graph, all_comp_nodes, component_id
             )
@@ -43,7 +51,7 @@ class PlanBuilder:
             plan_dict[component_id]["input_names"] = list(input_names)
             plan_dict[component_id]["output_connections"] = output_connections
 
-        return Plan(model_name, plan_dict)
+        return Plan(model_name, plan_dict, quantized_list)
 
     @staticmethod
     def __get_all_nodes_in_component(

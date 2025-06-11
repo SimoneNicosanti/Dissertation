@@ -11,6 +11,7 @@ class SolvedNodeInfo:
     GENERATOR = "generator"
     RECEIVER = "receiver"
     COMPONENT = "component"
+    QUANTIZED = "quantized"
 
     pass
 

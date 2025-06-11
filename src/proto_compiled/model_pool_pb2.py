@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10model_pool.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"I\n\nModelChunk\x12\x14\n\x0ctotal_chunks\x18\x02 \x01(\x05\x12\x11\n\tchunk_idx\x18\x03 \x01(\x05\x12\x12\n\nchunk_data\x18\x04 \x01(\x0c\"_\n\x0bPushRequest\x12)\n\x0c\x63omponent_id\x18\x01 \x01(\x0b\x32\x13.common.ComponentId\x12%\n\x0bmodel_chunk\x18\x02 \x01(\x0b\x32\x10.pool.ModelChunk\"&\n\x10\x43\x61librationChunk\x12\x12\n\nchunk_data\x18\x01 \x01(\x0c\"n\n\x16\x43\x61librationPushRequest\x12!\n\x08model_id\x18\x01 \x01(\x0b\x32\x0f.common.ModelId\x12\x31\n\x11\x63\x61libration_chunk\x18\x02 \x01(\x0b\x32\x16.pool.CalibrationChunk\";\n\x16\x43\x61librationPullRequest\x12!\n\x08model_id\x18\x01 \x01(\x0b\x32\x0f.common.ModelId\"\x0e\n\x0cPushResponse\"8\n\x0bPullRequest\x12)\n\x0c\x63omponent_id\x18\x01 \x01(\x0b\x32\x13.common.ComponentId\"5\n\x0cPullResponse\x12%\n\x0bmodel_chunk\x18\x01 \x01(\x0b\x32\x10.pool.ModelChunk\"N\n\x11LayerPullResponse\x12\x12\n\nlayer_name\x18\x01 \x01(\t\x12%\n\x0bmodel_chunk\x18\x02 \x01(\x0b\x32\x10.pool.ModelChunk2\xe0\x02\n\tModelPool\x12\x35\n\npush_model\x12\x11.pool.PushRequest\x1a\x12.pool.PushResponse(\x01\x12\x35\n\npull_model\x12\x11.pool.PullRequest\x1a\x12.pool.PullResponse0\x01\x12\x41\n\x11pull_layer_models\x12\x11.pool.PullRequest\x1a\x17.pool.LayerPullResponse0\x01\x12N\n\x18push_calibration_dataset\x12\x1c.pool.CalibrationPushRequest\x1a\x12.pool.PushResponse(\x01\x12R\n\x18pull_calibration_dataset\x12\x1c.pool.CalibrationPullRequest\x1a\x16.pool.CalibrationChunk0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10model_pool.proto\x12\x04pool\x1a\x0c\x63ommon.proto\"I\n\nModelChunk\x12\x14\n\x0ctotal_chunks\x18\x02 \x01(\x05\x12\x11\n\tchunk_idx\x18\x03 \x01(\x05\x12\x12\n\nchunk_data\x18\x04 \x01(\x0c\"_\n\x0bPushRequest\x12)\n\x0c\x63omponent_id\x18\x01 \x01(\x0b\x32\x13.common.ComponentId\x12%\n\x0bmodel_chunk\x18\x02 \x01(\x0b\x32\x10.pool.ModelChunk\"&\n\x10\x43\x61librationChunk\x12\x12\n\nchunk_data\x18\x01 \x01(\x0c\"n\n\x16\x43\x61librationPushRequest\x12!\n\x08model_id\x18\x01 \x01(\x0b\x32\x0f.common.ModelId\x12\x31\n\x11\x63\x61libration_chunk\x18\x02 \x01(\x0b\x32\x16.pool.CalibrationChunk\";\n\x16\x43\x61librationPullRequest\x12!\n\x08model_id\x18\x01 \x01(\x0b\x32\x0f.common.ModelId\"\x0e\n\x0cPushResponse\"8\n\x0bPullRequest\x12)\n\x0c\x63omponent_id\x18\x01 \x01(\x0b\x32\x13.common.ComponentId\"5\n\x0cPullResponse\x12%\n\x0bmodel_chunk\x18\x01 \x01(\x0b\x32\x10.pool.ModelChunk\"d\n\x11LayerPullResponse\x12\x12\n\nlayer_name\x18\x01 \x01(\t\x12\x14\n\x0cis_quantized\x18\x02 \x01(\x08\x12%\n\x0bmodel_chunk\x18\x03 \x01(\x0b\x32\x10.pool.ModelChunk2\xe0\x02\n\tModelPool\x12\x35\n\npush_model\x12\x11.pool.PushRequest\x1a\x12.pool.PushResponse(\x01\x12\x35\n\npull_model\x12\x11.pool.PullRequest\x1a\x12.pool.PullResponse0\x01\x12\x41\n\x11pull_layer_models\x12\x11.pool.PullRequest\x1a\x17.pool.LayerPullResponse0\x01\x12N\n\x18push_calibration_dataset\x12\x1c.pool.CalibrationPushRequest\x1a\x12.pool.PushResponse(\x01\x12R\n\x18pull_calibration_dataset\x12\x1c.pool.CalibrationPullRequest\x1a\x16.pool.CalibrationChunk0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -49,7 +49,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_PULLRESPONSE']._serialized_start=499
   _globals['_PULLRESPONSE']._serialized_end=552
   _globals['_LAYERPULLRESPONSE']._serialized_start=554
-  _globals['_LAYERPULLRESPONSE']._serialized_end=632
-  _globals['_MODELPOOL']._serialized_start=635
-  _globals['_MODELPOOL']._serialized_end=987
+  _globals['_LAYERPULLRESPONSE']._serialized_end=654
+  _globals['_MODELPOOL']._serialized_start=657
+  _globals['_MODELPOOL']._serialized_end=1009
 # @@protoc_insertion_point(module_scope)

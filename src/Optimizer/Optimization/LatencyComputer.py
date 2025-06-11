@@ -3,6 +3,10 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
+from CommonProfile.ExecutionProfile import (
+    ModelExecutionProfile,
+    ServerExecutionProfilePool,
+)
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.NetworkInfo import NetworkEdgeInfo, NetworkNodeInfo
 from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
@@ -14,6 +18,7 @@ def compute_latency_cost(
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
     edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
     requests_number: dict[str, int],
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> pulp.LpAffineExpression:
 
     tot_latency_cost = 0
@@ -24,13 +29,13 @@ def compute_latency_cost(
         model_weight = requests_number.get(model_graph.graph["name"]) / total_requests
 
         model_comp_latency, max_model_comp_latency = compute_comp_latency_per_model(
-            model_graph, network_graph, node_ass_vars
+            model_graph, network_graph, node_ass_vars, server_execution_profile_pool
         )
         model_trans_latency, max_model_trans_latency = compute_trans_latency_per_model(
             model_graph, network_graph, edge_ass_vars
         )
 
-        normalization_factor = max(max_model_comp_latency, max_model_trans_latency)
+        normalization_factor = 1  # max(max_model_comp_latency, max_model_trans_latency)
 
         tot_latency_cost += (
             model_weight
@@ -45,13 +50,18 @@ def compute_comp_latency_per_model(
     model_graph: nx.DiGraph,
     network_graph: nx.DiGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> tuple[pulp.LpAffineExpression, float]:
     tot_comp_latency = 0
     max_comp_latency = 0
     for net_node_id in network_graph.nodes:
         node_comp_latency_per_model, node_max_comp_latency_per_model = (
             compute_model_comp_latency_per_node(
-                model_graph, network_graph, node_ass_vars, net_node_id
+                model_graph,
+                network_graph,
+                node_ass_vars,
+                net_node_id,
+                server_execution_profile_pool,
             )
         )
         tot_comp_latency += node_comp_latency_per_model
@@ -85,19 +95,26 @@ def compute_model_comp_latency_per_node(
     network_graph: nx.DiGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
     net_node_id: NodeId,
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> tuple[pulp.LpAffineExpression, float]:
     sum_elems = []
     max_comp_latency = 0
     for mod_node_id in model_graph.nodes:
-        x_var_key = NodeAssKey(mod_node_id, net_node_id, model_graph.graph["name"])
-        x_var = node_ass_vars[x_var_key]
-
-        comp_time = __get_computation_time(
-            model_graph.nodes[mod_node_id],
-            network_graph.nodes[net_node_id],
+        server_model_execution_profile: ModelExecutionProfile = (
+            server_execution_profile_pool.get_execution_profiles_for_server(
+                net_node_id
+            ).get_model_execution_profile(model_graph.graph["name"])
         )
-        max_comp_latency = max(max_comp_latency, comp_time)
-        sum_elems.append(x_var * comp_time)
+
+        time_expr, layer_max_comp_time = __get_computation_time(
+            model_graph,
+            mod_node_id,
+            net_node_id,
+            server_model_execution_profile,
+            node_ass_vars,
+        )
+        max_comp_latency = max(max_comp_latency, layer_max_comp_time)
+        sum_elems.append(time_expr)
 
     return pulp.lpSum(sum_elems), max_comp_latency
 
@@ -113,52 +130,82 @@ def compute_model_trans_latency_per_node(
     for mod_edge_id in model_graph.edges:
         for net_edge_id in network_graph.edges:
             if net_edge_id[0] == net_node_id:
-                y_var_key = EdgeAssKey(
+                trans_time_expr, layer_max_trans_time = __get_transmission_time(
+                    model_graph,
+                    network_graph,
                     mod_edge_id,
                     net_edge_id,
-                    model_graph.graph["name"],
-                )
-                y_var = edge_ass_vars[y_var_key]
-
-                trans_time = __get_transmission_time(
-                    model_graph.edges[mod_edge_id],
-                    network_graph.edges[net_edge_id],
-                    net_edge_id,
+                    edge_ass_vars,
                 )
 
-                sum_elems.append(y_var * trans_time)
+                sum_elems.append(trans_time_expr)
 
                 max_trans_latency = max(
                     max_trans_latency,
-                    trans_time,
+                    layer_max_trans_time,
                 )
     return pulp.lpSum(sum_elems), max_trans_latency
 
 
 def __get_transmission_time(
-    mod_edge_info: dict,
-    net_edge_info: dict,
+    model_graph: nx.MultiDiGraph,
+    network_graph: nx.DiGraph,
+    mod_edge_id: tuple,
     net_edge_id: tuple,
+    edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
 ) -> float:
     ## Note --> Assuming Bandwidth in MB / s
 
-    ## TODO Check This
-    # if net_edge_id[0] == net_edge_id[1]:
-    #     return 0
+    not_quant_ass_key = EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])
+    not_quant_tx_time = model_graph.edges[mod_edge_id][
+        ModelEdgeInfo.TOT_TENSOR_SIZE
+    ] / (network_graph.edges[net_edge_id][NetworkEdgeInfo.BANDWIDTH])
+    trans_expr = not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
 
-    if net_edge_id[0] == net_edge_id[1]:
-        transmission_time = 0
-    else:
-        transmission_time = (
-            mod_edge_info[ModelEdgeInfo.TOT_TENSOR_SIZE]
-            / net_edge_info[NetworkEdgeInfo.BANDWIDTH]
+    if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
+        quant_tx_time = not_quant_tx_time / 8
+
+        quant_ass_key = EdgeAssKey(
+            mod_edge_id, net_edge_id, model_graph.graph["name"], True
         )
 
-    return transmission_time + net_edge_info[NetworkEdgeInfo.LATENCY]
+        trans_expr = (
+            not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
+            - (not_quant_tx_time - quant_tx_time) * edge_ass_vars[quant_ass_key]
+        )
+
+    ## We add the latency of this link only if the edge is actually mapped on this link
+    latency = network_graph.edges[net_edge_id][NetworkEdgeInfo.LATENCY]
+    trans_expr = trans_expr + latency * edge_ass_vars[not_quant_ass_key]
+
+    return trans_expr, not_quant_tx_time + latency
 
 
-def __get_computation_time(mod_node_info: dict, net_node_info: dict) -> float:
-    return (
-        mod_node_info[ModelNodeInfo.FLOPS]
-        / net_node_info[NetworkNodeInfo.FLOPS_PER_SEC]
-    )
+def __get_computation_time(
+    model_graph: nx.DiGraph,
+    mod_node_id: NodeId,
+    net_node_id: NodeId,
+    model_execution_profile: ModelExecutionProfile,
+    node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+) -> float:
+
+    not_quant_ass_key = NodeAssKey(mod_node_id, net_node_id, model_graph.graph["name"])
+    not_quant_time = model_execution_profile.get_not_quantized_layer_time(mod_node_id)
+    time_expr = not_quant_time * node_ass_vars[not_quant_ass_key]
+
+    max_comp_time = not_quant_time
+
+    if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+        quant_time = model_execution_profile.get_quantized_layer_time(mod_node_id)
+        quant_ass_key = NodeAssKey(
+            mod_node_id, net_node_id, model_graph.graph["name"], True
+        )
+
+        time_expr = (
+            not_quant_time * node_ass_vars[not_quant_ass_key]
+            - (not_quant_time - quant_time) * node_ass_vars[quant_ass_key]
+        )
+
+        max_comp_time = max(max_comp_time, quant_time)
+
+    return time_expr, max_comp_time

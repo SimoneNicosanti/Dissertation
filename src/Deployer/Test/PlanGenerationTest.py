@@ -26,10 +26,10 @@ def main():
     produce_plan_request = ProducePlanRequest(
         models_ids=[ModelId(model_name="yolo11n-seg")],
         latency_weight=1,
-        energy_weight=0,
-        device_max_energy=0,  ## TODO Check this out !!
+        energy_weight=0.0,
+        device_max_energy=25,  ## Measured in Joules
         requests_number=[1],
-        max_noises=[0.1],
+        max_noises=[0.02],
         start_server="0",
     )
 

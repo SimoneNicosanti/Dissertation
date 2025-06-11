@@ -6,6 +6,7 @@ import onnx
 
 from Common.ConfigReader import ConfigReader
 from CommonModel import ModelYielder
+from ModelPool.DummyQuantizer import DummyQuantizer
 from ModelPool.LayerDivider import LayerDivider
 from proto_compiled.common_pb2 import ComponentId
 from proto_compiled.model_pool_pb2 import (
@@ -86,18 +87,41 @@ class PoolServer(ModelPoolServicer):
 
         component_id: ComponentId = request.component_id
 
+        ## Not quantized model
         model_file_name = self.build_file_name(component_id)
         model_directory = self.build_directory(component_id)
         model_file_path = os.path.join(model_directory, model_file_name)
 
         onnx_model = onnx.load_model(model_file_path)
-        layer_divider = LayerDivider(onnx_model)
+        layer_divider = LayerDivider(model_file_path)
 
         for layer in onnx_model.graph.node:
             layer_model: onnx.ModelProto = layer_divider.divide_layer(layer.name)
             for pull_response in ModelYielder.pull_yield(layer_model):
                 yield LayerPullResponse(
-                    layer_name=layer.name, model_chunk=pull_response.model_chunk
+                    layer_name=layer.name,
+                    is_quantized=False,
+                    model_chunk=pull_response.model_chunk,
+                )
+
+        ## Quantized model
+        quant_model_file_path = model_file_path.replace(".onnx", "_quant.onnx")
+
+        if not os.path.exists(quant_model_file_path):
+            DummyQuantizer.dummy_quantize(model_file_path, quant_model_file_path)
+
+        quantized_layer_divider = LayerDivider(
+            model_file_path, quant_onnx_model_path=quant_model_file_path
+        )
+        for layer in onnx_model.graph.node:
+            layer_model: onnx.ModelProto = quantized_layer_divider.divide_layer(
+                layer.name
+            )
+            for pull_response in ModelYielder.pull_yield(layer_model):
+                yield LayerPullResponse(
+                    layer_name=layer.name,
+                    is_quantized=True,
+                    model_chunk=pull_response.model_chunk,
                 )
 
         return

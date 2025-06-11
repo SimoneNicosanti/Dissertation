@@ -1,5 +1,4 @@
 import csv
-import os
 import tempfile
 
 import networkx as nx

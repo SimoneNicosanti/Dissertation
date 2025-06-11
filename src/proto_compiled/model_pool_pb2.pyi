@@ -60,9 +60,11 @@ class PullResponse(_message.Message):
     def __init__(self, model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...
 
 class LayerPullResponse(_message.Message):
-    __slots__ = ("layer_name", "model_chunk")
+    __slots__ = ("layer_name", "is_quantized", "model_chunk")
     LAYER_NAME_FIELD_NUMBER: _ClassVar[int]
+    IS_QUANTIZED_FIELD_NUMBER: _ClassVar[int]
     MODEL_CHUNK_FIELD_NUMBER: _ClassVar[int]
     layer_name: str
+    is_quantized: bool
     model_chunk: ModelChunk
-    def __init__(self, layer_name: _Optional[str] = ..., model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...
+    def __init__(self, layer_name: _Optional[str] = ..., is_quantized: bool = ..., model_chunk: _Optional[_Union[ModelChunk, _Mapping]] = ...) -> None: ...

@@ -7,6 +7,7 @@ from CommonModel.PoolInterface import PoolInterface
 from CommonPlan.Plan import Plan
 from CommonPlan.WholePlan import WholePlan
 from ModelDivider.Divide.OnnxModelPartitioner import OnnxModelPartitioner
+from ModelDivider.Quantization.OnnxModelQuantizer import OnnxModelQuantizer
 from proto_compiled.common_pb2 import ComponentId as GrpcComponentId
 from proto_compiled.common_pb2 import ModelId
 from proto_compiled.model_divide_pb2 import PartitionRequest, PartitionResponse
@@ -41,6 +42,37 @@ class ModelDivideServer(ModelDivideServicer):
             model_partitioner = OnnxModelPartitioner()
 
             model_plan: Plan = whole_plan.get_model_plan(model_name)
+
+            if len(model_plan.get_quantized_nodes()) > 0:
+                ## Quantize model first
+                quantized_layers = [
+                    quant_node.node_name
+                    for quant_node in model_plan.get_quantized_nodes()
+                ]
+                calibration_dataset = self.pool_interface.retrieve_calibration_dataset(
+                    model_id
+                )
+                quant_onnx_model = OnnxModelQuantizer.quantize_model(
+                    onnx_model, calibration_dataset, quantized_layers
+                )
+
+                onnx_model = quant_onnx_model
+                print("Quantized Model")
+
+                for node in onnx_model.graph.node:
+                    if (
+                        "/model.23/proto/upsample/ConvTranspose_output_0_QuantizeLinear_Output"
+                        in node.output
+                    ):
+                        print("Node Name >> ", node.name)
+
+                    if (
+                        "/model.23/proto/upsample/ConvTranspose_output_0_QuantizeLinear_Output"
+                        in node.input
+                    ):
+                        print("Node Name >> ", node.name)
+
+                pass
 
             divided_components: dict[ComponentId, onnx.ModelProto] = (
                 model_partitioner.partition_model(model_plan, onnx_model)

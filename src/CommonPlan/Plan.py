@@ -1,13 +1,20 @@
 import copy
 
 from CommonIds.ComponentId import ComponentId
+from CommonIds.NodeId import NodeId
 
 
 class Plan:
-    def __init__(self, model_name: str, plan_dict: dict[ComponentId, dict]):
+    def __init__(
+        self,
+        model_name: str,
+        plan_dict: dict[ComponentId, dict],
+        quantized_nodes: list[NodeId],
+    ):
 
         self.model_name = model_name
         self.plan_dict: dict[ComponentId, dict] = plan_dict
+        self.quantized_nodes: list[NodeId] = quantized_nodes
 
     def encode(self) -> dict:
 
@@ -34,6 +41,9 @@ class Plan:
 
         encoded_plan["model_name"] = self.model_name
         encoded_plan["plan_dict"] = encoded_plan_dict
+        encoded_plan["quantized_nodes"] = [
+            comp_id.encode() for comp_id in self.quantized_nodes
+        ]
 
         return encoded_plan
 
@@ -61,7 +71,14 @@ class Plan:
 
             plan_dict[component_id] = encoded_plan["plan_dict"][encoded_component_id]
 
-        return Plan(model_name, plan_dict)
+        quantized_nodes = [
+            NodeId.decode(node_name) for node_name in encoded_plan["quantized_nodes"]
+        ]
+
+        return Plan(model_name, plan_dict, quantized_nodes)
+
+    def get_quantized_nodes(self) -> list[NodeId]:
+        return self.quantized_nodes
 
     def is_component_only_input(self, key: ComponentId) -> bool:
         return self.plan_dict[key]["is_only_input"]
