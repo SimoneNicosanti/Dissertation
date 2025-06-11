@@ -42,13 +42,28 @@ class NetworkProfileBuilder:
 
             network_graph.nodes[node_id][NetworkNodeInfo.FLOPS_PER_SEC] = 0
 
-            network_graph.nodes[node_id][NetworkNodeInfo.COMP_ENERGY_PER_SEC] = (
-                server_state["comp_energy"]
-            )
+            if server_id == "0":
+                comp_energy = 10  ## W = J / s
+                trans_energy = 6.0
+            else:
+                comp_energy = 15.0
+                trans_energy = 15.6
 
-            network_graph.nodes[node_id][NetworkNodeInfo.TRANS_ENERGY_PER_SEC] = (
-                server_state["trans_energy"]
-            )
+            network_graph.nodes[node_id][
+                NetworkNodeInfo.COMP_ENERGY_PER_SEC
+            ] = comp_energy
+
+            network_graph.nodes[node_id][
+                NetworkNodeInfo.TRANS_ENERGY_PER_SEC
+            ] = trans_energy
+
+            # network_graph.nodes[node_id][NetworkNodeInfo.COMP_ENERGY_PER_SEC] = (
+            #     server_state["comp_energy"]
+            # )
+
+            # network_graph.nodes[node_id][NetworkNodeInfo.TRANS_ENERGY_PER_SEC] = (
+            #     server_state["trans_energy"]
+            # )
 
             network_graph.nodes[node_id][NetworkNodeInfo.IDX] = int(server_id)
 

@@ -33,7 +33,7 @@ def compute_energy_cost(
             model_graph, network_graph, edge_ass_vars
         )
 
-        normalization_factor = max(max_model_comp_energy, max_model_trans_energy)
+        normalization_factor = 1  # max(max_model_comp_energy, max_model_trans_energy)
 
         tot_energy_cost += (
             model_weight
