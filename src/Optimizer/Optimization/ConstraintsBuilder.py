@@ -2,6 +2,7 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
+from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from Optimizer.Optimization import EnergyComputer
 from Optimizer.Optimization.OptimizationKeys import (
@@ -197,6 +198,7 @@ class ConstraintsBuilder:
         requests_num: dict[str, int],
         net_node_id: NodeId,
         device_energy_limit: float,
+        server_execution_profile_pool: ServerExecutionProfilePool,
     ):
 
         device_energy = EnergyComputer.compute_energy_cost_per_net_node(
@@ -206,8 +208,11 @@ class ConstraintsBuilder:
             edge_ass_vars,
             requests_num,
             net_node_id,
+            server_execution_profile_pool,
         )
         problem += device_energy <= device_energy_limit
+
+        return device_energy
         pass
 
     @staticmethod

@@ -115,6 +115,7 @@ def compute_energy_cost_per_net_node(
     edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
     requests_number: dict[str, int],
     net_node_id: NodeId,
+    server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> pulp.LpAffineExpression:
 
     net_node_energy = 0
@@ -125,11 +126,18 @@ def compute_energy_cost_per_net_node(
         model_request_num = requests_number.get(model_graph.graph["name"])
 
         model_comp_latency, _ = LatencyComputer.compute_model_comp_latency_per_node(
-            model_graph, network_graph, node_ass_vars, net_node_id
+            model_graph,
+            network_graph,
+            node_ass_vars,
+            net_node_id,
+            server_execution_profile_pool,
         )
 
         model_trans_latency, _ = LatencyComputer.compute_model_trans_latency_per_node(
-            model_graph, network_graph, edge_ass_vars, net_node_id
+            model_graph,
+            network_graph,
+            edge_ass_vars,
+            net_node_id,
         )
 
         model_comp_energy = (
