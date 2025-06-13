@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Ottimizzazione.md",
+                "file": "Notes/Quantizzazione.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Ottimizzazione"
+              "title": "Quantizzazione"
             }
           },
           {
@@ -193,23 +193,24 @@
   },
   "active": "1677655c30dd1109",
   "lastOpenFiles": [
-    "Ottimizzazione 3.0 - Con Quantizzazione - Send.md",
+    "Notes/Profiling.md",
+    "Notes/Quantizzazione.md",
     "Notes/Ottimizzazione.md",
+    "Notes/Esperimenti.md",
+    "Notes/Senza nome.md",
+    "Ottimizzazione 3.0 - Con Quantizzazione - Send.md",
     "Paper/Note Sugli Articoli.md",
     "Paper/Neurosurgeon.pdf",
     "Paper/energy_optimal_mobile_application_execution.pdf",
     "Notes/Calcolo FLOPS.md",
     "Notes/Componenti Connesse.md",
     "Notes/Distribuzione.md",
-    "Notes/Esperimenti.md",
     "Notes/Indice Tesi.md",
     "Notes/LiteRT.md",
     "Notes/Monitoraggio.md",
-    "Notes/Profiling.md",
     "Notes/Architettura/Architettura 2.md",
     "Diagram 1.svg",
     "Notes/Ottimizzazione - Altro.md",
-    "Notes/Quantizzazione.md",
     "Notes/Architettura/Architettura.md",
     "Diagram 2.svg.xml",
     "Diagram 2.svg",
@@ -237,7 +238,6 @@
     "Paper/Gillis/Gillis - Notes.md",
     "Notes/Colloqui/14-04-2024.md",
     "Notes/Split del Modello.md",
-    "26.md",
-    "Paper/Furcifer/Furcifer - Notes.md"
+    "26.md"
   ]
 }

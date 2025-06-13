@@ -21,7 +21,15 @@ class NoiseEvaluator:
         pass
 
     def compute_model_result(self, model: onnx.ModelProto) -> list[list[np.ndarray]]:
-        sess = onnxruntime.InferenceSession(model.SerializeToString())
+        so = onnxruntime.SessionOptions()
+        sess = onnxruntime.InferenceSession(
+            model.SerializeToString(),
+            providers=[
+                "CUDAExecutionProvider",
+                # ("CUDAExecutionProvider", {"cudnn_conv_algo_search": "DEFAULT"}),
+            ],
+            sess_options=so,
+        )
 
         results = []
 

@@ -45,7 +45,7 @@ class ModelProfileServer(ModelProfileServicer):
             train_set_size = 750
             test_set_size = 50
             calibration_size = 100
-            noise_set_size = 1
+            noise_set_size = 25
 
             dataframe: pd.DataFrame = QuantizationProfile().profile_quantization(
                 onnx_model,

@@ -26,3 +26,15 @@ Vedere se nel problema c'è la latenza modellata (se non c'è aggiungere termine
 Con il TC puoi configurare sia la latenza sia la banda di tx.
 
 Cominciare da parte centrale...
+
+
+
+
+
+# Analisi varie fasi di Deployment
+
+## Profiling del Modello
+Il profiling del modello varia con:
+- Tipo di Modello (sue dimensioni in generale)
+- Numero di livelli accettati per la quantizzazione
+	- Dimensione del dataset da costruire

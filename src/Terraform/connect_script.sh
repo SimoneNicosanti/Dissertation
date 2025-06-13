@@ -1,1 +1,1 @@
-gcloud compute ssh google@$1 --zone europe-west12-c
+gcloud compute ssh $1

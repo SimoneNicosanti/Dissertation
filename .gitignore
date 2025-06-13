@@ -8,3 +8,5 @@ runs/
 coco128/
 *.npy
 *.npz
+*.tfstate.backup
+*.tfstate

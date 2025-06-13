@@ -13,7 +13,9 @@ RUN pip install networkx
 RUN groupadd -g 1234 customgroup && \
     useradd -m -u 1234 -g customgroup customuser
 
-
-# USER customuser
+# Optimizer Port
+EXPOSE 50001
+# Deployer Port
+EXPOSE 50013
 
 CMD ["/bin/bash"]

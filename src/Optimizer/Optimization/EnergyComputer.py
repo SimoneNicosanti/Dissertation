@@ -89,14 +89,18 @@ def compute_trans_energy_per_model(
     for net_node_id in network_graph.nodes:
         net_node_info: dict = network_graph.nodes[net_node_id]
 
-        node_trans_latency_per_model, node_max_trans_latency_per_model = (
-            LatencyComputer.compute_model_trans_latency_per_node(
-                model_graph, network_graph, edge_ass_vars, net_node_id
-            )
+        (
+            node_trans_latency_per_model_same_dest,
+            node_trans_latency_per_model_diff_dest,
+            node_max_trans_latency_per_model,
+        ) = LatencyComputer.compute_model_trans_latency_per_node(
+            model_graph, network_graph, edge_ass_vars, net_node_id
         )
 
+        ## TODO Add energy consumption for same destination
         node_trans_energy_per_model = (
-            node_trans_latency_per_model * net_node_info["trans_energy_per_sec"]
+            node_trans_latency_per_model_diff_dest
+            * net_node_info["trans_energy_per_sec"]
         )
         node_max_trans_energy_per_model = (
             node_max_trans_latency_per_model * net_node_info["trans_energy_per_sec"]
@@ -133,18 +137,21 @@ def compute_energy_cost_per_net_node(
             server_execution_profile_pool,
         )
 
-        model_trans_latency, _ = LatencyComputer.compute_model_trans_latency_per_node(
-            model_graph,
-            network_graph,
-            edge_ass_vars,
-            net_node_id,
+        model_trans_latency_same_dest, model_trans_latency_diff_dest, _ = (
+            LatencyComputer.compute_model_trans_latency_per_node(
+                model_graph,
+                network_graph,
+                edge_ass_vars,
+                net_node_id,
+            )
         )
 
         model_comp_energy = (
             model_comp_latency * net_node_info[NetworkNodeInfo.COMP_ENERGY_PER_SEC]
         )
         model_trans_energy = (
-            model_trans_latency * net_node_info[NetworkNodeInfo.TRANS_ENERGY_PER_SEC]
+            model_trans_latency_diff_dest
+            * net_node_info[NetworkNodeInfo.TRANS_ENERGY_PER_SEC]
         )
 
         net_node_energy += model_request_num * (model_comp_energy + model_trans_energy)

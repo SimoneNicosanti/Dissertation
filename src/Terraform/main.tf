@@ -10,7 +10,7 @@ terraform {
 
 provider "google" {
   project = "ai-at-edge-442215"  # Replace with your GCP project ID
-  region  = "europe-west12-c"
+  region  = "europe-west3-b"
 }
 
 # Create a VPC Network
@@ -24,7 +24,7 @@ resource "google_compute_subnetwork" "main_subnet" {
   name          = "main-subnet"
   network       = google_compute_network.main_vpc.id
   ip_cidr_range = "10.0.1.0/24"
-  region        = "europe-west12"
+  region        = "europe-west3"
 }
 
 # Create a Firewall Rule to allow SSH
@@ -89,22 +89,25 @@ resource "google_compute_firewall" "allow_internal_egress" {
 
 # Define the IPs for each VM
 locals {
-  instance_ips = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
-  names = ["registry", "optimizer", "model-manager", "deployer", "device", "server-1", "server-2"] ## Assign specific names
+  instance_ips =  ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
+  names =  ["registry", "optimizer", "model-manager", "deployer", "device", "server-1", "server-2"] ## Assign specific names
+
+
 }
 
 
 
 # Deploy Multiple Compute Engine Instances
 resource "google_compute_instance" "vm_instances" {
-  count        = 7
+  count        = length(local.names)
   name         = local.names[count.index]
-  machine_type = "e2-standard-2"
-  zone         = "europe-west12-c"
+  machine_type = local.names[count.index] == "model-manager" ? "n1-standard-8" : "n2-standard-8"
+  zone         = "europe-west3-b"
 
   boot_disk {
     initialize_params {
-      image = "project-image"
+      image = "simone-image-6"
+      size  = 75
     }
   }
 
@@ -117,6 +120,27 @@ resource "google_compute_instance" "vm_instances" {
 
   metadata = {
     # Set your SSH key for the default user (google)
-    "ssh-keys"              = "google:${file("/home/customuser/.ssh/id_rsa.pub")}"
+    "ssh-keys"              = "customuser:${file("/home/customuser/.ssh/id_rsa.pub")}"
   }
+
+
+
+  # GPU Tesla T4 SOLO per model-manager
+  dynamic "guest_accelerator" {
+    for_each = local.names[count.index] == "model-manager" ? [1] : []
+    content {
+      type  = "nvidia-tesla-t4"
+      count = 1
+    }
+  }
+
+  # Scheduling: preemptible e spot SOLO per model-manager
+  scheduling {
+    preemptible        = local.names[count.index] == "model-manager"
+    provisioning_model = local.names[count.index] == "model-manager" ? "SPOT" : "STANDARD"
+    automatic_restart  = false
+  }
+
+  # Avvia script solo per model-manager (con GPU)
+  # metadata_startup_script = local.names[count.index] == "model-manager" ? local.startup_script_model_manager : null
 }

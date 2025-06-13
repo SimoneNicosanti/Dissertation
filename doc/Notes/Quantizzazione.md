@@ -542,3 +542,6 @@ Quantizzare un sottoinsieme di livelli comunque porta ad un miglioramento del te
 (Mediato su 50 run)
 Quindi si tratta di un'alternativa che potrebbe aver senso utilizzare
 ![[Schermata del 2025-04-25 14-37-45.png]]
+
+
+NOTA: IN FASE DI PROFILING BISOGNA ESEGUIRE PIÙ DI UNA PROVA SUL CALIBRATION SET! ALTRIMENTI IL TEMPO DI PROFILING È DOMINATO DAI TEMPI DI CARICAMENTO DEI MODELLI IN GPU E NON SI OTTIENE NESSUN GIOVAMENTO DALL'USO DELLA GPU.

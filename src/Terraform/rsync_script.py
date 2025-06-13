@@ -1,100 +1,231 @@
+#!/usr/bin/env python3
+
+import argparse
 import json
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
+
+BASE_COMMAND = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --no-o --no-g --progress --mkpath --recursive --exclude '*.pyc' --exclude '*Out_*.jpg' --exclude '.npz' "
+
+
+def copy_client(machine_ip):
+    command = BASE_COMMAND + " ../Client/ customuser@{}:~/src/Client".format(machine_ip)
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_common(machine_ip):
+    dirs = [
+        "Common",
+        "CommonIds",
+        "CommonModel",
+        "CommonPlan",
+        "CommonProfile",
+        "CommonQuantization",
+    ]
+    for dir in dirs:
+        command = BASE_COMMAND + " ../{}/ customuser@{}:~/src/{}".format(
+            dir, machine_ip, dir
+        )
+        # trunk-ignore(bandit/B605)
+        os.system(command)
+    return
+
+
+def copy_config(machine_ip):
+    command = (
+        BASE_COMMAND
+        + " ../config/deploy_config.ini customuser@{}:~/src/config/config.ini".format(
+            machine_ip
+        )
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+
+    return
+
+
+def copy_deployer(machine_ip):
+    command = BASE_COMMAND + " ../Deployer/ customuser@{}:~/src/Deployer".format(
+        machine_ip
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_docker(machine_ip):
+    command = BASE_COMMAND + " ../docker/ customuser@{}:~/".format(machine_ip)
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+
+    command = (
+        BASE_COMMAND
+        + " ../Terraform/container_start.py customuser@{}:~/container_start.py".format(
+            machine_ip
+        )
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_main(machine_ip):
+    command = BASE_COMMAND + " ../Main/ customuser@{}:~/src".format(machine_ip)
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+
+    command = BASE_COMMAND + " ../start.sh customuser@{}:~/src/start.sh".format(
+        machine_ip
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+
+    command = (
+        BASE_COMMAND
+        + " ../Other/latency_scripts/delay_script.py customuser@{}:~/delay_script.py".format(
+            machine_ip
+        )
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_manager(machine_ip):
+    dirs = ["ModelDivider", "ModelPool", "ModelProfiler"]
+    for dir in dirs:
+        command = BASE_COMMAND + " ../{}/ customuser@{}:~/src/{}".format(
+            dir, machine_ip, dir
+        )
+        # trunk-ignore(bandit/B605)
+        os.system(command)
+    return
+
+
+def copy_optimizer(machine_ip):
+    command = BASE_COMMAND + " ../Optimizer/ customuser@{}:~/src/Optimizer".format(
+        machine_ip
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_other(machine_ip):
+    command = (
+        BASE_COMMAND
+        + " ../Other/calibration_dataset/ customuser@{}:~/calibration".format(
+            machine_ip
+        )
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_proto(machine_ip):
+    command = (
+        BASE_COMMAND
+        + " ../proto_compiled/ customuser@{}:~/src/proto_compiled".format(machine_ip)
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_registry(machine_ip):
+    command = BASE_COMMAND + " ../Registry/ customuser@{}:~/src/Registry".format(
+        machine_ip
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_server(machine_ip):
+    command = BASE_COMMAND + " ../Server/ customuser@{}:~/src/Server".format(machine_ip)
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_state_pool(machine_ip):
+    command = BASE_COMMAND + " ../StatePool/ customuser@{}:~/src/StatePool".format(
+        machine_ip
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
 
 directory_dict = {
-    "registry" : [
-        "../proto_compiled/", 
-        "../Registry/", "../StatePool/", 
-        "../Main/RegistryMain.py", "../start.sh", 
-        "../Common/"
-    ],
-    # "optimizer" : [
-    #     "../proto_compiled/", 
-    #     "../Optimizer/", 
-    #     "../Main/OptimizerMain.py", "../start.sh", 
-    #     "../Common/", "../CommonProfile/", "../CommonPlan/"
-    # ],
-    # "model-manager" : [
-    #     "../proto_compiled/", 
-    #     "../ModelPool/", "../ModelManager/",
-    #     "../Main/ModelManagerMain.py", "../start.sh", 
-    #     "../Common/", "../CommonProfile/", "../CommonPlan/", 
-    # ],
-    "device" : [
-        "../proto_compiled/", 
-        "../Client/", "../Server/", "../FrontEnd/", 
-        "../Main/ServerMain.py", "../Main/FrontEndMain.py", "../Main/ClientMain.py", "../start.sh", 
-        "../Common/", "../CommonServer/",
-        "../Other/latency_scripts/",
-    ],
-    "server-1" : [
-        "../proto_compiled/", 
-        "../Server/", 
-        "../Main/ServerMain.py", "../start.sh", 
-        "../Common/", "../CommonServer/",
-    ],
-    # "server-2" :  [
-    #     "../proto_compiled/", 
-    #     "../Server/", 
-    #     "../Main/ServerMain.py", "../start.sh", 
-    #     "../Common/", "../CommonServer/",
-    # ],
+    "Client": copy_client,
+    "Common": copy_common,
+    "Config": copy_config,
+    "Deployer": copy_deployer,
+    "Docker": copy_docker,
+    "Main": copy_main,
+    "Manager": copy_manager,
+    "Optimizer": copy_optimizer,
+    # "Other": copy_other,
+    "Proto": copy_proto,
+    "Registry": copy_registry,
+    "Server": copy_server,
+    "StatePool": copy_state_pool,
 }
 
 
-def transfer_files(machine_name, machine_ip) :
-    if machine_name not in directory_dict :
-        return
-    for dir in directory_dict[machine_name] :
-        dest_dir = dir.replace("../", "")
-        dest_dir = dest_dir.replace("Main/", "")
-        print(dir, dest_dir)
-        command = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --progress --mkpath --recursive --exclude '*.pyc' {} google@{}:~/src/{}".format(dir, machine_ip, dest_dir)
-        os.system(command)
-
-def copy_config(machine_ip) :
-    command = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --progress --mkpath --recursive --exclude '*.pyc' ../config/deploy_config.ini google@{}:~/src/config/config.ini".format(machine_ip)
-    os.system(command)
-
-def copy_docker_config(machine_ip) :
-    command = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --progress --mkpath --recursive --exclude '*.pyc' ../docker/server.dockerfile google@{}:~/server.dockerfile".format(machine_ip)
-    os.system(command)
-    command = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --progress --mkpath --recursive --exclude '*.pyc' ./container_start.py google@{}:~/container_start.py".format(machine_ip)
-    os.system(command)
-
-def get_nat_ips() :
-    command = ['gcloud', 'compute', 'instances', 'list', '--format', 'json(name, networkInterfaces[].accessConfigs[].natIP)']
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+def get_nat_ips():
+    command = [
+        "gcloud",
+        "compute",
+        "instances",
+        "list",
+        "--format",
+        "json(name, networkInterfaces[].accessConfigs[].natIP)",
+    ]
+    result = subprocess.run(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
     instances = json.loads(result.stdout)
 
     name_ip_map = {}
     # Mostra l'output in formato dizionario
-    for item in instances :
-        name = item['name']
-        if name in directory_dict :
-            ip_addr = item['networkInterfaces'][0]['accessConfigs'][0]['natIP']
-            name_ip_map[name] = ip_addr
-    
+    for item in instances:
+        name = item["name"]
+        ip_addr = item["networkInterfaces"][0]["accessConfigs"][0]["natIP"]
+        name_ip_map[name] = ip_addr
+
     return name_ip_map
 
-def main() :
+
+def main():
     os.system("rm ~/.ssh/known_hosts")
-    name_ip_map : dict[str, str] = get_nat_ips()
+    name_ip_map: dict[str, str] = get_nat_ips()
     print(name_ip_map)
-    for machine_name, machine_ip in name_ip_map.items() :
-        print("Sending to ", machine_name, machine_ip)
-        copy_config(machine_ip)
-        transfer_files(machine_name, machine_ip)
-        pass
 
-    for machine_name, machine_ip in name_ip_map.items() :
-        if machine_name.startswith("server") or machine_name.startswith("device") :
-            copy_docker_config(machine_ip)
-    pass
+    parser = argparse.ArgumentParser()
+
+    # Aggiungi argomenti
+    parser.add_argument("--cases", nargs="+", type=str, help="Folder Cases", default=[])
+
+    args = parser.parse_args()
+
+    cases = args.cases
+
+    for _, machine_ip in name_ip_map.items():
+        if len(cases) == 0:
+            ## Copy All
+            for key in directory_dict.keys():
+                directory_dict[key](machine_ip)
+        else:
+            ## Selective copy
+            for case in cases:
+                directory_dict[case](machine_ip)
 
 
-
-if __name__ == "__main__" :
+if __name__ == "__main__":
     main()
