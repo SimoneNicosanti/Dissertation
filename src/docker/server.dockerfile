@@ -25,6 +25,10 @@ RUN pip install iperf3
 
 RUN apt-get install iproute2 -y
 
+RUN pip install supervision
+
+RUN apt install -y libgl1
+
 # USER customuser
 
 # Inference port

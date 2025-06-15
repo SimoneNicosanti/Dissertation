@@ -1,16 +1,36 @@
 import cv2
 import numpy as np
 
-from Client.PPP.YoloPPP import YoloPPP
 
+class YoloPPP:
+    def __init__(self, mod_input_height: int, mod_input_width: int):
+        self.mod_input_height = mod_input_height
+        self.mod_input_width = mod_input_width
 
-class YoloSegmentationPPP(YoloPPP):
-    def __init__(
-        self, mod_input_height: int, mod_input_width: int, classes: dict[int, str]
-    ):
-        super().__init__(mod_input_height, mod_input_width, classes)
+    def compute_ratio(self, input_image: np.ndarray):
+        shape = input_image.shape[:2]
+        new_shape = (self.mod_input_height, self.mod_input_width)
 
-    def preprocess(self, input_image: np.ndarray) -> dict[str]:
+        ratio = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+
+        return ratio
+
+    def compute_unpad_shape(self, input_image: np.ndarray, ratio: float):
+        shape = input_image.shape[:2]
+        new_unpad = int(round(shape[1] * ratio)), int(round(shape[0] * ratio))
+
+        return new_unpad
+
+    def compute_pad(self, input_image: np.ndarray, ratio: float, unpad_shape: tuple):
+        new_shape = (self.mod_input_height, self.mod_input_width)
+        pad_w, pad_h = (new_shape[1] - unpad_shape[0]) / 2, (
+            new_shape[0] - unpad_shape[1]
+        ) / 2  # wh padding
+
+        return pad_w, pad_h
+        pass
+
+    def preprocess(self, original_image: np.ndarray) -> np.ndarray:
         """
         Pre-processes the input image.
 
@@ -24,22 +44,20 @@ class YoloSegmentationPPP(YoloPPP):
             pad_h (float): height padding in letterbox.
         """
         # Resize and pad input image using letterbox() (Borrowed from Ultralytics)
-        shape = input_image.shape[:2]  # original image shape
-        new_shape = (self.mod_input_height, self.mod_input_width)
-        r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
-        ratio = r, r
-        new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
-        pad_w, pad_h = (new_shape[1] - new_unpad[0]) / 2, (
-            new_shape[0] - new_unpad[1]
-        ) / 2  # wh padding
+        shape = original_image.shape[:2]  # original image shape
+
+        ratio = self.compute_ratio(original_image)
+        new_unpad = self.compute_unpad_shape(original_image, ratio)
+        pad_w, pad_h = self.compute_pad(original_image, ratio, new_unpad)
+
         if shape[::-1] != new_unpad:  # resize
-            input_image = cv2.resize(
-                input_image, new_unpad, interpolation=cv2.INTER_LINEAR
+            original_image = cv2.resize(
+                original_image, new_unpad, interpolation=cv2.INTER_LINEAR
             )
         top, bottom = int(round(pad_h - 0.1)), int(round(pad_h + 0.1))
         left, right = int(round(pad_w - 0.1)), int(round(pad_w + 0.1))
-        input_image = cv2.copyMakeBorder(
-            input_image,
+        original_image = cv2.copyMakeBorder(
+            original_image,
             top,
             bottom,
             left,
@@ -49,61 +67,60 @@ class YoloSegmentationPPP(YoloPPP):
         )
 
         # Transforms: HWC to CHW -> BGR to RGB -> div(255) -> contiguous -> add axis(optional)
-        input_image = (
+        original_image = (
             np.ascontiguousarray(
-                np.einsum("HWC->CHW", input_image)[::-1], dtype=np.float32
+                np.einsum("HWC->CHW", original_image)[::-1], dtype=np.float32
             )
             / 255.0
         )
-        img_process = input_image[None] if len(input_image.shape) == 3 else input_image
+        img_process = (
+            original_image[None] if len(original_image.shape) == 3 else original_image
+        )
 
-        out_dict = {}
-        out_dict["preprocessed_image"] = img_process
-        out_dict["ratio"] = ratio
-        out_dict["pad_w"] = pad_w
-        out_dict["pad_h"] = pad_h
-
-        return out_dict
+        return img_process
 
     def postprocess(
         self,
-        original_input: np.ndarray,
-        model_output: list[np.ndarray],
-        confidence_thres: float,
-        iou_thres: float,
-        **kwargs,
-    ) -> np.ndarray:
-        nm = kwargs["nm"]
-        pad_w = kwargs["pad_w"]
-        pad_h = kwargs["pad_h"]
-        ratio = kwargs["ratio"]
+        original_image: np.ndarray,
+        predictions: np.ndarray,
+        prototypes: np.ndarray,
+        score_thr: float,
+        iou_thr: float,
+        num_classes: int,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Method for postprocessing Yolo Model Output.
+        Returns boxes, masks, segments.
+            @return boxes : np.ndarray of shape (N, 6) where (x1, y1, x2, y2, score, class)
+        """
 
-        x, protos = (
-            model_output[0],
-            model_output[1],
-        )  # Two outputs: predictions and protos
+        ratio = self.compute_ratio(original_image)
+        new_unpad = self.compute_unpad_shape(original_image, ratio)
+        pad_w, pad_h = self.compute_pad(original_image, ratio, new_unpad)
+
+        x, protos = predictions, prototypes
 
         # Transpose dim 1: (Batch_size, xywh_conf_cls_nm, Num_anchors) -> (Batch_size, Num_anchors, xywh_conf_cls_nm)
         x = np.einsum("bcn->bnc", x)
 
         # Predictions filtering by conf-threshold
-        x = x[np.amax(x[..., 4:-nm], axis=-1) > confidence_thres]
+        x = x[np.amax(x[..., 4 : (4 + num_classes)], axis=-1) > score_thr]
 
         # Create a new matrix which merge these(box, score, cls, nm) into one
         # For more details about `numpy.c_()`: https://numpy.org/doc/1.26/reference/generated/numpy.c_.html
+        # This is just a concatenate
         x = np.c_[
             x[..., :4],
-            np.amax(x[..., 4:-nm], axis=-1),
-            np.argmax(x[..., 4:-nm], axis=-1),
-            x[..., -nm:],
+            np.amax(x[..., 4 : (4 + num_classes)], axis=-1),
+            np.argmax(x[..., 4 : (4 + num_classes)], axis=-1),
+            x[..., (4 + num_classes) :],
         ]
 
         # NMS filtering
-        x = x[cv2.dnn.NMSBoxes(x[:, :4], x[:, 4], confidence_thres, iou_thres)]
+        x = x[cv2.dnn.NMSBoxes(x[:, :4], x[:, 4], score_thr, iou_thr)]
 
-        boxes = []
-        segments = []
-        masks = []
+        boxes = None
+        segments = None
+        masks = None
         # Decode and return
         if len(x) > 0:
             # Bounding boxes format change: cxcywh -> xyxy
@@ -112,26 +129,26 @@ class YoloSegmentationPPP(YoloPPP):
 
             # Rescales bounding boxes from model shape(model_height, model_width) to the shape of original image
             x[..., :4] -= [pad_w, pad_h, pad_w, pad_h]
-            x[..., :4] /= min(ratio)
+            x[..., :4] /= ratio
 
             # Bounding boxes boundary clamp
-            x[..., [0, 2]] = x[:, [0, 2]].clip(0, original_input.shape[1])
-            x[..., [1, 3]] = x[:, [1, 3]].clip(0, original_input.shape[0])
+            x[..., [0, 2]] = x[:, [0, 2]].clip(0, original_image.shape[1])
+            x[..., [1, 3]] = x[:, [1, 3]].clip(0, original_image.shape[0])
+
+            boxes = x[..., :6]
+
+        if len(x) > 0 and protos is not None:
+            # Decode masks
 
             # Process masks
             masks = self.__process_mask(
-                protos[0], x[:, 6:], x[:, :4], original_input.shape
+                protos[0], x[:, 6:], x[:, :4], original_image.shape
             )
 
             # Masks -> Segments(contours)
             segments = self.__masks2segments(masks)
-            boxes = x[..., :6]
 
-        postprocessed_image = np.copy(original_input)
-        if len(boxes) > 0:
-            return self.__draw_and_visualize(postprocessed_image, boxes, segments)
-
-        return postprocessed_image
+        return boxes, masks, segments
 
     @staticmethod
     def __masks2segments(masks):
@@ -246,53 +263,53 @@ class YoloSegmentationPPP(YoloPPP):
             masks = masks[:, :, None]
         return masks
 
-    def __draw_and_visualize(self, im, bboxes, segments) -> np.ndarray:
-        """
-        Draw and visualize results.
+    # def __draw_and_visualize(self, im, bboxes, segments) -> np.ndarray:
+    #     """
+    #     Draw and visualize results.
 
-        Args:
-            im (np.ndarray): original image, shape [h, w, c].
-            bboxes (numpy.ndarray): [n, 4], n is number of bboxes.
-            segments (List): list of segment masks.
-            vis (bool): imshow using OpenCV.
-            save (bool): save image annotated.
+    #     Args:
+    #         im (np.ndarray): original image, shape [h, w, c].
+    #         bboxes (numpy.ndarray): [n, 4], n is number of bboxes.
+    #         segments (List): list of segment masks.
+    #         vis (bool): imshow using OpenCV.
+    #         save (bool): save image annotated.
 
-        Returns:
-            None
-        """
-        # Draw rectangles and polygons
-        im_canvas = im.copy()
-        for (*box, conf, cls_), segment in zip(bboxes, segments):
+    #     Returns:
+    #         None
+    #     """
+    #     # Draw rectangles and polygons
+    #     im_canvas = im.copy()
+    #     for (*box, conf, cls_), segment in zip(bboxes, segments):
 
-            color = self.get_color(int(cls_))
+    #         color = self.get_color(int(cls_))
 
-            ## Draw white border
-            cv2.polylines(im, np.int32([segment]), True, (255, 255, 255), 2)
+    #         ## Draw white border
+    #         cv2.polylines(im, np.int32([segment]), True, (255, 255, 255), 2)
 
-            # draw bbox rectangle
-            cv2.rectangle(
-                im,
-                (int(box[0]), int(box[1])),
-                (int(box[2]), int(box[3])),
-                color,
-                1,
-                cv2.LINE_AA,
-            )
-            cv2.putText(
-                im,
-                f"{self.classes[cls_]}: {conf:.3f}",
-                (int(box[0]), int(box[1] - 9)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                color,
-                2,
-                cv2.LINE_AA,
-            )
+    #         # draw bbox rectangle
+    #         cv2.rectangle(
+    #             im,
+    #             (int(box[0]), int(box[1])),
+    #             (int(box[2]), int(box[3])),
+    #             color,
+    #             1,
+    #             cv2.LINE_AA,
+    #         )
+    #         cv2.putText(
+    #             im,
+    #             f"{self.classes[cls_]}: {conf:.3f}",
+    #             (int(box[0]), int(box[1] - 9)),
+    #             cv2.FONT_HERSHEY_SIMPLEX,
+    #             0.7,
+    #             color,
+    #             2,
+    #             cv2.LINE_AA,
+    #         )
 
-            ## Fill with class color
-            cv2.fillPoly(im_canvas, np.int32([segment]), color)
+    #         ## Fill with class color
+    #         cv2.fillPoly(im_canvas, np.int32([segment]), color)
 
-        # Overlap and mix images
-        out_image = cv2.addWeighted(im_canvas, 0.3, im, 0.7, 0)
+    #     # Overlap and mix images
+    #     out_image = cv2.addWeighted(im_canvas, 0.3, im, 0.7, 0)
 
-        return out_image
+    #     return out_image

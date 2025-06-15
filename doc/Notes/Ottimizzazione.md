@@ -443,7 +443,11 @@ T_{ik}^x = base\_tx\_time(m,n) \cdot y_{mn} - \left(base\_tx\_time(m,n) - \frac{
 $$
 
 Il tempo di trasmissione di un server $k$ è dato da:
-$$T_{k}^x =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} T_{ik}^x$$
+$$T_{k}^x =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \left( \sum_{n \in E_N \wedge  k = n[0] = n[1] } T_{ik}^x \hspace{0.5cm} + \sum_{n \in E_N \wedge  k = n[0] \wedge k \neq n[1] } T_{ik}^x \right) = \sum_{m = (i, j) \in E_M^a} \left( 
+T_{ik}^{x-self} + T_{ik}^{x-oth}
+\right)$$
+
+Ovvero è dato dal contributo dei tempi di trasmissione ai livelli successori che si trovano sullo stesso server e su server diversi.
 
 Dove la variabile $y_{mn}^q = y_{mn} \cdot q_i$ con vincoli seguenti:
 - $y_{mn}^q \le y_{mn}$
@@ -484,7 +488,9 @@ $$E^{c} = \sum_{k \in V_N} E_k^{c}$$
 Sia $l_k(t)$ la funzione che stima l'energia usata per la trasmissione di durata $t$ dal dispositivo $k$.
 
 L'energia data di trasmissione sul server $k$ è definita come:
-$$E_k^{x} = l_k(T_k^{x})$$
+$$E_k^{x} = l_k^{self}(T_k^{x-self}) + l_{k}^{oth}(T_{k}^{x-oth})$$
+
+Quindi anche in questo caso abbiamo il contributo delle energie per trasmettere al server medesimo (questo dipenderà dal consumo sull'interfaccia di loopback --> memoria e potenzialmente trascurabile) e per trasmettere ad altri server (cosa che comporta l'attivazione dell'interfaccia di rete e il consumo energetico maggiore).
 
 Il consumo energetico complessivo per la trasmissione è dato da 
 $$E^{x} = \sum_{k \in V_N} E_k^{x}$$

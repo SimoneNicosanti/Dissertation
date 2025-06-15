@@ -29,7 +29,7 @@ def main():
         energy_weight=0.0,
         device_max_energy=25,  ## Measured in Joules
         requests_number=[1],
-        max_noises=[0.02],
+        max_noises=[0.5],
         start_server="0",
     )
 

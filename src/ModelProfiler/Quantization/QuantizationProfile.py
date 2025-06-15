@@ -22,6 +22,9 @@ class NoiseEvaluator:
 
     def compute_model_result(self, model: onnx.ModelProto) -> list[list[np.ndarray]]:
         so = onnxruntime.SessionOptions()
+        so.log_severity_level = (
+            3  # 0 = VERBOSE, 1 = INFO, 2 = WARNING, 3 = ERROR, 4 = FATAL
+        )
         sess = onnxruntime.InferenceSession(
             model.SerializeToString(),
             providers=[
