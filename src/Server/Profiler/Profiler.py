@@ -19,25 +19,26 @@ class ExecutionProfiler:
         self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ) -> dict[bool, float]:
 
-        exec_time = self.profile_normal_model_exec_time(
-            onnx_model, run_times, is_quantized
-        )
+        exec_time = self.profile_model_exec_time(onnx_model, run_times, is_quantized)
         # quant_exec_time = self.profile_quant_model_exec_time(onnx_model, run_times)
 
         return float(exec_time)
 
-    def profile_normal_model_exec_time(
+    def profile_model_exec_time(
         self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ):
         sess_options = ort.SessionOptions()
-        # sess_options.enable_profiling = True
+        sess_options.enable_profiling = True
         sess = ort.InferenceSession(
-            onnx_model.SerializeToString(), sess_options=sess_options
+            onnx_model.SerializeToString(),
+            sess_options=sess_options,
+            providers=["OpenVINOExecutionProvider", "CPUExecutionProvider"],
         )
 
         input = {}
         for elem in sess.get_inputs():
             elem_type = elem.type
+            print(elem_type)
             input[elem.name] = np.zeros(elem.shape, dtype=self.onnx_to_numpy(elem_type))
             # if is_quantized:
 
@@ -45,22 +46,22 @@ class ExecutionProfiler:
             #     input[elem.name] = np.zeros(elem.shape, dtype=np.float32)
 
         ## Cold Stard
-        sess.run(None, input_feed=input)
+        # sess.run(None, input_feed=input)
 
-        execution_times: np.ndarray = np.zeros(run_times)
+        # execution_times: np.ndarray = np.zeros(run_times)
         for idx in range(run_times):
             start = time.perf_counter_ns()
             sess.run(None, input_feed=input)
             end = time.perf_counter_ns()
 
-            execution_times[idx] = end - start
+            # execution_times[idx] = end - start
 
-        # profile_file_name = sess.end_profiling()
-        # execution_times: np.ndarray = self.__read_execution_profile(profile_file_name)
+        profile_file_name = sess.end_profiling()
+        execution_times: np.ndarray = self.__read_execution_profile(profile_file_name)
 
-        # os.remove(profile_file_name)
+        os.remove(profile_file_name)
 
-        return np.mean(execution_times) * 1e-9  ## Returning mean execution time
+        return np.mean(execution_times) * 1e-6  ## Returning mean execution time
 
     # def profile_quant_model_exec_time(
     #     self, onnx_model: onnx.ModelProto, run_times: int

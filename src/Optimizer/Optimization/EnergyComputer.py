@@ -98,15 +98,27 @@ def compute_trans_energy_per_model(
         )
 
         ## TODO Add energy consumption for same destination
-        node_trans_energy_per_model = (
-            node_trans_latency_per_model_diff_dest
-            * net_node_info["trans_energy_per_sec"]
+
+        node_trans_energy_per_model_same_dest = (
+            node_trans_latency_per_model_same_dest
+            * net_node_info[NetworkNodeInfo.SELF_TRANS_ENERGY_PER_SEC]
+            + net_node_info[NetworkNodeInfo.SELF_TRANS_ENERGY_BASE]
         )
+
+        node_trans_energy_per_model_diff_dest = (
+            node_trans_latency_per_model_diff_dest
+            * net_node_info[NetworkNodeInfo.TRANS_ENERGY_PER_SEC]
+            + net_node_info[NetworkNodeInfo.TRANS_ENERGY_BASE]
+        )
+
         node_max_trans_energy_per_model = (
             node_max_trans_latency_per_model * net_node_info["trans_energy_per_sec"]
         )
 
-        tot_trans_energy += node_trans_energy_per_model
+        tot_trans_energy += (
+            node_trans_energy_per_model_same_dest
+            + node_trans_energy_per_model_diff_dest
+        )
         max_trans_energy = max(max_trans_energy, node_max_trans_energy_per_model)
 
     return tot_trans_energy, max_trans_energy

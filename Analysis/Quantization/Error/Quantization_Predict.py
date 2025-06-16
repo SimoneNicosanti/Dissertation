@@ -39,7 +39,7 @@ TRAIN_SIZE = 750
 TEST_SIZE = 50
 
 CALIBRATION_DATA_SIZE = 100
-CALIBRATION_TEST_SIZE = 20
+CALIBRATION_TEST_SIZE = 1
 
 PROCESSES_NUM = 1
 
@@ -243,15 +243,24 @@ def build_data():
 
     model_graph = build_model_graph()
 
-    sorted_by_flops = sorted(
+    # sorted_by_flops = sorted(
+    #     model_graph.nodes,
+    #     key=lambda x: model_graph.nodes[x]["flops"],
+    #     reverse=True,
+    # )
+    # quantizable_layers = sorted_by_flops[:MAX_QUANTIZABLE_LAYERS]
+
+    sorted_by_out = sorted(
         model_graph.nodes,
-        key=lambda x: model_graph.nodes[x]["flops"],
+        key=lambda x: model_graph.nodes[x]["outputs_size"],
         reverse=True,
     )
-    quantizable_layers = sorted_by_flops[:MAX_QUANTIZABLE_LAYERS]
+    quantizable_layers = sorted_by_out[:MAX_QUANTIZABLE_LAYERS]
 
     for elem in quantizable_layers:
-        print(elem, model_graph.nodes[elem]["flops"])
+        print(elem, model_graph.nodes[elem]["outputs_size"])
+
+    return
 
     quantizable_layers.sort()  ## Sorted by name
 
@@ -501,6 +510,6 @@ def post_process(output):
 if __name__ == "__main__":
     build_data()
 
-    build_predictor()
+    # build_predictor()
 
     # modify_model()

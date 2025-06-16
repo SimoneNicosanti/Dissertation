@@ -55,6 +55,9 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             profiler = ExecutionProfiler()
 
             for layer_name, layer_model, is_quantized in self.retrieve_layers(model_id):
+                print(
+                    "Profiling {} with Quantization {}".format(layer_name, is_quantized)
+                )
                 layer_exec_time = profiler.profile_exec_time(
                     layer_model, self.layer_run_times, is_quantized
                 )

@@ -181,12 +181,10 @@ class OptimizationHandler:
 
         first_obj_name = "⌛ Latency" if latency_weight >= energy_weight else "Energy"
         second_obj_name = "🔋 Energy" if latency_weight >= energy_weight else "Latency"
-        print(f"Final {first_obj_name} Optimization Value: ", final_other_cost.value())
+        print(f"Final {first_obj_name} Optimized Value: ", final_other_cost.value())
+        print(f"Final {second_obj_name} Optimized Value: ", final_problem_cost.value())
         print(
-            f"Final {second_obj_name} Optimization Value: ", final_problem_cost.value()
-        )
-        print(
-            "Final 🪫 Device Energy: ",
+            "Final 🪫  Device Energy: ",
             None if device_max_exergy is None else device_max_exergy.value(),
         )
         for regressor in regressors_expr:
@@ -379,13 +377,13 @@ class OptimizationHandler:
             problem, edge_ass_vars, quantization_vars
         )
 
-        ConstraintsBuilder.add_memory_constraints(
-            problem,
-            model_graphs,
-            network_graph,
-            node_ass_vars,
-            mem_use_vars,
-        )
+        # ConstraintsBuilder.add_memory_constraints(
+        #     problem,
+        #     model_graphs,
+        #     network_graph,
+        #     node_ass_vars,
+        #     mem_use_vars,
+        # )
 
         device_energy_expr = None
         if opt_params.device_max_energy > 0:

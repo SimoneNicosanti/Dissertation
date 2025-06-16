@@ -15,6 +15,8 @@ RUN pip install onnxslim
 RUN pip install onnx-tool
 RUN pip install pandas
 RUN pip install scikit-learn
+
+RUN pip install onnxruntime-openvino
 RUN pip install onnxruntime-gpu
 
 # Model pool port

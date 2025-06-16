@@ -44,10 +44,20 @@ class NetworkProfileBuilder:
 
             if server_id == "0":
                 comp_energy = 10  ## W = J / s
+
                 trans_energy = 6.0
+                trans_energy_base = 1.2
+
+                self_trans_energy = 0.0
+                self_trans_energy_base = 0.0
             else:
                 comp_energy = 15.0
+
                 trans_energy = 15.6
+                trans_energy_base = 1.2
+
+                self_trans_energy = 0.0
+                self_trans_energy_base = 0.0
 
             network_graph.nodes[node_id][
                 NetworkNodeInfo.COMP_ENERGY_PER_SEC
@@ -57,13 +67,17 @@ class NetworkProfileBuilder:
                 NetworkNodeInfo.TRANS_ENERGY_PER_SEC
             ] = trans_energy
 
-            # network_graph.nodes[node_id][NetworkNodeInfo.COMP_ENERGY_PER_SEC] = (
-            #     server_state["comp_energy"]
-            # )
+            network_graph.nodes[node_id][
+                NetworkNodeInfo.TRANS_ENERGY_BASE
+            ] = trans_energy_base
 
-            # network_graph.nodes[node_id][NetworkNodeInfo.TRANS_ENERGY_PER_SEC] = (
-            #     server_state["trans_energy"]
-            # )
+            network_graph.nodes[node_id][
+                NetworkNodeInfo.SELF_TRANS_ENERGY_PER_SEC
+            ] = self_trans_energy
+
+            network_graph.nodes[node_id][
+                NetworkNodeInfo.SELF_TRANS_ENERGY_BASE
+            ] = self_trans_energy_base
 
             network_graph.nodes[node_id][NetworkNodeInfo.IDX] = int(server_id)
 

@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Ottimizzazione.md",
+                "file": "Paper/Note Sugli Articoli.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Ottimizzazione"
+              "title": "Note Sugli Articoli"
             }
           },
           {
@@ -193,9 +193,9 @@
   },
   "active": "1677655c30dd1109",
   "lastOpenFiles": [
+    "Notes/Ottimizzazione.md",
     "Notes/Quantizzazione.md",
     "Notes/Profiling.md",
-    "Notes/Ottimizzazione.md",
     "Notes/Esperimenti.md",
     "Notes/Senza nome.md",
     "Ottimizzazione 3.0 - Con Quantizzazione - Send.md",

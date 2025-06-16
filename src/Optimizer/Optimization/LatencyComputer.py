@@ -174,6 +174,10 @@ def __get_transmission_time(
     not_quant_tx_time = model_graph.edges[mod_edge_id][
         ModelEdgeInfo.TOT_TENSOR_SIZE
     ] / (network_graph.edges[net_edge_id][NetworkEdgeInfo.BANDWIDTH])
+
+    if net_edge_id[0] == net_edge_id[1]:
+        not_quant_tx_time = 0
+
     trans_expr = not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
 
     if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
@@ -190,6 +194,8 @@ def __get_transmission_time(
 
     ## We add the latency of this link only if the edge is actually mapped on this link
     latency = network_graph.edges[net_edge_id][NetworkEdgeInfo.LATENCY]
+    if net_edge_id[0] == net_edge_id[1]:
+        latency = 0
     trans_expr = trans_expr + latency * edge_ass_vars[not_quant_ass_key]
 
     return trans_expr, not_quant_tx_time + latency

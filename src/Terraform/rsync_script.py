@@ -211,20 +211,28 @@ def main():
 
     # Aggiungi argomenti
     parser.add_argument("--cases", nargs="+", type=str, help="Folder Cases", default=[])
+    parser.add_argument("--dests", nargs="+", type=str, help="Destination Names", default=[])
 
     args = parser.parse_args()
 
     cases = args.cases
+    dests = args.dests
 
-    for _, machine_ip in name_ip_map.items():
-        if len(cases) == 0:
-            ## Copy All
-            for key in directory_dict.keys():
-                directory_dict[key](machine_ip)
-        else:
-            ## Selective copy
-            for case in cases:
-                directory_dict[case](machine_ip)
+    if len(cases) == 0:
+        cases = directory_dict.keys()
+    else :
+        cases = [x for x in cases if x in directory_dict.keys()]
+    
+    if len(dests) == 0:
+        dests = name_ip_map.keys()
+    else :
+        dests = [x for x in dests if x in name_ip_map.keys()]
+
+    for dest_name in dests:
+        machine_ip = name_ip_map[dest_name]
+
+        for key in cases:
+            directory_dict[key](machine_ip)
 
 
 if __name__ == "__main__":
