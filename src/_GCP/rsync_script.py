@@ -160,6 +160,12 @@ def copy_state_pool(machine_ip):
     os.system(command)
     return
 
+def copy_test(machine_ip):
+    command = BASE_COMMAND + " ../Test/ customuser@{}:~/src/Test".format(machine_ip)
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
 
 directory_dict = {
     "Client": copy_client,
@@ -175,6 +181,7 @@ directory_dict = {
     "Registry": copy_registry,
     "Server": copy_server,
     "StatePool": copy_state_pool,
+    "Test": copy_test,
 }
 
 
