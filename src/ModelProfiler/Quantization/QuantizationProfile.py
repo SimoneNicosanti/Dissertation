@@ -5,6 +5,7 @@ import numpy as np
 import onnx
 import onnxruntime
 import pandas as pd
+import tqdm
 from onnxruntime.quantization.calibrate import CalibrationDataReader
 
 from CommonIds.NodeId import NodeId
@@ -27,10 +28,10 @@ class NoiseEvaluator:
         )
         sess = onnxruntime.InferenceSession(
             model.SerializeToString(),
-            providers=[
-                "CUDAExecutionProvider",
-                # ("CUDAExecutionProvider", {"cudnn_conv_algo_search": "DEFAULT"}),
-            ],
+            # providers=[
+            #     "CUDAExecutionProvider",
+            #     # ("CUDAExecutionProvider", {"cudnn_conv_algo_search": "DEFAULT"}),
+            # ],
             sess_options=so,
         )
 
@@ -206,8 +207,8 @@ class QuantizationProfile:
         )
 
         noises = []
-        for idx, point in enumerate(points):
-            print("Progress >> ", idx, "/", len(points))
+        for idx, point in tqdm.tqdm(enumerate(points)):
+            # print("Progress >> ", idx, "/", len(points))
             noise = self.compute_quantization_noise(
                 model, tensors_range, point, quantizable_layers, noise_evaluator
             )

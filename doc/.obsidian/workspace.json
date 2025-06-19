@@ -27,12 +27,38 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Paper/Note Sugli Articoli.md",
+                "file": "Notes/Altre Note.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Note Sugli Articoli"
+              "title": "Altre Note"
+            }
+          },
+          {
+            "id": "c3c8110098425afb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Notes/Profiling Esecuzione Server.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Profiling Esecuzione Server"
+            }
+          },
+          {
+            "id": "5017ba8c98d19078",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "Notes/Images/Schermata del 2025-03-03 12-09-24.png"
+              },
+              "icon": "lucide-image",
+              "title": "Schermata del 2025-03-03 12-09-24"
             }
           },
           {
@@ -48,7 +74,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -191,15 +217,27 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "1677655c30dd1109",
+  "active": "c3c8110098425afb",
   "lastOpenFiles": [
-    "Notes/Ottimizzazione.md",
+    "Schermata del 2025-06-18 17-01-59.png",
+    "Schermata del 2025-06-18 16-58-53.png",
+    "Schermata del 2025-06-18 16-58-03.png",
+    "Schermata del 2025-06-18 16-42-25.png",
+    "Schermata del 2025-06-18 15-30-01.png",
+    "Schermata del 2025-06-18 15-27-28.png",
+    "Schermata del 2025-06-18 15-26-54.png",
+    "Schermata del 2025-06-18 15-24-59.png",
+    "Schermata del 2025-06-18 15-23-05.png",
+    "Schermata del 2025-06-18 15-22-31.png",
+    "Schermata del 2025-06-18 15-21-54.png",
     "Notes/Quantizzazione.md",
-    "Notes/Profiling.md",
+    "Notes/Ottimizzazione.md",
+    "Notes/Altre Note.md",
+    "Paper/Note Sugli Articoli.md",
+    "Notes/Profiling Esecuzione Server.md",
     "Notes/Esperimenti.md",
     "Notes/Senza nome.md",
     "Ottimizzazione 3.0 - Con Quantizzazione - Send.md",
-    "Paper/Note Sugli Articoli.md",
     "Paper/Neurosurgeon.pdf",
     "Paper/energy_optimal_mobile_application_execution.pdf",
     "Notes/Calcolo FLOPS.md",
@@ -209,17 +247,11 @@
     "Notes/LiteRT.md",
     "Notes/Monitoraggio.md",
     "Notes/Architettura/Architettura 2.md",
-    "Diagram 1.svg",
     "Notes/Ottimizzazione - Altro.md",
     "Notes/Architettura/Architettura.md",
     "Diagram 2.svg.xml",
-    "Diagram 2.svg",
     "Diagram 1.svg.xml",
-    "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
-    "Notes/Architettura/Diagrams/Architecture_Control.svg",
-    "Diagram.svg",
     "Diagram.svg.xml",
-    "Notes/Architettura/Diagrams/Architecture_Inference.svg",
     "Notes/Architettura/Diagrams/Architecture_Inference.svg.xml",
     "Notes/Architettura/Diagrams/Architecture_Optimization.svg.xml",
     "Notes/Architettura/Architettura_Inviare.md",
@@ -228,16 +260,10 @@
     "Paper/Furcifer/Furcifer_PerCom24.pdf",
     "Notes/Yolo.md",
     "Rumore.md",
-    "linear_plot 2.png",
-    "Schermata del 2025-04-25 14-37-45.png",
-    "Schermata del 2025-04-23 14-54-39.png",
-    "linear_plot 1.png",
     "Notes/Colloqui/HELO.md",
     "Notes/Colloqui/2025-03-22.md",
     "Notes/Colloqui/2025-03-04.md",
     "Paper/Gillis/Gillis - Notes.md",
-    "Notes/Colloqui/14-04-2024.md",
-    "Notes/Split del Modello.md",
-    "26.md"
+    "Notes/Colloqui/14-04-2024.md"
   ]
 }

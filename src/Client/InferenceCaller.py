@@ -54,8 +54,8 @@ class InferenceCaller:
         return_stream = front_end_stub.do_inference(
             self.input_generate(model_name, input_dict, current_idx)
         )
-
-        return self.output_receive(return_stream), current_idx
+        output, infer_time = self.output_receive(return_stream)
+        return output, infer_time, current_idx
 
     def input_generate(
         self, model_name: str, input_dict: dict[str, numpy.ndarray], request_idx: int
@@ -90,13 +90,14 @@ class InferenceCaller:
 
     def output_receive(
         self, return_stream: Iterator[InferenceResponse]
-    ) -> dict[str, numpy.ndarray]:
+    ) -> tuple[dict[str, numpy.ndarray], float]:
 
         out_dict = {}
         current_tensor_name = None
         current_byte_array = bytearray()
         current_shape = []
         current_type = ""
+        inference_time = 0
         for response in return_stream:
             if current_tensor_name != response.output_tensor.info.name:
                 if current_tensor_name is not None:
@@ -112,6 +113,7 @@ class InferenceCaller:
                 current_byte_array = bytearray()
                 current_shape = response.output_tensor.info.shape
                 current_type = response.output_tensor.info.type
+                inference_time = response.inference_time
 
             current_byte_array.extend(response.output_tensor.tensor_chunk.chunk_data)
 
@@ -122,4 +124,4 @@ class InferenceCaller:
         )
         out_dict[current_tensor_name] = numpy_array
 
-        return out_dict
+        return out_dict, inference_time

@@ -545,3 +545,13 @@ Quindi si tratta di un'alternativa che potrebbe aver senso utilizzare
 
 
 NOTA: IN FASE DI PROFILING BISOGNA ESEGUIRE PIÙ DI UNA PROVA SUL CALIBRATION SET! ALTRIMENTI IL TEMPO DI PROFILING È DOMINATO DAI TEMPI DI CARICAMENTO DEI MODELLI IN GPU E NON SI OTTIENE NESSUN GIOVAMENTO DALL'USO DELLA GPU.
+
+
+
+## Test per Layer
+
+
+
+|     |     |
+| --- | --- |
+|     |     |

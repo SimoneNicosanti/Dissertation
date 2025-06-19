@@ -184,7 +184,7 @@ class OptimizationHandler:
         print(f"Final {first_obj_name} Optimized Value: ", final_other_cost.value())
         print(f"Final {second_obj_name} Optimized Value: ", final_problem_cost.value())
         print(
-            "Final 🪫  Device Energy: ",
+            "Final 🪫 Device Energy: ",
             None if device_max_exergy is None else device_max_exergy.value(),
         )
         for regressor in regressors_expr:

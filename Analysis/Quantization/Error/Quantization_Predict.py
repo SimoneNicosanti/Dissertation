@@ -94,7 +94,7 @@ def quantize_model_1(
         nodes_to_quantize=nodes_to_quantize,
         nodes_to_exclude=[],
         op_types_to_quantize=op_types_to_quantize,
-        extra_options={},
+        extra_options={},  # {"ActivationSymmetric": False, "WeightSymmetric": True},
     ).quantize_model()
 
     return quantized_model
@@ -243,24 +243,15 @@ def build_data():
 
     model_graph = build_model_graph()
 
-    # sorted_by_flops = sorted(
-    #     model_graph.nodes,
-    #     key=lambda x: model_graph.nodes[x]["flops"],
-    #     reverse=True,
-    # )
-    # quantizable_layers = sorted_by_flops[:MAX_QUANTIZABLE_LAYERS]
-
-    sorted_by_out = sorted(
+    sorted_by_flops = sorted(
         model_graph.nodes,
-        key=lambda x: model_graph.nodes[x]["outputs_size"],
+        key=lambda x: model_graph.nodes[x]["flops"],
         reverse=True,
     )
-    quantizable_layers = sorted_by_out[:MAX_QUANTIZABLE_LAYERS]
+    quantizable_layers = sorted_by_flops[:MAX_QUANTIZABLE_LAYERS]
 
     for elem in quantizable_layers:
-        print(elem, model_graph.nodes[elem]["outputs_size"])
-
-    return
+        print(elem, model_graph.nodes[elem]["flops"])
 
     quantizable_layers.sort()  ## Sorted by name
 
@@ -510,6 +501,6 @@ def post_process(output):
 if __name__ == "__main__":
     build_data()
 
-    # build_predictor()
+    build_predictor()
 
     # modify_model()

@@ -21,24 +21,23 @@ def main():
 
     times = np.zeros(100)
     for idx in range(100):
-        start = time.perf_counter_ns()
-        output0, output1 = do_inference(
+        _ = time.perf_counter_ns()
+        _, inference_time = do_inference(
             interactor,
             pre_image,
-            "yolo11x-seg",
+            "yolo11s-seg",
         )
-        end = time.perf_counter_ns()
-        times[idx] = end - start
+        _ = time.perf_counter_ns()
+        times[idx] = inference_time
 
-    times = times * 1e-9
+    # times = times * 1e-9
     mean = times.mean()
     std_err = stats.sem(times)  # errore standard
-    print("Avg Inference Time >>> ", times.mean())
 
     conf_level = 0.95
     ci = stats.t.interval(conf_level, df=len(times) - 1, loc=mean, scale=std_err)
-    print(f"Media: {mean:.3f}")
-    print(f"Intervallo di confidenza al 95%: ({ci[0]:.3f}, {ci[1]:.3f})")
+    print(f"Media: {mean:.5f}")
+    print(f"Intervallo di confidenza al 95%: ({ci[0]:.5f}, {ci[1]:.5f})")
 
 
 # # Post-process
@@ -100,14 +99,11 @@ def do_inference(
     pre_image: np.ndarray,
     model_name,
 ):
-    output, request_idx = inference_caller.call_inference(
+    output, inference_time, index = inference_caller.call_inference(
         model_name, {"images": pre_image}
     )
 
-    output0 = output["output0"]
-    output1 = output["output1"]
-
-    return output0, output1
+    return output, inference_time
 
 
 if __name__ == "__main__":

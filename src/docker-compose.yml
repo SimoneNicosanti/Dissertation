@@ -138,7 +138,7 @@ services:
     deploy:
       resources:
         limits: # Hard Limit
-          cpus: "0.75"
+          cpus: 0.75
           memory: 2G
 
   model_manager:

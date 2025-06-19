@@ -19,6 +19,9 @@ RUN pip install scikit-learn
 RUN pip install onnxruntime-openvino
 RUN pip install onnxruntime-gpu
 
+RUN pip install tqdm
+
+
 # Model pool port
 EXPOSE 50002
 # Model divider port

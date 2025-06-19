@@ -195,6 +195,7 @@ def get_nat_ips():
     name_ip_map = {}
     # Mostra l'output in formato dizionario
     for item in instances:
+        print(item)
         name = item["name"]
         ip_addr = item["networkInterfaces"][0]["accessConfigs"][0]["natIP"]
         name_ip_map[name] = ip_addr

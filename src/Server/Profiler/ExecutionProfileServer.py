@@ -54,12 +54,17 @@ class ExecutionProfileServer(ExecutionProfileServicer):
 
             profiler = ExecutionProfiler()
 
+            tot_quant = 0
+            tot_not_quant = 0
             for layer_name, layer_model, is_quantized in self.retrieve_layers(model_id):
-                print(
-                    "Profiling {} with Quantization {}".format(layer_name, is_quantized)
-                )
+
                 layer_exec_time = profiler.profile_exec_time(
                     layer_model, self.layer_run_times, is_quantized
+                )
+                print(
+                    "Profiled {} with Quantization {} >> {}".format(
+                        layer_name, is_quantized, layer_exec_time
+                    )
                 )
 
                 node_id = NodeId(layer_name)
@@ -67,7 +72,15 @@ class ExecutionProfileServer(ExecutionProfileServicer):
                     node_id, layer_exec_time, is_quantized
                 )
 
-                # print(f"Profiled {layer_name} {is_quantized} >> {layer_exec_time}")
+                if is_quantized:
+                    tot_quant += layer_exec_time
+                else:
+                    tot_not_quant += layer_exec_time
+
+            print(f"Total quantized time: {tot_quant}")
+            print(f"Total not quantized time: {tot_not_quant}")
+
+            # model_exec_profile.set_total_execution_time(tot_quant + tot_not_quant)
 
         print("Done Profiling for model {}".format(model_id.model_name))
         self.save_profile(model_id, model_exec_profile)

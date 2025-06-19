@@ -29,6 +29,7 @@ class OnnxModelQuantizer:
                 temp_file_name, calibration_dataset
             ),
             nodes_to_quantize=quantized_layers,
+            extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
         )
 
         quant_onnx_model = onnx.load_model(temp_file_name_quant)

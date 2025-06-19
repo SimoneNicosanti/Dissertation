@@ -52,21 +52,21 @@ class LayerDivider:
         if self.quantized:
             quantized_inputs = []
             quantized_outputs = []
-            # for input_name in sub_input:
-            #     quantized_inputs.append(input_name + "_QuantizeLinear_Output")
+            for input_name in sub_input:
+                quantized_inputs.append(input_name + "_QuantizeLinear_Output")
             for output_name in sub_output:
                 quantized_outputs.append(output_name + "_QuantizeLinear_Output")
 
             has_quantized_io = True
-            # for input_name in quantized_inputs:
-            #     if input_name not in self.quantized_tensors:
-            #         has_quantized_io = False
+            for input_name in quantized_inputs:
+                if input_name not in self.quantized_tensors:
+                    has_quantized_io = False
             for output_name in quantized_outputs:
                 if output_name not in self.quantized_tensors:
                     has_quantized_io = False
 
             if has_quantized_io:
-                # sub_input = quantized_inputs
+                sub_input = quantized_inputs
                 sub_output = quantized_outputs
 
         with tempfile.NamedTemporaryFile(suffix=".onnx", delete=True) as temp_file:

@@ -24,12 +24,12 @@ def main():
     )
 
     produce_plan_request = ProducePlanRequest(
-        models_ids=[ModelId(model_name="yolo11x-seg")],
+        models_ids=[ModelId(model_name="yolo11s-seg")],
         latency_weight=1,
         energy_weight=0.0,
         device_max_energy=0,  ## Measured in Joules
         requests_number=[1],
-        max_noises=[2],
+        max_noises=[10],
         start_server="0",
     )
 

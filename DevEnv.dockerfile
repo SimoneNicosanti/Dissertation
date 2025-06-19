@@ -50,6 +50,8 @@ RUN apt-get install iperf3 -y
 RUN apt install rsync
 
 RUN pip install supervision
+RUN pip install tqdm
+
 
 
 ## Shell Settings

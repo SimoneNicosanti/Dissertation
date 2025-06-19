@@ -13,6 +13,7 @@ def main():
     # parser.add_argument("--dockerfile", type=str, help="Dockerfile Name", required=True)
     parser.add_argument("--memory", type=float, help="Memory Size for Container")
     parser.add_argument("--cpus", type=float, help="CPUs percentage for Container")
+    parser.add_argument("--gpus", type=bool, help="Use GPU for Container", default=False)
 
     # Parse degli argomenti
     args = parser.parse_args()
@@ -41,6 +42,7 @@ def main():
         command += (
             " -v /home/customuser/calibration/:/model_pool_data/calibration_dataset/"
         )
+    if args.gpus:
         command += " --gpus all "
 
     command += f" {cont_name}-image"

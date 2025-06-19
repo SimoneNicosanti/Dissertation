@@ -28,7 +28,13 @@ class ExecutionProfiler:
         self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ):
         sess_options = ort.SessionOptions()
-        sess_options.enable_profiling = True
+        # sess_options.enable_profiling = True
+        # sess_options.graph_optimization_level = (
+        #     ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+        # )
+        sess_options.graph_optimization_level = (
+            ort.GraphOptimizationLevel.ORT_DISABLE_ALL
+        )
         sess = ort.InferenceSession(
             onnx_model.SerializeToString(),
             sess_options=sess_options,
@@ -38,30 +44,29 @@ class ExecutionProfiler:
         input = {}
         for elem in sess.get_inputs():
             elem_type = elem.type
-            print(elem_type)
-            input[elem.name] = np.zeros(elem.shape, dtype=self.onnx_to_numpy(elem_type))
+            input[elem.name] = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
             # if is_quantized:
 
             # else:
             #     input[elem.name] = np.zeros(elem.shape, dtype=np.float32)
 
         ## Cold Stard
-        # sess.run(None, input_feed=input)
+        sess.run(None, input_feed=input)
 
-        # execution_times: np.ndarray = np.zeros(run_times)
+        execution_times: np.ndarray = np.zeros(run_times)
         for idx in range(run_times):
             start = time.perf_counter_ns()
             sess.run(None, input_feed=input)
             end = time.perf_counter_ns()
 
-            # execution_times[idx] = end - start
+            execution_times[idx] = end - start
 
-        profile_file_name = sess.end_profiling()
-        execution_times: np.ndarray = self.__read_execution_profile(profile_file_name)
+        # profile_file_name = sess.end_profiling()
+        # execution_times: np.ndarray = self.__read_execution_profile(profile_file_name)
 
-        os.remove(profile_file_name)
+        # os.remove(profile_file_name)
 
-        return np.mean(execution_times) * 1e-6  ## Returning mean execution time
+        return np.mean(execution_times) * 1e-9  ## Returning mean execution time
 
     # def profile_quant_model_exec_time(
     #     self, onnx_model: onnx.ModelProto, run_times: int
@@ -88,6 +93,7 @@ class ExecutionProfiler:
     def __read_execution_profile(self, profile_file_name: str) -> np.ndarray:
         with open(profile_file_name, "r") as profile:
             json_array = json.load(profile)
+            print(json_array)
             filtered_array = filter(
                 lambda elem: elem["cat"] == "Session"
                 and elem["name"] == "SequentialExecutor::Execute",

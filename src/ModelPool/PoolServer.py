@@ -159,7 +159,6 @@ class PoolServer(ModelPoolServicer):
         chunk_size = ConfigReader().read_bytes_chunk_size()
         with open(file_path, "rb") as file:
             while chunk_data := file.read(chunk_size):
-                print("Here")
                 yield CalibrationChunk(chunk_data=chunk_data)
 
         return
