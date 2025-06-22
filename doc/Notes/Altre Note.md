@@ -26,3 +26,7 @@ Rivedere/Testare bene:
 			- In questo caso il tempo di trasmissione va con la velocità dell'interfaccia di loopback
 
 Per la quantizzazione, provare a vedere se l'uso di quantizzazione QOperator migliora i tempi di inferenza: forse va leggermente meglio, ma non è detto perché c'è comunque la latenza di conversione aggiuntiva. COMUNQUE VALE LA PENA DI PROVARE QUESTA COSA!! FORSE HO UNO SCONTO MAGGIORE DEL COSTO (bisogna individuare i nomi dei livelli da tagliare però).
+
+
+
+

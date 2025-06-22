@@ -42,11 +42,11 @@ class ModelProfileServer(ModelProfileServicer):
             )
             print("Built Model Graph")
 
-            train_set_size = 100
-            test_set_size = 10
+            train_set_size = 250
+            test_set_size = 20
             calibration_size = 100
             noise_set_size = 1
-            max_quantizable = 10
+            max_quantizable = 20
 
             dataframe: pd.DataFrame = QuantizationProfile().profile_quantization(
                 onnx_model,

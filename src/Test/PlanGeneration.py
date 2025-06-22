@@ -32,10 +32,10 @@ def main():
     max_noises = args.max_noises
     start_server = args.start_server
 
-    deployer_addr = ConfigReader.ConfigReader("../../config/config.ini").read_str(
+    deployer_addr = ConfigReader.ConfigReader("../config/config.ini").read_str(
         "addresses", "DEPLOYER_ADDR"
     )
-    deployer_port = ConfigReader.ConfigReader("../../config/config.ini").read_int(
+    deployer_port = ConfigReader.ConfigReader("../config/config.ini").read_int(
         "ports", "DEPLOYER_PORT"
     )
 

@@ -90,8 +90,14 @@ resource "google_compute_firewall" "allow_internal_egress" {
 # Define the IPs for each VM
 locals {
   names = ["registry", "optimizer", "model-manager", "deployer", "device"] #, "server-1", "server-2"] ## Assign specific names
-  instance_ips = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15"]# , "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
-  machine_types = ["e2-standard-2", "n1-standard-4", "n1-standard-8", "e2-standard-2", "c3-standard-4"]#, "c3-standard-4", "c3-standard-4"]
+  instance_ips = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15"] # , "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
+  machine_types = ["e2-standard-2", "n1-standard-4", "n1-standard-8", "e2-standard-2", "c3-standard-4"] #, "c3-standard-4", "c3-standard-4"]
+}
+
+variable "enable_gpu" {
+  description = "Se true, abilita GPU e VM preemptible solo per model-manager"
+  type        = bool
+  default     = false
 }
 
 
@@ -105,7 +111,7 @@ resource "google_compute_instance" "vm_instances" {
 
   boot_disk {
     initialize_params {
-      image = "simone-image-6"
+      image = "simone-image-7"
       size  = 75
     }
   }
@@ -125,20 +131,20 @@ resource "google_compute_instance" "vm_instances" {
 
 
   # GPU Tesla T4 SOLO per model-manager
-  # dynamic "guest_accelerator" {
-  #   for_each = local.names[count.index] == "model-manager" ? [1] : []
-  #   content {
-  #     type  = "nvidia-tesla-t4"
-  #     count = 1
-  #   }
-  # }
+  dynamic "guest_accelerator" {
+    for_each = var.enable_gpu && local.names[count.index] == "model-manager" ? [1] : []
+    content {
+      type  = "nvidia-tesla-t4"
+      count = 1
+    }
+  }
 
   # Scheduling: preemptible e spot SOLO per model-manager
-  # scheduling {
-  #   preemptible        = local.names[count.index] == "model-manager"
-  #   provisioning_model = local.names[count.index] == "model-manager" ? "SPOT" : "STANDARD"
-  #   automatic_restart  = false
-  # }
+  scheduling {
+    preemptible        = var.enable_gpu && local.names[count.index] == "model-manager"
+    provisioning_model = var.enable_gpu && local.names[count.index] == "model-manager" ? "SPOT" : "STANDARD"
+    automatic_restart  = false
+  }
 
   # Avvia script solo per model-manager (con GPU)
   # metadata_startup_script = local.names[count.index] == "model-manager" ? local.startup_script_model_manager : null

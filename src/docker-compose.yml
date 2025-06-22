@@ -171,4 +171,6 @@ services:
       - ./Other/divided_models:/model_pool_data/components
       - ./Other/calibration_dataset:/model_pool_data/calibration_dataset
 
+      - ./Test:/src/Test
+
     working_dir: /src

@@ -36,10 +36,10 @@ def main() -> None:
     with open(file_name, "r") as f:
         whole_plane: WholePlan = WholePlan.decode(json.load(f))
 
-    deployer_addr = ConfigReader("../../config/config.ini").read_str(
+    deployer_addr = ConfigReader("../config/config.ini").read_str(
         "addresses", "DEPLOYER_ADDR"
     )
-    deployer_port = ConfigReader("../../config/config.ini").read_int(
+    deployer_port = ConfigReader("../config/config.ini").read_int(
         "ports", "DEPLOYER_PORT"
     )
 

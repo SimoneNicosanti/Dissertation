@@ -31,10 +31,24 @@ Cominciare da parte centrale...
 
 
 
-# Analisi varie fasi di Deployment
 
-## Profiling del Modello
-Il profiling del modello varia con:
-- Tipo di Modello (sue dimensioni in generale)
-- Numero di livelli accettati per la quantizzazione
-	- Dimensione del dataset da costruire
+
+## Test Tempo di Inferenza
+Qui è abbastanza facile perché dipende dal piano che è stato generato.
+
+Piccolo Esempio:
+- Yolo11l
+- Massima Quantizzazione Possibile
+- 100 Run
+- Provider OpenVINO
+- Server UNICO (device)
+![[Schermata del 2025-06-19 13-54-29.png]]
+
+Il risultato del problema di ottimizzazione è il seguente
+![[Schermata del 2025-06-19 15-01-30.png]]
+
+Notiamo che non c'è corrispondenza in termini di valore tra il predetto ed il valore effettivo, però le differenze sembrano già più vicine:
+- Sui valori reali abbiamo 0.17007
+- Sui valori teorici abbiamo 0.2516866
+Bisogna un attimo vedere questa cosa meglio, perché ci possono essere molti aspetti da tenere in considerazione.
+

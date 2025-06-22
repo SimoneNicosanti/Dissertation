@@ -24,7 +24,11 @@ def main():
         model_id=ModelId(model_name=model_name)
     )
 
-    port = ConfigReader.ConfigReader("../../../config/config.ini").read_int(
+    # ip_addr = port = ConfigReader.ConfigReader("../config/config.ini").read_int(
+    #     "addresses", "EXECUTION_PROFILER_PORT"
+    # )
+
+    port = ConfigReader.ConfigReader("../config/config.ini").read_int(
         "ports", "EXECUTION_PROFILER_PORT"
     )
     profiler_stub = ExecutionProfileStub(grpc.insecure_channel(f"localhost:{port}"))

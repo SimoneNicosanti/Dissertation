@@ -14,10 +14,16 @@ def main():
     parser.add_argument("--memory", type=float, help="Memory Size for Container")
     parser.add_argument("--cpus", type=float, help="CPUs percentage for Container")
     parser.add_argument("--gpus", type=bool, help="Use GPU for Container", default=False)
+    parser.add_argument("--connect", type=bool, default=False)
+
 
     # Parse degli argomenti
     args = parser.parse_args()
     cont_name = args.name
+
+    if args.connect:
+        os.system(f"docker exec -it --workdir /src {cont_name} /bin/bash")
+        return
 
     dockerfile_name = f"{cont_name}.dockerfile"
 

@@ -181,7 +181,7 @@ def __get_transmission_time(
     trans_expr = not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
 
     if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
-        quant_tx_time = not_quant_tx_time / 8
+        quant_tx_time = not_quant_tx_time / 4
 
         quant_ass_key = EdgeAssKey(
             mod_edge_id, net_edge_id, model_graph.graph["name"], True

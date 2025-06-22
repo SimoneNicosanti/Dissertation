@@ -4,6 +4,7 @@ import time
 
 import grpc
 
+from Common.ConfigReader import ConfigReader
 from CommonProfile.ModelProfile import ModelProfile
 from proto_compiled.common_pb2 import ModelId
 from proto_compiled.model_profile_pb2 import ProfileRequest, ProfileResponse
@@ -20,7 +21,11 @@ def main() :
     args = parser.parse_args()
     model_name = args.model
 
-    model_profiler = ModelProfileStub(grpc.insecure_channel("localhost:50004"))
+    ip_addr = ConfigReader("../config/config.ini").read_str("addresses", "MODEL_PROFILER_ADDR")
+    port = ConfigReader("../config/config.ini").read_int("ports", "MODEL_PROFILER_PORT")
+    model_pool_chann = grpc.insecure_channel("{}:{}".format(ip_addr, port))
+
+    model_profiler = ModelProfileStub(model_pool_chann)
 
     profile_request = ProfileRequest(model_id=ModelId(model_name=model_name))
 

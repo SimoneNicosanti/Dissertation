@@ -59,6 +59,7 @@ class NoiseEvaluator:
 
             curr_noise = 0
             for i in range(len(quant_res_list)):
+                ## If the model has more than a result, we are considering the outputs with same weight on noise
                 curr_noise += np.mean(
                     np.abs(quant_res_list[i] - norm_res_list[i]),
                     axis=None,
@@ -117,6 +118,10 @@ class QuantizationProfile:
         quantizable_layers: list[NodeId] = self.find_quantizable_layers(
             model_graph, max_quantizable
         )
+        print("Quantizable Layers Found")
+        for layer in quantizable_layers:
+            print("\t" + layer.node_name)
+        
         self.mark_layers(model_graph, quantizable_layers)
 
         _, temp_file = tempfile.mkstemp(suffix=".onnx")
@@ -207,7 +212,7 @@ class QuantizationProfile:
         )
 
         noises = []
-        for idx, point in tqdm.tqdm(enumerate(points)):
+        for _, point in tqdm.tqdm(enumerate(points)):
             # print("Progress >> ", idx, "/", len(points))
             noise = self.compute_quantization_noise(
                 model, tensors_range, point, quantizable_layers, noise_evaluator

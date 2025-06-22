@@ -63,7 +63,7 @@ def copy_docker(machine_ip):
 
     command = (
         BASE_COMMAND
-        + " ../Terraform/container_start.py customuser@{}:~/container_start.py".format(
+        + " ./container_start.py customuser@{}:~/container_start.py".format(
             machine_ip
         )
     )

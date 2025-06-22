@@ -14,7 +14,7 @@ class ModelRunner:
         for comp_info, comp_path in component_dict.items():
             comp_session = ort.InferenceSession(
                 comp_path,
-                providers=["OpenVINOExecutionProvider", "CPUExecutionProvider"],
+                providers = ['OpenVINOExecutionProvider', "CPUExecutionProvider"],
             )
             self.component_sessions[comp_info] = comp_session
 

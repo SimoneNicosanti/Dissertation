@@ -1,3 +1,4 @@
+import argparse
 import time
 
 import cv2
@@ -11,6 +12,16 @@ from Client.YoloPPP import YoloPPP
 
 def main():
 
+    parser = argparse.ArgumentParser()
+
+    # Aggiungi argomenti
+    parser.add_argument("--model", type=str, help="Model Name", required=True)
+    parser.add_argument("--runs", type=int, help="Number of Runs", default = 100)
+
+    args = parser.parse_args()
+    model_name = args.model
+    runs = args.runs
+
     interactor = InferenceCaller()
 
     yolo_ppp = YoloPPP(640, 640)
@@ -19,13 +30,13 @@ def main():
     orig_image = cv2.imread("./Client/test/Test_Image.jpg")
     pre_image = yolo_ppp.preprocess(orig_image)
 
-    times = np.zeros(100)
-    for idx in range(100):
+    times = np.zeros(runs)
+    for idx in range(runs):
         _ = time.perf_counter_ns()
         _, inference_time = do_inference(
             interactor,
             pre_image,
-            "yolo11s-seg",
+            model_name,
         )
         _ = time.perf_counter_ns()
         times[idx] = inference_time
@@ -36,8 +47,8 @@ def main():
 
     conf_level = 0.95
     ci = stats.t.interval(conf_level, df=len(times) - 1, loc=mean, scale=std_err)
-    print(f"Media: {mean:.5f}")
-    print(f"Intervallo di confidenza al 95%: ({ci[0]:.5f}, {ci[1]:.5f})")
+    print(f"📊 Media: {mean:.5f}")
+    print(f"📉 Intervallo di confidenza al 95%: ({ci[0]:.5f}, {ci[1]:.5f})")
 
 
 # # Post-process

@@ -117,6 +117,7 @@ class OnnxModelProfiler(AbsModelProfiler):
             tensor_info_dict[tensor_info.name] = tensor_info
 
         flops_dict: dict[str, float] = self.profile_all_flops(onnx_model)
+        print("\t Profiled FLOPS")
 
         for onnx_node in infered_model.graph.node:
 
@@ -170,6 +171,7 @@ class OnnxModelProfiler(AbsModelProfiler):
                         ModelNodeInfo.WEIGHTS_SIZE
                     ] += weights_size
                 pass
+        print("\t Profiled Per Node Info")
 
     def modify_node_profile(
         self,
