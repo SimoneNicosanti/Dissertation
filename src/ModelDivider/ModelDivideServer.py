@@ -59,21 +59,6 @@ class ModelDivideServer(ModelDivideServicer):
                 onnx_model = quant_onnx_model
                 print("Quantized Model")
 
-                for node in onnx_model.graph.node:
-                    if (
-                        "/model.23/proto/upsample/ConvTranspose_output_0_QuantizeLinear_Output"
-                        in node.output
-                    ):
-                        print("Node Name >> ", node.name)
-
-                    if (
-                        "/model.23/proto/upsample/ConvTranspose_output_0_QuantizeLinear_Output"
-                        in node.input
-                    ):
-                        print("Node Name >> ", node.name)
-
-                pass
-
             divided_components: dict[ComponentId, onnx.ModelProto] = (
                 model_partitioner.partition_model(model_plan, onnx_model)
             )

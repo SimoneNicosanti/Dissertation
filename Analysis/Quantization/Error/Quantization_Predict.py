@@ -4,6 +4,7 @@ import json
 import multiprocessing
 import os
 import time
+from cProfile import label
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -12,6 +13,9 @@ import numpy as np
 import onnx
 import onnxruntime
 import pandas as pd
+import scipy
+import scipy.optimize
+import scipy.stats
 import tqdm
 from onnxruntime.quantization import (
     CalibrationDataReader,
@@ -28,20 +32,20 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures
 
-MODEL_NAME = "yolo11n-seg"
+MODEL_NAME = "yolo11n"
 
 
 COCO_FILE_PATH = "../../../coco128/preprocessed"
 
 MAX_QUANTIZABLE_LAYERS = 10
 
-TRAIN_SIZE = 750
+TRAIN_SIZE = 500
 TEST_SIZE = 50
 
 CALIBRATION_DATA_SIZE = 100
-CALIBRATION_TEST_SIZE = 1
+CALIBRATION_TEST_SIZE = 10
 
-PROCESSES_NUM = 1
+PROCESSES_NUM = 2
 
 
 class MyDataReader(CalibrationDataReader):
@@ -50,7 +54,6 @@ class MyDataReader(CalibrationDataReader):
         self.idx = 0
         self.tot_data = len(calibration_data)
         self.calibration_data = calibration_data
-        self.generator = np.random.default_rng(seed=1)
 
     def get_next(self):
         if self.idx == self.tot_data:
@@ -58,24 +61,6 @@ class MyDataReader(CalibrationDataReader):
         input = self.calibration_data[self.idx]
         self.idx += 1
         return {"images": input}
-
-
-def quantize_model(
-    subModelName,
-    nodesToQuantize: list[str],
-    calibration_data: list[np.ndarray],
-    proc_idx: int,
-):
-
-    quantize_static(
-        model_input=subModelName + f"_pre_quant_{proc_idx}.onnx",
-        model_output=subModelName + f"_quant_{proc_idx}.onnx",
-        quant_format=QuantFormat.QDQ,
-        calibration_data_reader=MyDataReader(calibration_data),
-        nodes_to_quantize=nodesToQuantize,
-        activation_type=QuantType.QUInt8,
-        weight_type=QuantType.QUInt8,
-    )
 
 
 def quantize_model_1(
@@ -94,7 +79,7 @@ def quantize_model_1(
         nodes_to_quantize=nodes_to_quantize,
         nodes_to_exclude=[],
         op_types_to_quantize=op_types_to_quantize,
-        extra_options={},  # {"ActivationSymmetric": False, "WeightSymmetric": True},
+        extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
     ).quantize_model()
 
     return quantized_model
@@ -106,9 +91,9 @@ def test_model(
 ):
     options = onnxruntime.SessionOptions()
     # Imposta un solo thread intra-op (esecuzione interna a un'op)
-    # options.intra_op_num_threads = 1
+    options.intra_op_num_threads = 1
     # Imposta un solo thread inter-op (tra op diverse)
-    # options.inter_op_num_threads = 1
+    options.inter_op_num_threads = 1
 
     if onnx_model is None:
         session = onnxruntime.InferenceSession(model_path, sess_options=options)
@@ -220,6 +205,9 @@ def process_function(
                     np.abs(quant_val[j] - not_quant_val[j]),
                     axis=None,
                 )
+                # curr_noise += np.linalg.norm(
+                #     quant_val[j].ravel() - not_quant_val[j].ravel(), ord=np.inf
+                # )
             noise += curr_noise / len(quant_val)
 
         noise = noise / len(not_quant_values)
@@ -382,7 +370,9 @@ def build_predictor():
         )
 
         # Train plot
-        curr_axes[0].scatter(Y_train, predictions_train, s=5, color="blue")
+        curr_axes[0].scatter(
+            Y_train, predictions_train, s=5, color="blue", label="Train Points"
+        )
         curr_axes[0].plot(
             np.arange(0, line_limit, 0.05),
             np.arange(0, line_limit, 0.05),
@@ -392,8 +382,20 @@ def build_predictor():
         curr_axes[0].set_xlabel("True Values")
         curr_axes[0].set_ylabel("Predictions")
 
+        curr_axes[0].axvline(
+            x=max_true_value,
+            color="red",
+            linestyle="--",
+            linewidth=2,
+            label="Noise With All Quantized",
+        )  # Linea verticale a x=2
+
+        curr_axes[0].legend()
+
         ## Test Plot
-        curr_axes[1].scatter(Y_test, predictions_test, s=5, color="green")
+        curr_axes[1].scatter(
+            Y_test, predictions_test, s=5, color="green", label="Test Points"
+        )
         curr_axes[1].plot(
             np.arange(0, line_limit, 0.05),
             np.arange(0, line_limit, 0.05),
@@ -403,9 +405,7 @@ def build_predictor():
         curr_axes[1].set_xlabel("True Values")
         curr_axes[1].set_ylabel("Predictions")
 
-        curr_axes[0].axvline(
-            x=max_true_value, color="red", linestyle="--", linewidth=2
-        )  # Linea verticale a x=2
+        curr_axes[1].legend()
 
     plt.tight_layout()
     plt.savefig(f"regression_plot_{MODEL_NAME}.png")
@@ -413,6 +413,23 @@ def build_predictor():
 
     best_model_idx = int(np.argmax(test_scores))
     best_model = models[best_model_idx]
+
+    # min_info = scipy.optimize.minimize(
+    #     lambda x: best_model.predict(x.reshape(1, -1)),
+    #     np.zeros(len(X_train.columns)),
+    #     bounds=[(0, 1) for _ in range(len(X_train.columns))],
+    # )
+
+    max_info = scipy.optimize.minimize(
+        lambda x: -best_model.predict(x.reshape(1, -1)),
+        np.ones(len(X_train.columns)),
+        bounds=[(0, 1) for _ in range(len(X_train.columns))],
+    )
+
+    # min_val = min_info.x
+    # max_val = -max_info.x
+
+    # best_model = (best_model - min_val) / (max_val - min_val)
 
     print("Best Model Degree >> ", best_model_idx + 1)
 
@@ -440,67 +457,7 @@ def build_predictor():
         json.dump(model_repr, f, sort_keys=True)
 
 
-def modify_model():
-    model_graph = build_model_graph()
-
-    sorted_by_flops = sorted(
-        model_graph.nodes,
-        key=lambda x: model_graph.nodes[x]["flops"],
-        reverse=True,
-    )
-    quantizable_layers = []
-    while len(quantizable_layers) < MAX_QUANTIZABLE_LAYERS:
-        quantizable_layers.append(sorted_by_flops.pop(0))
-
-    for layer in quantizable_layers:
-        model_graph.nodes[layer]["quantizable"] = True
-
-    data = nx.readwrite.json_graph.node_link_data(model_graph)
-
-    # Esportare il grafo come JSON su un file
-    with open("graph.json", "w") as f:
-        json.dump(
-            data,
-            f,
-        )
-
-
-def post_process(output):
-    predictions = np.squeeze(output, axis=0)
-    predictions = predictions.T
-
-    predictions = predictions[:, :84]
-    boxes = predictions[:, :4]
-    classes = predictions[:, 4:]
-
-    x = boxes[:, 0]
-    y = boxes[:, 1]
-    w = boxes[:, 2]
-    h = boxes[:, 3]
-
-    boxes[:, 0] = x - w / 2  # x1
-    boxes[:, 1] = y - h / 2  # y1
-    boxes[:, 2] = x + w / 2  # x2
-    boxes[:, 3] = y + h / 2  # y2
-
-    scores = np.max(classes, axis=1)
-    class_ids = np.argmax(classes, axis=1)
-
-    final = np.concatenate(
-        [
-            boxes,
-            class_ids.reshape(-1, 1),
-            scores.reshape(-1, 1),
-        ],
-        axis=1,
-    )
-
-    return final
-
-
 if __name__ == "__main__":
-    build_data()
+    # build_data()
 
     build_predictor()
-
-    # modify_model()
