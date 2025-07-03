@@ -29,8 +29,7 @@ RUN pip install supervision
 
 RUN apt install -y libgl1
 
-RUN pip install onnxruntime-openvino
-# RUN pip install onnxruntime-gpu
+# RUN pip install onnxruntime-openvino
 
 # USER customuser
 

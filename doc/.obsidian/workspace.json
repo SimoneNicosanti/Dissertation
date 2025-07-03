@@ -11,10 +11,14 @@
             "id": "9c09b47c2b9f6d57",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Notes/Esperimenti.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Nuova scheda"
+              "title": "Esperimenti"
             }
           }
         ]
@@ -74,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 367.5026054382324
+    "width": 261.5026054382324
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -160,8 +164,13 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "2026b6711c0dedcf",
+  "active": "9c09b47c2b9f6d57",
   "lastOpenFiles": [
+    "Notes/Quantizzazione.md",
+    "Notes/Esperimenti.md",
+    "Schermata del 2025-07-02 17-07-18.png",
+    "Schermata del 2025-07-02 16-33-42.png",
+    "Notes/Ottimizzazione.md",
     "Notes/Architettura/Diagrams_OK/All_Components.png",
     "Notes/Architettura/Diagrams_OK",
     "Notes/Architettura/Diagrams_OK/SD_Inference.png",
@@ -170,13 +179,10 @@
     "Notes/Architettura/Diagrams_OK/SD_Model_Loading.png",
     "Notes/Colloqui/2025-06-20.md",
     "Notes/Colloqui/HELO.md",
-    "Notes/Esperimenti.md",
     "Notes/Ottimizzazione - Altro.md",
     "Paper/Note Sugli Articoli.md",
     "Notes/Architettura/Architettura 2.md",
     "Notes/Yolo.md",
-    "Notes/Quantizzazione.md",
-    "Notes/Ottimizzazione.md",
     "Notes/Architettura/Architettura.md",
     "Notes/Rumore di Quantizzazione.md",
     "Notes/Componenti Connesse.md",
@@ -192,8 +198,6 @@
     "Notes/Images/Schermata del 2025-04-23 14-54-39.png",
     "Notes/Images/linear_plot.png",
     "Notes/Images/Schermata del 2025-04-25 14-37-45.png",
-    "Notes/Images/linear_plot 1.png",
-    "Notes/Images/linear_plot 2.png",
     "Notes/Indice Tesi.md",
     "Notes/Profiling Esecuzione Server.md",
     "Notes/Senza nome.md",

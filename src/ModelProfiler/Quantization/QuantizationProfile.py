@@ -23,16 +23,20 @@ class NoiseEvaluator:
 
     def compute_model_result(self, model: onnx.ModelProto) -> list[list[np.ndarray]]:
         so = onnxruntime.SessionOptions()
-        so.log_severity_level = (
-            3  # 0 = VERBOSE, 1 = INFO, 2 = WARNING, 3 = ERROR, 4 = FATAL
-        )
+        # so.log_severity_level = (
+        #     3  # 0 = VERBOSE, 1 = INFO, 2 = WARNING, 3 = ERROR, 4 = FATAL
+        # )
+
+        providers = []
+        if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+            providers.append("CUDAExecutionProvider")
+        elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
+            providers.append("OpenVINOExecutionProvider")
+        else:
+            providers.append("CPUExecutionProvider")
+
         sess = onnxruntime.InferenceSession(
-            model.SerializeToString(),
-            # providers=[
-            #     "CUDAExecutionProvider",
-            #     # ("CUDAExecutionProvider", {"cudnn_conv_algo_search": "DEFAULT"}),
-            # ],
-            sess_options=so,
+            model.SerializeToString(), sess_options=so, providers=providers
         )
 
         results = []
@@ -121,7 +125,7 @@ class QuantizationProfile:
         print("Quantizable Layers Found")
         for layer in quantizable_layers:
             print("\t" + layer.node_name)
-        
+
         self.mark_layers(model_graph, quantizable_layers)
 
         _, temp_file = tempfile.mkstemp(suffix=".onnx")

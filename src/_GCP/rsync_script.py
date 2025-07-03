@@ -63,9 +63,7 @@ def copy_docker(machine_ip):
 
     command = (
         BASE_COMMAND
-        + " ./container_start.py customuser@{}:~/container_start.py".format(
-            machine_ip
-        )
+        + " ./container_start.py customuser@{}:~/container_start.py".format(machine_ip)
     )
     # trunk-ignore(bandit/B605)
     os.system(command)
@@ -160,8 +158,18 @@ def copy_state_pool(machine_ip):
     os.system(command)
     return
 
+
 def copy_test(machine_ip):
     command = BASE_COMMAND + " ../Test/ customuser@{}:~/src/Test".format(machine_ip)
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+    return
+
+
+def copy_model(machine_ip):
+    command = BASE_COMMAND + " ../Other/models/ customuser@{}:~/models".format(
+        machine_ip
+    )
     # trunk-ignore(bandit/B605)
     os.system(command)
     return
@@ -178,10 +186,11 @@ directory_dict = {
     "Optimizer": copy_optimizer,
     # "Other": copy_other,
     "Proto": copy_proto,
-    "Registry": copy_registry,
+    # "Registry": copy_registry,
     "Server": copy_server,
     "StatePool": copy_state_pool,
     "Test": copy_test,
+    "Model": copy_model,
 }
 
 
@@ -219,7 +228,9 @@ def main():
 
     # Aggiungi argomenti
     parser.add_argument("--cases", nargs="+", type=str, help="Folder Cases", default=[])
-    parser.add_argument("--dests", nargs="+", type=str, help="Destination Names", default=[])
+    parser.add_argument(
+        "--dests", nargs="+", type=str, help="Destination Names", default=[]
+    )
 
     args = parser.parse_args()
 
@@ -228,18 +239,19 @@ def main():
 
     if len(cases) == 0:
         cases = directory_dict.keys()
-    else :
+    else:
         cases = [x for x in cases if x in directory_dict.keys()]
-    
+
     if len(dests) == 0:
         dests = name_ip_map.keys()
-    else :
+    else:
         dests = [x for x in dests if x in name_ip_map.keys()]
 
     for dest_name in dests:
         machine_ip = name_ip_map[dest_name]
 
         for key in cases:
+            print("↗️ Copying {} to {}".format(key, machine_ip))
             directory_dict[key](machine_ip)
 
 

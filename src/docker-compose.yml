@@ -174,3 +174,28 @@ services:
       - ./Test:/src/Test
 
     working_dir: /src
+
+  test:
+    build:
+      dockerfile: ./docker/test.dockerfile
+    tty: true
+    stdin_open: true
+    networks:
+      - dissertation_network
+    volumes:
+      - ./proto_compiled:/src/proto_compiled
+
+      - ./config/local_config.ini:/src/config/config.ini
+
+      - ./Test:/src/Test
+
+      - ./Common:/src/Common
+      - ./CommonProfile:/src/CommonProfile
+      - ./CommonPlan:/src/CommonPlan
+      - ./CommonModel:/src/CommonModel
+      - ./CommonIds:/src/CommonIds
+      - ./CommonQuantization:/src/CommonQuantization
+
+      - ./Test:/src/Test
+
+    working_dir: /src

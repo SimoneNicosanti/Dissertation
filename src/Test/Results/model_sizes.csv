@@ -1,0 +1,16 @@
+model_name,num_nodes,num_edges
+yolo11n,322,442
+yolo11n-seg,357,490
+yolo11n-cls,146,198
+yolo11s,322,442
+yolo11s-seg,357,490
+yolo11s-cls,146,198
+yolo11m,407,562
+yolo11m-seg,442,610
+yolo11m-cls,180,246
+yolo11l,619,868
+yolo11l-seg,654,916
+yolo11l-cls,296,412
+yolo11x,619,868
+yolo11x-seg,654,916
+yolo11x-cls,296,412

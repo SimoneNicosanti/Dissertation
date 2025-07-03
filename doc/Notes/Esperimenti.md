@@ -94,3 +94,33 @@ Struttura del modello:
 - Non quantizzato: con quantizzazione attivata tramite regressore
 - TUTTO Quantizzato: con quantizzazione fatta offline e regressore messo a 0 (VEDERE SE SI PUò FARE EFFETTIVAMENTE O SE NON CREA PROBLEMI).
 
+
+# Preliminari
+
+## Numero di Nodi ed Archi per Modello
+
+Di seguito il numero di nodi e di archi del modello al variare del task e della dimensione: 
+- I modelli di classificazione hanno un numero di nodi molto basso: il caso x ha un numero di nodi più basso del caso n di segmentazione/detection. Volendo si potrebbe usare direttamente il tipo x per questo modello, senza perdere troppo tempo con il caso più piccolo
+	- Potremmo considerare. Queste combinazioni coprirebbero varie dimensioni e varie classi di modello:
+		- n-cls come il caso più piccolo di modello
+		- m come come intermedio alto
+		- x-seg come caso massimo (poco più piccolo dell' x-seg)
+- Nota: ci sono alcuni modelli che sebbene più grandi hanno lo stesso numero di nodi. Questo è probabilmente dato dal fatto che la differenza sta nel numero di parametri (e.g. dimensione del kernel dei livelli convoluzionali).
+![[Schermata del 2025-07-02 17-07-18.png]]
+
+
+## Profiling del Modello
+Tra le 5 e 10 run
+
+## Profiling del Server
+
+
+
+> [!TODO] Title
+> Memoria:
+> - Semplifica solo ai pesi
+> - Intro dicendo quali parti stai considerando e perché ne trascuri altre
+
+
+## Scalabilità Problema
+Provare partendo da un modello yolo, crea un modello fittizio per vedere la scalabilità del problema.

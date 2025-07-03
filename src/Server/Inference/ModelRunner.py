@@ -11,10 +11,17 @@ class ModelRunner:
 
         self.component_sessions: dict[ComponentId, ort.InferenceSession] = {}
 
+        providers = []
+        if "CUDAExecutionProvider" in ort.get_available_providers():
+            providers.append("CUDAExecutionProvider")
+        if "OpenVINOExecutionProvider" in ort.get_available_providers():
+            providers.append("OpenVINOExecutionProvider")
+        providers.append("CPUExecutionProvider")
+
         for comp_info, comp_path in component_dict.items():
             comp_session = ort.InferenceSession(
                 comp_path,
-                providers = ['OpenVINOExecutionProvider', "CPUExecutionProvider"],
+                providers=providers,
             )
             self.component_sessions[comp_info] = comp_session
 
