@@ -32,13 +32,22 @@ class ExecutionProfiler:
         # sess_options.graph_optimization_level = (
         #     ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
         # )
-        sess_options.graph_optimization_level = (
-            ort.GraphOptimizationLevel.ORT_DISABLE_ALL
-        )
+        # sess_options.graph_optimization_level = (
+        #     ort.GraphOptimizationLevel.ORT_DISABLE_ALL
+        # )
+
+        providers = []
+        if "CUDAExecutionProvider" in ort.get_available_providers():
+            providers.append("CUDAExecutionProvider")
+        elif "OpenVINOExecutionProvider" in ort.get_available_providers():
+            providers.append("OpenVINOExecutionProvider")
+        else:
+            providers.append("CPUExecutionProvider")
+
         sess = ort.InferenceSession(
             onnx_model.SerializeToString(),
             sess_options=sess_options,
-            providers=["OpenVINOExecutionProvider", "CPUExecutionProvider"],
+            providers=providers,
         )
 
         input = {}
