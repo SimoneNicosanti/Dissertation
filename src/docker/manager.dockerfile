@@ -21,6 +21,9 @@ RUN pip install scikit-learn
 
 RUN pip install tqdm
 
+RUN apt update 
+RUN apt install screen -y
+
 
 # Model pool port
 EXPOSE 50002

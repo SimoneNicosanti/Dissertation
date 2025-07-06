@@ -15,8 +15,16 @@ from CommonQuantization import SoftQuantization
 
 class NoiseEvaluator:
     def __init__(self, model: onnx.ModelProto, noise_test_set: np.ndarray):
+        self.noise_test_set = []
+        for elem in noise_test_set:
+            elem_batch = np.expand_dims(elem, axis=0)
 
-        self.noise_test_set = noise_test_set
+            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+                elem_batch = onnxruntime.OrtValue.ortvalue_from_numpy(
+                    elem_batch, "cuda"
+                )
+            self.noise_test_set.append(elem_batch)
+
         self.normal_results = self.compute_model_result(model)
 
         pass
@@ -41,12 +49,15 @@ class NoiseEvaluator:
         results = []
 
         input_info = sess.get_inputs()[0]
-        for i in range(len(self.noise_test_set)):
-            elem = self.noise_test_set[i]
-            elem_batch = np.expand_dims(elem, axis=0)
+        for elem_batch in self.noise_test_set:
             input = {input_info.name: elem_batch}
 
-            result = sess.run(None, input)
+            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+                ort_result = sess.run_with_ort_values(None, input)
+                result = [ort_res.numpy() for ort_res in ort_result]
+            else:
+                result = sess.run(None, input)
+
             results.append(result)
 
         return results
@@ -98,8 +109,6 @@ class DataReader(CalibrationDataReader):
 
         self.curr_elem += 1
         return input_dict
-
-        return None
 
 
 class QuantizationProfile:

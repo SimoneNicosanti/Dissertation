@@ -1,13 +1,9 @@
 import json
-import os
-import tempfile
 import time
 
 import numpy as np
 import onnx
 import onnxruntime as ort
-
-from CommonQuantization import SoftQuantization
 
 
 class ExecutionProfiler:
@@ -50,22 +46,35 @@ class ExecutionProfiler:
             providers=providers,
         )
 
-        input = {}
+        input_dict = {}
         for elem in sess.get_inputs():
             elem_type = elem.type
-            input[elem.name] = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
-            # if is_quantized:
+            input_elem = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
+            if "CUDAExecutionProvider" in ort.get_available_providers():
+                ## Moving data to GPU only once to reduce data transfer impact on profiling
+                input_elem = ort.OrtValue.ortvalue_from_numpy(
+                    input_elem, "cuda"
+                )
 
-            # else:
-            #     input[elem.name] = np.zeros(elem.shape, dtype=np.float32)
+            input_dict[elem.name] = input_elem
 
-        ## Cold Stard
-        sess.run(None, input_feed=input)
+        ## Cold Stard --> Loading model with first inference
+        if "CUDAExecutionProvider" in ort.get_available_providers():
+            sess.run_with_ort_values(None, input_feed=input_dict)
+        else:
+            sess.run(None, input_feed=input_dict)
 
         execution_times: np.ndarray = np.zeros(run_times)
         for idx in range(run_times):
             start = time.perf_counter_ns()
-            sess.run(None, input_feed=input)
+
+            if "CUDAExecutionProvider" in ort.get_available_providers():
+                ## In this way the output remains on the GPU
+                ## We do not have the impact of data transfer
+                sess.run_with_ort_values(None, input_feed=input_dict)
+            else:
+                sess.run(None, input_feed=input_dict)
+            
             end = time.perf_counter_ns()
 
             execution_times[idx] = end - start
@@ -75,29 +84,8 @@ class ExecutionProfiler:
 
         # os.remove(profile_file_name)
 
-        return np.mean(execution_times) * 1e-9  ## Returning mean execution time
+        return np.mean(execution_times) * 1e-9  ## Returning mean execution time in sec
 
-    # def profile_quant_model_exec_time(
-    #     self, onnx_model: onnx.ModelProto, run_times: int
-    # ):
-    #     temp_file = "hello.onnx"
-    #     # temp_file_desc, temp_file = tempfile.mkstemp(suffix=".onnx")
-    #     onnx.save_model(onnx_model, temp_file)
-
-    #     prep_model, tensors_range = SoftQuantization.prepare_quantization(
-    #         temp_file, ZeroDataReader(onnx_model)
-    #     )
-    #     quant_model = SoftQuantization.soft_quantization(prep_model, tensors_range)
-
-    #     exec_time = self.profile_normal_model_exec_time(quant_model, run_times)
-
-    #     try:
-    #         # os.close(temp_file_desc)
-    #         os.remove(temp_file)
-    #     except Exception as _:
-    #         pass
-
-    #     return exec_time
 
     def __read_execution_profile(self, profile_file_name: str) -> np.ndarray:
         with open(profile_file_name, "r") as profile:

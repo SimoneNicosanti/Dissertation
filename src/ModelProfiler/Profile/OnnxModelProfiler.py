@@ -364,7 +364,9 @@ class OnnxModelProfiler(AbsModelProfiler):
             if dim.HasField("dim_param"):
                 ## Batch Size
                 continue
-            tensor_total_size *= dim.dim_value
+
+            dim_value = dim.dim_value if dim.dim_value > 0 else 1
+            tensor_total_size *= dim_value
 
         ## Tensor Size is computed in MB >> All other measures will be in MB
         return tensor_total_size / (1024 * 1024)

@@ -89,9 +89,9 @@ resource "google_compute_firewall" "allow_internal_egress" {
 
 # Define the IPs for each VM
 locals {
-  names = ["model-manager"] # ["registry", "optimizer", "model-manager", "deployer", "device"] #, "server-1", "server-2"] ## Assign specific names
-  instance_ips = ["10.0.1.13"] # ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15"] # , "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
-  machine_types = ["n1-standard-8"] # ["e2-standard-2", "n1-standard-4", "n1-standard-8", "e2-standard-2", "c3-standard-4"] #, "c3-standard-4", "c3-standard-4"]
+  names = ["registry", "model-manager", "device"] # ["registry", "optimizer", "model-manager", "deployer", "device"] #, "server-1", "server-2"] ## Assign specific names
+  instance_ips = ["10.0.1.11", "10.0.1.13", "10.0.1.15"] # ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15"] # , "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
+  machine_types = ["e2-standard-2", "n1-standard-8", "c3-standard-4"] # ["e2-standard-2", "n1-standard-4", "n1-standard-8", "e2-standard-2", "c3-standard-4"] #, "c3-standard-4", "c3-standard-4"]
 }
 
 variable "enable_gpu" {
@@ -140,19 +140,19 @@ resource "google_compute_instance" "vm_instances" {
   }
 
   # Scheduling: preemptible e spot SOLO per model-manager
-  # scheduling {
-    # preemptible        = var.enable_gpu && local.names[count.index] == "model-manager"
-    # provisioning_model = var.enable_gpu && local.names[count.index] == "model-manager" ? "SPOT" : "STANDARD"
-    # automatic_restart  = false
-  # }
+  scheduling {
+    preemptible        = var.enable_gpu && local.names[count.index] == "model-manager"
+    provisioning_model = var.enable_gpu && local.names[count.index] == "model-manager" ? "SPOT" : "STANDARD"
+    automatic_restart  = false
+  }
 
   # Scheduling: NO preemptible per usare GPU persistente
-  scheduling {
-    preemptible        = false
-    provisioning_model = "STANDARD"
-    automatic_restart  = false
-    on_host_maintenance = "TERMINATE"
-  }
+  # scheduling {
+    # preemptible        = false
+    # provisioning_model = "STANDARD"
+    # automatic_restart  = false
+    # on_host_maintenance = "TERMINATE"
+  # }
 
   # Avvia script solo per model-manager (con GPU)
   # metadata_startup_script = local.names[count.index] == "model-manager" ? local.startup_script_model_manager : null

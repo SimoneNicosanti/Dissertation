@@ -14,7 +14,7 @@ def main():
     parser.add_argument("--memory", type=float, help="Memory Size for Container")
     parser.add_argument("--cpus", type=float, help="CPUs percentage for Container")
     parser.add_argument(
-        "--gpus", type=bool, help="Use GPU for Container", default=False
+        "--gpu", type=bool, help="Use GPU for Container", default=False
     )
     parser.add_argument("--connect", type=bool, default=False)
 
@@ -49,14 +49,14 @@ def main():
         command += (
             " -v /home/customuser/calibration/:/model_pool_data/calibration_dataset/"
         )
-    if args.gpus:
+    if args.gpu:
         command += " --gpus all "
 
     command += f" {cont_name}-image"
     print(command)
     os.system(command)
 
-    if args.gpus:
+    if args.gpu:
         ## Installing the GPU provider will subscribe the OpenVINO one
         os.system(f"docker exec -it {cont_name} pip install onnxruntime-gpu")
     else:

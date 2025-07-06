@@ -101,7 +101,6 @@ class ModelProfileServer(ModelProfileServicer):
         pass
 
     def read_profile(self, model_name: str) -> ModelProfile:
-        return None
         profiles_dir = ConfigReader.ConfigReader().read_str(
             "model_profiler_dirs", "PROFILES_DIR"
         )

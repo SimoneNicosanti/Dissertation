@@ -27,4 +27,6 @@ RUN pip install --no-cache-dir \
     supervision
 
 
-
+## Using screen to connect in case of ssh disconnection
+RUN apt update 
+RUN apt install screen -y

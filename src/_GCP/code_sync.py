@@ -160,7 +160,7 @@ def copy_state_pool(machine_ip):
 
 
 def copy_test(machine_ip):
-    command = BASE_COMMAND + " ../Test/ customuser@{}:~/src/Test".format(machine_ip)
+    command = BASE_COMMAND + " ../Test/Scripts/ customuser@{}:~/src/Test/Scripts".format(machine_ip)
     # trunk-ignore(bandit/B605)
     os.system(command)
     return
@@ -225,7 +225,7 @@ def main():
     print(name_ip_map)
 
     parser = argparse.ArgumentParser()
-
+    
     # Aggiungi argomenti
     parser.add_argument("--cases", nargs="+", type=str, help="Folder Cases", default=[])
     parser.add_argument(

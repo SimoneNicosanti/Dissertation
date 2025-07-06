@@ -24,7 +24,7 @@ def prepare_quantization(
         model_path,
         augmented_model_path=augmented_model_path,
         use_external_data_format=False,
-        extra_options={}, ## TODO. In our case we are using no calibration option
+        extra_options={},  ## TODO. In our case we are using no calibration option
     )
     calibrator.collect_data(calibration_data_reader)
     tensors_range = calibrator.compute_data()

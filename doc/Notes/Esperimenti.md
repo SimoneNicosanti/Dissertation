@@ -42,7 +42,7 @@ Caratteristiche Device:
 Caratteristiche Edge:
 - CPU: 1 oppure NO LIMIT
 - Supporto OpenVINO: yes
-- Supporto GPU: yes
+- Supporto GPU: no
 
 Caratteristiche Cloud:
 - CPU: no limit
@@ -108,18 +108,92 @@ Di seguito il numero di nodi e di archi del modello al variare del task e della 
 - Nota: ci sono alcuni modelli che sebbene più grandi hanno lo stesso numero di nodi. Questo è probabilmente dato dal fatto che la differenza sta nel numero di parametri (e.g. dimensione del kernel dei livelli convoluzionali).
 ![[Schermata del 2025-07-02 17-07-18.png]]
 
+Restringiamo l'analisi a tre dimensioni, una per ogni task:
+- yolo11n-cls (il più piccolo) per il task di classificazione
+- yolo11m (dimensione media in numero di nodi) per il task di detection
+- yolo11x-seg (dimensione massima) per il task di segmentazione
+
 
 ## Profiling del Modello
 Tra le 5 e 10 run
 
+Parametri di Test:
+- Macchina
+	- GPU Tesla T4
+	- n1-standard-8
+- Runs
+	- 5
+- Quantizzazione
+	- Calibration set size: 100
+	- Noise Test Set Size: 20
+	- Max Quantizable: 12
+- Regressore
+	- Max Degree: 3
+	- Train Set Size: 1000
+	- Test Set Size: 100
+
+Note Aggiuntiva:
+- Nel caso di Yolo11n-cls ci sono due livelli Sigmoid che sono candidati alla quantizzazione. Specificare questa cosa nella discussione sul profiling perché detto il contrario nel capitolo dui dettagli implementativi.
+- Specificare che la maggior parte del carico in termini di profiling è dato da
+	- Molte versioni quantizzate che vengono create
+	- Run di Test per il rumore
+		- Per attenuare il passaggio dei dati in memoria, il dataset di test viene caricato in GPU una volta sola attraverso API OnnxRuntime e gli OrtValues
+		- L'output deve essere sempre copiato dal device per il confronto
+
+
+
 ## Profiling del Server
 
+Configurazioni possibili per cui fare profiling sui server:
+
+|          | Device         | Edge              | Cloud  |
+| -------- | -------------- | ----------------- | ------ |
+| CPUs     | 0.5 / 0.75 / 1 | 1 / 1.25 / No Lim | No Lim |
+| OpenVINO | yes            | yes               | /      |
+| CUDA     | No             | No                | Yes    |
+
+Questi sono i casi di interesse principali: sono comunque indipendenti tra di loro.
+
+Parametri di Test:
+- Generali
+	- Runs
+		- Per Livello: 5
+		- Per Profiling Totale: 5
 
 
-> [!TODO] Title
-> Memoria:
-> - Semplifica solo ai pesi
-> - Intro dicendo quali parti stai considerando e perché ne trascuri altre
+
+Device:
+- GCP
+	- c3-standard-4
+	- Supporto VNNI
+- CPUs
+	- 0.5
+	- 0.75
+	- 1
+
+Edge:
+- GCP
+	- c3-standard-4
+	- Supporto VNNI
+- CPUs
+	- 1.0
+	- 1.25
+	- No Limit
+
+Cloud:
+- GCP
+	- n1-standard-4
+	- Supporto GPU
+- CPUs
+	- No Limit
+- GPU
+	- Tesla T4
+
+Annotazioni Aggiuntive:
+- Per limitare l'impatto del tempo di spostamento dei dati nel profiling del Cloud in caso di GPU, si prealloca il tensore di input sulla GPU e poi si eseguono le run, in modo da non considerare il tempo di trasferimento (che altrimenti verrebbe anche considerato più di una volta)
+- Trattandosi delle stesse macchine, il caso di CPU 1 per Device ed Edge sono lo stesso caso
+	- Posso evitare di eseguire 2 volte la stessa cosa (cambia i nomi dei file)
+
 
 
 ## Scalabilità Problema
