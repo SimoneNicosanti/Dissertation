@@ -16,7 +16,7 @@ class ModelRunner:
             providers.append("CUDAExecutionProvider")
         elif "OpenVINOExecutionProvider" in ort.get_available_providers():
             providers.append("OpenVINOExecutionProvider")
-        else :
+        else:
             providers.append("CPUExecutionProvider")
 
         for comp_info, comp_path in component_dict.items():
@@ -27,7 +27,7 @@ class ModelRunner:
             self.component_sessions[comp_info] = comp_session
 
     def run_component(self, component_id: ComponentId, input_list: list[TensorWrapper]):
-        
+
         comp_session = self.component_sessions[component_id]
         comp_out_names = [out.name for out in comp_session.get_outputs()]
 

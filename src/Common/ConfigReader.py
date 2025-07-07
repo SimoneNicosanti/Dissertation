@@ -1,4 +1,5 @@
 import configparser
+import threading
 
 MEGABYTE_SIZE = 1024 * 1024
 
@@ -6,16 +7,24 @@ MEGABYTE_SIZE = 1024 * 1024
 class ConfigReader:
 
     __instance = None
+    __init_lock = threading.Lock()
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, config_path: str = "./config/config.ini"):
         if cls.__instance is None:
-            cls.__instance = super().__new__(cls)
+            with cls.__init_lock:
+                if cls.__instance is None:
+                    instance = super().__new__(cls)
+                    instance.__initialize(config_path)
+                    cls.__instance = instance
         return cls.__instance
 
-    def __init__(self, config_path: str = "./config/config.ini"):
-        self.config = configparser.ConfigParser()
-        self.config.read(config_path)
-        pass
+    def __initialize(self, config_path: str):
+        self.config_path = config_path  # opzionale
+        config = configparser.ConfigParser()
+        read_files = config.read(config_path)
+        if not read_files:
+            raise FileNotFoundError(f"Could not read config file at {config_path}")
+        self.config = config
 
     def read_str(self, section: str, key: str) -> str:
         return self.config.get(section, key)

@@ -52,15 +52,13 @@ class ExecutionProfiler:
             input_elem = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
             if "CUDAExecutionProvider" in ort.get_available_providers():
                 ## Moving data to GPU only once to reduce data transfer impact on profiling
-                input_elem = ort.OrtValue.ortvalue_from_numpy(
-                    input_elem, "cuda"
-                )
+                input_elem = ort.OrtValue.ortvalue_from_numpy(input_elem, "cuda")
 
             input_dict[elem.name] = input_elem
 
         ## Cold Stard --> Loading model with first inference
         if "CUDAExecutionProvider" in ort.get_available_providers():
-            sess.run_with_ort_values(None, input_feed=input_dict)
+            sess.run_with_ort_values(None, input_dict)
         else:
             sess.run(None, input_feed=input_dict)
 
@@ -71,10 +69,10 @@ class ExecutionProfiler:
             if "CUDAExecutionProvider" in ort.get_available_providers():
                 ## In this way the output remains on the GPU
                 ## We do not have the impact of data transfer
-                sess.run_with_ort_values(None, input_feed=input_dict)
+                sess.run_with_ort_values(None, input_dict)
             else:
                 sess.run(None, input_feed=input_dict)
-            
+
             end = time.perf_counter_ns()
 
             execution_times[idx] = end - start
@@ -85,7 +83,6 @@ class ExecutionProfiler:
         # os.remove(profile_file_name)
 
         return np.mean(execution_times) * 1e-9  ## Returning mean execution time in sec
-
 
     def __read_execution_profile(self, profile_file_name: str) -> np.ndarray:
         with open(profile_file_name, "r") as profile:

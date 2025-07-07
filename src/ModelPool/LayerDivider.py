@@ -1,4 +1,5 @@
 import tempfile
+import time
 
 import onnx
 
@@ -36,7 +37,7 @@ class LayerDivider:
         return list(tensors)
         pass
 
-    def divide_layer(self, layer_name: str) -> onnx.ModelProto:
+    def extract_layer(self, layer_name: str) -> onnx.ModelProto:
 
         layer = self.layers[layer_name]
 

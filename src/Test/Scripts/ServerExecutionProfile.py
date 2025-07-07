@@ -3,19 +3,15 @@ import os
 import time
 
 import grpc
+import numpy as np
+import pandas as pd
 
 from Common import ConfigReader
 from proto_compiled.common_pb2 import ModelId
 from proto_compiled.server_pb2 import ExecutionProfileRequest, ExecutionProfileResponse
 from proto_compiled.server_pb2_grpc import ExecutionProfileStub
-import pandas as pd
-import numpy as np
 
-SERVER_MAP = {
-    "Client": "10.0.1.15",
-    "Edge": "10.0.1.16",
-    "Cloud": "10.0.1.17"
-}
+SERVER_MAP = {"Client": "10.0.1.15", "Edge": "10.0.1.16", "Cloud": "10.0.1.17"}
 
 
 def get_profiler_stub(machine_name: str):
@@ -33,11 +29,13 @@ def main():
     parser = argparse.ArgumentParser()
 
     # Aggiungi argomenti
-    parser.add_argument("--model", type=str, help="Model Name", required=True)
+    parser.add_argument(
+        "--model", type=str, nargs="+", help="Model Names", required=True
+    )
     parser.add_argument("--cpus", type=float, help="Number of CPUs", required=True)
     parser.add_argument("--server", type=str, help="Server Name", required=True)
     parser.add_argument("--runs", type=int, help="Number of Runs", default=1)
-    
+
     args = parser.parse_args()
 
     model_names = args.model
@@ -45,11 +43,12 @@ def main():
     server_name = args.server
     runs = args.runs
 
-
-    csv_file_name = f"/src/Test/Results/Exec_Profile_Time/{server_name}_exec_profile_time.csv"
+    csv_file_name = (
+        f"/src/Test/Results/Exec_Profile_Time/{server_name}_exec_profile_time.csv"
+    )
     directory = os.path.dirname(csv_file_name)
     os.makedirs(directory, exist_ok=True)
-    
+
     if os.path.exists(csv_file_name):
         dataframe = pd.read_csv(csv_file_name)
     else:
@@ -59,21 +58,25 @@ def main():
 
     for model_name in model_names:
         print("Running for Model >> ", model_name)
+
+        print("\t Empty Run")
+        execution_profile_request = ExecutionProfileRequest(
+            model_id=ModelId(model_name=model_name)
+        )
+        profiler_stub.profile_execution(execution_profile_request)
+
         time_array = np.zeros(runs)
         for idx in range(runs):
             print("\t Run Number >> ", idx)
-            execution_profile_request = ExecutionProfileRequest(
-                model_id=ModelId(model_name=model_name)
-            )
 
             start = time.perf_counter_ns()
-            exec_profile_response: ExecutionProfileResponse = profiler_stub.profile_execution(
-                execution_profile_request
+            exec_profile_response: ExecutionProfileResponse = (
+                profiler_stub.profile_execution(execution_profile_request)
             )
             end = time.perf_counter_ns()
 
             time_array[idx] = (end - start) * 1e-9
-        
+
         add_df = pd.DataFrame(
             {
                 "model_name": [model_name] * runs,
@@ -82,8 +85,12 @@ def main():
             }
         )
 
-        dataframe = dataframe[~((dataframe["model_name"] == model_name) & (dataframe["cpus"] == cpus))]
+        dataframe = dataframe[
+            ~((dataframe["model_name"] == model_name) & (dataframe["cpus"] == cpus))
+        ]
         dataframe = pd.concat([dataframe, add_df], ignore_index=True)
+
+        dataframe.to_csv(csv_file_name, index=False)
 
         exec_profile_json = exec_profile_response.profile
 
@@ -93,10 +100,6 @@ def main():
 
         with open(profile_file_name, "w") as f:
             f.write(exec_profile_json)
-    
-    dataframe.to_csv(csv_file_name, index=False)
-
-    
 
 
 if __name__ == "__main__":

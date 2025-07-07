@@ -85,20 +85,56 @@ resource "google_compute_firewall" "allow_internal_egress" {
 }
 
 
+variable "enable_gpu" {
+  description = "Se true, abilita GPU e VM preemptible"
+  type        = bool
+  default     = false
+}
+
+variable "enable_device" {
+  type = bool
+  default = false
+}
+
+variable "enable_edge" {
+  type = bool
+  default = false
+}
+
+variable "enable_cloud" {
+  type = bool
+  default = false
+}
 
 
 # Define the IPs for each VM
 locals {
-  names = ["registry", "model-manager", "device"] # ["registry", "optimizer", "model-manager", "deployer", "device"] #, "server-1", "server-2"] ## Assign specific names
-  instance_ips = ["10.0.1.11", "10.0.1.13", "10.0.1.15"] # ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15"] # , "10.0.1.16", "10.0.1.17"]  # Assign specific IPs
-  machine_types = ["e2-standard-2", "n1-standard-8", "c3-standard-4"] # ["e2-standard-2", "n1-standard-4", "n1-standard-8", "e2-standard-2", "c3-standard-4"] #, "c3-standard-4", "c3-standard-4"]
+  all_names = ["registry", "optimizer", "model-manager", "deployer", "device", "edge", "cloud"]
+  all_ips   = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16", "10.0.1.17"]
+  all_types = ["e2-standard-2", "n1-standard-4", "n1-standard-8", "e2-standard-2", "c3-standard-4", "c3-standard-4", "n1-standard-4"]
+
+  enabled_map = {
+    "registry"      = true,
+    "optimizer"     = true,
+    "model-manager" = true,
+    "deployer"      = true,
+    "device"        = var.enable_device,
+    "edge"      = var.enable_edge,
+    "cloud"      = var.enable_cloud
+  }
+
+  enabled_indices = [for i, name in local.all_names : i if local.enabled_map[name]]
+
+  names         = [for i in local.enabled_indices : local.all_names[i]]
+  instance_ips  = [for i in local.enabled_indices : local.all_ips[i]]
+  machine_types = [for i in local.enabled_indices : local.all_types[i]]
+
+  gpu_target_vm = var.enable_gpu ? (
+    var.enable_cloud ? "cloud" : "model-manager"
+  ) : null
 }
 
-variable "enable_gpu" {
-  description = "Se true, abilita GPU e VM preemptible solo per model-manager"
-  type        = bool
-  default     = false
-}
+
 
 
 
@@ -111,7 +147,7 @@ resource "google_compute_instance" "vm_instances" {
 
   boot_disk {
     initialize_params {
-      image = "simone-image-7"
+      image = "simone-image-8"
       size  = 75
     }
   }
@@ -132,27 +168,19 @@ resource "google_compute_instance" "vm_instances" {
 
   # GPU Tesla T4 SOLO per model-manager
   dynamic "guest_accelerator" {
-    for_each = var.enable_gpu && local.names[count.index] == "model-manager" ? [1] : []
+  for_each = local.names[count.index] == local.gpu_target_vm ? [1] : []
     content {
       type  = "nvidia-tesla-t4"
       count = 1
     }
   }
 
-  # Scheduling: preemptible e spot SOLO per model-manager
   scheduling {
-    preemptible        = var.enable_gpu && local.names[count.index] == "model-manager"
-    provisioning_model = var.enable_gpu && local.names[count.index] == "model-manager" ? "SPOT" : "STANDARD"
-    automatic_restart  = false
+    preemptible           = false
+    provisioning_model    = "STANDARD"
+    automatic_restart     = true
+    on_host_maintenance = local.names[count.index] == local.gpu_target_vm ? "TERMINATE" : "MIGRATE"
   }
-
-  # Scheduling: NO preemptible per usare GPU persistente
-  # scheduling {
-    # preemptible        = false
-    # provisioning_model = "STANDARD"
-    # automatic_restart  = false
-    # on_host_maintenance = "TERMINATE"
-  # }
 
   # Avvia script solo per model-manager (con GPU)
   # metadata_startup_script = local.names[count.index] == "model-manager" ? local.startup_script_model_manager : null
