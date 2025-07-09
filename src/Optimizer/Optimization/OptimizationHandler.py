@@ -377,13 +377,13 @@ class OptimizationHandler:
             problem, edge_ass_vars, quantization_vars
         )
 
-        # ConstraintsBuilder.add_memory_constraints(
-        #     problem,
-        #     model_graphs,
-        #     network_graph,
-        #     node_ass_vars,
-        #     mem_use_vars,
-        # )
+        ConstraintsBuilder.add_memory_constraints(
+            problem,
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            mem_use_vars,
+        )
 
         device_energy_expr = None
         if opt_params.device_max_energy > 0:

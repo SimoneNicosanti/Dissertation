@@ -62,13 +62,18 @@ services:
       - ./proto_compiled:/src/proto_compiled
 
       - ./Registry:/src/Registry
-      - ./StatePool:/src/StatePool
 
       - ./Main/RegistryMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
 
+      - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
+      - ./CommonModel:/src/CommonModel
+      - ./CommonProfile:/src/CommonProfile
+      - ./CommonPlan:/src/CommonPlan
+      - ./CommonIds:/src/CommonIds
+      - ./CommonQuantization:/src/CommonQuantization
     working_dir: /src
 
   server:
@@ -86,6 +91,7 @@ services:
       - ./Main/ServerMain.py:/src/Main.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
+      - ./config/energy_config.ini:/src/config/energy_config.ini
 
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common
@@ -122,6 +128,7 @@ services:
       - ./Main/ClientMain.py:/src/ClientMain.py
       - ./start.sh:/src/start.sh
       - ./config/local_config.ini:/src/config/config.ini
+      - ./config/energy_config.ini:/src/config/energy_config.ini
 
       - ./CommonServer:/src/CommonServer
       - ./Common:/src/Common

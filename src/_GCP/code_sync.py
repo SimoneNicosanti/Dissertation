@@ -44,6 +44,14 @@ def copy_config(machine_ip):
     # trunk-ignore(bandit/B605)
     os.system(command)
 
+    command = (
+        BASE_COMMAND
+        + " ../config/energy_config.ini customuser@{}:~/src/config/energy_config.ini".format(
+            machine_ip
+        )
+    )
+    os.system(command)
+
     return
 
 
@@ -175,6 +183,28 @@ def copy_model(machine_ip):
     return
 
 
+def copy_profiles(machine_ip):
+    command = (
+        BASE_COMMAND
+        + " ../Test/Results/Model_Profile/ customuser@{}:~/Model_Profile".format(
+            machine_ip
+        )
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+
+    command = (
+        BASE_COMMAND
+        + " ../Test/Results/Exec_Profile/ customuser@{}:~/Exec_Profile".format(
+            machine_ip
+        )
+    )
+    # trunk-ignore(bandit/B605)
+    os.system(command)
+
+    return
+
+
 directory_dict = {
     "Client": copy_client,
     "Common": copy_common,
@@ -186,11 +216,12 @@ directory_dict = {
     "Optimizer": copy_optimizer,
     # "Other": copy_other,
     "Proto": copy_proto,
-    # "Registry": copy_registry,
+    "Registry": copy_registry,
     "Server": copy_server,
     "StatePool": copy_state_pool,
-    # "Test": copy_test,
-    "Model": copy_model,
+    "Test": copy_test,
+    # "Model": copy_model,
+    "Profiles": copy_profiles,
 }
 
 

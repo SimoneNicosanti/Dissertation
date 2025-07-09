@@ -15,12 +15,20 @@ def main() -> None:
 
     # Aggiungi argomenti
     parser.add_argument("--model", type=str, help="Model Name", required=True)
-    parser.add_argument("--latency-weight", type=float, help="Latency Weight", required=True)
-    parser.add_argument("--energy-weight", type=float, help="Energy Weight", required=True)
-    parser.add_argument("--device-max-energy", type=float, help="Device Max Energy", default=0.0)
-    parser.add_argument("--requests-number", type=int, help="Requests Number", default = 1)
+    parser.add_argument(
+        "--latency-weight", type=float, help="Latency Weight", required=True
+    )
+    parser.add_argument(
+        "--energy-weight", type=float, help="Energy Weight", required=True
+    )
+    parser.add_argument(
+        "--device-max-energy", type=float, help="Device Max Energy", default=0.0
+    )
+    parser.add_argument(
+        "--requests-number", type=int, help="Requests Number", default=1
+    )
     parser.add_argument("--max-noises", type=int, help="Max Noises", default=0)
-    parser.add_argument("--start-server", type=str, help="Start Server", default = "0")
+    parser.add_argument("--start-server", type=str, help="Start Server", default="0")
 
     args = parser.parse_args()
     model_name = args.model
@@ -29,7 +37,6 @@ def main() -> None:
     device_max_energy = args.device_max_energy
     requests_number = args.requests_number
     max_noises = args.max_noises
-    start_server = args.start_server
 
     file_name = f"plan_{model_name}_lw_{latency_weight}_ew_{energy_weight}_me_{device_max_energy}_req_{requests_number}_no_{max_noises}.json"
 

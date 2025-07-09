@@ -16,12 +16,20 @@ def main():
 
     # Aggiungi argomenti
     parser.add_argument("--model", type=str, help="Model Name", required=True)
-    parser.add_argument("--latency-weight", type=float, help="Latency Weight", required=True)
-    parser.add_argument("--energy-weight", type=float, help="Energy Weight", required=True)
-    parser.add_argument("--device-max-energy", type=float, help="Device Max Energy", default=0.0)
-    parser.add_argument("--requests-number", type=int, help="Requests Number", default = 1)
-    parser.add_argument("--max-noises", type=int, help="Max Noises", default=0)
-    parser.add_argument("--start-server", type=str, help="Start Server", default = "0")
+    parser.add_argument(
+        "--latency-weight", type=float, help="Latency Weight", required=True
+    )
+    parser.add_argument(
+        "--energy-weight", type=float, help="Energy Weight", required=True
+    )
+    parser.add_argument(
+        "--device-max-energy", type=float, help="Device Max Energy", default=0.0
+    )
+    parser.add_argument(
+        "--requests-number", type=int, help="Requests Number", default=1
+    )
+    parser.add_argument("--max-noises", type=float, help="Max Noises", default=0)
+    parser.add_argument("--start-server", type=str, help="Start Server", default="0")
 
     args = parser.parse_args()
     model_name = args.model
@@ -32,10 +40,10 @@ def main():
     max_noises = args.max_noises
     start_server = args.start_server
 
-    deployer_addr = ConfigReader.ConfigReader("../config/config.ini").read_str(
+    deployer_addr = ConfigReader.ConfigReader("../../config/config.ini").read_str(
         "addresses", "DEPLOYER_ADDR"
     )
-    deployer_port = ConfigReader.ConfigReader("../config/config.ini").read_int(
+    deployer_port = ConfigReader.ConfigReader("../../config/config.ini").read_int(
         "ports", "DEPLOYER_PORT"
     )
 
@@ -63,10 +71,10 @@ def main():
 
     print(whole_plan.encode())
 
-    file_name = f"plan_{model_name}_lw_{latency_weight}_ew_{energy_weight}_me_{device_max_energy}_req_{requests_number}_no_{max_noises}.json"
+    # file_name = f"plan_{model_name}_lw_{latency_weight}_ew_{energy_weight}_me_{device_max_energy}_req_{requests_number}_no_{max_noises}.json"
 
-    with open(file_name, "w") as json_file:
-        json.dump(whole_plan.encode(), json_file)
+    # with open(file_name, "w") as json_file:
+    #     json.dump(whole_plan.encode(), json_file)
 
     pass
 

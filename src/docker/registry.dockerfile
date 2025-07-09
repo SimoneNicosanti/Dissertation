@@ -8,6 +8,8 @@ RUN pip install readerwriterlock
 RUN apt update 
 RUN apt install screen -y
 
+RUN pip install networkx
+
 RUN groupadd -g 1234 customgroup && \
     useradd -m -u 1234 -g customgroup customuser
 # USER customuser

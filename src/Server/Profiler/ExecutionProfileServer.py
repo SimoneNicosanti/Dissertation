@@ -127,7 +127,6 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             yield layer_name, layer_model, is_quantized
 
     def read_profile(self, model_id: ModelId) -> ModelExecutionProfile:
-        return None
 
         file_name = self.build_file_name(model_id)
         file_path = os.path.join(self.model_profiles_dir, file_name)

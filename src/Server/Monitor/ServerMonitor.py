@@ -1,34 +1,23 @@
+import configparser
 import json
 import threading
 import time
 
 import grpc
 import iperf3
-import numpy
 import psutil
 
 from Common import ConfigReader
 from proto_compiled.common_pb2 import Empty
 from proto_compiled.ping_pb2_grpc import PingStub
-from proto_compiled.register_pb2 import AllServerInfo
+from proto_compiled.register_pb2 import AllServerInfo, ServerState
 from proto_compiled.register_pb2_grpc import RegisterStub
-from proto_compiled.state_pool_pb2 import ServerState
-from proto_compiled.state_pool_pb2_grpc import StatePoolStub
 
 MEGABYTE_SIZE = 1024 * 1024
 
 
 class ServerMonitor:
     def __init__(self, server_id: str):
-        state_pool_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
-            "addresses", "STATE_POOL_ADDR"
-        )
-        state_pool_port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "ports", "STATE_POOL_PORT"
-        )
-        self.state_pool_chan = grpc.insecure_channel(
-            "{}:{}".format(state_pool_addr, state_pool_port)
-        )
 
         registry_addr = ConfigReader.ConfigReader("./config/config.ini").read_str(
             "addresses", "REGISTRY_ADDR"
@@ -69,56 +58,50 @@ class ServerMonitor:
         send_state["latencies"] = {key: value for key, value in self.latencies.items()}
 
         send_state_str = json.dumps(send_state)
-        state_pool_stub: StatePoolStub = StatePoolStub(self.state_pool_chan)
+        registry_stub: RegisterStub = RegisterStub(self.registry_chan)
 
-        state_pool_stub.push_state(
+        registry_stub.push_state(
             ServerState(server_id=self.server_id, state=send_state_str)
         )
 
     def __update_state(self):
-        ## Ping other devices
-        ## Collect my state
-
+        ## Collect latency and bandwidth to the network
         self.__evaluate_bandwidth_and_latency()
-        # self.__evaluate_flops()
+
+        ## Collect memory stats
         self.__evaluate_memory()
+
+        ## Collect energy stats
         self.__evaluate_energy()
 
     def __evaluate_energy(self):
         if self.server_id == "0":
-            energy = 0.5  ## micro-joule / s
+            section_name = "device"
+        elif self.server_id == "1":
+            section_name = "edge"
         else:
-            energy = 1
+            section_name = "cloud"
 
-        self.current_state["comp_energy"] = energy
-        self.current_state["trans_energy"] = energy
+        ## Reading energy from energy config file
+        config = configparser.ConfigParser()
+        config.read("./config/energy_config.ini")
 
-    # def __evaluate_flops(self):
-
-    #     if self.flops_value is None:
-    #         self.flops_value = self.__eval_flops()
-    #         pass
-
-    #     self.current_state["flops"] = self.flops_value
-
-    def __eval_flops(self):
-        size = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "monitor", "FLOPS_SIZE"
+        energy_values = config[section_name]
+        self.current_state["comp_energy_per_sec"] = float(
+            energy_values["COMP_ENERGY_PER_SEC"]
         )
-        runs = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "monitor", "FLOPS_RUNS"
+        self.current_state["trans_energy_per_sec"] = float(
+            energy_values["TRANS_ENERGY_PER_SEC"]
         )
-        mat_a, mat_b = numpy.random.rand(size, size), numpy.random.rand(size, size)
-
-        start = time.perf_counter_ns()
-        for _ in range(runs):
-            numpy.dot(mat_a, mat_b)
-        end = time.perf_counter_ns()
-
-        total_ops = 2 * size**3 * runs
-        total_time = (end - start) / 1e9
-
-        return total_ops / total_time
+        self.current_state["trans_energy_base"] = float(
+            energy_values["TRANS_ENERGY_BASE"]
+        )
+        self.current_state["self_trans_energy_per_sec"] = float(
+            energy_values["SELF_TRANS_ENERGY_PER_SEC"]
+        )
+        self.current_state["self_trans_energy_base"] = float(
+            energy_values["SELF_TRANS_ENERGY_BASE"]
+        )
 
     def __evaluate_memory(self):
 
@@ -135,7 +118,7 @@ class ServerMonitor:
 
         available_mem = available_mem / MEGABYTE_SIZE  ## MB
 
-        self.current_state["memory"] = available_mem
+        self.current_state["available_memory"] = available_mem
 
     def __evaluate_bandwidth_and_latency(self):
         registry_stub = RegisterStub(self.registry_chan)
@@ -167,7 +150,7 @@ class ServerMonitor:
                 if bandwidth is not None:
                     self.bandwidths[server_info.server_id.server_id] = bandwidth
                 else:
-                    if server_info.server_id.server_id not in self.latencies.keys():
+                    if server_info.server_id.server_id in self.latencies.keys():
                         ## Assume server not available and remove latency info
                         self.latencies.pop(server_info.server_id.server_id, None)
                     else:
@@ -234,6 +217,8 @@ class ServerMonitor:
                 else:
                     ## The server is just busy: wait and try again
                     time.sleep(1)
+
+                print(f"Bandwidth Test to {server_ip_addr} >> ", error_string)
             else:
                 run_success = True
 

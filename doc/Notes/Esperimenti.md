@@ -195,6 +195,48 @@ Annotazioni Aggiuntive:
 	- Posso evitare di eseguire 2 volte la stessa cosa (cambia i nomi dei file)
 
 
+## Generazione del Piano
+
+PER ADESSO TRASCURIAMO LA GENERAZIONE DEL PROBLEMA CON LIMITE DI MEMORIA! MODIFICARE LA FORMULAZIONE DELLA MEMORIA NEL PROBLEMA!
+
+### Parametri Energetici
+
+#### Calcolo
+Consideriamo il consumo energetico dell'hardware su cui mandiamo in esecuzione:
+- Cloud
+	- GPU T4
+		- Potenza massima nominale 70 W
+		- https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/tesla-t4/t4-tensor-core-datasheet-951643.pdf
+- Edge / Device
+	- c3-standard-4 --> Processore Intel Xeon di 4ª generazione
+	- https://www.intel.com/content/www/us/en/developer/articles/technical/fourth-generation-xeon-scalable-family-overview.html
+		- Eventuale rescaling del TDP. Avremmo ad esempio:
+		   $$\frac{350 \hspace{0.2cm} W}{60 \hspace{0.2cm} core} \cdot docker\_cpus = 5.833 \cdot docker\_cpus$$
+		   Nel caso di 0.5 avremmo circa 2.916, con 0.75 4.375.
+		   Quando abbiamo il NO_LIMIT abbiamo le cpus=4, quindi 23.33 circa.
+
+
+#### Trasmissione
+[[Note Sugli Articoli#Modellazione del consumo energetico di trasmissione]]
+
+|                        | 4G      | Wi-Fi  | Eth (Cloud) |
+| ---------------------- | ------- | ------ | ----------- |
+| Upload Speed (Mbps)    | 5.85    | 18.88  | 800         |
+| $\alpha_u$ (mW / Mbps) | 438.39  | 283.17 |             |
+| $\beta$ (mW)           | 1288.04 | 132.86 |             |
+
+La formula per il consumo è $P_u = \alpha_u * t_u + \beta$, dove $t_u$ è il thr (che noi misuriamo con iperf3, quindi va bene).
+
+Tabella convertita:
+CONTROLLARE i Valori per CLOUD
+
+|                       | 4G      | Wi-Fi   | Eth (Cloud) |
+| --------------------- | ------- | ------- | ----------- |
+| Upload Speed (MB/s)   | 0.73125 | 2.36    | 100         |
+| $\alpha_u$ (W / MB/s) | 3.5071  | 2.2654  | 0.014       |
+| $\beta$ (W)           | 1.28804 | 0.13286 | 0.5         |
+
+
 
 ## Scalabilità Problema
-Provare partendo da un modello yolo, crea un modello fittizio per vedere la scalabilità del problema.
+Provare partendo da un modello Yolo, crea un modello fittizio per vedere la scalabilità del problema.
