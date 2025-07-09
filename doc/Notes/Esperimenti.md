@@ -193,6 +193,15 @@ Annotazioni Aggiuntive:
 - Per limitare l'impatto del tempo di spostamento dei dati nel profiling del Cloud in caso di GPU, si prealloca il tensore di input sulla GPU e poi si eseguono le run, in modo da non considerare il tempo di trasferimento (che altrimenti verrebbe anche considerato più di una volta)
 - Trattandosi delle stesse macchine, il caso di CPU 1 per Device ed Edge sono lo stesso caso
 	- Posso evitare di eseguire 2 volte la stessa cosa (cambia i nomi dei file)
+- Modificato profiling OpenVINO
+	- Fatto con le API di OpenVINO e non con quelle di OnnxRuntime
+		- Veniva aggiunto un overhead eccessivo
+
+## Esecuzione sul Device
+
+Fatta esecuzione dei modelli target sul device con le configurazioni di CPUs volute.
+
+Confrontato con tempo di profiling ottenuto in fase di server profiling. Il confronto per adesso è fatto soltanto rispetto al device e alle sue configurazioni di CPU. Non sto facendo confronti sul profile d GPU (anche perché non riesco ad istanziare la macchina cloud).
 
 
 ## Generazione del Piano
@@ -235,6 +244,29 @@ CONTROLLARE i Valori per CLOUD
 | Upload Speed (MB/s)   | 0.73125 | 2.36    | 100         |
 | $\alpha_u$ (W / MB/s) | 3.5071  | 2.2654  | 0.014       |
 | $\beta$ (W)           | 1.28804 | 0.13286 | 0.5         |
+
+
+## Caso 1 - Solo Device
+In questo caso quello che posso studiare è la latenza aggiuntiva che l'uso del sistema introduce in fase di inferenza.
+
+Analisi:
+- Tempo di Generazione del Piano 
+	- Mediato su una decina di run
+- Tempo di Deployment del Piano - Potrebbe essere non banale per estrazione di modelli grandi e quantizzazione
+	- Mediato su una decina di run
+- Esecuzione del Modello
+	- Mediato su 100 Run
+
+Casi da considerare:
+- Rumore Quantizzazione
+	- 0; 0.05; 0.1; 0.25; 0.5; 10
+- Pesi di Latenza ed Energia
+	- Quantizzazione = 0 --> Non cambia nulla
+	- Quantizzazione != 0 --> Può cambiare
+	- Casi da Considerare per latenza 
+		- 1, 0.75, 0.5, 0.25, 0
+
+Annota e salva i valori di output del piano!
 
 
 

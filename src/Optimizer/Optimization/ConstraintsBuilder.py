@@ -189,7 +189,9 @@ class ConstraintsBuilder:
                             True,
                         )
                         quant_x_var = ass_vars[quant_x_var_key]
-                        quant_node_used_memory = quant_x_var * mod_node_weights_size / 4
+                        quant_node_used_memory = quant_x_var * (
+                            mod_node_weights_size - mod_node_weights_size / 4
+                        )
                         node_used_memory += quant_node_used_memory
 
                     model_used_memory += node_used_memory

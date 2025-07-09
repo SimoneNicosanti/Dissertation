@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import time
 
@@ -7,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from Common import ConfigReader
+from CommonProfile.ExecutionProfile import ModelExecutionProfile, ServerExecutionProfile
 from proto_compiled.common_pb2 import ModelId
 from proto_compiled.server_pb2 import ExecutionProfileRequest, ExecutionProfileResponse
 from proto_compiled.server_pb2_grpc import ExecutionProfileStub
@@ -52,20 +54,31 @@ def main():
     if os.path.exists(csv_file_name):
         dataframe = pd.read_csv(csv_file_name)
     else:
-        dataframe = pd.DataFrame(columns=["model_name", "cpus", "profile_time"])
+        dataframe = pd.DataFrame(
+            columns=[
+                "model_name",
+                "cpus",
+                "profile_time",
+                "pred_time",
+                "quant_pred_time",
+            ]
+        )
 
     profiler_stub = get_profiler_stub(server_name)
 
     for model_name in model_names:
         print("Running for Model >> ", model_name)
 
-        print("\t Empty Run")
         execution_profile_request = ExecutionProfileRequest(
             model_id=ModelId(model_name=model_name)
         )
-        profiler_stub.profile_execution(execution_profile_request)
+
+        # print("\t Empty Run")
+        # profiler_stub.profile_execution(execution_profile_request)
 
         time_array = np.zeros(runs)
+        pred_time = np.zeros(runs)
+        quant_pred_time = np.zeros(runs)
         for idx in range(runs):
             print("\t Run Number >> ", idx)
 
@@ -77,11 +90,20 @@ def main():
 
             time_array[idx] = (end - start) * 1e-9
 
+            model_exec_profile = ModelExecutionProfile.decode(
+                json.loads(exec_profile_response.profile)
+            )
+
+            pred_time[idx] = model_exec_profile.get_total_not_quantized_time()
+            quant_pred_time[idx] = model_exec_profile.get_total_quantized_time()
+
         add_df = pd.DataFrame(
             {
                 "model_name": [model_name] * runs,
                 "cpus": [cpus] * runs,
                 "profile_time": time_array,
+                "pred_time": pred_time,
+                "quant_pred_time": quant_pred_time,
             }
         )
 

@@ -8,6 +8,8 @@ def main():
         "../../Results/DeviceOnlyModel/device_only_model.csv"
     )
 
+    # dataframe = dataframe.groupby(["model_name", "cpus"], group_keys=False).head(50)
+
     stats_df = (
         dataframe.groupby(["model_name", "cpus"])["run_time"]
         .agg(["mean", "std"])

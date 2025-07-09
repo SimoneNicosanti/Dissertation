@@ -5,7 +5,7 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
-from CommonPlan.SolvedModelGraph import SolvedNodeInfo
+from CommonPlan.SolvedModelGraph import SolvedGraphInfo, SolvedNodeInfo
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.ModelProfile import ModelProfile, Regressor
@@ -202,6 +202,22 @@ class OptimizationHandler:
                     final_quantization_vars,
                 )
             )
+
+            ## TODO We are considering only one model: it is ok for now
+            solved_model_graph.graph[SolvedGraphInfo.LATENCY_VALUE] = (
+                final_other_cost.value()
+                if latency_weight >= energy_weight
+                else final_problem_cost.value()
+            )
+            solved_model_graph.graph[SolvedGraphInfo.ENERGY_VALUE] = (
+                final_problem_cost.value()
+                if latency_weight >= energy_weight
+                else final_other_cost.value()
+            )
+            solved_model_graph.graph[SolvedGraphInfo.DEVICE_ENERGY_VALUE] = (
+                device_max_exergy.value()
+            )
+
             solved_model_graphs.append(solved_model_graph)
             time.perf_counter_ns()
 

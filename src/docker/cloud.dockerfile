@@ -35,7 +35,7 @@ RUN apt install -y libgl1
 RUN apt update 
 RUN apt install screen -y
 
-# RUN pip install onnxruntime-openvino
+RUN pip install onnxruntime-gpu
 
 # USER customuser
 

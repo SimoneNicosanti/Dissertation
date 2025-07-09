@@ -45,6 +45,18 @@ class ModelExecutionProfile:
             return 0
         return self.model_execution_profile_dict[node_id][1]
 
+    def get_total_not_quantized_time(self) -> float:
+        total_time = 0
+        for node_id in self.model_execution_profile_dict:
+            total_time += self.get_not_quantized_layer_time(node_id)
+        return total_time
+
+    def get_total_quantized_time(self) -> float:
+        total_time = 0
+        for node_id in self.model_execution_profile_dict:
+            total_time += self.get_quantized_layer_time(node_id)
+        return total_time
+
 
 class ServerExecutionProfile:
 

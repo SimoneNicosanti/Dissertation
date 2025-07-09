@@ -139,14 +139,6 @@ def main():
     # trunk-ignore(bandit/B605)
     os.system(command)
 
-    if args.gpu:
-        ## Installing the GPU provider will subscribe the OpenVINO one
-        # trunk-ignore(bandit/B605)
-        os.system(f"docker exec -it {cont_name} pip install onnxruntime-gpu")
-    else:
-        # trunk-ignore(bandit/B605)
-        os.system(f"docker exec -it {cont_name} pip install onnxruntime-openvino")
-
     if args.cpus is not None:
         modify_energy_config(original_name, args.cpus)
     else:

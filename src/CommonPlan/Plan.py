@@ -10,11 +10,18 @@ class Plan:
         model_name: str,
         plan_dict: dict[ComponentId, dict],
         quantized_nodes: list[NodeId],
+        latency_cost: float = -1,
+        energy_cost: float = -1,
+        device_energy: float = -1,
     ):
 
         self.model_name = model_name
         self.plan_dict: dict[ComponentId, dict] = plan_dict
         self.quantized_nodes: list[NodeId] = quantized_nodes
+
+        self.latency_cost = latency_cost
+        self.energy_cost = energy_cost
+        self.device_energy = device_energy
 
     def encode(self) -> dict:
 
@@ -44,6 +51,9 @@ class Plan:
         encoded_plan["quantized_nodes"] = [
             comp_id.encode() for comp_id in self.quantized_nodes
         ]
+        encoded_plan["latency_cost"] = self.latency_cost
+        encoded_plan["energy_cost"] = self.energy_cost
+        encoded_plan["device_energy"] = self.device_energy
 
         return encoded_plan
 
@@ -75,7 +85,20 @@ class Plan:
             NodeId.decode(node_name) for node_name in encoded_plan["quantized_nodes"]
         ]
 
-        return Plan(model_name, plan_dict, quantized_nodes)
+        return Plan(
+            model_name,
+            plan_dict,
+            quantized_nodes,
+            encoded_plan["latency_cost"],
+            encoded_plan["energy_cost"],
+            encoded_plan["device_energy"],
+        )
+
+    def get_latency_cost(self) -> float:
+        return self.latency_cost
+
+    def get_energy_cost(self) -> float:
+        return self.energy_cost
 
     def get_quantized_nodes(self) -> list[NodeId]:
         return self.quantized_nodes
