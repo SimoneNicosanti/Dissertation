@@ -126,16 +126,17 @@ class ServerMonitor:
 
         for server_info in all_server_info.all_server_info:
 
+            ## Default everything to zero
             if server_info.server_id.server_id == self.server_id:
-                dest_ip_addr = "localhost"
-            else:
-                dest_ip_addr = server_info.reachability_info.ip_address
+                self.bandwidths[server_info.server_id.server_id] = 0
+                self.latencies[server_info.server_id.server_id] = 0
+                continue
 
             if server_info.server_id.server_id not in self.server_chan_dict.keys():
                 ## Opening channel for the first time to this server
                 server_chan = grpc.insecure_channel(
                     "{}:{}".format(
-                        dest_ip_addr,
+                        server_info.reachability_info.ip_address,
                         server_info.reachability_info.ping_port,
                     )
                 )
@@ -149,7 +150,9 @@ class ServerMonitor:
                 ## Successfully pinged the server
                 self.latencies[server_info.server_id.server_id] = latency
 
-                bandwidth = self.__evaluate_bandwidth(dest_ip_addr)
+                bandwidth = self.__evaluate_bandwidth(
+                    server_info.reachability_info.ip_address
+                )
 
                 if bandwidth is not None:
                     self.bandwidths[server_info.server_id.server_id] = bandwidth
