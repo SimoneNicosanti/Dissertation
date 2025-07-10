@@ -102,7 +102,7 @@ def main():
     os.system(f"docker build -t {cont_name}-image -f {dockerfile_name} .")
 
     ## Base Command
-    command = f"docker run -it -d --name {cont_name} --network host"
+    command = f"docker run -it -d --name {cont_name} --network=host"
 
     ## Setting constraints
     if args.memory is not None:

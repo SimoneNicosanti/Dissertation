@@ -17,31 +17,23 @@ class OnnxModelQuantizer:
         quantized_layers: list[str],
     ) -> onnx.ModelProto:
         print("Quantizing Model")
-        _, temp_file_name = tempfile.mkstemp(suffix=".onnx")
 
-        quant_pre_process(onnx_model, temp_file_name)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_file_name = temp_dir + "/pre_proc_model.onnx"
+            quant_pre_process(onnx_model, temp_file_name)
 
-        _, temp_file_name_quant = tempfile.mkstemp(suffix=".onnx")
-        quantize_static(
-            temp_file_name,
-            temp_file_name_quant,
-            calibration_data_reader=OnnxModelQuantizer.OnnxDataReader(
-                temp_file_name, calibration_dataset
-            ),
-            nodes_to_quantize=quantized_layers,
-            extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
-        )
+            temp_file_name_quant = temp_dir + "/quantized_model.onnx"
+            quantize_static(
+                temp_file_name,
+                temp_file_name_quant,
+                calibration_data_reader=OnnxModelQuantizer.OnnxDataReader(
+                    temp_file_name, calibration_dataset
+                ),
+                nodes_to_quantize=quantized_layers,
+                extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
+            )
 
-        quant_onnx_model = onnx.load_model(temp_file_name_quant)
-
-        # for node in quant_onnx_model.graph.node:
-        #     if (
-        #         "/model.23/proto/upsample/ConvTranspose_output_0_QuantizeLinear_Output"
-        #         in node.output
-        #     ):
-        #         print("Exists")
-
-        onnx.save_model(quant_onnx_model, "/model_pool_data/components/final.onnx")
+            quant_onnx_model = onnx.load_model(temp_file_name_quant)
 
         return quant_onnx_model
 

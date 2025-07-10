@@ -100,6 +100,9 @@ class Plan:
     def get_energy_cost(self) -> float:
         return self.energy_cost
 
+    def get_device_energy(self) -> float:
+        return self.device_energy
+
     def get_quantized_nodes(self) -> list[NodeId]:
         return self.quantized_nodes
 

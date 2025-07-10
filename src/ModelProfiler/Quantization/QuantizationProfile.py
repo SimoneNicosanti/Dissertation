@@ -136,19 +136,20 @@ class QuantizationProfile:
 
         self.mark_layers(model_graph, quantizable_layers)
 
-        _, temp_file = tempfile.mkstemp(suffix=".onnx")
-        onnx.save_model(model, temp_file)
-
         points = self.build_points(quantizable_layers, train_set_size, test_set_size)
 
-        noises = self.compute_quantization_noises(
-            temp_file,
-            points,
-            quantizable_layers,
-            calibration_dataset,
-            calibration_size,
-            noise_test_size,
-        )
+        with tempfile.NamedTemporaryFile(suffix=".onnx", delete=True) as temp_file:
+
+            onnx.save_model(model, temp_file.name)
+
+            noises = self.compute_quantization_noises(
+                temp_file.name,
+                points,
+                quantizable_layers,
+                calibration_dataset,
+                calibration_size,
+                noise_test_size,
+            )
 
         combined = [point + [noise] for point, noise in zip(points, noises)]
         cols_names = [node_id.node_name for node_id in quantizable_layers] + ["noise"]

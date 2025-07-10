@@ -337,18 +337,18 @@ class OnnxModelProfiler(AbsModelProfiler):
         m.graph.shape_infer(input_dict)
         m.graph.profile()
 
-        _, tempfile_name = tempfile.mkstemp(suffix=".csv")
-        m.graph.print_node_map(tempfile_name, metric="FLOPs")
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=True) as temp_file:
+            m.graph.print_node_map(temp_file.name, metric="FLOPs")
 
-        flops_dict = {}
-        with open(tempfile_name, "r") as f:
-            reader = csv.reader(f)
-            for idx, row in enumerate(reader):
-                if idx == 0 or row[0] == "Total":
-                    continue
+            flops_dict = {}
+            with open(temp_file.name, "r") as f:
+                reader = csv.reader(f)
+                for idx, row in enumerate(reader):
+                    if idx == 0 or row[0] == "Total":
+                        continue
 
-                name, flops = row[0], row[2]
-                flops_dict[name] = float(flops)
+                    name, flops = row[0], row[2]
+                    flops_dict[name] = float(flops)
 
         return flops_dict
 

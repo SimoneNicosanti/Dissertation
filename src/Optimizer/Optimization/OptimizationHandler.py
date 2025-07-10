@@ -215,7 +215,7 @@ class OptimizationHandler:
                 else final_other_cost.value()
             )
             solved_model_graph.graph[SolvedGraphInfo.DEVICE_ENERGY_VALUE] = (
-                device_max_exergy.value()
+                None if device_max_exergy is None else device_max_exergy.value()
             )
 
             solved_model_graphs.append(solved_model_graph)
