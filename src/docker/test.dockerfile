@@ -1,4 +1,4 @@
-FROM python:3.9-bookworm
+FROM python:3.10-bookworm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -6,27 +6,20 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     glpk-utils \
     libglpk-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    screen \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* 
 
 # Install Python dependencies
 RUN pip install --no-cache-dir \
     grpcio \
     grpcio-tools \
-    readerwriterlock \
     networkx \
-    "numpy<2" \
+    numpy \
     onnx \
     onnxruntime \
-    onnxslim \
-    onnx-tool \
+    readerwriterlock \
     pandas \
-    scikit-learn \
     tqdm \
     opencv-python-headless \
     psutil \
     supervision
-
-
-## Using screen to connect in case of ssh disconnection
-RUN apt update 
-RUN apt install screen -y

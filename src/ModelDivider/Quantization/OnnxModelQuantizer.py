@@ -23,6 +23,15 @@ class OnnxModelQuantizer:
             quant_pre_process(onnx_model, temp_file_name)
 
             temp_file_name_quant = temp_dir + "/quantized_model.onnx"
+
+            providers = []
+            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+                providers.append("CUDAExecutionProvider")
+            elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
+                providers.append("OpenVINOExecutionProvider")
+            else:
+                providers.append("CPUExecutionProvider")
+
             quantize_static(
                 temp_file_name,
                 temp_file_name_quant,
@@ -31,6 +40,7 @@ class OnnxModelQuantizer:
                 ),
                 nodes_to_quantize=quantized_layers,
                 extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
+                calibration_providers=providers,
             )
 
             quant_onnx_model = onnx.load_model(temp_file_name_quant)

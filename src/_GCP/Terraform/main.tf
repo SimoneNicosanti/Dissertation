@@ -111,7 +111,7 @@ variable "enable_cloud" {
 locals {
   all_names = ["registry", "optimizer", "model-manager", "deployer", "device", "edge", "cloud"]
   all_ips   = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16", "10.0.1.17"]
-  all_types = ["e2-standard-2", "n1-standard-4", "n1-standard-8", "e2-standard-2", "c3-standard-4", "c3-standard-4", "n1-standard-4"]
+  all_types = ["e2-standard-2", "n1-standard-4", "g2-standard-4", "e2-standard-2", "c3-standard-4", "c3-standard-4", "n1-standard-4"]
 
   enabled_map = {
     "registry"      = true,
@@ -129,9 +129,7 @@ locals {
   instance_ips  = [for i in local.enabled_indices : local.all_ips[i]]
   machine_types = [for i in local.enabled_indices : local.all_types[i]]
 
-  gpu_target_vm = var.enable_gpu ? (
-    var.enable_cloud ? "cloud" : "model-manager"
-  ) : null
+  gpu_target_vm = var.enable_cloud ? ["cloud", "model-manager"] : ["model-manager"]
 }
 
 
@@ -168,7 +166,7 @@ resource "google_compute_instance" "vm_instances" {
 
   # GPU Tesla T4 SOLO per model-manager
   dynamic "guest_accelerator" {
-  for_each = local.names[count.index] == local.gpu_target_vm ? [1] : []
+  for_each = local.names[count.index] == "cloud" ? [1] : []
     content {
       type  = "nvidia-tesla-t4"
       count = 1
@@ -179,7 +177,7 @@ resource "google_compute_instance" "vm_instances" {
     preemptible           = false
     provisioning_model    = "STANDARD"
     automatic_restart     = true
-    on_host_maintenance = local.names[count.index] == local.gpu_target_vm ? "TERMINATE" : "MIGRATE"
+    on_host_maintenance = contains(local.gpu_target_vm, local.names[count.index]) ? "TERMINATE" : "MIGRATE"
   }
 
   # Avvia script solo per model-manager (con GPU)

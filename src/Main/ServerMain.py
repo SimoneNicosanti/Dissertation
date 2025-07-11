@@ -41,10 +41,10 @@ def main():
     ping_server = start_ping_server()
     inference_server = start_inference_server(register_response.server_id)
 
-    # server_monitor = ServerMonitor(register_response.server_id)
-    # server_monitor.init_monitoring()
+    server_monitor = ServerMonitor(register_response.server_id)
+    server_monitor.init_monitoring()
 
-    # start_iperf3_server()
+    start_iperf3_server()
 
     inference_server.wait_for_termination()
     execution_profile_server.wait_for_termination()

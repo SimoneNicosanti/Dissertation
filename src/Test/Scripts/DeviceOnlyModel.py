@@ -20,18 +20,31 @@ def run_onnx_model(input: np.ndarray, model_name: str, runs: int):
     else:
         providers.append("CPUExecutionProvider")
 
-    sess = onnxruntime.InferenceSession(model_path, providers=providers)
+    sess_options = onnxruntime.SessionOptions()
+    sess_options.graph_optimization_level = (
+        onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
+    )
+
+    sess = onnxruntime.InferenceSession(
+        model_path,
+        providers=providers,
+        sess_options=sess_options,
+        # provider_options=[
+        #     {"num_of_threads": 4},
+        # ],
+    )
 
     input_name = sess.get_inputs()[0].name
 
+    input_dict = {input_name: onnxruntime.OrtValue.ortvalue_from_numpy(input)}
     ## Cold Start
-    sess.run(None, {input_name: input})
+    sess.run_with_ort_values(None, input_dict)
 
     time_array = np.zeros(runs)
 
     for i in tqdm.tqdm(range(0, runs)):
         start = time.perf_counter_ns()
-        sess.run(None, {input_name: input})
+        sess.run_with_ort_values(None, input_dict)
         end = time.perf_counter_ns()
         time_array[i] = (end - start) * 1e-9
 
@@ -47,7 +60,7 @@ def main():
         "--models", nargs="+", type=str, help="Model Names", required=True
     )
     parser.add_argument("--cpus", type=float, help="Number of CPUs", required=True)
-    parser.add_argument("--runs", type=int, help="Number of Runs", default=1)
+    parser.add_argument("--runs", type=int, help="Number of Runs", default=100)
 
     args = parser.parse_args()
     model_names = args.models

@@ -42,6 +42,7 @@ class ServerMonitor:
         pass
 
     def __update_and_send_state(self):
+        print("Update and Send State")
         self.__update_state()
         self.__send_state()
         monitor_timer = ConfigReader.ConfigReader("./config/config.ini").read_float(

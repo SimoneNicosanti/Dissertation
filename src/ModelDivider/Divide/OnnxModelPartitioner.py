@@ -29,6 +29,12 @@ class OnnxModelPartitioner(ModelPartitioner):
 
                 if model_plan.is_component_only_output(component_id):
                     continue
+                
+                ## This makes division faster with a single component
+                if len(model_plan.get_all_components()) == 3 :
+                    ## No component has been created but the whole model
+                    divided_components[component_id] = onnx_model
+                    continue
 
                 input_names = model_plan.get_input_names_per_component(component_id)
                 output_names = model_plan.get_output_names_per_component(component_id)

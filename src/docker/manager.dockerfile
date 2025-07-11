@@ -24,6 +24,8 @@ RUN pip install tqdm
 RUN apt update 
 RUN apt install screen -y
 
+RUN pip install onnxruntime-gpu
+
 
 # Model pool port
 EXPOSE 50002

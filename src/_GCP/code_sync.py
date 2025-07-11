@@ -91,7 +91,7 @@ def copy_main(machine_ip):
 
     command = (
         BASE_COMMAND
-        + " ../Other/latency_scripts/delay_script.py customuser@{}:~/delay_script.py".format(
+        + " ../_GCP/delay_script.py customuser@{}:~/delay_script.py".format(
             machine_ip
         )
     )

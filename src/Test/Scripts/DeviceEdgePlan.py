@@ -61,6 +61,7 @@ def prepare_dataframe(dataframe: pd.DataFrame, add_df: pd.DataFrame):
         "device_max_energy",
         "max_noises",
         "device_cpus",
+        "edge_cpus",
     ]
 
     # Filtra righe che NON corrispondono alle tuple in add_df
@@ -80,6 +81,7 @@ def generation_test(
     device_max_energy,
     max_noises,
     device_cpus,
+    edge_cpus,
     run_nums,
 ):
     ## Plan Production
@@ -101,12 +103,14 @@ def generation_test(
                 "device_max_energy",
                 "max_noises",
                 "device_cpus",
+                "edge_cpus",
                 "run_time",
                 "latency_value",
                 "energy_value",
                 "device_energy_value",
                 "quantized_layers_num",
                 "quantized_layers_array",
+                "num_components",
             ]
         )
 
@@ -128,6 +132,7 @@ def generation_test(
     device_energy_values = np.zeros(run_nums)
     quantized_layers_num = np.zeros(run_nums)
     quantized_layers_array = []
+    components_array = []
     for idx in tqdm.tqdm(range(run_nums)):
         start = time.perf_counter_ns()
         produce_plan_response: ProducePlanResponse = deployer_stub.produce_plan(
@@ -152,6 +157,8 @@ def generation_test(
             quantized_layers += node_id.node_name + " "
         quantized_layers_array.append(quantized_layers)
 
+        components_array.append(len(prod_plan.get_all_components()))
+
     add_df = pd.DataFrame(
         {
             "model_name": [model_name] * run_nums,
@@ -160,12 +167,14 @@ def generation_test(
             "device_max_energy": [device_max_energy] * run_nums,
             "max_noises": [max_noises] * run_nums,
             "device_cpus": [device_cpus] * run_nums,
+            "edge_cpus": [edge_cpus] * run_nums,
             "run_time": produce_plan_times,
             "latency_value": latency_values,
             "energy_value": energy_values,
             "device_energy_value": device_energy_values,
             "quantized_layers_num": quantized_layers_num,
             "quantized_layers_array": quantized_layers_array,
+            "num_components": components_array,
         }
     )
 
@@ -183,6 +192,7 @@ def deploy_test(
     device_max_energy,
     max_noises,
     device_cpus,
+    edge_cpus,
     run_nums,
     produce_plan_response: ProducePlanResponse,
 ):
@@ -203,6 +213,7 @@ def deploy_test(
                 "device_max_energy",
                 "max_noises",
                 "device_cpus",
+                "edge_cpus",
                 "run_time",
             ]
         )
@@ -228,6 +239,7 @@ def deploy_test(
             "device_max_energy": [device_max_energy] * run_nums,
             "max_noises": [max_noises] * run_nums,
             "device_cpus": [device_cpus] * run_nums,
+            "edge_cpus": [edge_cpus] * run_nums,
             "run_time": deploy_times,
         }
     )
@@ -246,6 +258,7 @@ def usage_test(
     device_max_energy,
     max_noises,
     device_cpus,
+    edge_cpus,
     run_nums,
 ):
 
@@ -266,6 +279,7 @@ def usage_test(
                 "device_max_energy",
                 "max_noises",
                 "device_cpus",
+                "edge_cpus",
                 "run_time",
             ]
         )
@@ -293,6 +307,7 @@ def usage_test(
             "device_max_energy": [device_max_energy] * run_nums,
             "max_noises": [max_noises] * run_nums,
             "device_cpus": [device_cpus] * run_nums,
+            "edge_cpus": [edge_cpus] * run_nums,
             "run_time": plan_use_times,
         }
     )
@@ -332,6 +347,7 @@ def main():
     parser.add_argument("--plan-use-runs", type=int, help="Plan Use Runs", default=100)
 
     parser.add_argument("--device-cpus", help="Device CPUs", type=float, required=True)
+    parser.add_argument("--edge-cpus", help="Edge CPUs", type=float, required=True)
 
     args = parser.parse_args()
     model_name = args.model
@@ -344,6 +360,9 @@ def main():
     plan_deploy_runs = args.plan_deploy_runs
     plan_use_runs = args.plan_use_runs
 
+    device_cpus = args.device_cpus
+    edge_cpus = args.edge_cpus
+
     print("📝 Producing Plan")
     produce_plan_response: ProducePlanResponse = generation_test(
         model_name,
@@ -351,7 +370,8 @@ def main():
         energy_weight,
         device_max_energy,
         max_noises,
-        args.device_cpus,
+        device_cpus,
+        edge_cpus,
         plan_gen_runs,
     )
 
@@ -362,7 +382,8 @@ def main():
         energy_weight,
         device_max_energy,
         max_noises,
-        args.device_cpus,
+        device_cpus,
+        edge_cpus,
         plan_deploy_runs,
         produce_plan_response,
     )
@@ -374,7 +395,8 @@ def main():
         energy_weight,
         device_max_energy,
         max_noises,
-        args.device_cpus,
+        device_cpus,
+        edge_cpus,
         plan_use_runs,
     )
     print("🤖 Use Plan with Avg Time >> ", plan_use_times.mean())
