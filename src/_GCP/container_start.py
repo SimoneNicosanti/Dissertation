@@ -35,14 +35,19 @@ def map_execution_profiles(original_name: str, cpus: float = 0.0):
 
     map_list = []
 
+    if cpus == 0:
+        find_part = "_0.0_"
+    else:
+        find_part = f"_{cpus}_"
+
     for file_name in os.listdir(directory):
         if (
             file_name.startswith(orig_name_cap + "_")
-            and file_name.find(f"_{cpus}_") != -1
+            and file_name.find(find_part) != -1
         ):
             dest_file_name = file_name.replace(orig_name_cap + "_", "")
             dest_file_name = dest_file_name.replace(
-                f"_{cpus}_exec_profile.json", "_profile.json"
+                f"{find_part}exec_profile.json", "_profile.json"
             )
 
             src_file_path = os.path.join(directory, file_name)
@@ -121,6 +126,8 @@ def main():
         command += (
             " -v /home/customuser/Model_Profile/:/model_profiler_data/models_profiles/"
         )
+    if cont_name == "manager":
+        command += " -v /home/customuser/layers/:/model_pool_data/layers/"
 
     ## Map Execution Profiles
     if original_name == "device" or original_name == "edge" or original_name == "cloud":
@@ -128,7 +135,9 @@ def main():
             use_name = "client"
         else:
             use_name = original_name
-        for map_tuple in map_execution_profiles(use_name, args.cpus):
+        for map_tuple in map_execution_profiles(
+            use_name, args.cpus if args.cpus is not None else 0.0
+        ):
             command += f" -v {map_tuple[0]}:{map_tuple[1]} "
 
     if args.gpu:

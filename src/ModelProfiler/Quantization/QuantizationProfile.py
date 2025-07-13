@@ -39,6 +39,9 @@ class NoiseEvaluator:
             providers.append("CUDAExecutionProvider")
         elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
             providers.append("OpenVINOExecutionProvider")
+            so.graph_optimization_level = (
+                onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
+            )
         else:
             providers.append("CPUExecutionProvider")
 

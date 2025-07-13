@@ -184,7 +184,7 @@ class ServerMonitor:
             rtt_ns = (end - start) / ping_times
 
             latency_ns = rtt_ns / 2
-            latency = latency_ns / 1e9
+            latency = latency_ns * 1e-9
         except Exception:
             latency = None
         return latency

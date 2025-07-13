@@ -97,8 +97,6 @@ def compute_trans_energy_per_model(
             model_graph, network_graph, edge_ass_vars, net_node_id
         )
 
-        ## TODO Add energy consumption for same destination
-
         node_trans_energy_per_model_same_dest = (
             node_trans_latency_per_model_same_dest
             * net_node_info[NetworkNodeInfo.SELF_TRANS_ENERGY_PER_SEC]
@@ -148,6 +146,9 @@ def compute_energy_cost_per_net_node(
             net_node_id,
             server_execution_profile_pool,
         )
+        model_comp_energy = (
+            model_comp_latency * net_node_info[NetworkNodeInfo.COMP_ENERGY_PER_SEC]
+        )
 
         model_trans_latency_same_dest, model_trans_latency_diff_dest, _ = (
             LatencyComputer.compute_model_trans_latency_per_node(
@@ -157,14 +158,10 @@ def compute_energy_cost_per_net_node(
                 net_node_id,
             )
         )
-
-        model_comp_energy = (
-            model_comp_latency * net_node_info[NetworkNodeInfo.COMP_ENERGY_PER_SEC]
-        )
         model_trans_energy = (
             model_trans_latency_diff_dest
             * net_node_info[NetworkNodeInfo.TRANS_ENERGY_PER_SEC]
-        )
+        ) + net_node_info[NetworkNodeInfo.TRANS_ENERGY_BASE]
 
         net_node_energy += model_request_num * (model_comp_energy + model_trans_energy)
 

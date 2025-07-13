@@ -5,8 +5,15 @@ import seaborn as sns
 
 
 def main():
-    profile_exec_time_df = pd.read_csv(
+    device_exec_time_df = pd.read_csv(
         "../../Results/Exec_Profile_Time/Client_exec_profile_time.csv"
+    )
+    edge_exec_time_df = pd.read_csv(
+        "../../Results/Exec_Profile_Time/Edge_exec_profile_time.csv"
+    )
+
+    profile_exec_time_df = pd.concat(
+        [device_exec_time_df, edge_exec_time_df], ignore_index=True
     )
 
     grouped_predicted_df = (
@@ -27,20 +34,12 @@ def main():
     )
     print(merged_df)
 
-    model_sort = ["yolo11n-cls", "yolo11m", "yolo11x-seg"]
-    # merged_df["model_name"] = pd.Categorical(
-    #     merged_df["model_name"], categories=model_sort, ordered=True
-    # )
+    merged_df["model_name"] = (
+        merged_df["model_name"].str.replace("yolo11", "").replace("m", "m-det")
+    )
 
     # creo una colonna per label gruppo
-    merged_df["label"] = (
-        "Model > "
-        + merged_df["model_name"]
-        + "\n"
-        + "CPUs > "
-        + merged_df["cpus"].astype(str)
-        + ""
-    )
+    merged_df["label"] = merged_df["model_name"] + "\n" + merged_df["cpus"].astype(str)
 
     # trasformo in formato lungo
     df_long = pd.melt(
@@ -76,7 +75,7 @@ def main():
         ax.text(
             x,
             height + 0.03,  # piccolo offset verticale sopra la barra
-            f"{height:.3f}",  # formatta a 3 decimali
+            f"{height:.2f}",  # formatta a 3 decimali
             ha="center",
             va="bottom",
             fontsize=10,

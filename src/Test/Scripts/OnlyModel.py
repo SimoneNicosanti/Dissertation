@@ -13,25 +13,22 @@ def run_onnx_model(input: np.ndarray, model_name: str, runs: int):
     model_path = "/model_pool_data/models/" + model_name + ".onnx"
 
     providers = []
+    sess_options = onnxruntime.SessionOptions()
     if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
         providers.append("CUDAExecutionProvider")
     elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
         providers.append("OpenVINOExecutionProvider")
+
+        sess_options.graph_optimization_level = (
+            onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
+        )
     else:
         providers.append("CPUExecutionProvider")
-
-    sess_options = onnxruntime.SessionOptions()
-    sess_options.graph_optimization_level = (
-        onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
-    )
 
     sess = onnxruntime.InferenceSession(
         model_path,
         providers=providers,
         sess_options=sess_options,
-        # provider_options=[
-        #     {"num_of_threads": 4},
-        # ],
     )
 
     input_name = sess.get_inputs()[0].name
@@ -60,7 +57,7 @@ def main():
         "--models", nargs="+", type=str, help="Model Names", required=True
     )
     parser.add_argument("--cpus", type=float, help="Number of CPUs", required=True)
-    parser.add_argument("--runs", type=int, help="Number of Runs", default=100)
+    parser.add_argument("--runs", type=int, help="Number of Runs", default=50)
 
     args = parser.parse_args()
     model_names = args.models

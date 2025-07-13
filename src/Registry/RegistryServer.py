@@ -120,7 +120,7 @@ class RegistryServer(RegisterServicer):
             print("\nEdges:")
             for u, v, data in self.network_graph.edges(data=True):
                 print(
-                    f"  Edge ({u} → {v}): lat={data['latency']*1e3:.3f} s, bw={data['bandwidth']:.2f} MB/s"
+                    f"  Edge ({u} → {v}): lat={data['latency']:.4f} s, bw={data['bandwidth']:.2f} MB/s"
                 )
             print("=== End Graph Summary ===\n")
 

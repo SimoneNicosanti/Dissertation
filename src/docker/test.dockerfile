@@ -23,3 +23,5 @@ RUN pip install --no-cache-dir \
     opencv-python-headless \
     psutil \
     supervision
+
+RUN pip install onnxruntime-openvino

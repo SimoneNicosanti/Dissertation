@@ -59,6 +59,7 @@ class FrontEndServer(InferenceServicer):
             with self.managers_lock.gen_rlock():
                 plan_wrapper = self.plan_wrapper_dict[component_info.model_name]
 
+            start_time = time.perf_counter_ns()
             self.output_sender.send_output(
                 plan_wrapper,
                 component_info,
@@ -72,7 +73,7 @@ class FrontEndServer(InferenceServicer):
         ## If the component is the output one --> The input thread will be unlocked
         if out_tensor_wrap_list is not None:
             inference_time = self.lock_unlock_threads(
-                request_info, component_info, out_tensor_wrap_list
+                request_info, component_info, out_tensor_wrap_list, start_time
             )
 
             ## If Output Component --> Yield output
@@ -91,6 +92,7 @@ class FrontEndServer(InferenceServicer):
         request_info: RequestInfo,
         component_info: ComponentId,
         out_tensor_wrap_list: list[TensorWrapper],
+        start_time: float,
     ) -> float:
 
         with self.managers_lock.gen_rlock():
@@ -99,7 +101,6 @@ class FrontEndServer(InferenceServicer):
         if plan_wrapper.is_component_only_input(component_info):
             print("Locking Input Thread")
 
-            start_time = time.perf_counter_ns()
             waiting_event = threading.Event()
             with self.requests_lock.gen_wlock():
                 self.pending_request_dict[request_info] = waiting_event

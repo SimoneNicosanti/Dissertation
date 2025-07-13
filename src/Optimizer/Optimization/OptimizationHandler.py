@@ -179,8 +179,12 @@ class OptimizationHandler:
         if pulp.LpStatus[final_problem.status] != "Optimal":
             return None
 
-        first_obj_name = "⌛ Latency" if latency_weight >= energy_weight else "Energy"
-        second_obj_name = "🔋 Energy" if latency_weight >= energy_weight else "Latency"
+        first_obj_name = (
+            "⌛ Latency" if latency_weight >= energy_weight else "🔋 Energy"
+        )
+        second_obj_name = (
+            "🔋 Energy" if latency_weight >= energy_weight else "⌛ Latency"
+        )
         print(f"Final {first_obj_name} Optimized Value: ", final_other_cost.value())
         print(f"Final {second_obj_name} Optimized Value: ", final_problem_cost.value())
         print(
@@ -401,20 +405,18 @@ class OptimizationHandler:
             mem_use_vars,
         )
 
-        device_energy_expr = None
+        device_energy_expr = EnergyComputer.compute_energy_cost_per_net_node(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            edge_ass_vars,
+            opt_params.requests_number,
+            start_server,
+            server_execution_profile_pool,
+        )
         if opt_params.device_max_energy > 0:
             ## If <= 0 we assume no boundary
-            device_energy_expr = ConstraintsBuilder.add_energy_constraints(
-                problem,
-                model_graphs,
-                network_graph,
-                node_ass_vars,
-                edge_ass_vars,
-                opt_params.requests_number,
-                start_server,
-                opt_params.device_max_energy,
-                server_execution_profile_pool,
-            )
+            problem += device_energy_expr <= opt_params.device_max_energy
 
         regressor_expressions = []
         for model_profile in model_profile_list:

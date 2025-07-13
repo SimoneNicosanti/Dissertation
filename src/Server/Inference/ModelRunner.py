@@ -12,16 +12,21 @@ class ModelRunner:
         self.component_sessions: dict[ComponentId, ort.InferenceSession] = {}
 
         providers = []
+        sess_options = ort.SessionOptions()
         if "CUDAExecutionProvider" in ort.get_available_providers():
             providers.append("CUDAExecutionProvider")
         elif "OpenVINOExecutionProvider" in ort.get_available_providers():
             providers.append("OpenVINOExecutionProvider")
+            sess_options.graph_optimization_level = (
+                ort.GraphOptimizationLevel.ORT_DISABLE_ALL
+            )
         else:
             providers.append("CPUExecutionProvider")
 
         for comp_info, comp_path in component_dict.items():
             comp_session = ort.InferenceSession(
                 comp_path,
+                sess_options=sess_options,
                 providers=providers,
             )
             self.component_sessions[comp_info] = comp_session

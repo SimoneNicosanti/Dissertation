@@ -73,8 +73,8 @@ def main():
             model_id=ModelId(model_name=model_name)
         )
 
-        print("\t Empty Run")
-        profiler_stub.profile_execution(execution_profile_request)
+        # print("\t Empty Run")
+        # profiler_stub.profile_execution(execution_profile_request)
 
         time_array = np.zeros(runs)
         pred_time = np.zeros(runs)

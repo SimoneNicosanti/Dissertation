@@ -145,7 +145,7 @@ resource "google_compute_instance" "vm_instances" {
 
   boot_disk {
     initialize_params {
-      image = "simone-image-8"
+      image = "simone-image-9"
       size  = 75
     }
   }

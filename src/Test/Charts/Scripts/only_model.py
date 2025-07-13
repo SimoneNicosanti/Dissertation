@@ -44,7 +44,7 @@ def main():
         ax.text(
             x,
             height + 0.03,  # piccolo offset verticale sopra la barra
-            f"{height:.3f}",  # formatta a 3 decimali
+            f"{height:.2f}",  # formatta a 3 decimali
             ha="center",
             va="bottom",
             fontsize=10,

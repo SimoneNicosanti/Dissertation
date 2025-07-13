@@ -9,6 +9,7 @@ import pandas as pd
 import tqdm
 
 from Common.ConfigReader import ConfigReader
+from CommonIds.NodeId import NodeId
 from CommonPlan.Plan import Plan
 from CommonPlan.WholePlan import WholePlan
 from proto_compiled.common_pb2 import ModelId
@@ -50,7 +51,7 @@ def get_frontend_stub():
 def build_file_name(
     case: str,
 ):
-    return f"device_only_plan_{case}.csv"
+    return f"device_edge_plan_{case}.csv"
 
 
 def prepare_dataframe(dataframe: pd.DataFrame, add_df: pd.DataFrame):
@@ -110,7 +111,8 @@ def generation_test(
                 "device_energy_value",
                 "quantized_layers_num",
                 "quantized_layers_array",
-                "num_components",
+                "device_components",
+                "edge_components",
             ]
         )
 
@@ -132,7 +134,8 @@ def generation_test(
     device_energy_values = np.zeros(run_nums)
     quantized_layers_num = np.zeros(run_nums)
     quantized_layers_array = []
-    components_array = []
+    device_comps_array = []
+    edge_comps_array = []
     for idx in tqdm.tqdm(range(run_nums)):
         start = time.perf_counter_ns()
         produce_plan_response: ProducePlanResponse = deployer_stub.produce_plan(
@@ -157,7 +160,15 @@ def generation_test(
             quantized_layers += node_id.node_name + " "
         quantized_layers_array.append(quantized_layers)
 
-        components_array.append(len(prod_plan.get_all_components()))
+        device_comps_num = 0
+        edge_comps_num = 0
+        for comp_id in prod_plan.get_all_components():
+            if comp_id.net_node_id == NodeId("0"):
+                device_comps_num += 1
+            else:
+                edge_comps_num += 1
+        device_comps_array.append(device_comps_num)
+        edge_comps_array.append(edge_comps_num)
 
     add_df = pd.DataFrame(
         {
@@ -174,7 +185,8 @@ def generation_test(
             "device_energy_value": device_energy_values,
             "quantized_layers_num": quantized_layers_num,
             "quantized_layers_array": quantized_layers_array,
-            "num_components": components_array,
+            "device_components": device_comps_array,
+            "edge_components": edge_comps_array,
         }
     )
 
