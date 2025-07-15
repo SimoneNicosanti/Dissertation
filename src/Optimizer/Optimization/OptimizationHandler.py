@@ -108,7 +108,7 @@ class OptimizationHandler:
 
         max_weight = max(latency_weight, energy_weight)
         allowed_increase = 1 - max_weight
-        print("Allowed Increase: ", allowed_increase)
+        print("Allowed % Increase: ", allowed_increase)
 
         (
             final_problem,

@@ -91,9 +91,7 @@ def copy_main(machine_ip):
 
     command = (
         BASE_COMMAND
-        + " ../_GCP/delay_script.py customuser@{}:~/delay_script.py".format(
-            machine_ip
-        )
+        + " ../_GCP/delay_script.py customuser@{}:~/delay_script.py".format(machine_ip)
     )
     # trunk-ignore(bandit/B605)
     os.system(command)
@@ -168,7 +166,14 @@ def copy_state_pool(machine_ip):
 
 
 def copy_test(machine_ip):
+
+    ## Remove results to avoid interference
+    # trunk-ignore(bandit/B605)
+    os.system("ssh customuser@{} rm -r ~/src/Test/Results/*".format(machine_ip))
+
+    ## Sync again everything
     command = BASE_COMMAND + " ../Test/ customuser@{}:~/src/Test".format(machine_ip)
+
     # trunk-ignore(bandit/B605)
     os.system(command)
     return

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Esperimenti.md",
+                "file": "Notes/Ottimizzazione.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Esperimenti"
+              "title": "Ottimizzazione"
             }
           }
         ]
@@ -164,10 +164,10 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "2026b6711c0dedcf",
+  "active": "9c09b47c2b9f6d57",
   "lastOpenFiles": [
-    "Paper/Note Sugli Articoli.md",
     "Notes/Esperimenti.md",
+    "Paper/Note Sugli Articoli.md",
     "Notes/Colloqui/2025-06-20.md",
     "Notes/Indice Tesi.md",
     "Notes/Quantizzazione.md",
