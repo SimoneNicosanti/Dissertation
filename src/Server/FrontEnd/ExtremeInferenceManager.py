@@ -11,5 +11,4 @@ class ExtremeInferenceManager(InferenceManager):
     def do_inference(
         self, component_info: ComponentId, tensor_wrapper_list: list[TensorWrapper]
     ):
-        print("Here")
         return tensor_wrapper_list

@@ -3,6 +3,7 @@ import pulp
 
 from CommonIds.NodeId import NodeId
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
+from CommonProfile.ModelInfo import ModelNodeInfo
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from Optimizer.Optimization import EnergyComputer
 from Optimizer.Optimization.OptimizationKeys import (
@@ -146,22 +147,23 @@ class ConstraintsBuilder:
         mem_use_vars: dict[MemoryUseKey, pulp.LpVariable],
     ):
 
-        ## Bounding for max definition
-        for net_node_id in network_graph.nodes:
-            for model_graph in model_graphs:
-                mem_use_var_key = MemoryUseKey(model_graph.graph["name"], net_node_id)
-                mem_use_var = mem_use_vars[mem_use_var_key]
+        # ## Bounding for max definition
+        # for net_node_id in network_graph.nodes:
+        #     for model_graph in model_graphs:
+        #         mem_use_var_key = MemoryUseKey(model_graph.graph["name"], net_node_id)
+        #         mem_use_var = mem_use_vars[mem_use_var_key]
 
-                for mod_node_id in model_graph.nodes:
-                    x_var_key = NodeAssKey(
-                        mod_node_id, net_node_id, model_graph.graph["name"]
-                    )
-                    x_var = ass_vars[x_var_key]
+        #         for mod_node_id in model_graph.nodes:
+        #             x_var_key = NodeAssKey(
+        #                 mod_node_id, net_node_id, model_graph.graph["name"]
+        #             )
+        #             x_var = ass_vars[x_var_key]
 
-                    mod_node_out_size = model_graph.nodes[mod_node_id]["outputs_size"]
+        #             mod_node_out_size = model_graph.nodes[mod_node_id]["outputs_size"]
 
-                    problem += mem_use_var >= x_var * mod_node_out_size
+        #             problem += mem_use_var >= x_var * mod_node_out_size
 
+        ## Considering only the memory usage given by the weights
         for net_node_id in network_graph.nodes:
             used_memory = 0
             for model_graph in model_graphs:
@@ -173,15 +175,31 @@ class ConstraintsBuilder:
                     x_var = ass_vars[x_var_key]
 
                     mod_node_weights_size = model_graph.nodes[mod_node_id][
-                        "weights_size"
+                        ModelNodeInfo.WEIGHTS_SIZE
                     ]
 
-                    model_used_memory += x_var * mod_node_weights_size
+                    node_used_memory = x_var * mod_node_weights_size
+                    if model_graph.nodes[mod_node_id].get(
+                        ModelNodeInfo.QUANTIZABLE, False
+                    ):
+                        quant_x_var_key = NodeAssKey(
+                            mod_node_id,
+                            net_node_id,
+                            model_graph.graph["name"],
+                            True,
+                        )
+                        quant_x_var = ass_vars[quant_x_var_key]
+                        quant_node_used_memory = quant_x_var * (
+                            mod_node_weights_size - mod_node_weights_size / 4
+                        )
+                        node_used_memory += quant_node_used_memory
 
-                mem_use_var_key = MemoryUseKey(model_graph.graph["name"], net_node_id)
-                mem_use_var = mem_use_vars[mem_use_var_key]
+                    model_used_memory += node_used_memory
 
-                used_memory += model_used_memory + mem_use_var
+                # mem_use_var_key = MemoryUseKey(model_graph.graph["name"], net_node_id)
+                # mem_use_var = mem_use_vars[mem_use_var_key]
+
+                used_memory += model_used_memory  # + mem_use_var
 
             problem += (
                 used_memory

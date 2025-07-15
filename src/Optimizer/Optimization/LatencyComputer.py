@@ -79,12 +79,17 @@ def compute_trans_latency_per_model(
     max_trans_latency = 0
 
     for net_node_id in network_graph.nodes:
-        node_trans_latency_per_model, node_max_trans_latency_per_model = (
-            compute_model_trans_latency_per_node(
-                model_graph, network_graph, edge_ass_vars, net_node_id
-            )
+        (
+            node_trans_latency_per_model_same_dest,
+            node_trans_latency_per_model_diff_dest,
+            node_max_trans_latency_per_model,
+        ) = compute_model_trans_latency_per_node(
+            model_graph, network_graph, edge_ass_vars, net_node_id
         )
-        tot_trans_latency += node_trans_latency_per_model
+        tot_trans_latency += (
+            node_trans_latency_per_model_same_dest
+            + node_trans_latency_per_model_diff_dest
+        )
         max_trans_latency = max(max_trans_latency, node_max_trans_latency_per_model)
 
     return tot_trans_latency, max_trans_latency
@@ -124,8 +129,9 @@ def compute_model_trans_latency_per_node(
     network_graph: nx.DiGraph,
     edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
     net_node_id: NodeId,
-) -> tuple[pulp.LpAffineExpression, float]:
-    sum_elems = []
+) -> tuple[pulp.LpAffineExpression, pulp.LpAffineExpression, float]:
+    sum_elems_same_dest = []
+    sum_elems_diff_dest = []
     max_trans_latency = 0
     for mod_edge_id in model_graph.edges:
         for net_edge_id in network_graph.edges:
@@ -138,13 +144,21 @@ def compute_model_trans_latency_per_node(
                     edge_ass_vars,
                 )
 
-                sum_elems.append(trans_time_expr)
+                if net_edge_id[1] == net_node_id:
+                    sum_elems_same_dest.append(trans_time_expr)
+                else:
+                    sum_elems_diff_dest.append(trans_time_expr)
 
                 max_trans_latency = max(
                     max_trans_latency,
                     layer_max_trans_time,
                 )
-    return pulp.lpSum(sum_elems), max_trans_latency
+
+    return (
+        pulp.lpSum(sum_elems_same_dest),
+        pulp.lpSum(sum_elems_diff_dest),
+        max_trans_latency,
+    )
 
 
 def __get_transmission_time(
@@ -157,13 +171,18 @@ def __get_transmission_time(
     ## Note --> Assuming Bandwidth in MB / s
 
     not_quant_ass_key = EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])
-    not_quant_tx_time = model_graph.edges[mod_edge_id][
-        ModelEdgeInfo.TOT_TENSOR_SIZE
-    ] / (network_graph.edges[net_edge_id][NetworkEdgeInfo.BANDWIDTH])
+
+    if net_edge_id[0] == net_edge_id[1]:
+        not_quant_tx_time = 0
+    else:
+        not_quant_tx_time = model_graph.edges[mod_edge_id][
+            ModelEdgeInfo.TOT_TENSOR_SIZE
+        ] / (network_graph.edges[net_edge_id][NetworkEdgeInfo.BANDWIDTH])
+
     trans_expr = not_quant_tx_time * edge_ass_vars[not_quant_ass_key]
 
     if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
-        quant_tx_time = not_quant_tx_time / 8
+        quant_tx_time = not_quant_tx_time / 4
 
         quant_ass_key = EdgeAssKey(
             mod_edge_id, net_edge_id, model_graph.graph["name"], True
@@ -175,7 +194,11 @@ def __get_transmission_time(
         )
 
     ## We add the latency of this link only if the edge is actually mapped on this link
-    latency = network_graph.edges[net_edge_id][NetworkEdgeInfo.LATENCY]
+    if net_edge_id[0] == net_edge_id[1]:
+        latency = 0
+    else:
+        latency = network_graph.edges[net_edge_id][NetworkEdgeInfo.LATENCY]
+
     trans_expr = trans_expr + latency * edge_ass_vars[not_quant_ass_key]
 
     return trans_expr, not_quant_tx_time + latency

@@ -443,7 +443,11 @@ T_{ik}^x = base\_tx\_time(m,n) \cdot y_{mn} - \left(base\_tx\_time(m,n) - \frac{
 $$
 
 Il tempo di trasmissione di un server $k$ è dato da:
-$$T_{k}^x =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \sum_{n \in E_N \wedge k == n[0]} T_{ik}^x$$
+$$T_{k}^x =  \sum_{m = (i, j) \in E_M^a} \hspace{0.1cm} \left( \sum_{n \in E_N \wedge  k = n[0] = n[1] } T_{ik}^x \hspace{0.5cm} + \sum_{n \in E_N \wedge  k = n[0] \wedge k \neq n[1] } T_{ik}^x \right) = \sum_{m = (i, j) \in E_M^a} \left( 
+T_{ik}^{x-self} + T_{ik}^{x-oth}
+\right)$$
+
+Ovvero è dato dal contributo dei tempi di trasmissione ai livelli successori che si trovano sullo stesso server e su server diversi.
 
 Dove la variabile $y_{mn}^q = y_{mn} \cdot q_i$ con vincoli seguenti:
 - $y_{mn}^q \le y_{mn}$
@@ -484,7 +488,9 @@ $$E^{c} = \sum_{k \in V_N} E_k^{c}$$
 Sia $l_k(t)$ la funzione che stima l'energia usata per la trasmissione di durata $t$ dal dispositivo $k$.
 
 L'energia data di trasmissione sul server $k$ è definita come:
-$$E_k^{x} = l_k(T_k^{x})$$
+$$E_k^{x} = l_k^{self}(T_k^{x-self}) + l_{k}^{oth}(T_{k}^{x-oth})$$
+
+Quindi anche in questo caso abbiamo il contributo delle energie per trasmettere al server medesimo (questo dipenderà dal consumo sull'interfaccia di loopback --> memoria e potenzialmente trascurabile) e per trasmettere ad altri server (cosa che comporta l'attivazione dell'interfaccia di rete e il consumo energetico maggiore).
 
 Il consumo energetico complessivo per la trasmissione è dato da 
 $$E^{x} = \sum_{k \in V_N} E_k^{x}$$
@@ -552,3 +558,28 @@ $e(\hat{q}) \le e_{max}$
 Dove $e_{max}$ rappresenta il rumore massimo che si è disposti a tollerare sull'output del modello.
 
 
+## Modello di Trasmissione su Tensori
+Se consideriamo il mapping di archi, è possibile che lo stesso tensore vonga considerato come più volte da trasmettere: se lo stesso tensore è ricevuto in input da più livelli e quei livelli si trovano sullo stesso server, il costo di trasmissione è considerato due volte.
+
+Bisogna lavorare per trasmissione di tensore e non per mapping di arco.
+
+Sostituiamo $y_{mn}$ con $y_{tn}$ dove $t \in T$ insieme dei tensori del modello e $n = (k, h) \in E_N$ insieme di archi di rete.
+
+Abbiamo che $y_{tn} = 1$ se e solo se esiste un $j \in V_D$ mappato su $h \in V_N$ tale che $j$ riceve in input il tensore $t$ dal nodo $i \in V_D$ mappato sul server $k \in V_N$. 
+Sia $E_D(t) = \{(i,j) \in E_D : t \in (i,j).tensors \}$
+Allora $y_{tn}$ è soggetto ai seguenti vincoli:
+
+$$
+\begin{cases}
+	y_{tn} \le x_{ik} \\
+	y_{tn} \le \sum_{(i,j) \in E_D(t)} x_{jh} \\
+	y_{yn} \ge x_{ik} + \frac{1}{|E_D(t)|} \sum_{(i,j) \in E_D(t)} x_{jh} - 1
+\end{cases}
+
+$$
+Analisi vincoli:
+- Il primo vincolo obbliga il valore a 0 se il  generatore del tensore non si trova sul server $k$
+- Il secondo vincolo obbliga il valore a 0 se non ci sono livelli che ricevono il tensore t che si trovano sul server h
+- Il terzo vincolo obbliga il valore ad 1 se le due condizioni di cui sopra sono soddisfatte
+
+Questi vincoli sostituiscono i vincoli di flusso e i vincoli di mapping 1:1 che riguardavano invece 

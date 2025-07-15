@@ -2,10 +2,7 @@ import tempfile
 
 import numpy as np
 import onnxruntime as ort
-from onnxruntime.quantization import (
-    CalibrationDataReader,
-    quantize_static,
-)
+from onnxruntime.quantization import CalibrationDataReader, QuantType, quantize_static
 from onnxruntime.quantization.preprocess import quant_pre_process
 
 
@@ -21,6 +18,9 @@ class DummyQuantizer:
                 temp_file.name,
                 output_model_path,
                 calibration_data_reader=DummyQuantizer.ZeroDataReader(input_model_path),
+                # activation_type=QuantType.QUInt8,
+                # weight_type=QuantType.QUInt8,
+                extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
             )
 
     class ZeroDataReader(CalibrationDataReader):

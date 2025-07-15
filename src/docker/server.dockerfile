@@ -25,16 +25,30 @@ RUN pip install iperf3
 
 RUN apt-get install iproute2 -y
 
+RUN pip install supervision
+
+RUN apt install -y libgl1
+
+RUN apt update 
+RUN apt install screen -y
+
+RUN pip install onnxruntime-openvino
+RUN pip install openvino
+
 # USER customuser
 
 # Inference port
-EXPOSE 50004 
-# Assignment port
-EXPOSE 50005
-# Ping port
 EXPOSE 50006
-# Frontend port
+# Assignment port
+EXPOSE 50007
+# Ping port
 EXPOSE 50008
+# Frontend port
+EXPOSE 50010
+# iperf3 port
+EXPOSE 50011
+# Execution profiler port
+EXPOSE 50012
 
 
 CMD ["/bin/bash"]

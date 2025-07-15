@@ -4,10 +4,11 @@ import os
 import numpy as np
 import onnx
 import onnxruntime as ort
+import tqdm
 from onnx.utils import Extractor
 
 TEST_NUM = 3
-MODEL_NAME = "yolo11l"
+MODEL_NAME = "yolo11n-seg"
 
 
 def collect_valid_tensors(onnx_model: onnx.ModelProto):
@@ -27,13 +28,15 @@ def collect_valid_tensors(onnx_model: onnx.ModelProto):
 def profile_model(sub_model: onnx.ModelProto):
     sess_options = ort.SessionOptions()
     sess_options.enable_profiling = True
+    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+
     sess = ort.InferenceSession(
         sub_model.SerializeToString(), sess_options=sess_options
     )
 
     input_dict = {}
     for input in sess.get_inputs():
-        input_dict[input.name] = np.zeros(input.shape, dtype=np.float32)
+        input_dict[input.name] = np.ones(input.shape, dtype=np.float32)
 
     for _ in range(TEST_NUM):
         sess.run(None, input_feed=input_dict)
@@ -85,18 +88,36 @@ def divide_layer(
     return extracted_model
 
 
+def optimize_graph(onnx_model):
+    so = ort.SessionOptions()
+    so.optimized_model_filepath = "model_optimized.onnx"
+    so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+
+    session = ort.InferenceSession(onnx_model.SerializeToString(), sess_options=so)
+
+    return onnx.load_model("model_optimized.onnx")
+    pass
+
+
 def main():
     onnx_model = onnx.load_model(MODEL_NAME + ".onnx")
     valid_tensors = collect_valid_tensors(onnx_model)
 
+    onnx_model = optimize_graph(onnx_model)
+
+    total_time = profile_model(onnx_model)
+    print("Per Model Total Time >>", total_time)
+
     times = {}
-    for layer in onnx_model.graph.node:
-        print("Processing >> ", layer.name)
+    for layer in tqdm.tqdm(onnx_model.graph.node):
+        # print("Processing >> ", layer.name)
         extraxcted_model = divide_layer(
             MODEL_NAME + ".onnx", layer.name, onnx_model, valid_tensors
         )
         layer_time = profile_model(extraxcted_model)
         times[layer.name] = layer_time
+
+    print("Per Layer Total Time>>", sum(times.values()))
 
     pass
 

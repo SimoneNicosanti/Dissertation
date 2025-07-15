@@ -8,6 +8,9 @@ service Register {
     rpc register_server(ReachabilityInfo) returns (ServerId);
     rpc get_all_servers_info(common.Empty) returns (AllServerInfo);
     rpc get_info_from_id(ServerId) returns (ReachabilityInfo);
+
+    rpc push_state(ServerState) returns (common.Empty);
+    rpc pull_all_states(common.Empty) returns (StateMap);
 }
 
 
@@ -32,4 +35,11 @@ message AllServerInfo {
 }
 
 
+message ServerState {
+    string server_id = 1;
+    string state = 2;
+}
 
+message StateMap {
+    string network_profile = 1;
+}

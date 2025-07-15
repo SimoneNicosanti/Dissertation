@@ -42,27 +42,36 @@ class ModelProfileServer(ModelProfileServicer):
             )
             print("Built Model Graph")
 
-            train_set_size = 750
-            test_set_size = 50
-            calibration_size = 100
-            noise_set_size = 1
+            if (
+                profile_request.HasField("profile_regression")
+                and profile_request.profile_regression
+            ):
 
-            dataframe: pd.DataFrame = QuantizationProfile().profile_quantization(
-                onnx_model,
-                model_graph,
-                max_quantizable=10,
-                calibration_dataset=dataset,
-                train_set_size=train_set_size,
-                test_set_size=test_set_size,
-                calibration_size=calibration_size,
-                noise_test_size=noise_set_size,
-            )
-            print("Done Quantization Profile")
+                train_set_size = 1000
+                test_set_size = 100
+                calibration_size = 100
+                noise_set_size = 20
+                max_quantizable = 12
+                max_degree = 3
 
-            regressor: Regressor = QuantizationRegressor.build_regressor(
-                dataframe, train_set_size, test_set_size, 3
-            )
-            print("Built Regressor")
+                dataframe: pd.DataFrame = QuantizationProfile().profile_quantization(
+                    onnx_model,
+                    model_graph,
+                    max_quantizable=max_quantizable,
+                    calibration_dataset=dataset,
+                    train_set_size=train_set_size,
+                    test_set_size=test_set_size,
+                    calibration_size=calibration_size,
+                    noise_test_size=noise_set_size,
+                )
+                print("Done Quantization Profile")
+
+                regressor: Regressor = QuantizationRegressor.build_regressor(
+                    dataframe, train_set_size, test_set_size, max_degree
+                )
+                print("Built Regressor")
+            else:
+                regressor = Regressor()
 
             model_profile = ModelProfile()
             model_profile.set_model_graph(model_graph)

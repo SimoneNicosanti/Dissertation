@@ -43,10 +43,12 @@ class TensorChunk(_message.Message):
     def __init__(self, chunk_size: _Optional[int] = ..., chunk_data: _Optional[bytes] = ...) -> None: ...
 
 class InferenceResponse(_message.Message):
-    __slots__ = ("output_tensor",)
+    __slots__ = ("output_tensor", "inference_time")
     OUTPUT_TENSOR_FIELD_NUMBER: _ClassVar[int]
+    INFERENCE_TIME_FIELD_NUMBER: _ClassVar[int]
     output_tensor: Tensor
-    def __init__(self, output_tensor: _Optional[_Union[Tensor, _Mapping]] = ...) -> None: ...
+    inference_time: float
+    def __init__(self, output_tensor: _Optional[_Union[Tensor, _Mapping]] = ..., inference_time: _Optional[float] = ...) -> None: ...
 
 class AssignmentRequest(_message.Message):
     __slots__ = ("optimized_plan",)

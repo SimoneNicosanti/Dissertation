@@ -85,6 +85,8 @@ class PoolServer(ModelPoolServicer):
         self, request: PullRequest, context
     ) -> Iterator[LayerPullResponse]:
 
+        model_name = request.component_id.model_id.model_name
+
         component_id: ComponentId = request.component_id
 
         ## Not quantized model
@@ -96,7 +98,9 @@ class PoolServer(ModelPoolServicer):
         layer_divider = LayerDivider(model_file_path)
 
         for layer in onnx_model.graph.node:
-            layer_model: onnx.ModelProto = layer_divider.divide_layer(layer.name)
+            layer_model = self.build_layer_model(
+                model_name, layer.name, layer_divider=layer_divider
+            )
             for pull_response in ModelYielder.pull_yield(layer_model):
                 yield LayerPullResponse(
                     layer_name=layer.name,
@@ -114,8 +118,8 @@ class PoolServer(ModelPoolServicer):
             model_file_path, quant_onnx_model_path=quant_model_file_path
         )
         for layer in onnx_model.graph.node:
-            layer_model: onnx.ModelProto = quantized_layer_divider.divide_layer(
-                layer.name
+            layer_model = self.build_layer_model(
+                model_name, layer.name, quantized_layer_divider, quantized=True
             )
             for pull_response in ModelYielder.pull_yield(layer_model):
                 yield LayerPullResponse(
@@ -125,6 +129,35 @@ class PoolServer(ModelPoolServicer):
                 )
 
         return
+
+    def build_layer_model(
+        self,
+        model_name: str,
+        layer_name: str,
+        layer_divider: LayerDivider,
+        quantized: bool = False,
+    ):
+        base_path = ConfigReader("./config/config.ini").read_str(
+            "model_pool_dirs", "LAYERS_DIR"
+        )
+
+        sanitized_name = layer_name.replace("/", "_")
+        sanitized_name = sanitized_name.replace(":", "_")
+
+        layer_file_name = f"{model_name}_{sanitized_name}.onnx"
+        if quantized:
+            layer_file_name = f"{model_name}_{sanitized_name}_quant.onnx"
+
+        layer_file_path = os.path.join(base_path, layer_file_name)
+        if os.path.exists(layer_file_path):
+            layer_model: onnx.ModelProto = onnx.load_model(layer_file_path)
+            return layer_model
+
+        layer_model: onnx.ModelProto = layer_divider.extract_layer(layer_name)
+
+        onnx.save_model(layer_model, layer_file_path)
+
+        return layer_model
 
     def push_calibration_dataset(
         self, request: Iterator[CalibrationPushRequest], context
@@ -151,7 +184,7 @@ class PoolServer(ModelPoolServicer):
 
         model_name = request.model_id.model_name
 
-        file_name = f"{model_name}_calibration.npy"
+        file_name = f"yolo11_calibration.npy"
         file_dir = ConfigReader().read_str("model_pool_dirs", "CALIBRATION_DATASET_DIR")
 
         file_path = os.path.join(file_dir, file_name)
@@ -159,7 +192,6 @@ class PoolServer(ModelPoolServicer):
         chunk_size = ConfigReader().read_bytes_chunk_size()
         with open(file_path, "rb") as file:
             while chunk_data := file.read(chunk_size):
-                print("Here")
                 yield CalibrationChunk(chunk_data=chunk_data)
 
         return

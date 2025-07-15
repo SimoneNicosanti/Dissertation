@@ -1,86 +1,120 @@
-import threading
+import argparse
 import time
 
 import cv2
-import numpy
-import yaml
+import numpy as np
+import scipy.stats as stats
+import supervision as sv
 
 from Client.InferenceCaller import InferenceCaller
-from Client.PPP.YoloPPP import YoloPPP
-from Client.PPP.YoloSegmentationPPP import YoloSegmentationPPP
-from Common import ConfigReader
+from Client.YoloPPP import YoloPPP
 
 
 def main():
 
+    parser = argparse.ArgumentParser()
+
+    # Aggiungi argomenti
+    parser.add_argument("--model", type=str, help="Model Name", required=True)
+    parser.add_argument("--runs", type=int, help="Number of Runs", default = 100)
+
+    args = parser.parse_args()
+    model_name = args.model
+    runs = args.runs
+
     interactor = InferenceCaller()
 
-    coco_config_path = ConfigReader.ConfigReader().read_str(
-        "device_paths", "COCO_CONFIG_PATH"
-    )
-    classes = yaml.safe_load(open(coco_config_path))["names"]
-    yolo_segmentation_ppp = YoloSegmentationPPP(640, 640, classes)
+    yolo_ppp = YoloPPP(640, 640)
 
     # Pre-process
     orig_image = cv2.imread("./Client/test/Test_Image.jpg")
-    preprocess_dict = yolo_segmentation_ppp.preprocess(orig_image)
-    pre_image: numpy.ndarray = preprocess_dict["preprocessed_image"]
+    pre_image = yolo_ppp.preprocess(orig_image)
 
-    model_list = [
-        "yolo11n-seg",
-    ]
-    thr_list = []
-    for idx in range(1):
-        thr = threading.Thread(
-            target=do_inference,
-            args=(
-                interactor,
-                yolo_segmentation_ppp,
-                preprocess_dict,
-                pre_image,
-                orig_image,
-                model_list[idx % len(model_list)],
-            ),
+    times = np.zeros(runs)
+    for idx in range(runs):
+        _ = time.perf_counter_ns()
+        _, inference_time = do_inference(
+            interactor,
+            pre_image,
+            model_name,
         )
-        thr_list.append(thr)
+        _ = time.perf_counter_ns()
+        times[idx] = inference_time
 
-    start = time.perf_counter_ns()
-    for thr in thr_list:
-        thr.start()
+    # times = times * 1e-9
+    mean = times.mean()
+    std_err = stats.sem(times)  # errore standard
 
-    for thr in thr_list:
-        thr.join()
-    end = time.perf_counter_ns()
+    conf_level = 0.95
+    ci = stats.t.interval(conf_level, df=len(times) - 1, loc=mean, scale=std_err)
+    print(f"📊 Media: {mean:.5f}")
+    print(f"📉 Intervallo di confidenza al 95%: ({ci[0]:.5f}, {ci[1]:.5f})")
 
-    print("Total Inference Time >>> ", (end - start) / 1e9)
+
+# # Post-process
+# bboxes, masks, _ = yolo_ppp.postprocess(
+#     orig_image,
+#     predictions=output0,
+#     prototypes=output1,
+#     score_thr=0.5,
+#     iou_thr=0.5,
+#     num_classes=80,
+# )
+
+# if bboxes is not None and masks is not None:
+
+#     detections = sv.Detections(
+#         xyxy=bboxes[:, :4],
+#         mask=masks,
+#         confidence=bboxes[:, 4],
+#         class_id=bboxes[:, 5].astype(int),
+#     )
+
+#     mask_annotator = sv.MaskAnnotator()
+
+#     # Applica le annotazioni a un'immagine
+#     annotated_image = mask_annotator.annotate(
+#         scene=orig_image,  # la tua immagine (array NumPy)
+#         detections=detections,  # le detections da disegnare
+#     )
+
+#     labels = [
+#         f"{class_name} {confidence:.2f}"
+#         for class_name, confidence in zip(
+#             detections.class_id, detections.confidence
+#         )
+#     ]
+
+#     box_annotator = sv.BoxAnnotator()
+
+#     # Applica le annotazioni a un'immagine
+#     annotated_image = box_annotator.annotate(
+#         scene=orig_image,  # la tua immagine (array NumPy)
+#         detections=detections,  # le detections da disegnare
+#     )
+
+#     label_annotator = sv.LabelAnnotator()
+
+#     # Applica le annotazioni a un'immagine
+#     annotated_image = label_annotator.annotate(
+#         scene=orig_image,  # la tua immagine (array NumPy)
+#         detections=detections,  # le detections da disegnare
+#         labels=labels,
+#     )
+
+#     cv2.imwrite("./Client/test/Test_Image_Out.jpg", annotated_image)
 
 
 def do_inference(
     inference_caller: InferenceCaller,
-    yolo_segmentation_ppp: YoloPPP,
-    preprocess_dict: dict[str],
-    pre_image,
-    orig_image,
+    pre_image: np.ndarray,
     model_name,
 ):
-    output, request_idx = inference_caller.call_inference(
+    output, inference_time, index = inference_caller.call_inference(
         model_name, {"images": pre_image}
     )
 
-    output0 = output["output0"]
-    output1 = output["output1"]
-
-    post_image = yolo_segmentation_ppp.postprocess(
-        orig_image,
-        [output0, output1],
-        0.5,
-        0.5,
-        ratio=preprocess_dict["ratio"],
-        pad_w=preprocess_dict["pad_w"],
-        pad_h=preprocess_dict["pad_h"],
-        nm=32,
-    )
-    cv2.imwrite(f"./Client/test/Test_Image_Out_{request_idx}.jpg", post_image)
+    return output, inference_time
 
 
 if __name__ == "__main__":

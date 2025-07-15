@@ -37,3 +37,15 @@ Esempi:
 - Analisi dei Risultati
 
 # Conclusioni e Sviluppi Futuri
+
+
+
+
+
+
+## NOTE CAPITOLI
+
+> [!TODO] Title
+> Memoria:
+> - Semplifica solo ai pesi
+> - Intro dicendo quali parti stai considerando e perché ne trascuri altre

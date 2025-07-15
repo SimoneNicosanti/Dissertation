@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "d22f206bc3e108ae",
+        "id": "9467aadc9f5804ab",
         "type": "tabs",
         "children": [
           {
-            "id": "75523d1393ddf165",
+            "id": "9c09b47c2b9f6d57",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -19,36 +19,9 @@
               },
               "icon": "lucide-file",
               "title": "Ottimizzazione"
-            }
-          },
-          {
-            "id": "1677655c30dd1109",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Notes/Ottimizzazione.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Ottimizzazione"
-            }
-          },
-          {
-            "id": "4537872bee154826",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "Diagram 1.svg"
-              },
-              "icon": "lucide-image",
-              "title": "Diagram 1"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -105,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 367.5026054382324
+    "width": 261.5026054382324
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -191,53 +164,52 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "1677655c30dd1109",
+  "active": "9c09b47c2b9f6d57",
   "lastOpenFiles": [
-    "Ottimizzazione 3.0 - Con Quantizzazione - Send.md",
-    "Notes/Ottimizzazione.md",
+    "Notes/Esperimenti.md",
     "Paper/Note Sugli Articoli.md",
-    "Paper/Neurosurgeon.pdf",
-    "Paper/energy_optimal_mobile_application_execution.pdf",
-    "Notes/Calcolo FLOPS.md",
+    "Notes/Colloqui/2025-06-20.md",
+    "Notes/Indice Tesi.md",
+    "Notes/Quantizzazione.md",
+    "Schermata del 2025-07-02 17-07-18.png",
+    "Schermata del 2025-07-02 16-33-42.png",
+    "Notes/Ottimizzazione.md",
+    "Notes/Architettura/Diagrams_OK/All_Components.png",
+    "Notes/Architettura/Diagrams_OK",
+    "Notes/Architettura/Diagrams_OK/SD_Inference.png",
+    "Notes/Architettura/Diagrams_OK/SD_Plan_Generation.png",
+    "Notes/Architettura/Diagrams_OK/SD_Plan_Deployment.png",
+    "Notes/Architettura/Diagrams_OK/SD_Model_Loading.png",
+    "Notes/Colloqui/HELO.md",
+    "Notes/Ottimizzazione - Altro.md",
+    "Notes/Architettura/Architettura 2.md",
+    "Notes/Yolo.md",
+    "Notes/Architettura/Architettura.md",
+    "Notes/Rumore di Quantizzazione.md",
     "Notes/Componenti Connesse.md",
     "Notes/Distribuzione.md",
-    "Notes/Esperimenti.md",
-    "Notes/Indice Tesi.md",
-    "Notes/LiteRT.md",
-    "Notes/Monitoraggio.md",
-    "Notes/Profiling.md",
-    "Notes/Architettura/Architettura 2.md",
-    "Diagram 1.svg",
-    "Notes/Ottimizzazione - Altro.md",
-    "Notes/Quantizzazione.md",
-    "Notes/Architettura/Architettura.md",
-    "Diagram 2.svg.xml",
-    "Diagram 2.svg",
-    "Diagram 1.svg.xml",
-    "Notes/Architettura/Diagrams/Architecture_Optimization.svg",
-    "Notes/Architettura/Diagrams/Architecture_Control.svg",
-    "Diagram.svg",
-    "Diagram.svg.xml",
-    "Notes/Architettura/Diagrams/Architecture_Inference.svg",
-    "Notes/Architettura/Diagrams/Architecture_Inference.svg.xml",
-    "Notes/Architettura/Diagrams/Architecture_Optimization.svg.xml",
-    "Notes/Architettura/Architettura_Inviare.md",
-    "Notes/Architettura/Diagrams/Architecture_Control.svg.xml",
-    "Paper/Gillis/gillis-icdcs21.pdf",
-    "Paper/Furcifer/Furcifer_PerCom24.pdf",
-    "Notes/Yolo.md",
-    "Rumore.md",
-    "linear_plot 2.png",
-    "Schermata del 2025-04-25 14-37-45.png",
-    "Schermata del 2025-04-23 14-54-39.png",
-    "linear_plot 1.png",
-    "Notes/Colloqui/HELO.md",
     "Notes/Colloqui/2025-03-22.md",
     "Notes/Colloqui/2025-03-04.md",
-    "Paper/Gillis/Gillis - Notes.md",
-    "Notes/Colloqui/14-04-2024.md",
+    "Notes/Colloqui/2025-02-20.md",
+    "Notes/Colloqui/2025-02-05.md",
+    "Notes/Altre Note.md",
+    "Notes/Calcolo FLOPS.md",
     "Notes/Split del Modello.md",
-    "26.md",
-    "Paper/Furcifer/Furcifer - Notes.md"
+    "Ottimizzazione 3.0 - Con Quantizzazione - Send.md",
+    "Notes/Images/Schermata del 2025-04-23 14-54-39.png",
+    "Notes/Images/linear_plot.png",
+    "Notes/Images/Schermata del 2025-04-25 14-37-45.png",
+    "Notes/Profiling Esecuzione Server.md",
+    "Notes/Senza nome.md",
+    "Paper/Neurosurgeon.pdf",
+    "Paper/energy_optimal_mobile_application_execution.pdf",
+    "Notes/LiteRT.md",
+    "Notes/Architettura/Diagrams/Diagram 2.svg.xml",
+    "Notes/Architettura/Diagrams/Diagram 1.svg.xml",
+    "Notes/Architettura/Diagrams/Diagram.svg.xml",
+    "Notes/Architettura/Diagrams/Architecture_Inference.svg.xml",
+    "Notes/Architettura/Diagrams/Architecture_Optimization.svg.xml",
+    "Notes/Architettura/Diagrams/Architecture_Control.svg.xml",
+    "Paper/Gillis/gillis-icdcs21.pdf"
   ]
 }

@@ -5,7 +5,7 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
-from CommonPlan.SolvedModelGraph import SolvedNodeInfo
+from CommonPlan.SolvedModelGraph import SolvedGraphInfo, SolvedNodeInfo
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
 from CommonProfile.ModelProfile import ModelProfile, Regressor
@@ -108,7 +108,7 @@ class OptimizationHandler:
 
         max_weight = max(latency_weight, energy_weight)
         allowed_increase = 1 - max_weight
-        print("Allowed Increase: ", allowed_increase)
+        print("Allowed % Increase: ", allowed_increase)
 
         (
             final_problem,
@@ -179,12 +179,14 @@ class OptimizationHandler:
         if pulp.LpStatus[final_problem.status] != "Optimal":
             return None
 
-        first_obj_name = "⌛ Latency" if latency_weight >= energy_weight else "Energy"
-        second_obj_name = "🔋 Energy" if latency_weight >= energy_weight else "Latency"
-        print(f"Final {first_obj_name} Optimization Value: ", final_other_cost.value())
-        print(
-            f"Final {second_obj_name} Optimization Value: ", final_problem_cost.value()
+        first_obj_name = (
+            "⌛ Latency" if latency_weight >= energy_weight else "🔋 Energy"
         )
+        second_obj_name = (
+            "🔋 Energy" if latency_weight >= energy_weight else "⌛ Latency"
+        )
+        print(f"Final {first_obj_name} Optimized Value: ", final_other_cost.value())
+        print(f"Final {second_obj_name} Optimized Value: ", final_problem_cost.value())
         print(
             "Final 🪫 Device Energy: ",
             None if device_max_exergy is None else device_max_exergy.value(),
@@ -204,6 +206,22 @@ class OptimizationHandler:
                     final_quantization_vars,
                 )
             )
+
+            ## TODO We are considering only one model: it is ok for now
+            solved_model_graph.graph[SolvedGraphInfo.LATENCY_VALUE] = (
+                final_other_cost.value()
+                if latency_weight >= energy_weight
+                else final_problem_cost.value()
+            )
+            solved_model_graph.graph[SolvedGraphInfo.ENERGY_VALUE] = (
+                final_problem_cost.value()
+                if latency_weight >= energy_weight
+                else final_other_cost.value()
+            )
+            solved_model_graph.graph[SolvedGraphInfo.DEVICE_ENERGY_VALUE] = (
+                None if device_max_exergy is None else device_max_exergy.value()
+            )
+
             solved_model_graphs.append(solved_model_graph)
             time.perf_counter_ns()
 
@@ -387,20 +405,18 @@ class OptimizationHandler:
             mem_use_vars,
         )
 
-        device_energy_expr = None
+        device_energy_expr = EnergyComputer.compute_energy_cost_per_net_node(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            edge_ass_vars,
+            opt_params.requests_number,
+            start_server,
+            server_execution_profile_pool,
+        )
         if opt_params.device_max_energy > 0:
             ## If <= 0 we assume no boundary
-            device_energy_expr = ConstraintsBuilder.add_energy_constraints(
-                problem,
-                model_graphs,
-                network_graph,
-                node_ass_vars,
-                edge_ass_vars,
-                opt_params.requests_number,
-                start_server,
-                opt_params.device_max_energy,
-                server_execution_profile_pool,
-            )
+            problem += device_energy_expr <= opt_params.device_max_energy
 
         regressor_expressions = []
         for model_profile in model_profile_list:

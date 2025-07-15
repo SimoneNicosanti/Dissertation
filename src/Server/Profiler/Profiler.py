@@ -1,13 +1,9 @@
-import json
-import os
-import tempfile
 import time
 
 import numpy as np
 import onnx
+import onnxruntime
 import onnxruntime as ort
-
-from CommonQuantization import SoftQuantization
 
 
 class ExecutionProfiler:
@@ -19,82 +15,135 @@ class ExecutionProfiler:
         self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ) -> dict[bool, float]:
 
-        exec_time = self.profile_normal_model_exec_time(
-            onnx_model, run_times, is_quantized
-        )
+        exec_time = self.profile_model_exec_time(onnx_model, run_times, is_quantized)
         # quant_exec_time = self.profile_quant_model_exec_time(onnx_model, run_times)
 
         return float(exec_time)
 
-    def profile_normal_model_exec_time(
+    def profile_model_exec_time(
         self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ):
-        sess_options = ort.SessionOptions()
-        # sess_options.enable_profiling = True
+        if "CUDAExecutionProvider" in ort.get_available_providers():
+            execution_times = self.profile_gpu_execution(onnx_model, run_times)
+        elif "OpenVINOExecutionProvider" in ort.get_available_providers():
+            execution_times = self.profile_openvino_execution(onnx_model, run_times)
+        else:
+            execution_times = self.profile_cpu_execution(onnx_model, run_times)
+
+        return np.mean(execution_times) * 1e-9  ## Returning mean execution time in sec
+
+    def profile_gpu_execution(self, onnx_model: onnx.ModelProto, run_times: int):
         sess = ort.InferenceSession(
-            onnx_model.SerializeToString(), sess_options=sess_options
+            onnx_model.SerializeToString(),
+            providers=["CUDAExecutionProvider"],
         )
 
-        input = {}
+        input_dict = {}
         for elem in sess.get_inputs():
             elem_type = elem.type
-            input[elem.name] = np.zeros(elem.shape, dtype=self.onnx_to_numpy(elem_type))
-            # if is_quantized:
+            input_elem = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
+            input_dict[elem.name] = ort.OrtValue.ortvalue_from_numpy(input_elem, "cuda")
 
-            # else:
-            #     input[elem.name] = np.zeros(elem.shape, dtype=np.float32)
-
-        ## Cold Stard
-        sess.run(None, input_feed=input)
+        ## Cold Start
+        for _ in range(3):
+            sess.run_with_ort_values(None, input_dict)
 
         execution_times: np.ndarray = np.zeros(run_times)
         for idx in range(run_times):
             start = time.perf_counter_ns()
-            sess.run(None, input_feed=input)
+            sess.run_with_ort_values(None, input_dict)
             end = time.perf_counter_ns()
 
             execution_times[idx] = end - start
 
-        # profile_file_name = sess.end_profiling()
-        # execution_times: np.ndarray = self.__read_execution_profile(profile_file_name)
+        return execution_times
 
-        # os.remove(profile_file_name)
+    def profile_openvino_execution(self, onnx_model: onnx.ModelProto, run_times: int):
 
-        return np.mean(execution_times) * 1e-9  ## Returning mean execution time
+        sess = onnxruntime.InferenceSession(
+            onnx_model.SerializeToString(), providers=["OpenVINOExecutionProvider"]
+        )
 
-    # def profile_quant_model_exec_time(
-    #     self, onnx_model: onnx.ModelProto, run_times: int
-    # ):
-    #     temp_file = "hello.onnx"
-    #     # temp_file_desc, temp_file = tempfile.mkstemp(suffix=".onnx")
-    #     onnx.save_model(onnx_model, temp_file)
+        input_dict = {}
+        for elem in sess.get_inputs():
+            elem_type = elem.type
+            input_elem = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
+            input_dict[elem.name] = ort.OrtValue.ortvalue_from_numpy(input_elem)
 
-    #     prep_model, tensors_range = SoftQuantization.prepare_quantization(
-    #         temp_file, ZeroDataReader(onnx_model)
-    #     )
-    #     quant_model = SoftQuantization.soft_quantization(prep_model, tensors_range)
+        ## Cold Start
+        for _ in range(3):
+            sess.run_with_ort_values(None, input_dict)
 
-    #     exec_time = self.profile_normal_model_exec_time(quant_model, run_times)
+        execution_times: np.ndarray = np.zeros(run_times)
+        for idx in range(run_times):
+            start = time.perf_counter_ns()
+            sess.run_with_ort_values(None, input_dict)
+            end = time.perf_counter_ns()
 
-    #     try:
-    #         # os.close(temp_file_desc)
-    #         os.remove(temp_file)
-    #     except Exception as _:
-    #         pass
+            execution_times[idx] = end - start
 
-    #     return exec_time
+        return execution_times
 
-    def __read_execution_profile(self, profile_file_name: str) -> np.ndarray:
-        with open(profile_file_name, "r") as profile:
-            json_array = json.load(profile)
-            filtered_array = filter(
-                lambda elem: elem["cat"] == "Session"
-                and elem["name"] == "SequentialExecutor::Execute",
-                json_array,
-            )
-            return np.array([elem["dur"] for elem in filtered_array])
+        # from openvino.runtime import Core, Tensor
 
-        return np.array([])
+        # model_bytes = io.BytesIO(onnx_model.SerializeToString())
+
+        # ie = Core()
+        # open_vino_model = ie.read_model(model_bytes)
+        # compiled_model = ie.compile_model(open_vino_model, "AUTO")
+
+        # sess = ort.InferenceSession(onnx_model.SerializeToString())
+
+        # input_dict = {}
+        # for elem in sess.get_inputs():
+        #     elem_type = elem.type
+        #     input_dict[elem.name] = np.ones(
+        #         elem.shape, dtype=self.onnx_to_numpy(elem_type)
+        #     )
+        # del sess
+
+        # for input_name in input_dict.keys():
+        #     input_dict[input_name] = Tensor(array=input_dict[input_name])
+
+        # ## Cold Start
+        # for _ in range(3):
+        #     compiled_model.infer_new_request(input_dict)
+
+        # execution_times: np.ndarray = np.zeros(run_times)
+        # for idx in range(run_times):
+        #     start = time.perf_counter_ns()
+        #     compiled_model.infer_new_request(input_dict)
+        #     end = time.perf_counter_ns()
+
+        #     execution_times[idx] = end - start
+
+        # return execution_times
+
+    def profile_cpu_execution(self, onnx_model: onnx.ModelProto, run_times: int):
+
+        sess = ort.InferenceSession(
+            onnx_model.SerializeToString(),
+        )
+
+        input_dict = {}
+        for elem in sess.get_inputs():
+            elem_type = elem.type
+            input_elem = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
+            input_dict[elem.name] = ort.OrtValue.ortvalue_from_numpy(input_elem)
+
+        ## Cold Start
+        for _ in range(3):
+            sess.run_with_ort_values(None, input_dict)
+
+        execution_times: np.ndarray = np.zeros(run_times)
+        for idx in range(run_times):
+            start = time.perf_counter_ns()
+            sess.run_with_ort_values(None, input_dict)
+            end = time.perf_counter_ns()
+
+            execution_times[idx] = end - start
+
+        return execution_times
 
     def onnx_to_numpy(self, onnx_type: str):
 

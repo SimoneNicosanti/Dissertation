@@ -5,6 +5,7 @@ import numpy as np
 import onnx
 import onnxruntime
 import pandas as pd
+import tqdm
 from onnxruntime.quantization.calibrate import CalibrationDataReader
 
 from CommonIds.NodeId import NodeId
@@ -14,24 +15,52 @@ from CommonQuantization import SoftQuantization
 
 class NoiseEvaluator:
     def __init__(self, model: onnx.ModelProto, noise_test_set: np.ndarray):
+        self.noise_test_set = []
+        for elem in noise_test_set:
+            elem_batch = np.expand_dims(elem, axis=0)
 
-        self.noise_test_set = noise_test_set
+            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+                elem_batch = onnxruntime.OrtValue.ortvalue_from_numpy(
+                    elem_batch, "cuda"
+                )
+            self.noise_test_set.append(elem_batch)
+
         self.normal_results = self.compute_model_result(model)
 
         pass
 
     def compute_model_result(self, model: onnx.ModelProto) -> list[list[np.ndarray]]:
-        sess = onnxruntime.InferenceSession(model.SerializeToString())
+        so = onnxruntime.SessionOptions()
+        # 0 = VERBOSE, 1 = INFO, 2 = WARNING, 3 = ERROR, 4 = FATAL
+        so.log_severity_level = 3
+
+        providers = []
+        if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+            providers.append("CUDAExecutionProvider")
+        elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
+            providers.append("OpenVINOExecutionProvider")
+            so.graph_optimization_level = (
+                onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
+            )
+        else:
+            providers.append("CPUExecutionProvider")
+
+        sess = onnxruntime.InferenceSession(
+            model.SerializeToString(), sess_options=so, providers=providers
+        )
 
         results = []
 
         input_info = sess.get_inputs()[0]
-        for i in range(len(self.noise_test_set)):
-            elem = self.noise_test_set[i]
-            elem_batch = np.expand_dims(elem, axis=0)
+        for elem_batch in self.noise_test_set:
             input = {input_info.name: elem_batch}
 
-            result = sess.run(None, input)
+            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+                ort_result = sess.run_with_ort_values(None, input)
+                result = [ort_res.numpy() for ort_res in ort_result]
+            else:
+                result = sess.run(None, input)
+
             results.append(result)
 
         return results
@@ -47,6 +76,7 @@ class NoiseEvaluator:
 
             curr_noise = 0
             for i in range(len(quant_res_list)):
+                ## If the model has more than a result, we are considering the outputs with same weight on noise
                 curr_noise += np.mean(
                     np.abs(quant_res_list[i] - norm_res_list[i]),
                     axis=None,
@@ -83,8 +113,6 @@ class DataReader(CalibrationDataReader):
         self.curr_elem += 1
         return input_dict
 
-        return None
-
 
 class QuantizationProfile:
     def __init__(self):
@@ -105,21 +133,26 @@ class QuantizationProfile:
         quantizable_layers: list[NodeId] = self.find_quantizable_layers(
             model_graph, max_quantizable
         )
-        self.mark_layers(model_graph, quantizable_layers)
+        print("Quantizable Layers Found")
+        for layer in quantizable_layers:
+            print("\t" + layer.node_name)
 
-        _, temp_file = tempfile.mkstemp(suffix=".onnx")
-        onnx.save_model(model, temp_file)
+        self.mark_layers(model_graph, quantizable_layers)
 
         points = self.build_points(quantizable_layers, train_set_size, test_set_size)
 
-        noises = self.compute_quantization_noises(
-            temp_file,
-            points,
-            quantizable_layers,
-            calibration_dataset,
-            calibration_size,
-            noise_test_size,
-        )
+        with tempfile.NamedTemporaryFile(suffix=".onnx", delete=True) as temp_file:
+
+            onnx.save_model(model, temp_file.name)
+
+            noises = self.compute_quantization_noises(
+                temp_file.name,
+                points,
+                quantizable_layers,
+                calibration_dataset,
+                calibration_size,
+                noise_test_size,
+            )
 
         combined = [point + [noise] for point, noise in zip(points, noises)]
         cols_names = [node_id.node_name for node_id in quantizable_layers] + ["noise"]
@@ -195,8 +228,8 @@ class QuantizationProfile:
         )
 
         noises = []
-        for idx, point in enumerate(points):
-            print("Progress >> ", idx, "/", len(points))
+        for _, point in tqdm.tqdm(enumerate(points)):
+            # print("Progress >> ", idx, "/", len(points))
             noise = self.compute_quantization_noise(
                 model, tensors_range, point, quantizable_layers, noise_evaluator
             )

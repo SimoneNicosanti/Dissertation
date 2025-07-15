@@ -6,10 +6,12 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ProfileRequest(_message.Message):
-    __slots__ = ("model_id",)
+    __slots__ = ("model_id", "profile_regression")
     MODEL_ID_FIELD_NUMBER: _ClassVar[int]
+    PROFILE_REGRESSION_FIELD_NUMBER: _ClassVar[int]
     model_id: _common_pb2.ModelId
-    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ...) -> None: ...
+    profile_regression: bool
+    def __init__(self, model_id: _Optional[_Union[_common_pb2.ModelId, _Mapping]] = ..., profile_regression: bool = ...) -> None: ...
 
 class ProfileResponse(_message.Message):
     __slots__ = ("model_profile",)

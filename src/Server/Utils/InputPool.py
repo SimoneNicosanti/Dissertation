@@ -23,7 +23,6 @@ class InputPool:
         request_info: RequestInfo,
         input_list: list[str],
     ) -> list[TensorWrapper]:
-        print("Here")
         key = (component_id, request_info)
         print(key)
 

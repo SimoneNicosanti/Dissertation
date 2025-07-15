@@ -50,6 +50,16 @@ class RegisterStub(object):
                 request_serializer=register__pb2.ServerId.SerializeToString,
                 response_deserializer=register__pb2.ReachabilityInfo.FromString,
                 _registered_method=True)
+        self.push_state = channel.unary_unary(
+                '/register.Register/push_state',
+                request_serializer=register__pb2.ServerState.SerializeToString,
+                response_deserializer=common__pb2.Empty.FromString,
+                _registered_method=True)
+        self.pull_all_states = channel.unary_unary(
+                '/register.Register/pull_all_states',
+                request_serializer=common__pb2.Empty.SerializeToString,
+                response_deserializer=register__pb2.StateMap.FromString,
+                _registered_method=True)
 
 
 class RegisterServicer(object):
@@ -73,6 +83,18 @@ class RegisterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def push_state(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def pull_all_states(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RegisterServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -90,6 +112,16 @@ def add_RegisterServicer_to_server(servicer, server):
                     servicer.get_info_from_id,
                     request_deserializer=register__pb2.ServerId.FromString,
                     response_serializer=register__pb2.ReachabilityInfo.SerializeToString,
+            ),
+            'push_state': grpc.unary_unary_rpc_method_handler(
+                    servicer.push_state,
+                    request_deserializer=register__pb2.ServerState.FromString,
+                    response_serializer=common__pb2.Empty.SerializeToString,
+            ),
+            'pull_all_states': grpc.unary_unary_rpc_method_handler(
+                    servicer.pull_all_states,
+                    request_deserializer=common__pb2.Empty.FromString,
+                    response_serializer=register__pb2.StateMap.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -173,6 +205,60 @@ class Register(object):
             '/register.Register/get_info_from_id',
             register__pb2.ServerId.SerializeToString,
             register__pb2.ReachabilityInfo.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def push_state(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/register.Register/push_state',
+            register__pb2.ServerState.SerializeToString,
+            common__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def pull_all_states(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/register.Register/pull_all_states',
+            common__pb2.Empty.SerializeToString,
+            register__pb2.StateMap.FromString,
             options,
             channel_credentials,
             insecure,

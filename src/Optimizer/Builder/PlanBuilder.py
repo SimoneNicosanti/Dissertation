@@ -3,7 +3,7 @@ import networkx as nx
 from CommonIds.ComponentId import ComponentId
 from CommonIds.NodeId import NodeId
 from CommonPlan.Plan import Plan
-from CommonPlan.SolvedModelGraph import SolvedEdgeInfo, SolvedNodeInfo
+from CommonPlan.SolvedModelGraph import SolvedEdgeInfo, SolvedGraphInfo, SolvedNodeInfo
 
 
 class PlanBuilder:
@@ -51,7 +51,14 @@ class PlanBuilder:
             plan_dict[component_id]["input_names"] = list(input_names)
             plan_dict[component_id]["output_connections"] = output_connections
 
-        return Plan(model_name, plan_dict, quantized_list)
+        return Plan(
+            model_name,
+            plan_dict,
+            quantized_list,
+            solved_graph.graph[SolvedGraphInfo.LATENCY_VALUE],
+            solved_graph.graph[SolvedGraphInfo.ENERGY_VALUE],
+            solved_graph.graph[SolvedGraphInfo.DEVICE_ENERGY_VALUE],
+        )
 
     @staticmethod
     def __get_all_nodes_in_component(

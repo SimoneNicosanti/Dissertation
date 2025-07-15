@@ -7,7 +7,7 @@ from Server.Utils.InferenceInfo import TensorWrapper
 MEGABYTE_SIZE = 1024 * 1024
 
 
-def yield_response(out_tensor_wrap_list: list[TensorWrapper]):
+def yield_response(out_tensor_wrap_list: list[TensorWrapper], inference_time: float):
 
     chunk_size_bytes = int(ConfigReader.ConfigReader().read_bytes_chunk_size())
 
@@ -26,4 +26,4 @@ def yield_response(out_tensor_wrap_list: list[TensorWrapper]):
             )
             tensor = Tensor(info=tensor_info, tensor_chunk=tensor_chunk)
 
-            yield InferenceResponse(output_tensor=tensor)
+            yield InferenceResponse(output_tensor=tensor, inference_time=inference_time)

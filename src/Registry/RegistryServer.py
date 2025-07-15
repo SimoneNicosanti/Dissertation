@@ -1,11 +1,20 @@
+import json
+import time
+
+import networkx as nx
 from readerwriterlock import rwlock
 
+from CommonIds.NodeId import NodeId
+from CommonProfile.NetworkInfo import NetworkEdgeInfo, NetworkNodeInfo
+from CommonProfile.NetworkProfile import NetworkProfile
 from proto_compiled.common_pb2 import Empty
 from proto_compiled.register_pb2 import (
     AllServerInfo,
     ReachabilityInfo,
     ServerId,
     ServerInfo,
+    ServerState,
+    StateMap,
 )
 from proto_compiled.register_pb2_grpc import RegisterServicer
 
@@ -20,6 +29,10 @@ class RegistryServer(RegisterServicer):
 
         self.server_id_lock = rwlock.RWLockWriteD()
         self.server_id = 0
+
+        self.network_graph_lock = rwlock.RWLockWriteD()
+        self.network_graph: nx.DiGraph = nx.DiGraph()
+        self.state_push_times = {}  ## TODO Check keep alive
 
         pass
 
@@ -76,3 +89,88 @@ class RegistryServer(RegisterServicer):
         print(f"\t Ping Port >> {reachability_info.ping_port}")
         print(f"\t Server ID >> {server_id}")
         print("----------------------------------------")
+
+    def pull_all_states(self, empty_req, context) -> StateMap:
+
+        with self.network_graph_lock.gen_rlock():
+            network_profile = NetworkProfile()
+            network_profile.set_network_graph(self.network_graph)
+            network_profile_dict = network_profile.encode()
+            network_profile_dict_str = json.dumps(network_profile_dict)
+            state_map = StateMap(network_profile=network_profile_dict_str)
+
+            return state_map
+
+    def push_state(self, server_state: ServerState, context):
+        with self.network_graph_lock.gen_wlock():
+            self.state_push_times[server_state.server_id] = time.time()
+            ## Update Network State
+            self.update_network_graph(server_state.server_id, server_state.state)
+
+            print("=== Network Graph Summary ===")
+            print("Nodes:")
+            for node, data in self.network_graph.nodes(data=True):
+                print(
+                    f"  Node {node}: mem={data['available_memory']:.1f} MB, "
+                    f"comp={data['comp_energy_per_sec']:.3f} W, "
+                    f"trans_ps={data['trans_energy_per_sec']:.3f} W, "
+                    f"trans_base={data['trans_energy_base']:.3f} W"
+                )
+
+            print("\nEdges:")
+            for u, v, data in self.network_graph.edges(data=True):
+                print(
+                    f"  Edge ({u} → {v}): lat={data['latency']:.4f} s, bw={data['bandwidth']:.2f} MB/s"
+                )
+            print("=== End Graph Summary ===\n")
+
+        return Empty()
+
+    def update_network_graph(self, server_id: str, server_state: str):
+        state_dict = json.loads(server_state)
+
+        node_id = NodeId(node_name=server_id)
+        self.network_graph.add_node(node_id)
+
+        self.network_graph.nodes[node_id][NetworkNodeInfo.AVAILABLE_MEMORY] = (
+            state_dict["available_memory"]
+        )
+
+        self.network_graph.nodes[node_id][NetworkNodeInfo.COMP_ENERGY_PER_SEC] = (
+            state_dict["comp_energy_per_sec"]
+        )
+
+        self.network_graph.nodes[node_id][NetworkNodeInfo.TRANS_ENERGY_PER_SEC] = (
+            state_dict["trans_energy_per_sec"]
+        )
+        self.network_graph.nodes[node_id][NetworkNodeInfo.TRANS_ENERGY_BASE] = (
+            state_dict["trans_energy_base"]
+        )
+
+        self.network_graph.nodes[node_id][NetworkNodeInfo.SELF_TRANS_ENERGY_PER_SEC] = (
+            state_dict["self_trans_energy_per_sec"]
+        )
+        self.network_graph.nodes[node_id][NetworkNodeInfo.SELF_TRANS_ENERGY_BASE] = (
+            state_dict["self_trans_energy_base"]
+        )
+
+        self.network_graph.nodes[node_id][NetworkNodeInfo.IDX] = int(server_id)
+
+        latencies: dict = state_dict["latencies"]
+        bandwidths = state_dict["bandwidths"]
+
+        for next_server_id in latencies.keys():
+            next_node_id = NodeId(node_name=next_server_id)
+
+            edge_latency = latencies[next_server_id]
+            edge_bandwidth = bandwidths[next_server_id]
+
+            self.network_graph.add_edge(node_id, next_node_id)
+
+            self.network_graph.edges[node_id, next_node_id][
+                NetworkEdgeInfo.LATENCY
+            ] = edge_latency
+
+            self.network_graph.edges[node_id, next_node_id][
+                NetworkEdgeInfo.BANDWIDTH
+            ] = edge_bandwidth

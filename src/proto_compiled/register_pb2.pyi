@@ -37,3 +37,17 @@ class AllServerInfo(_message.Message):
     ALL_SERVER_INFO_FIELD_NUMBER: _ClassVar[int]
     all_server_info: _containers.RepeatedCompositeFieldContainer[ServerInfo]
     def __init__(self, all_server_info: _Optional[_Iterable[_Union[ServerInfo, _Mapping]]] = ...) -> None: ...
+
+class ServerState(_message.Message):
+    __slots__ = ("server_id", "state")
+    SERVER_ID_FIELD_NUMBER: _ClassVar[int]
+    STATE_FIELD_NUMBER: _ClassVar[int]
+    server_id: str
+    state: str
+    def __init__(self, server_id: _Optional[str] = ..., state: _Optional[str] = ...) -> None: ...
+
+class StateMap(_message.Message):
+    __slots__ = ("network_profile",)
+    NETWORK_PROFILE_FIELD_NUMBER: _ClassVar[int]
+    network_profile: str
+    def __init__(self, network_profile: _Optional[str] = ...) -> None: ...

@@ -18,6 +18,7 @@ from Server.Utils.InferenceInfo import (
 )
 from Server.Utils.InputReceiver import InputReceiver
 from Server.Utils.OutputSender import OutputSender
+import gc
 
 
 class IntermediateServer(InferenceServicer):
@@ -56,7 +57,7 @@ class IntermediateServer(InferenceServicer):
         self,
         component_id: ComponentId,
         request_info: RequestInfo,
-        tensor_wrapper_list: TensorWrapper,
+        tensor_wrapper_list: list[TensorWrapper],
     ):
         with self.lock.gen_rlock():
             model_manager = self.model_managers[component_id.model_name]
@@ -111,9 +112,14 @@ class IntermediateServer(InferenceServicer):
         ## Fetch components
         components_dict = self.fetcher.fetch_components(plan)
 
-        threads_per_model = 10
+        threads_per_model = 1
 
         with self.lock.gen_wlock():
+            prev_manager = self.model_managers.pop(model_name, None)
+            if prev_manager is not None:
+                del prev_manager
+                gc.collect()
+
             self.model_managers[model_name] = IntermediateInferenceManager(
                 plan, components_dict, threads_per_model
             )

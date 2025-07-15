@@ -1,1 +1,1 @@
-PYTHONPATH=./proto_compiled python3 $1
+PYTHONPATH=./proto_compiled python3 $1 "${@:2}"

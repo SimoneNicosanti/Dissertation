@@ -9,6 +9,7 @@ service ModelProfile {
 
 message ProfileRequest {
     common.ModelId model_id = 1;
+    optional bool profile_regression = 2;
 }
 
 message ProfileResponse {

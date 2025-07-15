@@ -49,13 +49,13 @@ def quantize(model_name, exclude_nodes):
 def main():
     model_list = [
         "yolo11n-seg",
-        "yolo11s-seg",
-        "yolo11l-seg",
-        "yolo11x-seg",
-        "yolo11n",
-        "yolo11s",
-        "yolo11l",
-        "yolo11x",
+        # "yolo11s-seg",
+        # "yolo11l-seg",
+        # "yolo11x-seg",
+        # "yolo11n",
+        # "yolo11s",
+        # "yolo11l",
+        # "yolo11x",
     ]
 
     for model in model_list:

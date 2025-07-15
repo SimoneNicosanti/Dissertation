@@ -71,7 +71,7 @@ def test_segmentation():
     original_image = cv2.imread("./bus.jpg")
     pre_image = yolo_v8_ppp.preprocess(original_image)
 
-    sess = ort.InferenceSession("yolo11n-seg.onnx")
+    sess = ort.InferenceSession("yolo11n-seg_fixed.onnx")
     model_out = sess.run(None, input_feed={"images": pre_image})
 
     bboxes, masks, _ = yolo_v8_ppp.postprocess(
@@ -132,5 +132,5 @@ def test_segmentation():
 
 if __name__ == "__main__":
 
-    test_detection()
+    # test_detection()
     test_segmentation()

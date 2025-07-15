@@ -28,7 +28,9 @@ class ModelProfileBuilder:
 
         model_profiler: ModelProfileStub = ModelProfileStub(self.model_profiler_chann)
         for model_id in models_ids:
-            model_profile_req: ProfileRequest = ProfileRequest(model_id=model_id)
+            model_profile_req: ProfileRequest = ProfileRequest(
+                model_id=model_id, profile_regression=True
+            )
             model_profile_res: ProfileResponse = model_profiler.profile_model(
                 model_profile_req
             )

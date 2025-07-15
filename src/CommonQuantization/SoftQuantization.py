@@ -8,23 +8,32 @@ from onnxruntime.quantization import (
     CalibrationDataReader,
     QuantType,
 )
+import onnxruntime
 from onnxruntime.quantization.calibrate import TensorsData, create_calibrator
 from onnxruntime.quantization.qdq_quantizer import QDQQuantizer
 from onnxruntime.quantization.quant_utils import load_model_with_shape_infer
 from onnxruntime.quantization.registry import QDQRegistry, QLinearOpsRegistry
 
-
 def prepare_quantization(
     model_path: str, calibration_data_reader: CalibrationDataReader
-) -> tuple[onnx.ModelProto, TensorsData]:
+) -> onnx.ModelProto:
 
     augmented_model_path = model_path.replace(".onnx", "_augmented.onnx")
+
+    providers = []
+    if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+        providers.append("CUDAExecutionProvider")
+    elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
+        providers.append("OpenVINOExecutionProvider")
+    else:
+        providers.append("CPUExecutionProvider")
 
     calibrator = create_calibrator(
         model_path,
         augmented_model_path=augmented_model_path,
         use_external_data_format=False,
-        extra_options={},
+        extra_options={},  ## TODO. In our case we are using no calibration option
+        providers=providers,
     )
     calibrator.collect_data(calibration_data_reader)
     tensors_range = calibrator.compute_data()
@@ -69,7 +78,7 @@ def soft_quantization(
         nodes_to_quantize=nodes_to_quantize,
         nodes_to_exclude=nodes_to_exclude,
         op_types_to_quantize=op_types_to_quantize,
-        extra_options={},
+        extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
     ).quantize_model()
 
     return quantized_model
