@@ -1,1 +1,2707 @@
-{"graph": {"directed": true, "multigraph": false, "graph": {"name": "yolo11n-cls"}, "nodes": [{"idx": 0, "flops": 0, "weights_size": 0, "outputs_size": 0, "generator": true, "id": "InputGenerator"}, {"idx": 1, "flops": 91750400.0, "weights_size": 0.001708984375, "outputs_size": 6.25, "quantizable": true, "id": "/model.0/conv/Conv"}, {"idx": 2, "flops": 104857600.0, "weights_size": 0, "outputs_size": 6.25, "quantizable": true, "id": "/model.0/act/Sigmoid"}, {"idx": 3, "flops": 3276800.0, "weights_size": 0, "outputs_size": 6.25, "id": "/model.0/act/Mul"}, {"idx": 4, "flops": 237568000.0, "weights_size": 0.0177001953125, "outputs_size": 3.125, "quantizable": true, "id": "/model.1/conv/Conv"}, {"idx": 5, "flops": 52428800.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.1/act/Sigmoid"}, {"idx": 6, "flops": 1638400.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.1/act/Mul"}, {"idx": 7, "flops": 54067200.0, "weights_size": 0.0040283203125, "outputs_size": 3.125, "id": "/model.2/cv1/conv/Conv"}, {"idx": 8, "flops": 52428800.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.2/cv1/act/Sigmoid"}, {"idx": 9, "flops": 1638400.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.2/cv1/act/Mul"}, {"idx": 10, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 3.125, "id": "/model.2/Split"}, {"idx": 11, "flops": 0.0, "weights_size": 0, "outputs_size": 4.6875, "id": "/model.2/Concat"}, {"idx": 12, "flops": 59392000.0, "weights_size": 0.004425048828125, "outputs_size": 0.78125, "id": "/model.2/m.0/cv1/conv/Conv"}, {"idx": 13, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.2/m.0/Add"}, {"idx": 14, "flops": 160563200.0, "weights_size": 0.011962890625, "outputs_size": 6.25, "quantizable": true, "id": "/model.2/cv2/conv/Conv"}, {"idx": 15, "flops": 104857600.0, "weights_size": 0, "outputs_size": 6.25, "quantizable": true, "id": "/model.2/cv2/act/Sigmoid"}, {"idx": 16, "flops": 3276800.0, "weights_size": 0, "outputs_size": 6.25, "id": "/model.2/cv2/act/Mul"}, {"idx": 17, "flops": 472678400.0, "weights_size": 0.140869140625, "outputs_size": 1.5625, "quantizable": true, "id": "/model.3/conv/Conv"}, {"idx": 18, "flops": 26214400.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.3/act/Sigmoid"}, {"idx": 19, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.3/act/Mul"}, {"idx": 20, "flops": 53248000.0, "weights_size": 0.015869140625, "outputs_size": 1.5625, "id": "/model.4/cv1/conv/Conv"}, {"idx": 21, "flops": 26214400.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.4/cv1/act/Sigmoid"}, {"idx": 22, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.4/cv1/act/Mul"}, {"idx": 23, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 1.5625, "id": "/model.4/Split"}, {"idx": 24, "flops": 0.0, "weights_size": 0, "outputs_size": 2.34375, "id": "/model.4/Concat"}, {"idx": 25, "flops": 59187200.0, "weights_size": 0.01763916015625, "outputs_size": 0.390625, "id": "/model.4/m.0/cv1/conv/Conv"}, {"idx": 26, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.4/m.0/Add"}, {"idx": 27, "flops": 158924800.0, "weights_size": 0.04736328125, "outputs_size": 3.125, "quantizable": true, "id": "/model.4/cv2/conv/Conv"}, {"idx": 28, "flops": 52428800.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.4/cv2/act/Sigmoid"}, {"idx": 29, "flops": 1638400.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.4/cv2/act/Mul"}, {"idx": 30, "flops": 472268800.0, "weights_size": 0.56298828125, "outputs_size": 0.78125, "quantizable": true, "id": "/model.5/conv/Conv"}, {"idx": 31, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.5/act/Sigmoid"}, {"idx": 32, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.5/act/Mul"}, {"idx": 33, "flops": 52838400.0, "weights_size": 0.06298828125, "outputs_size": 0.78125, "id": "/model.6/cv1/conv/Conv"}, {"idx": 34, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv1/act/Sigmoid"}, {"idx": 35, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv1/act/Mul"}, {"idx": 36, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 0.78125, "id": "/model.6/Split"}, {"idx": 37, "flops": 0.0, "weights_size": 0, "outputs_size": 1.171875, "id": "/model.6/Concat"}, {"idx": 38, "flops": 6656000.0, "weights_size": 0.0079345703125, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv1/conv/Conv"}, {"idx": 39, "flops": 6656000.0, "weights_size": 0.0079345703125, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv2/conv/Conv"}, {"idx": 40, "flops": 79052800.0, "weights_size": 0.09423828125, "outputs_size": 0.78125, "quantizable": true, "id": "/model.6/cv2/conv/Conv"}, {"idx": 41, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv2/act/Sigmoid"}, {"idx": 42, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv2/act/Mul"}, {"idx": 43, "flops": 236134400.0, "weights_size": 1.1259765625, "outputs_size": 0.390625, "quantizable": true, "id": "/model.7/conv/Conv"}, {"idx": 44, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.7/act/Sigmoid"}, {"idx": 45, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.7/act/Mul"}, {"idx": 46, "flops": 52633600.0, "weights_size": 0.2509765625, "outputs_size": 0.390625, "id": "/model.8/cv1/conv/Conv"}, {"idx": 47, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv1/act/Sigmoid"}, {"idx": 48, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv1/act/Mul"}, {"idx": 49, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 0.390625, "id": "/model.8/Split"}, {"idx": 50, "flops": 0.0, "weights_size": 0, "outputs_size": 0.5859375, "id": "/model.8/Concat"}, {"idx": 51, "flops": 6604800.0, "weights_size": 0.031494140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv1/conv/Conv"}, {"idx": 52, "flops": 6604800.0, "weights_size": 0.031494140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv2/conv/Conv"}, {"idx": 53, "flops": 78848000.0, "weights_size": 0.3759765625, "outputs_size": 0.390625, "quantizable": true, "id": "/model.8/cv2/conv/Conv"}, {"idx": 54, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv2/act/Sigmoid"}, {"idx": 55, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv2/act/Mul"}, {"idx": 56, "flops": 52633600.0, "weights_size": 0.2509765625, "outputs_size": 0.390625, "id": "/model.9/cv1/conv/Conv"}, {"idx": 57, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv1/act/Sigmoid"}, {"idx": 58, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv1/act/Mul"}, {"idx": 59, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 0.390625, "id": "/model.9/Split"}, {"idx": 60, "flops": 0.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/Concat"}, {"idx": 61, "flops": 26419200.0, "weights_size": 0.1259765625, "outputs_size": 0.390625, "id": "/model.9/m/m.0/attn/qkv/conv/Conv"}, {"idx": 62, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/Add"}, {"idx": 63, "flops": 26419200.0, "weights_size": 0.1259765625, "outputs_size": 0.390625, "id": "/model.9/m/m.0/ffn/ffn.0/conv/Conv"}, {"idx": 64, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/Add_1"}, {"idx": 65, "flops": 52633600.0, "weights_size": 0.2509765625, "outputs_size": 0.390625, "id": "/model.9/cv2/conv/Conv"}, {"idx": 66, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv2/act/Sigmoid"}, {"idx": 67, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv2/act/Mul"}, {"idx": 68, "flops": 263168000.0, "weights_size": 1.2548828125, "outputs_size": 1.953125, "quantizable": true, "id": "/model.10/conv/conv/Conv"}, {"idx": 69, "flops": 32768000.0, "weights_size": 0, "outputs_size": 1.953125, "id": "/model.10/conv/act/Sigmoid"}, {"idx": 70, "flops": 1024000.0, "weights_size": 0, "outputs_size": 1.953125, "id": "/model.10/conv/act/Mul"}, {"idx": 71, "flops": 1034240.0, "weights_size": 0, "outputs_size": 0.0048828125, "id": "/model.10/pool/GlobalAveragePool"}, {"idx": 72, "flops": 0.0, "weights_size": 0, "outputs_size": 0.0048828125, "id": "/model.10/Flatten"}, {"idx": 73, "flops": 2562000.0, "weights_size": 4.886627197265625, "outputs_size": 0.003814697265625, "id": "/model.10/linear/Gemm"}, {"idx": 74, "flops": 72000.0, "weights_size": 0, "outputs_size": 0.003814697265625, "id": "/model.10/Softmax"}, {"idx": 75, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid"}, {"idx": 76, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/m/m.0/ffn/ffn.0/act/Mul"}, {"idx": 77, "flops": 26316800.0, "weights_size": 0.12548828125, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/ffn/ffn.1/conv/Conv"}, {"idx": 78, "flops": 0.0, "weights_size": 3.0517578125e-05, "outputs_size": 0.390625, "id": "/model.9/m/m.0/attn/Reshape"}, {"idx": 79, "flops": 0.0, "weights_size": 2.288818359375e-05, "outputs_size": 0.390625, "id": "/model.9/m/m.0/attn/Split"}, {"idx": 80, "flops": 0.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.9/m/m.0/attn/Transpose"}, {"idx": 81, "flops": 20480000.0, "weights_size": 0, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/MatMul"}, {"idx": 82, "flops": 0.0, "weights_size": 3.0517578125e-05, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/Reshape_2"}, {"idx": 83, "flops": 40960000.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/MatMul_1"}, {"idx": 84, "flops": 0.0, "weights_size": 3.0517578125e-05, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/Reshape_1"}, {"idx": 85, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/Add"}, {"idx": 86, "flops": 13209600.0, "weights_size": 0.06298828125, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/proj/conv/Conv"}, {"idx": 87, "flops": 1024000.0, "weights_size": 0.0048828125, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/pe/conv/Conv"}, {"idx": 88, "flops": 640000.0, "weights_size": 3.814697265625e-06, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/Mul"}, {"idx": 89, "flops": 23040000.0, "weights_size": 0, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/Softmax"}, {"idx": 90, "flops": 0.0, "weights_size": 0, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/Transpose_1"}, {"idx": 91, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv2/act/Sigmoid"}, {"idx": 92, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv2/act/Mul"}, {"idx": 93, "flops": 0.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.8/m.0/Concat"}, {"idx": 94, "flops": 13209600.0, "weights_size": 0.06298828125, "outputs_size": 0.1953125, "id": "/model.8/m.0/cv3/conv/Conv"}, {"idx": 95, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.8/m.0/cv3/act/Sigmoid"}, {"idx": 96, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.8/m.0/cv3/act/Mul"}, {"idx": 97, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv1/act/Sigmoid"}, {"idx": 98, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv1/act/Mul"}, {"idx": 99, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv1/conv/Conv"}, {"idx": 100, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/Add"}, {"idx": 101, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv1/conv/Conv"}, {"idx": 102, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/Add"}, {"idx": 103, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv1/act/Sigmoid"}, {"idx": 104, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv1/act/Mul"}, {"idx": 105, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv2/conv/Conv"}, {"idx": 106, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv2/act/Sigmoid"}, {"idx": 107, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv2/act/Mul"}, {"idx": 108, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv1/act/Sigmoid"}, {"idx": 109, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv1/act/Mul"}, {"idx": 110, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv2/conv/Conv"}, {"idx": 111, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv2/act/Sigmoid"}, {"idx": 112, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv2/act/Mul"}, {"idx": 113, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv2/act/Sigmoid"}, {"idx": 114, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv2/act/Mul"}, {"idx": 115, "flops": 0.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.6/m.0/Concat"}, {"idx": 116, "flops": 13312000.0, "weights_size": 0.015869140625, "outputs_size": 0.390625, "id": "/model.6/m.0/cv3/conv/Conv"}, {"idx": 117, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.6/m.0/cv3/act/Sigmoid"}, {"idx": 118, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.6/m.0/cv3/act/Mul"}, {"idx": 119, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv1/act/Sigmoid"}, {"idx": 120, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv1/act/Mul"}, {"idx": 121, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv1/conv/Conv"}, {"idx": 122, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/Add"}, {"idx": 123, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv1/conv/Conv"}, {"idx": 124, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/Add"}, {"idx": 125, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv1/act/Sigmoid"}, {"idx": 126, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv1/act/Mul"}, {"idx": 127, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv2/conv/Conv"}, {"idx": 128, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv2/act/Sigmoid"}, {"idx": 129, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv2/act/Mul"}, {"idx": 130, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv1/act/Sigmoid"}, {"idx": 131, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv1/act/Mul"}, {"idx": 132, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv2/conv/Conv"}, {"idx": 133, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv2/act/Sigmoid"}, {"idx": 134, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv2/act/Mul"}, {"idx": 135, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.4/m.0/cv1/act/Sigmoid"}, {"idx": 136, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.4/m.0/cv1/act/Mul"}, {"idx": 137, "flops": 59392000.0, "weights_size": 0.0177001953125, "outputs_size": 0.78125, "id": "/model.4/m.0/cv2/conv/Conv"}, {"idx": 138, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.4/m.0/cv2/act/Sigmoid"}, {"idx": 139, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.4/m.0/cv2/act/Mul"}, {"idx": 140, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.2/m.0/cv1/act/Sigmoid"}, {"idx": 141, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.2/m.0/cv1/act/Mul"}, {"idx": 142, "flops": 59801600.0, "weights_size": 0.00445556640625, "outputs_size": 1.5625, "id": "/model.2/m.0/cv2/conv/Conv"}, {"idx": 143, "flops": 26214400.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.2/m.0/cv2/act/Sigmoid"}, {"idx": 144, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.2/m.0/cv2/act/Mul"}, {"idx": 145, "receiver": true, "flops": 0, "weights_size": 0, "outputs_size": 0, "id": "OutputReceiver"}], "links": [{"tot_tensor_size": 4.6875, "tensor_name_list": ["images"], "source": "InputGenerator", "target": "/model.0/conv/Conv"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/conv/Conv_output_0"], "source": "/model.0/conv/Conv", "target": "/model.0/act/Sigmoid"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/conv/Conv_output_0"], "source": "/model.0/conv/Conv", "target": "/model.0/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/act/Sigmoid_output_0"], "source": "/model.0/act/Sigmoid", "target": "/model.0/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/act/Mul_output_0"], "source": "/model.0/act/Mul", "target": "/model.1/conv/Conv"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/conv/Conv_output_0"], "source": "/model.1/conv/Conv", "target": "/model.1/act/Sigmoid"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/conv/Conv_output_0"], "source": "/model.1/conv/Conv", "target": "/model.1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/act/Sigmoid_output_0"], "source": "/model.1/act/Sigmoid", "target": "/model.1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/act/Mul_output_0"], "source": "/model.1/act/Mul", "target": "/model.2/cv1/conv/Conv"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/conv/Conv_output_0"], "source": "/model.2/cv1/conv/Conv", "target": "/model.2/cv1/act/Sigmoid"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/conv/Conv_output_0"], "source": "/model.2/cv1/conv/Conv", "target": "/model.2/cv1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/act/Sigmoid_output_0"], "source": "/model.2/cv1/act/Sigmoid", "target": "/model.2/cv1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/act/Mul_output_0"], "source": "/model.2/cv1/act/Mul", "target": "/model.2/Split"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/Split_output_0", "/model.2/Split_output_1"], "source": "/model.2/Split", "target": "/model.2/Concat"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/Split_output_1"], "source": "/model.2/Split", "target": "/model.2/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/Split_output_1"], "source": "/model.2/Split", "target": "/model.2/m.0/Add"}, {"tot_tensor_size": 4.6875, "tensor_name_list": ["/model.2/Concat_output_0"], "source": "/model.2/Concat", "target": "/model.2/cv2/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/conv/Conv_output_0"], "source": "/model.2/m.0/cv1/conv/Conv", "target": "/model.2/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/conv/Conv_output_0"], "source": "/model.2/m.0/cv1/conv/Conv", "target": "/model.2/m.0/cv1/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/Add_output_0"], "source": "/model.2/m.0/Add", "target": "/model.2/Concat"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/conv/Conv_output_0"], "source": "/model.2/cv2/conv/Conv", "target": "/model.2/cv2/act/Sigmoid"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/conv/Conv_output_0"], "source": "/model.2/cv2/conv/Conv", "target": "/model.2/cv2/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/act/Sigmoid_output_0"], "source": "/model.2/cv2/act/Sigmoid", "target": "/model.2/cv2/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/act/Mul_output_0"], "source": "/model.2/cv2/act/Mul", "target": "/model.3/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/conv/Conv_output_0"], "source": "/model.3/conv/Conv", "target": "/model.3/act/Sigmoid"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/conv/Conv_output_0"], "source": "/model.3/conv/Conv", "target": "/model.3/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/act/Sigmoid_output_0"], "source": "/model.3/act/Sigmoid", "target": "/model.3/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/act/Mul_output_0"], "source": "/model.3/act/Mul", "target": "/model.4/cv1/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/conv/Conv_output_0"], "source": "/model.4/cv1/conv/Conv", "target": "/model.4/cv1/act/Sigmoid"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/conv/Conv_output_0"], "source": "/model.4/cv1/conv/Conv", "target": "/model.4/cv1/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/act/Sigmoid_output_0"], "source": "/model.4/cv1/act/Sigmoid", "target": "/model.4/cv1/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/act/Mul_output_0"], "source": "/model.4/cv1/act/Mul", "target": "/model.4/Split"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/Split_output_0", "/model.4/Split_output_1"], "source": "/model.4/Split", "target": "/model.4/Concat"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/Split_output_1"], "source": "/model.4/Split", "target": "/model.4/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/Split_output_1"], "source": "/model.4/Split", "target": "/model.4/m.0/Add"}, {"tot_tensor_size": 2.34375, "tensor_name_list": ["/model.4/Concat_output_0"], "source": "/model.4/Concat", "target": "/model.4/cv2/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/conv/Conv_output_0"], "source": "/model.4/m.0/cv1/conv/Conv", "target": "/model.4/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/conv/Conv_output_0"], "source": "/model.4/m.0/cv1/conv/Conv", "target": "/model.4/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/Add_output_0"], "source": "/model.4/m.0/Add", "target": "/model.4/Concat"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/conv/Conv_output_0"], "source": "/model.4/cv2/conv/Conv", "target": "/model.4/cv2/act/Sigmoid"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/conv/Conv_output_0"], "source": "/model.4/cv2/conv/Conv", "target": "/model.4/cv2/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/act/Sigmoid_output_0"], "source": "/model.4/cv2/act/Sigmoid", "target": "/model.4/cv2/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/act/Mul_output_0"], "source": "/model.4/cv2/act/Mul", "target": "/model.5/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/conv/Conv_output_0"], "source": "/model.5/conv/Conv", "target": "/model.5/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/conv/Conv_output_0"], "source": "/model.5/conv/Conv", "target": "/model.5/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/act/Sigmoid_output_0"], "source": "/model.5/act/Sigmoid", "target": "/model.5/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/act/Mul_output_0"], "source": "/model.5/act/Mul", "target": "/model.6/cv1/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/conv/Conv_output_0"], "source": "/model.6/cv1/conv/Conv", "target": "/model.6/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/conv/Conv_output_0"], "source": "/model.6/cv1/conv/Conv", "target": "/model.6/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/act/Sigmoid_output_0"], "source": "/model.6/cv1/act/Sigmoid", "target": "/model.6/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/act/Mul_output_0"], "source": "/model.6/cv1/act/Mul", "target": "/model.6/Split"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/Split_output_0", "/model.6/Split_output_1"], "source": "/model.6/Split", "target": "/model.6/Concat"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/Split_output_1"], "source": "/model.6/Split", "target": "/model.6/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/Split_output_1"], "source": "/model.6/Split", "target": "/model.6/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 1.171875, "tensor_name_list": ["/model.6/Concat_output_0"], "source": "/model.6/Concat", "target": "/model.6/cv2/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/cv1/conv/Conv", "target": "/model.6/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/cv1/conv/Conv", "target": "/model.6/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/cv2/conv/Conv", "target": "/model.6/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/cv2/conv/Conv", "target": "/model.6/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/conv/Conv_output_0"], "source": "/model.6/cv2/conv/Conv", "target": "/model.6/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/conv/Conv_output_0"], "source": "/model.6/cv2/conv/Conv", "target": "/model.6/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/act/Sigmoid_output_0"], "source": "/model.6/cv2/act/Sigmoid", "target": "/model.6/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/act/Mul_output_0"], "source": "/model.6/cv2/act/Mul", "target": "/model.7/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/conv/Conv_output_0"], "source": "/model.7/conv/Conv", "target": "/model.7/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/conv/Conv_output_0"], "source": "/model.7/conv/Conv", "target": "/model.7/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/act/Sigmoid_output_0"], "source": "/model.7/act/Sigmoid", "target": "/model.7/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/act/Mul_output_0"], "source": "/model.7/act/Mul", "target": "/model.8/cv1/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/conv/Conv_output_0"], "source": "/model.8/cv1/conv/Conv", "target": "/model.8/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/conv/Conv_output_0"], "source": "/model.8/cv1/conv/Conv", "target": "/model.8/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/act/Sigmoid_output_0"], "source": "/model.8/cv1/act/Sigmoid", "target": "/model.8/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/act/Mul_output_0"], "source": "/model.8/cv1/act/Mul", "target": "/model.8/Split"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/Split_output_0", "/model.8/Split_output_1"], "source": "/model.8/Split", "target": "/model.8/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/Split_output_1"], "source": "/model.8/Split", "target": "/model.8/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/Split_output_1"], "source": "/model.8/Split", "target": "/model.8/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.5859375, "tensor_name_list": ["/model.8/Concat_output_0"], "source": "/model.8/Concat", "target": "/model.8/cv2/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/cv1/conv/Conv", "target": "/model.8/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/cv1/conv/Conv", "target": "/model.8/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/cv2/conv/Conv", "target": "/model.8/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/cv2/conv/Conv", "target": "/model.8/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/conv/Conv_output_0"], "source": "/model.8/cv2/conv/Conv", "target": "/model.8/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/conv/Conv_output_0"], "source": "/model.8/cv2/conv/Conv", "target": "/model.8/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/act/Sigmoid_output_0"], "source": "/model.8/cv2/act/Sigmoid", "target": "/model.8/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/act/Mul_output_0"], "source": "/model.8/cv2/act/Mul", "target": "/model.9/cv1/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/conv/Conv_output_0"], "source": "/model.9/cv1/conv/Conv", "target": "/model.9/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/conv/Conv_output_0"], "source": "/model.9/cv1/conv/Conv", "target": "/model.9/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/act/Sigmoid_output_0"], "source": "/model.9/cv1/act/Sigmoid", "target": "/model.9/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/act/Mul_output_0"], "source": "/model.9/cv1/act/Mul", "target": "/model.9/Split"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/Split_output_0"], "source": "/model.9/Split", "target": "/model.9/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/Split_output_1"], "source": "/model.9/Split", "target": "/model.9/m/m.0/attn/qkv/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/Split_output_1"], "source": "/model.9/Split", "target": "/model.9/m/m.0/Add"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/Concat_output_0"], "source": "/model.9/Concat", "target": "/model.9/cv2/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/attn/qkv/conv/Conv_output_0"], "source": "/model.9/m/m.0/attn/qkv/conv/Conv", "target": "/model.9/m/m.0/attn/Reshape"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/Add_output_0"], "source": "/model.9/m/m.0/Add", "target": "/model.9/m/m.0/ffn/ffn.0/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/Add_output_0"], "source": "/model.9/m/m.0/Add", "target": "/model.9/m/m.0/Add_1"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/conv/Conv", "target": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/conv/Conv", "target": "/model.9/m/m.0/ffn/ffn.0/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/Add_1_output_0"], "source": "/model.9/m/m.0/Add_1", "target": "/model.9/Concat"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/conv/Conv_output_0"], "source": "/model.9/cv2/conv/Conv", "target": "/model.9/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/conv/Conv_output_0"], "source": "/model.9/cv2/conv/Conv", "target": "/model.9/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/act/Sigmoid_output_0"], "source": "/model.9/cv2/act/Sigmoid", "target": "/model.9/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/act/Mul_output_0"], "source": "/model.9/cv2/act/Mul", "target": "/model.10/conv/conv/Conv"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/conv/Conv_output_0"], "source": "/model.10/conv/conv/Conv", "target": "/model.10/conv/act/Sigmoid"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/conv/Conv_output_0"], "source": "/model.10/conv/conv/Conv", "target": "/model.10/conv/act/Mul"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/act/Sigmoid_output_0"], "source": "/model.10/conv/act/Sigmoid", "target": "/model.10/conv/act/Mul"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/act/Mul_output_0"], "source": "/model.10/conv/act/Mul", "target": "/model.10/pool/GlobalAveragePool"}, {"tot_tensor_size": 0.0048828125, "tensor_name_list": ["/model.10/pool/GlobalAveragePool_output_0"], "source": "/model.10/pool/GlobalAveragePool", "target": "/model.10/Flatten"}, {"tot_tensor_size": 0.0048828125, "tensor_name_list": ["/model.10/Flatten_output_0"], "source": "/model.10/Flatten", "target": "/model.10/linear/Gemm"}, {"tot_tensor_size": 0.003814697265625, "tensor_name_list": ["/model.10/linear/Gemm_output_0"], "source": "/model.10/linear/Gemm", "target": "/model.10/Softmax"}, {"tot_tensor_size": 0.003814697265625, "tensor_name_list": ["output0"], "source": "/model.10/Softmax", "target": "OutputReceiver"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/act/Sigmoid_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid", "target": "/model.9/m/m.0/ffn/ffn.0/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/act/Mul_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/act/Mul", "target": "/model.9/m/m.0/ffn/ffn.1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.1/conv/Conv_output_0"], "source": "/model.9/m/m.0/ffn/ffn.1/conv/Conv", "target": "/model.9/m/m.0/Add_1"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_output_0"], "source": "/model.9/m/m.0/attn/Reshape", "target": "/model.9/m/m.0/attn/Split"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_0"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/Transpose"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_1"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/MatMul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_2"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/Reshape_2"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_2"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/MatMul_1"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.9/m/m.0/attn/Transpose_output_0"], "source": "/model.9/m/m.0/attn/Transpose", "target": "/model.9/m/m.0/attn/MatMul"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/MatMul_output_0"], "source": "/model.9/m/m.0/attn/MatMul", "target": "/model.9/m/m.0/attn/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_2_output_0"], "source": "/model.9/m/m.0/attn/Reshape_2", "target": "/model.9/m/m.0/attn/pe/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/MatMul_1_output_0"], "source": "/model.9/m/m.0/attn/MatMul_1", "target": "/model.9/m/m.0/attn/Reshape_1"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_1_output_0"], "source": "/model.9/m/m.0/attn/Reshape_1", "target": "/model.9/m/m.0/attn/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Add_output_0"], "source": "/model.9/m/m.0/attn/Add", "target": "/model.9/m/m.0/attn/proj/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/proj/conv/Conv_output_0"], "source": "/model.9/m/m.0/attn/proj/conv/Conv", "target": "/model.9/m/m.0/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/pe/conv/Conv_output_0"], "source": "/model.9/m/m.0/attn/pe/conv/Conv", "target": "/model.9/m/m.0/attn/Add"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/Mul_output_0"], "source": "/model.9/m/m.0/attn/Mul", "target": "/model.9/m/m.0/attn/Softmax"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/Softmax_output_0"], "source": "/model.9/m/m.0/attn/Softmax", "target": "/model.9/m/m.0/attn/Transpose_1"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/Transpose_1_output_0"], "source": "/model.9/m/m.0/attn/Transpose_1", "target": "/model.9/m/m.0/attn/MatMul_1"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.8/m.0/cv2/act/Sigmoid", "target": "/model.8/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/act/Mul_output_0"], "source": "/model.8/m.0/cv2/act/Mul", "target": "/model.8/m.0/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/Concat_output_0"], "source": "/model.8/m.0/Concat", "target": "/model.8/m.0/cv3/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/conv/Conv_output_0"], "source": "/model.8/m.0/cv3/conv/Conv", "target": "/model.8/m.0/cv3/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/conv/Conv_output_0"], "source": "/model.8/m.0/cv3/conv/Conv", "target": "/model.8/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/act/Sigmoid_output_0"], "source": "/model.8/m.0/cv3/act/Sigmoid", "target": "/model.8/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/act/Mul_output_0"], "source": "/model.8/m.0/cv3/act/Mul", "target": "/model.8/Concat"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.8/m.0/cv1/act/Sigmoid", "target": "/model.8/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/act/Mul_output_0"], "source": "/model.8/m.0/cv1/act/Mul", "target": "/model.8/m.0/m/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/act/Mul_output_0"], "source": "/model.8/m.0/cv1/act/Mul", "target": "/model.8/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv1/conv/Conv", "target": "/model.8/m.0/m/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv1/conv/Conv", "target": "/model.8/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/Add_output_0"], "source": "/model.8/m.0/m/m.0/Add", "target": "/model.8/m.0/m/m.1/cv1/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/Add_output_0"], "source": "/model.8/m.0/m/m.0/Add", "target": "/model.8/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv1/conv/Conv", "target": "/model.8/m.0/m/m.1/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv1/conv/Conv", "target": "/model.8/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/Add_output_0"], "source": "/model.8/m.0/m/m.1/Add", "target": "/model.8/m.0/Concat"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.1/cv1/act/Sigmoid", "target": "/model.8/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/act/Mul_output_0"], "source": "/model.8/m.0/m/m.1/cv1/act/Mul", "target": "/model.8/m.0/m/m.1/cv2/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv2/conv/Conv", "target": "/model.8/m.0/m/m.1/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv2/conv/Conv", "target": "/model.8/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.1/cv2/act/Sigmoid", "target": "/model.8/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/act/Mul_output_0"], "source": "/model.8/m.0/m/m.1/cv2/act/Mul", "target": "/model.8/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.0/cv1/act/Sigmoid", "target": "/model.8/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/act/Mul_output_0"], "source": "/model.8/m.0/m/m.0/cv1/act/Mul", "target": "/model.8/m.0/m/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv2/conv/Conv", "target": "/model.8/m.0/m/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv2/conv/Conv", "target": "/model.8/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.0/cv2/act/Sigmoid", "target": "/model.8/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/act/Mul_output_0"], "source": "/model.8/m.0/m/m.0/cv2/act/Mul", "target": "/model.8/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.6/m.0/cv2/act/Sigmoid", "target": "/model.6/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/act/Mul_output_0"], "source": "/model.6/m.0/cv2/act/Mul", "target": "/model.6/m.0/Concat"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/Concat_output_0"], "source": "/model.6/m.0/Concat", "target": "/model.6/m.0/cv3/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/conv/Conv_output_0"], "source": "/model.6/m.0/cv3/conv/Conv", "target": "/model.6/m.0/cv3/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/conv/Conv_output_0"], "source": "/model.6/m.0/cv3/conv/Conv", "target": "/model.6/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/act/Sigmoid_output_0"], "source": "/model.6/m.0/cv3/act/Sigmoid", "target": "/model.6/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/act/Mul_output_0"], "source": "/model.6/m.0/cv3/act/Mul", "target": "/model.6/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.6/m.0/cv1/act/Sigmoid", "target": "/model.6/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/act/Mul_output_0"], "source": "/model.6/m.0/cv1/act/Mul", "target": "/model.6/m.0/m/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/act/Mul_output_0"], "source": "/model.6/m.0/cv1/act/Mul", "target": "/model.6/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv1/conv/Conv", "target": "/model.6/m.0/m/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv1/conv/Conv", "target": "/model.6/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/Add_output_0"], "source": "/model.6/m.0/m/m.0/Add", "target": "/model.6/m.0/m/m.1/cv1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/Add_output_0"], "source": "/model.6/m.0/m/m.0/Add", "target": "/model.6/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv1/conv/Conv", "target": "/model.6/m.0/m/m.1/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv1/conv/Conv", "target": "/model.6/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/Add_output_0"], "source": "/model.6/m.0/m/m.1/Add", "target": "/model.6/m.0/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.1/cv1/act/Sigmoid", "target": "/model.6/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/act/Mul_output_0"], "source": "/model.6/m.0/m/m.1/cv1/act/Mul", "target": "/model.6/m.0/m/m.1/cv2/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv2/conv/Conv", "target": "/model.6/m.0/m/m.1/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv2/conv/Conv", "target": "/model.6/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.1/cv2/act/Sigmoid", "target": "/model.6/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/act/Mul_output_0"], "source": "/model.6/m.0/m/m.1/cv2/act/Mul", "target": "/model.6/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.0/cv1/act/Sigmoid", "target": "/model.6/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/act/Mul_output_0"], "source": "/model.6/m.0/m/m.0/cv1/act/Mul", "target": "/model.6/m.0/m/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv2/conv/Conv", "target": "/model.6/m.0/m/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv2/conv/Conv", "target": "/model.6/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.0/cv2/act/Sigmoid", "target": "/model.6/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/act/Mul_output_0"], "source": "/model.6/m.0/m/m.0/cv2/act/Mul", "target": "/model.6/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.4/m.0/cv1/act/Sigmoid", "target": "/model.4/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/act/Mul_output_0"], "source": "/model.4/m.0/cv1/act/Mul", "target": "/model.4/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/conv/Conv_output_0"], "source": "/model.4/m.0/cv2/conv/Conv", "target": "/model.4/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/conv/Conv_output_0"], "source": "/model.4/m.0/cv2/conv/Conv", "target": "/model.4/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.4/m.0/cv2/act/Sigmoid", "target": "/model.4/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/act/Mul_output_0"], "source": "/model.4/m.0/cv2/act/Mul", "target": "/model.4/m.0/Add"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.2/m.0/cv1/act/Sigmoid", "target": "/model.2/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/act/Mul_output_0"], "source": "/model.2/m.0/cv1/act/Mul", "target": "/model.2/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/conv/Conv_output_0"], "source": "/model.2/m.0/cv2/conv/Conv", "target": "/model.2/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/conv/Conv_output_0"], "source": "/model.2/m.0/cv2/conv/Conv", "target": "/model.2/m.0/cv2/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.2/m.0/cv2/act/Sigmoid", "target": "/model.2/m.0/cv2/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/act/Mul_output_0"], "source": "/model.2/m.0/cv2/act/Mul", "target": "/model.2/m.0/Add"}]}, "regressor": {"interactions": {"('/model.3/conv/Conv',)": 3.6894280109265e-05, "('/model.5/conv/Conv',)": -6.568377395753139e-06, "('/model.10/conv/conv/Conv',)": 1.388009685340411e-05, "('/model.1/conv/Conv',)": 0.0005474098825538261, "('/model.7/conv/Conv',)": 2.682527125891095e-05, "('/model.2/cv2/conv/Conv',)": 4.70457716924681e-05, "('/model.4/cv2/conv/Conv',)": 0.00010236908576618872, "('/model.0/act/Sigmoid',)": 0.00020288927203438443, "('/model.2/cv2/act/Sigmoid',)": 6.35490975519209e-05, "('/model.0/conv/Conv',)": 0.00017961314456697448, "('/model.6/cv2/conv/Conv',)": 5.336816156969113e-06, "('/model.8/cv2/conv/Conv',)": 3.115076782127616e-05, "('/model.3/conv/Conv', '/model.5/conv/Conv')": -1.3009523437547643e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv')": 8.451168787157154e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv')": -4.636215320014862e-05, "('/model.3/conv/Conv', '/model.7/conv/Conv')": -8.342454677988411e-06, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv')": -2.039930974660167e-05, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv')": 7.727494510065511e-07, "('/model.3/conv/Conv', '/model.0/act/Sigmoid')": -1.7521407571434715e-05, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.4156436406453788e-05, "('/model.3/conv/Conv', '/model.0/conv/Conv')": 1.9130885045616982e-06, "('/model.3/conv/Conv', '/model.6/cv2/conv/Conv')": 2.941771484320978e-06, "('/model.3/conv/Conv', '/model.8/cv2/conv/Conv')": -1.442295805503377e-05, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv')": -6.458260495724314e-08, "('/model.5/conv/Conv', '/model.1/conv/Conv')": 1.0493300954251377e-05, "('/model.5/conv/Conv', '/model.7/conv/Conv')": -1.2250700883148577e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv')": 6.25463597406532e-08, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv')": 8.385926237051056e-06, "('/model.5/conv/Conv', '/model.0/act/Sigmoid')": -5.053111852348869e-06, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid')": 8.742950027660163e-06, "('/model.5/conv/Conv', '/model.0/conv/Conv')": -2.746761304869962e-06, "('/model.5/conv/Conv', '/model.6/cv2/conv/Conv')": 1.1159066380063502e-05, "('/model.5/conv/Conv', '/model.8/cv2/conv/Conv')": 2.4798391112806505e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv')": 4.377863247470511e-07, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv')": 3.817656685266502e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": -1.2882874750831249e-05, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": 1.890857269331472e-05, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": -4.169150670856929e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": -4.367417096312245e-06, "('/model.10/conv/conv/Conv', '/model.0/conv/Conv')": -9.540931031868646e-06, "('/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": 1.3651784598772225e-05, "('/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": -1.9555618831321044e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv')": -2.8853317780169356e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 6.2038122767599815e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -9.386272434200263e-05, "('/model.1/conv/Conv', '/model.0/act/Sigmoid')": -9.272695270916115e-05, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": -5.770146418441799e-05, "('/model.1/conv/Conv', '/model.0/conv/Conv')": -0.00014628385241849596, "('/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -2.6804697253920775e-05, "('/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": -2.6417746902816283e-05, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": -5.852131667690325e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -1.1182325676162263e-05, "('/model.7/conv/Conv', '/model.0/act/Sigmoid')": 1.673278792406808e-05, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.3056613649712369e-06, "('/model.7/conv/Conv', '/model.0/conv/Conv')": -1.847849218969076e-05, "('/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": 7.397682570191053e-07, "('/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": -1.1456079523717947e-06, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": -8.197798403989771e-06, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 3.3109406797986516e-05, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -4.881418788290452e-05, "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 3.0292063974046344e-06, "('/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.895988541745491e-05, "('/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -1.660950423641063e-05, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -3.395055434551212e-05, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -1.3021167581754432e-06, "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 1.3422083608732518e-05, "('/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.6664723624399027e-06, "('/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.276636760243122e-06, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -2.1627263389788168e-05, "('/model.0/act/Sigmoid', '/model.0/conv/Conv')": -0.00019343860034508865, "('/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 4.030165825679904e-06, "('/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -1.4084357882071477e-05, "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 6.149100777452787e-07, "('/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.9836865468947997e-06, "('/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 3.6261118226010603e-06, "('/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 1.189695155675268e-05, "('/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -1.6862036270618882e-06, "('/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -9.556156281267192e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.10/conv/conv/Conv')": 7.131290716845196e-07, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.1/conv/Conv')": 3.1691959666590747e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.7/conv/Conv')": -6.89623255215154e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.2/cv2/conv/Conv')": -5.666848867697098e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.4/cv2/conv/Conv')": -9.10735292981331e-07, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.0/act/Sigmoid')": 3.634012356221785e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid')": 5.266594134334972e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.0/conv/Conv')": -6.970659734742798e-08, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.6/cv2/conv/Conv')": -4.659823055263816e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.8/cv2/conv/Conv')": -7.130723997533103e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.1/conv/Conv')": -2.443134746550285e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.7/conv/Conv')": -2.6636164176409515e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": 2.584710671636666e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": -5.335585554370334e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": -3.9913880544814075e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": -4.036763679878314e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/conv/Conv')": 1.227000704976066e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": -6.017273044254321e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": 3.1322708759312805e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": 4.612370672551658e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 1.2913522807880746e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": 7.67254062818569e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": 1.350836573193863e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.545033688053162e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": 2.930420151752874e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": 3.5673176017071276e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": -2.7444772704332096e-07, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": -1.0235963388681655e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -1.4710376596797705e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": 1.1918625355578454e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": -4.2854807777957357e-07, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": 1.127965399494808e-05, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": 2.0713376728974096e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 6.609333442001888e-06, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": -4.28470463767958e-06, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -6.125031895781982e-06, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.2139535981945174e-05, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": -2.398815044699514e-05, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -4.218511275549093e-06, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 8.876888023695005e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 5.0531255721658185e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 7.233420954847071e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -8.654847159624147e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -5.534603078088989e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -2.7388522902794756e-07, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -6.4162777374815195e-06, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 1.2125937874666435e-05, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -7.438490791597117e-07, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 9.149239430905349e-06, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -4.612428742098603e-06, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.1919244050168076e-06, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -1.0638668429674013e-07, "('/model.3/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 2.269142293953555e-06, "('/model.3/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -1.7766091902073847e-06, "('/model.3/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 5.230553955947075e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.1/conv/Conv')": -3.661057624325963e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.7/conv/Conv')": 1.7062682810509055e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": 2.6261942571009496e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": -7.592428874506886e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": 4.508606799335766e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.424534572069986e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/conv/Conv')": 1.993016684176155e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": -4.722894985348161e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": 2.7022901441795517e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": -6.71339752021419e-07, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": -7.672833725773373e-07, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -3.892581166108489e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": -6.943823039985443e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": -7.681802522628128e-07, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": -7.905589918397805e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -1.5242292527373798e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 8.332900634219361e-07, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 6.421102075849128e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -2.0576542579900233e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": 1.7556453512568895e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.6968579722175697e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": -3.876730542208656e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -3.62412244408809e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 2.0276459591931763e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 4.062987604763014e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -1.8006491808453832e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -5.2765099707284015e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 1.321007628540408e-05, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.462579635192031e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -2.2245079667911118e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -5.372900637930664e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -1.9678390383041835e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -3.31346669597239e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 3.5651740431744788e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -8.621035710414861e-07, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 1.2575572705914838e-06, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 6.487189725770031e-06, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -3.5486146512268957e-06, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 5.47452745337075e-06, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -6.573132267348136e-06, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 4.678304062326724e-06, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -6.622191406447053e-06, "('/model.5/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -5.264245505018925e-07, "('/model.5/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 4.3129063680722655e-06, "('/model.5/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -3.7158946440008842e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": -3.1657056402234254e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": -5.663262386024383e-07, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -1.6815854643985533e-05, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": -1.2622668193816144e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": -4.154828788691757e-07, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": -9.019400025951684e-07, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": 7.013973235342748e-07, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 1.1666542206822416e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 2.012397393718864e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -2.359148462885251e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": -7.512013657050011e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 3.2898817054853173e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": 6.642779650298133e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -2.0183872844536726e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 5.66221214305318e-07, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": -5.292755357936115e-07, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.0699480123827198e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 3.99977307900168e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 5.9907211413368875e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 1.1438420611469246e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.4485652196993088e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 2.949775907774034e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.2381775728951908e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -1.6202218878812866e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -4.503702139254896e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -2.6286107352324227e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 6.7784512327474715e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 1.6760846103567616e-07, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -6.131074669356662e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 4.38164633422465e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 5.454240605093933e-07, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -5.94532794757693e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -4.84206419858683e-06, "('/model.10/conv/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -3.254639745421033e-07, "('/model.10/conv/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 1.2701325351835756e-06, "('/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -5.104717862934011e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": -2.7293002272746347e-07, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": 6.568510208960315e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": -6.965504938343083e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 3.568851323415487e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": 5.786510501239946e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": 3.5164862838421918e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 4.409048885971949e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 5.160294250719708e-07, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -5.95214396110149e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.740629299802609e-05, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": -2.2137179706832103e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.4836083276167881e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 6.122720739451865e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.933383703089208e-05, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -3.917088250040454e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -1.1091567005372446e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -2.6424977296154603e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.0734646585684763e-06, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 9.823829032415358e-06, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 8.97448851351724e-05, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -1.1333424923289963e-08, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 2.1716102039051796e-06, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.2258187125802399e-05, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 6.838830458051838e-06, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -5.926957375467119e-06, "('/model.1/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -1.3814364918889445e-06, "('/model.1/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -6.904566870071825e-07, "('/model.1/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 7.246844037706722e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 5.25275304044937e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -1.4499197199456229e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -7.437773374599892e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 3.6121554031665707e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 3.7470261713572667e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.3976439723320136e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -1.8549902529418403e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.4810094410756234e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 3.5648458377526983e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 2.6562295406486003e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -4.697876508009864e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -2.724277176895703e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 1.1175807129927408e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -8.51832058268233e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -3.925495682686939e-06, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.604279547328767e-06, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -4.170883379455517e-06, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -1.6210764029244367e-06, "('/model.7/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 4.289997034161862e-06, "('/model.7/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -5.894643386815831e-06, "('/model.7/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.8167575895522717e-06, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -3.047755524518822e-06, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 3.5326197445438573e-07, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 1.3814946803886784e-05, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 3.4354696218296207e-06, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -8.737759529207765e-07, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 8.114148762924565e-06, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": -3.92349604187221e-05, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 3.8027640028555667e-06, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -7.502120439087277e-06, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -6.286522874993141e-06, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.765386809189416e-06, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 7.908193227049263e-06, "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 4.458338343143037e-06, "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 2.797109370998295e-06, "('/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 8.381962168147754e-06, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -3.464525467301608e-06, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 2.290814526230157e-05, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 3.467878441869744e-06, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.923035330149632e-06, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 9.299736401788879e-07, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.8649649237096813e-06, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -2.7730072661853844e-06, "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -9.499265934656083e-06, "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -1.1268926131460433e-06, "('/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 6.420237523670826e-06, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.5868976662693974e-05, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.088432126576002e-06, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.2712791386229778e-06, "('/model.0/act/Sigmoid', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 2.4005564408628258e-06, "('/model.0/act/Sigmoid', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 7.259050529606662e-06, "('/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.6403324335644115e-06, "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -5.324502546449591e-06, "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 1.5681425780034901e-07, "('/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.7397436626179962e-06, "('/model.0/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -5.087415933475894e-06}, "intercept": 6.451921343277365e-05, "degree": 3, "train_score": 0.9984857002202934, "test_score": 0.993897319125108}}
+{
+  "graph": {
+    "directed": true,
+    "multigraph": false,
+    "graph": {
+      "name": "yolo11n-cls",
+      "tensor_size_dict": {
+        "/model.0/conv/Conv_output_0": 6.25,
+        "/model.0/act/Sigmoid_output_0": 6.25,
+        "/model.0/act/Mul_output_0": 6.25,
+        "/model.1/conv/Conv_output_0": 3.125,
+        "/model.1/act/Sigmoid_output_0": 3.125,
+        "/model.1/act/Mul_output_0": 3.125,
+        "/model.2/cv1/conv/Conv_output_0": 3.125,
+        "/model.2/cv1/act/Sigmoid_output_0": 3.125,
+        "/model.2/cv1/act/Mul_output_0": 3.125,
+        "/model.2/Split_output_0": 1.5625,
+        "/model.2/Split_output_1": 1.5625,
+        "/model.2/m.0/cv1/conv/Conv_output_0": 0.78125,
+        "/model.2/m.0/cv1/act/Sigmoid_output_0": 0.78125,
+        "/model.2/m.0/cv1/act/Mul_output_0": 0.78125,
+        "/model.2/m.0/cv2/conv/Conv_output_0": 1.5625,
+        "/model.2/m.0/cv2/act/Sigmoid_output_0": 1.5625,
+        "/model.2/m.0/cv2/act/Mul_output_0": 1.5625,
+        "/model.2/m.0/Add_output_0": 1.5625,
+        "/model.2/Concat_output_0": 4.6875,
+        "/model.2/cv2/conv/Conv_output_0": 6.25,
+        "/model.2/cv2/act/Sigmoid_output_0": 6.25,
+        "/model.2/cv2/act/Mul_output_0": 6.25,
+        "/model.3/conv/Conv_output_0": 1.5625,
+        "/model.3/act/Sigmoid_output_0": 1.5625,
+        "/model.3/act/Mul_output_0": 1.5625,
+        "/model.4/cv1/conv/Conv_output_0": 1.5625,
+        "/model.4/cv1/act/Sigmoid_output_0": 1.5625,
+        "/model.4/cv1/act/Mul_output_0": 1.5625,
+        "/model.4/Split_output_0": 0.78125,
+        "/model.4/Split_output_1": 0.78125,
+        "/model.4/m.0/cv1/conv/Conv_output_0": 0.390625,
+        "/model.4/m.0/cv1/act/Sigmoid_output_0": 0.390625,
+        "/model.4/m.0/cv1/act/Mul_output_0": 0.390625,
+        "/model.4/m.0/cv2/conv/Conv_output_0": 0.78125,
+        "/model.4/m.0/cv2/act/Sigmoid_output_0": 0.78125,
+        "/model.4/m.0/cv2/act/Mul_output_0": 0.78125,
+        "/model.4/m.0/Add_output_0": 0.78125,
+        "/model.4/Concat_output_0": 2.34375,
+        "/model.4/cv2/conv/Conv_output_0": 3.125,
+        "/model.4/cv2/act/Sigmoid_output_0": 3.125,
+        "/model.4/cv2/act/Mul_output_0": 3.125,
+        "/model.5/conv/Conv_output_0": 0.78125,
+        "/model.5/act/Sigmoid_output_0": 0.78125,
+        "/model.5/act/Mul_output_0": 0.78125,
+        "/model.6/cv1/conv/Conv_output_0": 0.78125,
+        "/model.6/cv1/act/Sigmoid_output_0": 0.78125,
+        "/model.6/cv1/act/Mul_output_0": 0.78125,
+        "/model.6/Split_output_0": 0.390625,
+        "/model.6/Split_output_1": 0.390625,
+        "/model.6/m.0/cv1/conv/Conv_output_0": 0.1953125,
+        "/model.6/m.0/cv2/conv/Conv_output_0": 0.1953125,
+        "/model.6/m.0/cv1/act/Sigmoid_output_0": 0.1953125,
+        "/model.6/m.0/cv2/act/Sigmoid_output_0": 0.1953125,
+        "/model.6/m.0/cv1/act/Mul_output_0": 0.1953125,
+        "/model.6/m.0/cv2/act/Mul_output_0": 0.1953125,
+        "/model.6/m.0/m/m.0/cv1/conv/Conv_output_0": 0.1953125,
+        "/model.6/m.0/m/m.0/cv1/act/Sigmoid_output_0": 0.1953125,
+        "/model.6/m.0/m/m.0/cv1/act/Mul_output_0": 0.1953125,
+        "/model.6/m.0/m/m.0/cv2/conv/Conv_output_0": 0.1953125,
+        "/model.6/m.0/m/m.0/cv2/act/Sigmoid_output_0": 0.1953125,
+        "/model.6/m.0/m/m.0/cv2/act/Mul_output_0": 0.1953125,
+        "/model.6/m.0/m/m.0/Add_output_0": 0.1953125,
+        "/model.6/m.0/m/m.1/cv1/conv/Conv_output_0": 0.1953125,
+        "/model.6/m.0/m/m.1/cv1/act/Sigmoid_output_0": 0.1953125,
+        "/model.6/m.0/m/m.1/cv1/act/Mul_output_0": 0.1953125,
+        "/model.6/m.0/m/m.1/cv2/conv/Conv_output_0": 0.1953125,
+        "/model.6/m.0/m/m.1/cv2/act/Sigmoid_output_0": 0.1953125,
+        "/model.6/m.0/m/m.1/cv2/act/Mul_output_0": 0.1953125,
+        "/model.6/m.0/m/m.1/Add_output_0": 0.1953125,
+        "/model.6/m.0/Concat_output_0": 0.390625,
+        "/model.6/m.0/cv3/conv/Conv_output_0": 0.390625,
+        "/model.6/m.0/cv3/act/Sigmoid_output_0": 0.390625,
+        "/model.6/m.0/cv3/act/Mul_output_0": 0.390625,
+        "/model.6/Concat_output_0": 1.171875,
+        "/model.6/cv2/conv/Conv_output_0": 0.78125,
+        "/model.6/cv2/act/Sigmoid_output_0": 0.78125,
+        "/model.6/cv2/act/Mul_output_0": 0.78125,
+        "/model.7/conv/Conv_output_0": 0.390625,
+        "/model.7/act/Sigmoid_output_0": 0.390625,
+        "/model.7/act/Mul_output_0": 0.390625,
+        "/model.8/cv1/conv/Conv_output_0": 0.390625,
+        "/model.8/cv1/act/Sigmoid_output_0": 0.390625,
+        "/model.8/cv1/act/Mul_output_0": 0.390625,
+        "/model.8/Split_output_0": 0.1953125,
+        "/model.8/Split_output_1": 0.1953125,
+        "/model.8/m.0/cv1/conv/Conv_output_0": 0.09765625,
+        "/model.8/m.0/cv2/conv/Conv_output_0": 0.09765625,
+        "/model.8/m.0/cv1/act/Sigmoid_output_0": 0.09765625,
+        "/model.8/m.0/cv2/act/Sigmoid_output_0": 0.09765625,
+        "/model.8/m.0/cv1/act/Mul_output_0": 0.09765625,
+        "/model.8/m.0/cv2/act/Mul_output_0": 0.09765625,
+        "/model.8/m.0/m/m.0/cv1/conv/Conv_output_0": 0.09765625,
+        "/model.8/m.0/m/m.0/cv1/act/Sigmoid_output_0": 0.09765625,
+        "/model.8/m.0/m/m.0/cv1/act/Mul_output_0": 0.09765625,
+        "/model.8/m.0/m/m.0/cv2/conv/Conv_output_0": 0.09765625,
+        "/model.8/m.0/m/m.0/cv2/act/Sigmoid_output_0": 0.09765625,
+        "/model.8/m.0/m/m.0/cv2/act/Mul_output_0": 0.09765625,
+        "/model.8/m.0/m/m.0/Add_output_0": 0.09765625,
+        "/model.8/m.0/m/m.1/cv1/conv/Conv_output_0": 0.09765625,
+        "/model.8/m.0/m/m.1/cv1/act/Sigmoid_output_0": 0.09765625,
+        "/model.8/m.0/m/m.1/cv1/act/Mul_output_0": 0.09765625,
+        "/model.8/m.0/m/m.1/cv2/conv/Conv_output_0": 0.09765625,
+        "/model.8/m.0/m/m.1/cv2/act/Sigmoid_output_0": 0.09765625,
+        "/model.8/m.0/m/m.1/cv2/act/Mul_output_0": 0.09765625,
+        "/model.8/m.0/m/m.1/Add_output_0": 0.09765625,
+        "/model.8/m.0/Concat_output_0": 0.1953125,
+        "/model.8/m.0/cv3/conv/Conv_output_0": 0.1953125,
+        "/model.8/m.0/cv3/act/Sigmoid_output_0": 0.1953125,
+        "/model.8/m.0/cv3/act/Mul_output_0": 0.1953125,
+        "/model.8/Concat_output_0": 0.5859375,
+        "/model.8/cv2/conv/Conv_output_0": 0.390625,
+        "/model.8/cv2/act/Sigmoid_output_0": 0.390625,
+        "/model.8/cv2/act/Mul_output_0": 0.390625,
+        "/model.9/cv1/conv/Conv_output_0": 0.390625,
+        "/model.9/cv1/act/Sigmoid_output_0": 0.390625,
+        "/model.9/cv1/act/Mul_output_0": 0.390625,
+        "/model.9/Split_output_0": 0.1953125,
+        "/model.9/Split_output_1": 0.1953125,
+        "/model.9/m/m.0/attn/qkv/conv/Conv_output_0": 0.390625,
+        "/model.9/m/m.0/attn/Reshape_output_0": 0.390625,
+        "/model.9/m/m.0/attn/Split_output_0": 0.09765625,
+        "/model.9/m/m.0/attn/Split_output_1": 0.09765625,
+        "/model.9/m/m.0/attn/Split_output_2": 0.1953125,
+        "/model.9/m/m.0/attn/Transpose_output_0": 0.09765625,
+        "/model.9/m/m.0/attn/Reshape_2_output_0": 0.1953125,
+        "/model.9/m/m.0/attn/MatMul_output_0": 1.220703125,
+        "/model.9/m/m.0/attn/pe/conv/Conv_output_0": 0.1953125,
+        "/model.9/m/m.0/attn/Mul_output_0": 1.220703125,
+        "/model.9/m/m.0/attn/Softmax_output_0": 1.220703125,
+        "/model.9/m/m.0/attn/Transpose_1_output_0": 1.220703125,
+        "/model.9/m/m.0/attn/MatMul_1_output_0": 0.1953125,
+        "/model.9/m/m.0/attn/Reshape_1_output_0": 0.1953125,
+        "/model.9/m/m.0/attn/Add_output_0": 0.1953125,
+        "/model.9/m/m.0/attn/proj/conv/Conv_output_0": 0.1953125,
+        "/model.9/m/m.0/Add_output_0": 0.1953125,
+        "/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0": 0.390625,
+        "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid_output_0": 0.390625,
+        "/model.9/m/m.0/ffn/ffn.0/act/Mul_output_0": 0.390625,
+        "/model.9/m/m.0/ffn/ffn.1/conv/Conv_output_0": 0.1953125,
+        "/model.9/m/m.0/Add_1_output_0": 0.1953125,
+        "/model.9/Concat_output_0": 0.390625,
+        "/model.9/cv2/conv/Conv_output_0": 0.390625,
+        "/model.9/cv2/act/Sigmoid_output_0": 0.390625,
+        "/model.9/cv2/act/Mul_output_0": 0.390625,
+        "/model.10/conv/conv/Conv_output_0": 1.953125,
+        "/model.10/conv/act/Sigmoid_output_0": 1.953125,
+        "/model.10/conv/act/Mul_output_0": 1.953125,
+        "/model.10/pool/GlobalAveragePool_output_0": 0.0048828125,
+        "/model.10/Flatten_output_0": 0.0048828125,
+        "/model.10/linear/Gemm_output_0": 0.003814697265625
+      }
+    },
+    "nodes": [
+      {
+        "idx": 0,
+        "flops": 0,
+        "weights_size": 0,
+        "outputs_size": 0,
+        "generator": true,
+        "id": "InputGenerator"
+      },
+      {
+        "idx": 1,
+        "flops": 91750400.0,
+        "weights_size": 0.001708984375,
+        "outputs_size": 6.25,
+        "quantizable": true,
+        "id": "/model.0/conv/Conv"
+      },
+      {
+        "idx": 2,
+        "flops": 104857600.0,
+        "weights_size": 0,
+        "outputs_size": 6.25,
+        "quantizable": true,
+        "id": "/model.0/act/Sigmoid"
+      },
+      {
+        "idx": 3,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 6.25,
+        "id": "/model.0/act/Mul"
+      },
+      {
+        "idx": 4,
+        "flops": 237568000.0,
+        "weights_size": 0.0177001953125,
+        "outputs_size": 3.125,
+        "quantizable": true,
+        "id": "/model.1/conv/Conv"
+      },
+      {
+        "idx": 5,
+        "flops": 52428800.0,
+        "weights_size": 0,
+        "outputs_size": 3.125,
+        "id": "/model.1/act/Sigmoid"
+      },
+      {
+        "idx": 6,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 3.125,
+        "id": "/model.1/act/Mul"
+      },
+      {
+        "idx": 7,
+        "flops": 54067200.0,
+        "weights_size": 0.0040283203125,
+        "outputs_size": 3.125,
+        "id": "/model.2/cv1/conv/Conv"
+      },
+      {
+        "idx": 8,
+        "flops": 52428800.0,
+        "weights_size": 0,
+        "outputs_size": 3.125,
+        "id": "/model.2/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 9,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 3.125,
+        "id": "/model.2/cv1/act/Mul"
+      },
+      {
+        "idx": 10,
+        "flops": 0.0,
+        "weights_size": 1.52587890625e-5,
+        "outputs_size": 3.125,
+        "id": "/model.2/Split"
+      },
+      {
+        "idx": 11,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 4.6875,
+        "id": "/model.2/Concat"
+      },
+      {
+        "idx": 12,
+        "flops": 59392000.0,
+        "weights_size": 0.004425048828125,
+        "outputs_size": 0.78125,
+        "id": "/model.2/m.0/cv1/conv/Conv"
+      },
+      {
+        "idx": 13,
+        "flops": 819200.0,
+        "weights_size": 0,
+        "outputs_size": 1.5625,
+        "id": "/model.2/m.0/Add"
+      },
+      {
+        "idx": 14,
+        "flops": 160563200.0,
+        "weights_size": 0.011962890625,
+        "outputs_size": 6.25,
+        "quantizable": true,
+        "id": "/model.2/cv2/conv/Conv"
+      },
+      {
+        "idx": 15,
+        "flops": 104857600.0,
+        "weights_size": 0,
+        "outputs_size": 6.25,
+        "quantizable": true,
+        "id": "/model.2/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 16,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 6.25,
+        "id": "/model.2/cv2/act/Mul"
+      },
+      {
+        "idx": 17,
+        "flops": 472678400.0,
+        "weights_size": 0.140869140625,
+        "outputs_size": 1.5625,
+        "quantizable": true,
+        "id": "/model.3/conv/Conv"
+      },
+      {
+        "idx": 18,
+        "flops": 26214400.0,
+        "weights_size": 0,
+        "outputs_size": 1.5625,
+        "id": "/model.3/act/Sigmoid"
+      },
+      {
+        "idx": 19,
+        "flops": 819200.0,
+        "weights_size": 0,
+        "outputs_size": 1.5625,
+        "id": "/model.3/act/Mul"
+      },
+      {
+        "idx": 20,
+        "flops": 53248000.0,
+        "weights_size": 0.015869140625,
+        "outputs_size": 1.5625,
+        "id": "/model.4/cv1/conv/Conv"
+      },
+      {
+        "idx": 21,
+        "flops": 26214400.0,
+        "weights_size": 0,
+        "outputs_size": 1.5625,
+        "id": "/model.4/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 22,
+        "flops": 819200.0,
+        "weights_size": 0,
+        "outputs_size": 1.5625,
+        "id": "/model.4/cv1/act/Mul"
+      },
+      {
+        "idx": 23,
+        "flops": 0.0,
+        "weights_size": 1.52587890625e-5,
+        "outputs_size": 1.5625,
+        "id": "/model.4/Split"
+      },
+      {
+        "idx": 24,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 2.34375,
+        "id": "/model.4/Concat"
+      },
+      {
+        "idx": 25,
+        "flops": 59187200.0,
+        "weights_size": 0.01763916015625,
+        "outputs_size": 0.390625,
+        "id": "/model.4/m.0/cv1/conv/Conv"
+      },
+      {
+        "idx": 26,
+        "flops": 409600.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.4/m.0/Add"
+      },
+      {
+        "idx": 27,
+        "flops": 158924800.0,
+        "weights_size": 0.04736328125,
+        "outputs_size": 3.125,
+        "quantizable": true,
+        "id": "/model.4/cv2/conv/Conv"
+      },
+      {
+        "idx": 28,
+        "flops": 52428800.0,
+        "weights_size": 0,
+        "outputs_size": 3.125,
+        "id": "/model.4/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 29,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 3.125,
+        "id": "/model.4/cv2/act/Mul"
+      },
+      {
+        "idx": 30,
+        "flops": 472268800.0,
+        "weights_size": 0.56298828125,
+        "outputs_size": 0.78125,
+        "quantizable": true,
+        "id": "/model.5/conv/Conv"
+      },
+      {
+        "idx": 31,
+        "flops": 13107200.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.5/act/Sigmoid"
+      },
+      {
+        "idx": 32,
+        "flops": 409600.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.5/act/Mul"
+      },
+      {
+        "idx": 33,
+        "flops": 52838400.0,
+        "weights_size": 0.06298828125,
+        "outputs_size": 0.78125,
+        "id": "/model.6/cv1/conv/Conv"
+      },
+      {
+        "idx": 34,
+        "flops": 13107200.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.6/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 35,
+        "flops": 409600.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.6/cv1/act/Mul"
+      },
+      {
+        "idx": 36,
+        "flops": 0.0,
+        "weights_size": 1.52587890625e-5,
+        "outputs_size": 0.78125,
+        "id": "/model.6/Split"
+      },
+      {
+        "idx": 37,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 1.171875,
+        "id": "/model.6/Concat"
+      },
+      {
+        "idx": 38,
+        "flops": 6656000.0,
+        "weights_size": 0.0079345703125,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/cv1/conv/Conv"
+      },
+      {
+        "idx": 39,
+        "flops": 6656000.0,
+        "weights_size": 0.0079345703125,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/cv2/conv/Conv"
+      },
+      {
+        "idx": 40,
+        "flops": 79052800.0,
+        "weights_size": 0.09423828125,
+        "outputs_size": 0.78125,
+        "quantizable": true,
+        "id": "/model.6/cv2/conv/Conv"
+      },
+      {
+        "idx": 41,
+        "flops": 13107200.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.6/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 42,
+        "flops": 409600.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.6/cv2/act/Mul"
+      },
+      {
+        "idx": 43,
+        "flops": 236134400.0,
+        "weights_size": 1.1259765625,
+        "outputs_size": 0.390625,
+        "quantizable": true,
+        "id": "/model.7/conv/Conv"
+      },
+      {
+        "idx": 44,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.7/act/Sigmoid"
+      },
+      {
+        "idx": 45,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.7/act/Mul"
+      },
+      {
+        "idx": 46,
+        "flops": 52633600.0,
+        "weights_size": 0.2509765625,
+        "outputs_size": 0.390625,
+        "id": "/model.8/cv1/conv/Conv"
+      },
+      {
+        "idx": 47,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.8/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 48,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.8/cv1/act/Mul"
+      },
+      {
+        "idx": 49,
+        "flops": 0.0,
+        "weights_size": 1.52587890625e-5,
+        "outputs_size": 0.390625,
+        "id": "/model.8/Split"
+      },
+      {
+        "idx": 50,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 0.5859375,
+        "id": "/model.8/Concat"
+      },
+      {
+        "idx": 51,
+        "flops": 6604800.0,
+        "weights_size": 0.031494140625,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/cv1/conv/Conv"
+      },
+      {
+        "idx": 52,
+        "flops": 6604800.0,
+        "weights_size": 0.031494140625,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/cv2/conv/Conv"
+      },
+      {
+        "idx": 53,
+        "flops": 78848000.0,
+        "weights_size": 0.3759765625,
+        "outputs_size": 0.390625,
+        "quantizable": true,
+        "id": "/model.8/cv2/conv/Conv"
+      },
+      {
+        "idx": 54,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.8/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 55,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.8/cv2/act/Mul"
+      },
+      {
+        "idx": 56,
+        "flops": 52633600.0,
+        "weights_size": 0.2509765625,
+        "outputs_size": 0.390625,
+        "id": "/model.9/cv1/conv/Conv"
+      },
+      {
+        "idx": 57,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.9/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 58,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.9/cv1/act/Mul"
+      },
+      {
+        "idx": 59,
+        "flops": 0.0,
+        "weights_size": 1.52587890625e-5,
+        "outputs_size": 0.390625,
+        "id": "/model.9/Split"
+      },
+      {
+        "idx": 60,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.9/Concat"
+      },
+      {
+        "idx": 61,
+        "flops": 26419200.0,
+        "weights_size": 0.1259765625,
+        "outputs_size": 0.390625,
+        "id": "/model.9/m/m.0/attn/qkv/conv/Conv"
+      },
+      {
+        "idx": 62,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/Add"
+      },
+      {
+        "idx": 63,
+        "flops": 26419200.0,
+        "weights_size": 0.1259765625,
+        "outputs_size": 0.390625,
+        "id": "/model.9/m/m.0/ffn/ffn.0/conv/Conv"
+      },
+      {
+        "idx": 64,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/Add_1"
+      },
+      {
+        "idx": 65,
+        "flops": 52633600.0,
+        "weights_size": 0.2509765625,
+        "outputs_size": 0.390625,
+        "id": "/model.9/cv2/conv/Conv"
+      },
+      {
+        "idx": 66,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.9/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 67,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.9/cv2/act/Mul"
+      },
+      {
+        "idx": 68,
+        "flops": 263168000.0,
+        "weights_size": 1.2548828125,
+        "outputs_size": 1.953125,
+        "quantizable": true,
+        "id": "/model.10/conv/conv/Conv"
+      },
+      {
+        "idx": 69,
+        "flops": 32768000.0,
+        "weights_size": 0,
+        "outputs_size": 1.953125,
+        "id": "/model.10/conv/act/Sigmoid"
+      },
+      {
+        "idx": 70,
+        "flops": 1024000.0,
+        "weights_size": 0,
+        "outputs_size": 1.953125,
+        "id": "/model.10/conv/act/Mul"
+      },
+      {
+        "idx": 71,
+        "flops": 1034240.0,
+        "weights_size": 0,
+        "outputs_size": 0.0048828125,
+        "id": "/model.10/pool/GlobalAveragePool"
+      },
+      {
+        "idx": 72,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 0.0048828125,
+        "id": "/model.10/Flatten"
+      },
+      {
+        "idx": 73,
+        "flops": 2562000.0,
+        "weights_size": 4.886627197265625,
+        "outputs_size": 0.003814697265625,
+        "id": "/model.10/linear/Gemm"
+      },
+      {
+        "idx": 74,
+        "flops": 72000.0,
+        "weights_size": 0,
+        "outputs_size": 0.003814697265625,
+        "id": "/model.10/Softmax"
+      },
+      {
+        "idx": 75,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid"
+      },
+      {
+        "idx": 76,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.9/m/m.0/ffn/ffn.0/act/Mul"
+      },
+      {
+        "idx": 77,
+        "flops": 26316800.0,
+        "weights_size": 0.12548828125,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/ffn/ffn.1/conv/Conv"
+      },
+      {
+        "idx": 78,
+        "flops": 0.0,
+        "weights_size": 3.0517578125e-5,
+        "outputs_size": 0.390625,
+        "id": "/model.9/m/m.0/attn/Reshape"
+      },
+      {
+        "idx": 79,
+        "flops": 0.0,
+        "weights_size": 2.288818359375e-5,
+        "outputs_size": 0.390625,
+        "id": "/model.9/m/m.0/attn/Split"
+      },
+      {
+        "idx": 80,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.9/m/m.0/attn/Transpose"
+      },
+      {
+        "idx": 81,
+        "flops": 20480000.0,
+        "weights_size": 0,
+        "outputs_size": 1.220703125,
+        "id": "/model.9/m/m.0/attn/MatMul"
+      },
+      {
+        "idx": 82,
+        "flops": 0.0,
+        "weights_size": 3.0517578125e-5,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/attn/Reshape_2"
+      },
+      {
+        "idx": 83,
+        "flops": 40960000.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/attn/MatMul_1"
+      },
+      {
+        "idx": 84,
+        "flops": 0.0,
+        "weights_size": 3.0517578125e-5,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/attn/Reshape_1"
+      },
+      {
+        "idx": 85,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/attn/Add"
+      },
+      {
+        "idx": 86,
+        "flops": 13209600.0,
+        "weights_size": 0.06298828125,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/attn/proj/conv/Conv"
+      },
+      {
+        "idx": 87,
+        "flops": 1024000.0,
+        "weights_size": 0.0048828125,
+        "outputs_size": 0.1953125,
+        "id": "/model.9/m/m.0/attn/pe/conv/Conv"
+      },
+      {
+        "idx": 88,
+        "flops": 640000.0,
+        "weights_size": 3.814697265625e-6,
+        "outputs_size": 1.220703125,
+        "id": "/model.9/m/m.0/attn/Mul"
+      },
+      {
+        "idx": 89,
+        "flops": 23040000.0,
+        "weights_size": 0,
+        "outputs_size": 1.220703125,
+        "id": "/model.9/m/m.0/attn/Softmax"
+      },
+      {
+        "idx": 90,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 1.220703125,
+        "id": "/model.9/m/m.0/attn/Transpose_1"
+      },
+      {
+        "idx": 91,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 92,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/cv2/act/Mul"
+      },
+      {
+        "idx": 93,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.8/m.0/Concat"
+      },
+      {
+        "idx": 94,
+        "flops": 13209600.0,
+        "weights_size": 0.06298828125,
+        "outputs_size": 0.1953125,
+        "id": "/model.8/m.0/cv3/conv/Conv"
+      },
+      {
+        "idx": 95,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.8/m.0/cv3/act/Sigmoid"
+      },
+      {
+        "idx": 96,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.8/m.0/cv3/act/Mul"
+      },
+      {
+        "idx": 97,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 98,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/cv1/act/Mul"
+      },
+      {
+        "idx": 99,
+        "flops": 29542400.0,
+        "weights_size": 0.140869140625,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.0/cv1/conv/Conv"
+      },
+      {
+        "idx": 100,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.0/Add"
+      },
+      {
+        "idx": 101,
+        "flops": 29542400.0,
+        "weights_size": 0.140869140625,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.1/cv1/conv/Conv"
+      },
+      {
+        "idx": 102,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.1/Add"
+      },
+      {
+        "idx": 103,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.1/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 104,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.1/cv1/act/Mul"
+      },
+      {
+        "idx": 105,
+        "flops": 29542400.0,
+        "weights_size": 0.140869140625,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.1/cv2/conv/Conv"
+      },
+      {
+        "idx": 106,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.1/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 107,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.1/cv2/act/Mul"
+      },
+      {
+        "idx": 108,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 109,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.0/cv1/act/Mul"
+      },
+      {
+        "idx": 110,
+        "flops": 29542400.0,
+        "weights_size": 0.140869140625,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.0/cv2/conv/Conv"
+      },
+      {
+        "idx": 111,
+        "flops": 1638400.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 112,
+        "flops": 51200.0,
+        "weights_size": 0,
+        "outputs_size": 0.09765625,
+        "id": "/model.8/m.0/m/m.0/cv2/act/Mul"
+      },
+      {
+        "idx": 113,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 114,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/cv2/act/Mul"
+      },
+      {
+        "idx": 115,
+        "flops": 0.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.6/m.0/Concat"
+      },
+      {
+        "idx": 116,
+        "flops": 13312000.0,
+        "weights_size": 0.015869140625,
+        "outputs_size": 0.390625,
+        "id": "/model.6/m.0/cv3/conv/Conv"
+      },
+      {
+        "idx": 117,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.6/m.0/cv3/act/Sigmoid"
+      },
+      {
+        "idx": 118,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.6/m.0/cv3/act/Mul"
+      },
+      {
+        "idx": 119,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 120,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/cv1/act/Mul"
+      },
+      {
+        "idx": 121,
+        "flops": 29593600.0,
+        "weights_size": 0.0352783203125,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.0/cv1/conv/Conv"
+      },
+      {
+        "idx": 122,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.0/Add"
+      },
+      {
+        "idx": 123,
+        "flops": 29593600.0,
+        "weights_size": 0.0352783203125,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.1/cv1/conv/Conv"
+      },
+      {
+        "idx": 124,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.1/Add"
+      },
+      {
+        "idx": 125,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.1/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 126,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.1/cv1/act/Mul"
+      },
+      {
+        "idx": 127,
+        "flops": 29593600.0,
+        "weights_size": 0.0352783203125,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.1/cv2/conv/Conv"
+      },
+      {
+        "idx": 128,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.1/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 129,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.1/cv2/act/Mul"
+      },
+      {
+        "idx": 130,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 131,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.0/cv1/act/Mul"
+      },
+      {
+        "idx": 132,
+        "flops": 29593600.0,
+        "weights_size": 0.0352783203125,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.0/cv2/conv/Conv"
+      },
+      {
+        "idx": 133,
+        "flops": 3276800.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 134,
+        "flops": 102400.0,
+        "weights_size": 0,
+        "outputs_size": 0.1953125,
+        "id": "/model.6/m.0/m/m.0/cv2/act/Mul"
+      },
+      {
+        "idx": 135,
+        "flops": 6553600.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.4/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 136,
+        "flops": 204800.0,
+        "weights_size": 0,
+        "outputs_size": 0.390625,
+        "id": "/model.4/m.0/cv1/act/Mul"
+      },
+      {
+        "idx": 137,
+        "flops": 59392000.0,
+        "weights_size": 0.0177001953125,
+        "outputs_size": 0.78125,
+        "id": "/model.4/m.0/cv2/conv/Conv"
+      },
+      {
+        "idx": 138,
+        "flops": 13107200.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.4/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 139,
+        "flops": 409600.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.4/m.0/cv2/act/Mul"
+      },
+      {
+        "idx": 140,
+        "flops": 13107200.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.2/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "idx": 141,
+        "flops": 409600.0,
+        "weights_size": 0,
+        "outputs_size": 0.78125,
+        "id": "/model.2/m.0/cv1/act/Mul"
+      },
+      {
+        "idx": 142,
+        "flops": 59801600.0,
+        "weights_size": 0.00445556640625,
+        "outputs_size": 1.5625,
+        "id": "/model.2/m.0/cv2/conv/Conv"
+      },
+      {
+        "idx": 143,
+        "flops": 26214400.0,
+        "weights_size": 0,
+        "outputs_size": 1.5625,
+        "id": "/model.2/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "idx": 144,
+        "flops": 819200.0,
+        "weights_size": 0,
+        "outputs_size": 1.5625,
+        "id": "/model.2/m.0/cv2/act/Mul"
+      },
+      {
+        "idx": 145,
+        "receiver": true,
+        "flops": 0,
+        "weights_size": 0,
+        "outputs_size": 0,
+        "id": "OutputReceiver"
+      }
+    ],
+    "links": [
+      {
+        "tot_tensor_size": 4.6875,
+        "tensor_name_list": ["images"],
+        "source": "InputGenerator",
+        "target": "/model.0/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.0/conv/Conv_output_0"],
+        "source": "/model.0/conv/Conv",
+        "target": "/model.0/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.0/conv/Conv_output_0"],
+        "source": "/model.0/conv/Conv",
+        "target": "/model.0/act/Mul"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.0/act/Sigmoid_output_0"],
+        "source": "/model.0/act/Sigmoid",
+        "target": "/model.0/act/Mul"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.0/act/Mul_output_0"],
+        "source": "/model.0/act/Mul",
+        "target": "/model.1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.1/conv/Conv_output_0"],
+        "source": "/model.1/conv/Conv",
+        "target": "/model.1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.1/conv/Conv_output_0"],
+        "source": "/model.1/conv/Conv",
+        "target": "/model.1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.1/act/Sigmoid_output_0"],
+        "source": "/model.1/act/Sigmoid",
+        "target": "/model.1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.1/act/Mul_output_0"],
+        "source": "/model.1/act/Mul",
+        "target": "/model.2/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.2/cv1/conv/Conv_output_0"],
+        "source": "/model.2/cv1/conv/Conv",
+        "target": "/model.2/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.2/cv1/conv/Conv_output_0"],
+        "source": "/model.2/cv1/conv/Conv",
+        "target": "/model.2/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.2/cv1/act/Sigmoid_output_0"],
+        "source": "/model.2/cv1/act/Sigmoid",
+        "target": "/model.2/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.2/cv1/act/Mul_output_0"],
+        "source": "/model.2/cv1/act/Mul",
+        "target": "/model.2/Split"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": [
+          "/model.2/Split_output_0",
+          "/model.2/Split_output_1"
+        ],
+        "source": "/model.2/Split",
+        "target": "/model.2/Concat"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.2/Split_output_1"],
+        "source": "/model.2/Split",
+        "target": "/model.2/m.0/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.2/Split_output_1"],
+        "source": "/model.2/Split",
+        "target": "/model.2/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 4.6875,
+        "tensor_name_list": ["/model.2/Concat_output_0"],
+        "source": "/model.2/Concat",
+        "target": "/model.2/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.2/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.2/m.0/cv1/conv/Conv",
+        "target": "/model.2/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.2/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.2/m.0/cv1/conv/Conv",
+        "target": "/model.2/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.2/m.0/Add_output_0"],
+        "source": "/model.2/m.0/Add",
+        "target": "/model.2/Concat"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.2/cv2/conv/Conv_output_0"],
+        "source": "/model.2/cv2/conv/Conv",
+        "target": "/model.2/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.2/cv2/conv/Conv_output_0"],
+        "source": "/model.2/cv2/conv/Conv",
+        "target": "/model.2/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.2/cv2/act/Sigmoid_output_0"],
+        "source": "/model.2/cv2/act/Sigmoid",
+        "target": "/model.2/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 6.25,
+        "tensor_name_list": ["/model.2/cv2/act/Mul_output_0"],
+        "source": "/model.2/cv2/act/Mul",
+        "target": "/model.3/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.3/conv/Conv_output_0"],
+        "source": "/model.3/conv/Conv",
+        "target": "/model.3/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.3/conv/Conv_output_0"],
+        "source": "/model.3/conv/Conv",
+        "target": "/model.3/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.3/act/Sigmoid_output_0"],
+        "source": "/model.3/act/Sigmoid",
+        "target": "/model.3/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.3/act/Mul_output_0"],
+        "source": "/model.3/act/Mul",
+        "target": "/model.4/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.4/cv1/conv/Conv_output_0"],
+        "source": "/model.4/cv1/conv/Conv",
+        "target": "/model.4/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.4/cv1/conv/Conv_output_0"],
+        "source": "/model.4/cv1/conv/Conv",
+        "target": "/model.4/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.4/cv1/act/Sigmoid_output_0"],
+        "source": "/model.4/cv1/act/Sigmoid",
+        "target": "/model.4/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.4/cv1/act/Mul_output_0"],
+        "source": "/model.4/cv1/act/Mul",
+        "target": "/model.4/Split"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": [
+          "/model.4/Split_output_0",
+          "/model.4/Split_output_1"
+        ],
+        "source": "/model.4/Split",
+        "target": "/model.4/Concat"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.4/Split_output_1"],
+        "source": "/model.4/Split",
+        "target": "/model.4/m.0/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.4/Split_output_1"],
+        "source": "/model.4/Split",
+        "target": "/model.4/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 2.34375,
+        "tensor_name_list": ["/model.4/Concat_output_0"],
+        "source": "/model.4/Concat",
+        "target": "/model.4/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.4/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.4/m.0/cv1/conv/Conv",
+        "target": "/model.4/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.4/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.4/m.0/cv1/conv/Conv",
+        "target": "/model.4/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.4/m.0/Add_output_0"],
+        "source": "/model.4/m.0/Add",
+        "target": "/model.4/Concat"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.4/cv2/conv/Conv_output_0"],
+        "source": "/model.4/cv2/conv/Conv",
+        "target": "/model.4/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.4/cv2/conv/Conv_output_0"],
+        "source": "/model.4/cv2/conv/Conv",
+        "target": "/model.4/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.4/cv2/act/Sigmoid_output_0"],
+        "source": "/model.4/cv2/act/Sigmoid",
+        "target": "/model.4/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 3.125,
+        "tensor_name_list": ["/model.4/cv2/act/Mul_output_0"],
+        "source": "/model.4/cv2/act/Mul",
+        "target": "/model.5/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.5/conv/Conv_output_0"],
+        "source": "/model.5/conv/Conv",
+        "target": "/model.5/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.5/conv/Conv_output_0"],
+        "source": "/model.5/conv/Conv",
+        "target": "/model.5/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.5/act/Sigmoid_output_0"],
+        "source": "/model.5/act/Sigmoid",
+        "target": "/model.5/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.5/act/Mul_output_0"],
+        "source": "/model.5/act/Mul",
+        "target": "/model.6/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv1/conv/Conv_output_0"],
+        "source": "/model.6/cv1/conv/Conv",
+        "target": "/model.6/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv1/conv/Conv_output_0"],
+        "source": "/model.6/cv1/conv/Conv",
+        "target": "/model.6/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv1/act/Sigmoid_output_0"],
+        "source": "/model.6/cv1/act/Sigmoid",
+        "target": "/model.6/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv1/act/Mul_output_0"],
+        "source": "/model.6/cv1/act/Mul",
+        "target": "/model.6/Split"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": [
+          "/model.6/Split_output_0",
+          "/model.6/Split_output_1"
+        ],
+        "source": "/model.6/Split",
+        "target": "/model.6/Concat"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.6/Split_output_1"],
+        "source": "/model.6/Split",
+        "target": "/model.6/m.0/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.6/Split_output_1"],
+        "source": "/model.6/Split",
+        "target": "/model.6/m.0/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 1.171875,
+        "tensor_name_list": ["/model.6/Concat_output_0"],
+        "source": "/model.6/Concat",
+        "target": "/model.6/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.6/m.0/cv1/conv/Conv",
+        "target": "/model.6/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.6/m.0/cv1/conv/Conv",
+        "target": "/model.6/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.6/m.0/cv2/conv/Conv",
+        "target": "/model.6/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.6/m.0/cv2/conv/Conv",
+        "target": "/model.6/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv2/conv/Conv_output_0"],
+        "source": "/model.6/cv2/conv/Conv",
+        "target": "/model.6/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv2/conv/Conv_output_0"],
+        "source": "/model.6/cv2/conv/Conv",
+        "target": "/model.6/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv2/act/Sigmoid_output_0"],
+        "source": "/model.6/cv2/act/Sigmoid",
+        "target": "/model.6/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.6/cv2/act/Mul_output_0"],
+        "source": "/model.6/cv2/act/Mul",
+        "target": "/model.7/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.7/conv/Conv_output_0"],
+        "source": "/model.7/conv/Conv",
+        "target": "/model.7/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.7/conv/Conv_output_0"],
+        "source": "/model.7/conv/Conv",
+        "target": "/model.7/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.7/act/Sigmoid_output_0"],
+        "source": "/model.7/act/Sigmoid",
+        "target": "/model.7/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.7/act/Mul_output_0"],
+        "source": "/model.7/act/Mul",
+        "target": "/model.8/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv1/conv/Conv_output_0"],
+        "source": "/model.8/cv1/conv/Conv",
+        "target": "/model.8/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv1/conv/Conv_output_0"],
+        "source": "/model.8/cv1/conv/Conv",
+        "target": "/model.8/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv1/act/Sigmoid_output_0"],
+        "source": "/model.8/cv1/act/Sigmoid",
+        "target": "/model.8/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv1/act/Mul_output_0"],
+        "source": "/model.8/cv1/act/Mul",
+        "target": "/model.8/Split"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": [
+          "/model.8/Split_output_0",
+          "/model.8/Split_output_1"
+        ],
+        "source": "/model.8/Split",
+        "target": "/model.8/Concat"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.8/Split_output_1"],
+        "source": "/model.8/Split",
+        "target": "/model.8/m.0/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.8/Split_output_1"],
+        "source": "/model.8/Split",
+        "target": "/model.8/m.0/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.5859375,
+        "tensor_name_list": ["/model.8/Concat_output_0"],
+        "source": "/model.8/Concat",
+        "target": "/model.8/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.8/m.0/cv1/conv/Conv",
+        "target": "/model.8/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.8/m.0/cv1/conv/Conv",
+        "target": "/model.8/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.8/m.0/cv2/conv/Conv",
+        "target": "/model.8/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.8/m.0/cv2/conv/Conv",
+        "target": "/model.8/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv2/conv/Conv_output_0"],
+        "source": "/model.8/cv2/conv/Conv",
+        "target": "/model.8/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv2/conv/Conv_output_0"],
+        "source": "/model.8/cv2/conv/Conv",
+        "target": "/model.8/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv2/act/Sigmoid_output_0"],
+        "source": "/model.8/cv2/act/Sigmoid",
+        "target": "/model.8/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.8/cv2/act/Mul_output_0"],
+        "source": "/model.8/cv2/act/Mul",
+        "target": "/model.9/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv1/conv/Conv_output_0"],
+        "source": "/model.9/cv1/conv/Conv",
+        "target": "/model.9/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv1/conv/Conv_output_0"],
+        "source": "/model.9/cv1/conv/Conv",
+        "target": "/model.9/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv1/act/Sigmoid_output_0"],
+        "source": "/model.9/cv1/act/Sigmoid",
+        "target": "/model.9/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv1/act/Mul_output_0"],
+        "source": "/model.9/cv1/act/Mul",
+        "target": "/model.9/Split"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/Split_output_0"],
+        "source": "/model.9/Split",
+        "target": "/model.9/Concat"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/Split_output_1"],
+        "source": "/model.9/Split",
+        "target": "/model.9/m/m.0/attn/qkv/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/Split_output_1"],
+        "source": "/model.9/Split",
+        "target": "/model.9/m/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/Concat_output_0"],
+        "source": "/model.9/Concat",
+        "target": "/model.9/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/m/m.0/attn/qkv/conv/Conv_output_0"],
+        "source": "/model.9/m/m.0/attn/qkv/conv/Conv",
+        "target": "/model.9/m/m.0/attn/Reshape"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/Add_output_0"],
+        "source": "/model.9/m/m.0/Add",
+        "target": "/model.9/m/m.0/ffn/ffn.0/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/Add_output_0"],
+        "source": "/model.9/m/m.0/Add",
+        "target": "/model.9/m/m.0/Add_1"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0"],
+        "source": "/model.9/m/m.0/ffn/ffn.0/conv/Conv",
+        "target": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0"],
+        "source": "/model.9/m/m.0/ffn/ffn.0/conv/Conv",
+        "target": "/model.9/m/m.0/ffn/ffn.0/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/Add_1_output_0"],
+        "source": "/model.9/m/m.0/Add_1",
+        "target": "/model.9/Concat"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv2/conv/Conv_output_0"],
+        "source": "/model.9/cv2/conv/Conv",
+        "target": "/model.9/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv2/conv/Conv_output_0"],
+        "source": "/model.9/cv2/conv/Conv",
+        "target": "/model.9/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv2/act/Sigmoid_output_0"],
+        "source": "/model.9/cv2/act/Sigmoid",
+        "target": "/model.9/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/cv2/act/Mul_output_0"],
+        "source": "/model.9/cv2/act/Mul",
+        "target": "/model.10/conv/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 1.953125,
+        "tensor_name_list": ["/model.10/conv/conv/Conv_output_0"],
+        "source": "/model.10/conv/conv/Conv",
+        "target": "/model.10/conv/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 1.953125,
+        "tensor_name_list": ["/model.10/conv/conv/Conv_output_0"],
+        "source": "/model.10/conv/conv/Conv",
+        "target": "/model.10/conv/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.953125,
+        "tensor_name_list": ["/model.10/conv/act/Sigmoid_output_0"],
+        "source": "/model.10/conv/act/Sigmoid",
+        "target": "/model.10/conv/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.953125,
+        "tensor_name_list": ["/model.10/conv/act/Mul_output_0"],
+        "source": "/model.10/conv/act/Mul",
+        "target": "/model.10/pool/GlobalAveragePool"
+      },
+      {
+        "tot_tensor_size": 0.0048828125,
+        "tensor_name_list": ["/model.10/pool/GlobalAveragePool_output_0"],
+        "source": "/model.10/pool/GlobalAveragePool",
+        "target": "/model.10/Flatten"
+      },
+      {
+        "tot_tensor_size": 0.0048828125,
+        "tensor_name_list": ["/model.10/Flatten_output_0"],
+        "source": "/model.10/Flatten",
+        "target": "/model.10/linear/Gemm"
+      },
+      {
+        "tot_tensor_size": 0.003814697265625,
+        "tensor_name_list": ["/model.10/linear/Gemm_output_0"],
+        "source": "/model.10/linear/Gemm",
+        "target": "/model.10/Softmax"
+      },
+      {
+        "tot_tensor_size": 0.003814697265625,
+        "tensor_name_list": ["output0"],
+        "source": "/model.10/Softmax",
+        "target": "OutputReceiver"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/act/Sigmoid_output_0"],
+        "source": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid",
+        "target": "/model.9/m/m.0/ffn/ffn.0/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/act/Mul_output_0"],
+        "source": "/model.9/m/m.0/ffn/ffn.0/act/Mul",
+        "target": "/model.9/m/m.0/ffn/ffn.1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.1/conv/Conv_output_0"],
+        "source": "/model.9/m/m.0/ffn/ffn.1/conv/Conv",
+        "target": "/model.9/m/m.0/Add_1"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_output_0"],
+        "source": "/model.9/m/m.0/attn/Reshape",
+        "target": "/model.9/m/m.0/attn/Split"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_0"],
+        "source": "/model.9/m/m.0/attn/Split",
+        "target": "/model.9/m/m.0/attn/Transpose"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_1"],
+        "source": "/model.9/m/m.0/attn/Split",
+        "target": "/model.9/m/m.0/attn/MatMul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_2"],
+        "source": "/model.9/m/m.0/attn/Split",
+        "target": "/model.9/m/m.0/attn/Reshape_2"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_2"],
+        "source": "/model.9/m/m.0/attn/Split",
+        "target": "/model.9/m/m.0/attn/MatMul_1"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Transpose_output_0"],
+        "source": "/model.9/m/m.0/attn/Transpose",
+        "target": "/model.9/m/m.0/attn/MatMul"
+      },
+      {
+        "tot_tensor_size": 1.220703125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/MatMul_output_0"],
+        "source": "/model.9/m/m.0/attn/MatMul",
+        "target": "/model.9/m/m.0/attn/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_2_output_0"],
+        "source": "/model.9/m/m.0/attn/Reshape_2",
+        "target": "/model.9/m/m.0/attn/pe/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/MatMul_1_output_0"],
+        "source": "/model.9/m/m.0/attn/MatMul_1",
+        "target": "/model.9/m/m.0/attn/Reshape_1"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_1_output_0"],
+        "source": "/model.9/m/m.0/attn/Reshape_1",
+        "target": "/model.9/m/m.0/attn/Add"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Add_output_0"],
+        "source": "/model.9/m/m.0/attn/Add",
+        "target": "/model.9/m/m.0/attn/proj/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/proj/conv/Conv_output_0"],
+        "source": "/model.9/m/m.0/attn/proj/conv/Conv",
+        "target": "/model.9/m/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/pe/conv/Conv_output_0"],
+        "source": "/model.9/m/m.0/attn/pe/conv/Conv",
+        "target": "/model.9/m/m.0/attn/Add"
+      },
+      {
+        "tot_tensor_size": 1.220703125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Mul_output_0"],
+        "source": "/model.9/m/m.0/attn/Mul",
+        "target": "/model.9/m/m.0/attn/Softmax"
+      },
+      {
+        "tot_tensor_size": 1.220703125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Softmax_output_0"],
+        "source": "/model.9/m/m.0/attn/Softmax",
+        "target": "/model.9/m/m.0/attn/Transpose_1"
+      },
+      {
+        "tot_tensor_size": 1.220703125,
+        "tensor_name_list": ["/model.9/m/m.0/attn/Transpose_1_output_0"],
+        "source": "/model.9/m/m.0/attn/Transpose_1",
+        "target": "/model.9/m/m.0/attn/MatMul_1"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv2/act/Sigmoid_output_0"],
+        "source": "/model.8/m.0/cv2/act/Sigmoid",
+        "target": "/model.8/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv2/act/Mul_output_0"],
+        "source": "/model.8/m.0/cv2/act/Mul",
+        "target": "/model.8/m.0/Concat"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.8/m.0/Concat_output_0"],
+        "source": "/model.8/m.0/Concat",
+        "target": "/model.8/m.0/cv3/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.8/m.0/cv3/conv/Conv_output_0"],
+        "source": "/model.8/m.0/cv3/conv/Conv",
+        "target": "/model.8/m.0/cv3/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.8/m.0/cv3/conv/Conv_output_0"],
+        "source": "/model.8/m.0/cv3/conv/Conv",
+        "target": "/model.8/m.0/cv3/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.8/m.0/cv3/act/Sigmoid_output_0"],
+        "source": "/model.8/m.0/cv3/act/Sigmoid",
+        "target": "/model.8/m.0/cv3/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.8/m.0/cv3/act/Mul_output_0"],
+        "source": "/model.8/m.0/cv3/act/Mul",
+        "target": "/model.8/Concat"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv1/act/Sigmoid_output_0"],
+        "source": "/model.8/m.0/cv1/act/Sigmoid",
+        "target": "/model.8/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.8/m.0/cv1/act/Mul",
+        "target": "/model.8/m.0/m/m.0/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.8/m.0/cv1/act/Mul",
+        "target": "/model.8/m.0/m/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv1/conv/Conv",
+        "target": "/model.8/m.0/m/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv1/conv/Conv",
+        "target": "/model.8/m.0/m/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/Add_output_0"],
+        "source": "/model.8/m.0/m/m.0/Add",
+        "target": "/model.8/m.0/m/m.1/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/Add_output_0"],
+        "source": "/model.8/m.0/m/m.0/Add",
+        "target": "/model.8/m.0/m/m.1/Add"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv1/conv/Conv",
+        "target": "/model.8/m.0/m/m.1/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv1/conv/Conv",
+        "target": "/model.8/m.0/m/m.1/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/Add_output_0"],
+        "source": "/model.8/m.0/m/m.1/Add",
+        "target": "/model.8/m.0/Concat"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/act/Sigmoid_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv1/act/Sigmoid",
+        "target": "/model.8/m.0/m/m.1/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/act/Mul_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv1/act/Mul",
+        "target": "/model.8/m.0/m/m.1/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv2/conv/Conv",
+        "target": "/model.8/m.0/m/m.1/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv2/conv/Conv",
+        "target": "/model.8/m.0/m/m.1/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/act/Sigmoid_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv2/act/Sigmoid",
+        "target": "/model.8/m.0/m/m.1/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/act/Mul_output_0"],
+        "source": "/model.8/m.0/m/m.1/cv2/act/Mul",
+        "target": "/model.8/m.0/m/m.1/Add"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/act/Sigmoid_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv1/act/Sigmoid",
+        "target": "/model.8/m.0/m/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv1/act/Mul",
+        "target": "/model.8/m.0/m/m.0/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv2/conv/Conv",
+        "target": "/model.8/m.0/m/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv2/conv/Conv",
+        "target": "/model.8/m.0/m/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/act/Sigmoid_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv2/act/Sigmoid",
+        "target": "/model.8/m.0/m/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.09765625,
+        "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/act/Mul_output_0"],
+        "source": "/model.8/m.0/m/m.0/cv2/act/Mul",
+        "target": "/model.8/m.0/m/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv2/act/Sigmoid_output_0"],
+        "source": "/model.6/m.0/cv2/act/Sigmoid",
+        "target": "/model.6/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv2/act/Mul_output_0"],
+        "source": "/model.6/m.0/cv2/act/Mul",
+        "target": "/model.6/m.0/Concat"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.6/m.0/Concat_output_0"],
+        "source": "/model.6/m.0/Concat",
+        "target": "/model.6/m.0/cv3/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.6/m.0/cv3/conv/Conv_output_0"],
+        "source": "/model.6/m.0/cv3/conv/Conv",
+        "target": "/model.6/m.0/cv3/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.6/m.0/cv3/conv/Conv_output_0"],
+        "source": "/model.6/m.0/cv3/conv/Conv",
+        "target": "/model.6/m.0/cv3/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.6/m.0/cv3/act/Sigmoid_output_0"],
+        "source": "/model.6/m.0/cv3/act/Sigmoid",
+        "target": "/model.6/m.0/cv3/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.6/m.0/cv3/act/Mul_output_0"],
+        "source": "/model.6/m.0/cv3/act/Mul",
+        "target": "/model.6/Concat"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv1/act/Sigmoid_output_0"],
+        "source": "/model.6/m.0/cv1/act/Sigmoid",
+        "target": "/model.6/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.6/m.0/cv1/act/Mul",
+        "target": "/model.6/m.0/m/m.0/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.6/m.0/cv1/act/Mul",
+        "target": "/model.6/m.0/m/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv1/conv/Conv",
+        "target": "/model.6/m.0/m/m.0/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv1/conv/Conv",
+        "target": "/model.6/m.0/m/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/Add_output_0"],
+        "source": "/model.6/m.0/m/m.0/Add",
+        "target": "/model.6/m.0/m/m.1/cv1/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/Add_output_0"],
+        "source": "/model.6/m.0/m/m.0/Add",
+        "target": "/model.6/m.0/m/m.1/Add"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv1/conv/Conv",
+        "target": "/model.6/m.0/m/m.1/cv1/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv1/conv/Conv",
+        "target": "/model.6/m.0/m/m.1/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/Add_output_0"],
+        "source": "/model.6/m.0/m/m.1/Add",
+        "target": "/model.6/m.0/Concat"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/act/Sigmoid_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv1/act/Sigmoid",
+        "target": "/model.6/m.0/m/m.1/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/act/Mul_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv1/act/Mul",
+        "target": "/model.6/m.0/m/m.1/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv2/conv/Conv",
+        "target": "/model.6/m.0/m/m.1/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv2/conv/Conv",
+        "target": "/model.6/m.0/m/m.1/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/act/Sigmoid_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv2/act/Sigmoid",
+        "target": "/model.6/m.0/m/m.1/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/act/Mul_output_0"],
+        "source": "/model.6/m.0/m/m.1/cv2/act/Mul",
+        "target": "/model.6/m.0/m/m.1/Add"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/act/Sigmoid_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv1/act/Sigmoid",
+        "target": "/model.6/m.0/m/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv1/act/Mul",
+        "target": "/model.6/m.0/m/m.0/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv2/conv/Conv",
+        "target": "/model.6/m.0/m/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv2/conv/Conv",
+        "target": "/model.6/m.0/m/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/act/Sigmoid_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv2/act/Sigmoid",
+        "target": "/model.6/m.0/m/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.1953125,
+        "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/act/Mul_output_0"],
+        "source": "/model.6/m.0/m/m.0/cv2/act/Mul",
+        "target": "/model.6/m.0/m/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.4/m.0/cv1/act/Sigmoid_output_0"],
+        "source": "/model.4/m.0/cv1/act/Sigmoid",
+        "target": "/model.4/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.390625,
+        "tensor_name_list": ["/model.4/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.4/m.0/cv1/act/Mul",
+        "target": "/model.4/m.0/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.4/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.4/m.0/cv2/conv/Conv",
+        "target": "/model.4/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.4/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.4/m.0/cv2/conv/Conv",
+        "target": "/model.4/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.4/m.0/cv2/act/Sigmoid_output_0"],
+        "source": "/model.4/m.0/cv2/act/Sigmoid",
+        "target": "/model.4/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.4/m.0/cv2/act/Mul_output_0"],
+        "source": "/model.4/m.0/cv2/act/Mul",
+        "target": "/model.4/m.0/Add"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.2/m.0/cv1/act/Sigmoid_output_0"],
+        "source": "/model.2/m.0/cv1/act/Sigmoid",
+        "target": "/model.2/m.0/cv1/act/Mul"
+      },
+      {
+        "tot_tensor_size": 0.78125,
+        "tensor_name_list": ["/model.2/m.0/cv1/act/Mul_output_0"],
+        "source": "/model.2/m.0/cv1/act/Mul",
+        "target": "/model.2/m.0/cv2/conv/Conv"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.2/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.2/m.0/cv2/conv/Conv",
+        "target": "/model.2/m.0/cv2/act/Sigmoid"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.2/m.0/cv2/conv/Conv_output_0"],
+        "source": "/model.2/m.0/cv2/conv/Conv",
+        "target": "/model.2/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.2/m.0/cv2/act/Sigmoid_output_0"],
+        "source": "/model.2/m.0/cv2/act/Sigmoid",
+        "target": "/model.2/m.0/cv2/act/Mul"
+      },
+      {
+        "tot_tensor_size": 1.5625,
+        "tensor_name_list": ["/model.2/m.0/cv2/act/Mul_output_0"],
+        "source": "/model.2/m.0/cv2/act/Mul",
+        "target": "/model.2/m.0/Add"
+      }
+    ]
+  },
+  "regressor": {
+    "interactions": {
+      "('/model.3/conv/Conv',)": 5.825269358080556e-5,
+      "('/model.5/conv/Conv',)": 2.9127260832276426e-8,
+      "('/model.10/conv/conv/Conv',)": 2.52949707098758e-5,
+      "('/model.1/conv/Conv',)": 0.0007778278756762589,
+      "('/model.7/conv/Conv',)": 2.3854301603555477e-5,
+      "('/model.2/cv2/conv/Conv',)": 6.908250898230083e-5,
+      "('/model.4/cv2/conv/Conv',)": 0.00010560151208934267,
+      "('/model.0/act/Sigmoid',)": 0.000319768775443377,
+      "('/model.2/cv2/act/Sigmoid',)": 8.128119098354267e-5,
+      "('/model.0/conv/Conv',)": 0.0002929908971392838,
+      "('/model.6/cv2/conv/Conv',)": 9.035631772677133e-6,
+      "('/model.8/cv2/conv/Conv',)": 2.0644338628576854e-5,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv')": 1.583933605747333e-6,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv')": -3.973676647876545e-6,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv')": -6.044590441217913e-5,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv')": -2.8485282272431966e-7,
+      "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv')": -1.2805607974784222e-5,
+      "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv')": -1.9018478056963685e-6,
+      "('/model.3/conv/Conv', '/model.0/act/Sigmoid')": -2.270693076565934e-5,
+      "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.2878489801600076e-5,
+      "('/model.3/conv/Conv', '/model.0/conv/Conv')": -4.037371232251769e-5,
+      "('/model.3/conv/Conv', '/model.6/cv2/conv/Conv')": -1.1166086209293821e-5,
+      "('/model.3/conv/Conv', '/model.8/cv2/conv/Conv')": -1.397836559038856e-5,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv')": -1.0396553302300183e-5,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv')": -1.8722151379514024e-6,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv')": -1.0518548021673312e-5,
+      "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv')": 7.858667570666747e-6,
+      "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv')": 4.939725079992224e-6,
+      "('/model.5/conv/Conv', '/model.0/act/Sigmoid')": -3.2610106934948717e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.1560430442655035e-5,
+      "('/model.5/conv/Conv', '/model.0/conv/Conv')": 6.911746277702587e-6,
+      "('/model.5/conv/Conv', '/model.6/cv2/conv/Conv')": 8.536345532105994e-6,
+      "('/model.5/conv/Conv', '/model.8/cv2/conv/Conv')": -7.871957538128953e-6,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv')": -9.118633116743964e-6,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv')": -6.969256030421531e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": -1.546795838181154e-5,
+      "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": 3.5396143782022785e-6,
+      "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": -9.673207419640586e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": 6.519911249737258e-6,
+      "('/model.10/conv/conv/Conv', '/model.0/conv/Conv')": -6.735686586107882e-6,
+      "('/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": 9.979331649801105e-6,
+      "('/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": -1.3187167011183374e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv')": -9.576717617367037e-6,
+      "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": -5.420875473924889e-5,
+      "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -6.667908799330373e-5,
+      "('/model.1/conv/Conv', '/model.0/act/Sigmoid')": -0.00023896741845913982,
+      "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": -8.784079468271709e-5,
+      "('/model.1/conv/Conv', '/model.0/conv/Conv')": -0.00028546073738183427,
+      "('/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -1.8071694752455988e-5,
+      "('/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": -1.8968397660983026e-5,
+      "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": -1.3425825242286219e-5,
+      "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": 2.398538245714295e-6,
+      "('/model.7/conv/Conv', '/model.0/act/Sigmoid')": -1.1140442964240353e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 9.461118808286847e-6,
+      "('/model.7/conv/Conv', '/model.0/conv/Conv')": -5.5417835078995105e-6,
+      "('/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -1.7112313776385633e-7,
+      "('/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 4.1059143490677146e-6,
+      "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": -3.4218351371719606e-5,
+      "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 9.328652225599565e-6,
+      "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -8.072495634549725e-5,
+      "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": -7.205956314254216e-6,
+      "('/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.7738207472213453e-5,
+      "('/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -1.3105177608581295e-5,
+      "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -3.370665497456748e-5,
+      "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.8764409764321214e-6,
+      "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -5.611124060010104e-6,
+      "('/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -3.545254039512226e-6,
+      "('/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.703885801335261e-6,
+      "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -1.7361798611745214e-5,
+      "('/model.0/act/Sigmoid', '/model.0/conv/Conv')": -0.00028781672895641675,
+      "('/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.2942112510985865e-5,
+      "('/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -8.70669920743231e-6,
+      "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -1.5283784257369782e-5,
+      "('/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 6.251418373939813e-6,
+      "('/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 6.533152531844197e-6,
+      "('/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 1.8782533420837622e-5,
+      "('/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 3.9470980645834325e-6,
+      "('/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.72731745448271e-6,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.10/conv/conv/Conv')": 5.584888384376418e-7,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.1/conv/Conv')": -5.73637739617208e-7,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.7/conv/Conv')": -3.877450590141808e-8,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.2/cv2/conv/Conv')": -3.302346094705334e-6,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.4/cv2/conv/Conv')": 1.3897162441825717e-6,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.0/act/Sigmoid')": 5.143407823182222e-6,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.6041242532917283e-7,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.0/conv/Conv')": 1.5857045674220368e-6,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.6/cv2/conv/Conv')": -5.850048007098032e-6,
+      "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.8/cv2/conv/Conv')": -5.16882548780338e-6,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.1/conv/Conv')": 8.344242221177198e-7,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.7/conv/Conv')": 2.4252916192643044e-7,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": -3.7901210697711274e-6,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": -8.102359395307613e-7,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": 1.2384669360626495e-6,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.434925978780873e-6,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/conv/Conv')": 6.319180022827833e-6,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": -3.800489236360941e-7,
+      "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": 6.44739743668104e-6,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": 1.6280458043626064e-6,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 2.4702398571811414e-5,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -3.4863520549029483e-6,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": 1.2394552336846741e-5,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.9497167582094122e-5,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": 5.155989678178544e-5,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": 1.0532072663857008e-5,
+      "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 1.0051374468633472e-6,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": -7.397089401865006e-6,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -4.151257689431664e-6,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": 6.819588718866371e-6,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": -9.30799707848126e-7,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": 5.006283493982398e-6,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -2.5495024892837356e-7,
+      "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 2.3566307399990443e-6,
+      "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": -3.448085506290393e-6,
+      "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -1.1706481393134027e-5,
+      "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.0386868164735652e-5,
+      "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": -3.330743058677043e-5,
+      "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -4.2031021272441753e-7,
+      "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -2.691431185591076e-6,
+      "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 3.0664415769852544e-6,
+      "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -1.2986249632118783e-6,
+      "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 9.05142061274868e-6,
+      "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 1.5958551684156148e-6,
+      "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.6613330519371045e-6,
+      "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -9.045101916103648e-6,
+      "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 2.0736103312242956e-5,
+      "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.9588361290923016e-6,
+      "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 5.855325020980064e-6,
+      "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -1.2269650372222956e-5,
+      "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -3.531526141396568e-7,
+      "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -4.605074296361436e-7,
+      "('/model.3/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 3.824015695436964e-6,
+      "('/model.3/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 5.2218502652476574e-6,
+      "('/model.3/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 7.177231737856053e-6,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.1/conv/Conv')": 2.3735795488926266e-6,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.7/conv/Conv')": 5.8975331359824315e-6,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": -7.042575619964249e-7,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": -2.5670045944366824e-6,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": 5.207901764804226e-6,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.7101395786507406e-7,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/conv/Conv')": 5.625808686711753e-7,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": -1.8626526678955013e-7,
+      "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": 4.080332143327739e-6,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": 5.948445082337825e-6,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 3.398386794638694e-6,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -6.279413823288352e-6,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": 6.649979142970429e-7,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": 6.906295973490058e-7,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": -4.2544271522852905e-6,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -4.287181714628189e-6,
+      "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 6.266413078564414e-6,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 9.563883128702576e-7,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": 3.741915209823234e-6,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": -3.492768007165974e-7,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.5256956960193303e-6,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": -4.818691583371388e-6,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": 1.8462457886413207e-6,
+      "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 4.6506734103808007e-7,
+      "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 4.973970718873557e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -2.5207471389988924e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -7.003145525365322e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 2.5949680113691647e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -3.6575812757111133e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -3.854660518832057e-6,
+      "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -6.221986648138182e-6,
+      "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -4.0221542547649975e-6,
+      "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -9.530982458882344e-6,
+      "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 3.7844709420352906e-6,
+      "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.751070288054472e-6,
+      "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -2.413578485761401e-6,
+      "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 6.909566830669727e-7,
+      "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -4.326150961200191e-7,
+      "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 4.956651781380525e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.706403415555068e-6,
+      "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -6.991923003345929e-7,
+      "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -3.0982826561127996e-6,
+      "('/model.5/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -1.3464896710146165e-8,
+      "('/model.5/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 4.7680642960782195e-6,
+      "('/model.5/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -4.857767786228757e-7,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": -4.262412682098198e-6,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 3.728876348286475e-6,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -1.923545917735112e-6,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": 3.986285181945196e-6,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.3289868652984327e-6,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": -3.603354088879195e-7,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -2.6858798761070517e-6,
+      "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 1.385669080225158e-6,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 6.688827579782333e-6,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": 1.9749278479899802e-7,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": -3.3763987812228765e-6,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.621310613420032e-6,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": 3.6594938511576473e-6,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -2.2282296894820402e-6,
+      "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 1.6597699596191258e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 2.72319598052488e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 5.599990279981279e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.325865756709031e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 7.311909313659253e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.3627598853710487e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.1312466741179728e-6,
+      "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -2.1675793842102674e-6,
+      "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -3.195948472127077e-6,
+      "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -1.8140640875960325e-6,
+      "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -8.257600259217412e-8,
+      "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.308937446824318e-6,
+      "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 3.8210380105475525e-6,
+      "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": -2.6559921328833566e-6,
+      "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -1.2541070971832117e-6,
+      "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.9739197998876594e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.8710524477252802e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.653619612107502e-6,
+      "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -5.2578808250015944e-6,
+      "('/model.10/conv/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -3.539004415551144e-7,
+      "('/model.10/conv/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -3.033215269920931e-6,
+      "('/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -7.576880029180899e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 7.3313180937231975e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -2.7014910809248466e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": 2.7784435400268293e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": -1.6633234300286165e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": -1.8473224693379257e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -2.5699791675954975e-6,
+      "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 2.038482887584333e-6,
+      "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 1.2944773841594567e-5,
+      "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.318359541962763e-5,
+      "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 5.392884669646843e-5,
+      "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 3.490378251728349e-6,
+      "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 1.1321914469381521e-6,
+      "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 5.52289125324033e-6,
+      "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.0313652254284398e-5,
+      "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.4462933836905303e-6,
+      "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 8.786572432305401e-7,
+      "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 6.456584279354005e-6,
+      "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.0470508953347158e-7,
+      "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 1.791681584895437e-5,
+      "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 0.0002070961524551138,
+      "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -7.327457932551233e-6,
+      "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -1.0254734511502307e-6,
+      "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.4219998388708174e-5,
+      "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 3.254843316007751e-6,
+      "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 2.7640274246297085e-7,
+      "('/model.1/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -9.236286346585472e-6,
+      "('/model.1/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -2.621837085659951e-6,
+      "('/model.1/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.037003852805944e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 4.483971445142879e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 6.530626461565308e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.739370290344782e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 3.2348112998274457e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 3.800837104150616e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.1935025835467202e-7,
+      "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -1.9006002106729471e-6,
+      "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -3.3333687625408417e-6,
+      "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 3.4983509590392006e-8,
+      "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -5.964902905582941e-7,
+      "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -8.65560890490192e-6,
+      "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -3.3595454173583852e-6,
+      "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": -2.150572113683344e-6,
+      "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.5069001955183968e-6,
+      "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.303332114647811e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -4.769613859635481e-7,
+      "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -6.808765831012314e-6,
+      "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -5.328971830704209e-6,
+      "('/model.7/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 1.983409522394089e-6,
+      "('/model.7/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -3.1494255081379474e-6,
+      "('/model.7/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.329094403517848e-7,
+      "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.4017444300975173e-5,
+      "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 3.2393840305125775e-6,
+      "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 2.3243213810641536e-5,
+      "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.6585057728483836e-6,
+      "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.4734961282723775e-6,
+      "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 6.232974325844354e-6,
+      "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": -3.463399167880544e-5,
+      "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 6.177425124763387e-6,
+      "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.5060892862738417e-6,
+      "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 9.572773544967775e-6,
+      "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.0335877957208955e-6,
+      "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 3.7025041658646583e-6,
+      "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 8.17089855931899e-6,
+      "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 4.192857008333316e-6,
+      "('/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 9.365166609765077e-6,
+      "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -2.3162815905244808e-8,
+      "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 1.4649034015588748e-5,
+      "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 6.358236251379282e-6,
+      "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -8.878217735024941e-7,
+      "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.1860343408970373e-6,
+      "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.4442050879269556e-6,
+      "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -3.0534991272306077e-6,
+      "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -6.7297093717241585e-6,
+      "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -3.2092609730796835e-7,
+      "('/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -4.9072723762152905e-6,
+      "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.3020622252923217e-5,
+      "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -5.214124452953369e-6,
+      "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 2.4377927456888335e-6,
+      "('/model.0/act/Sigmoid', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -8.561481004575337e-6,
+      "('/model.0/act/Sigmoid', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -5.188470262336415e-7,
+      "('/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -3.1967099900719235e-6,
+      "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -3.924058967944539e-6,
+      "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 7.691903846630845e-8,
+      "('/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.1356039733578776e-7,
+      "('/model.0/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -6.157337156070702e-6
+    },
+    "intercept": 7.613023359761921e-5,
+    "degree": 3,
+    "train_score": 0.9987263994345498,
+    "test_score": 0.995867144881373
+  }
+}

@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from Common.ConfigReader import ConfigReader
+from CommonProfile.ModelInfo import ModelGraphInfo
 from CommonProfile.ModelProfile import ModelProfile
 from proto_compiled.common_pb2 import ModelId
 from proto_compiled.model_profile_pb2 import ProfileRequest, ProfileResponse
@@ -43,7 +44,7 @@ def get_profiler_stub():
 def profile_nodes_edges(model_name: str):
     model_profiler = get_profiler_stub()
 
-    dataframe = pd.DataFrame(columns=["model_case", "num_nodes", "num_edges"])
+    dataframe = pd.DataFrame(columns=["model_case", "num_nodes", "num_edges", "num_tensors"])
 
     for mod_size in SIZE_LIST:
         for mod_case in CASE_LIST:
@@ -67,6 +68,7 @@ def profile_nodes_edges(model_name: str):
 
             num_nodes = len(model_profile.get_model_graph().nodes)
             num_edges = len(model_profile.get_model_graph().edges)
+            num_tensors = len(model_profile.get_model_graph().graph[ModelGraphInfo.TENSOR_SIZE_DICT])
 
             model_case = mod_size + (mod_case if mod_case != "" else "-det")
             new_df = pd.DataFrame(
@@ -74,6 +76,7 @@ def profile_nodes_edges(model_name: str):
                     "model_case": [model_case],
                     "num_nodes": [num_nodes],
                     "num_edges": [num_edges],
+                    "num_tensors": [num_tensors],
                 }
             )
 

@@ -8,7 +8,7 @@ import onnx_tool
 from onnx.mapping import TENSOR_TYPE_MAP
 
 from CommonIds.NodeId import NodeId
-from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
+from CommonProfile.ModelInfo import ModelEdgeInfo, ModelGraphInfo, ModelNodeInfo
 from ModelProfiler.Profile.AbsModelProfiler import AbsModelProfiler
 
 
@@ -158,6 +158,9 @@ class OnnxModelProfiler(AbsModelProfiler):
                     input_receiver_info_list,
                     output_generator_info_list,
                 )
+                self.modify_tensors_profile(
+                    graph, output_size_dict
+                )
             elif not is_reachable and onnx_node.op_type == "DequantizeLinear":
                 ## This node is not reachable from input --> It is a node carring weights for other node!!
                 next_nodes = []
@@ -254,6 +257,22 @@ class OnnxModelProfiler(AbsModelProfiler):
 
             if tensor_name not in graph.edges[edge_id][ModelEdgeInfo.TENSOR_NAME_LIST]:
                 graph.edges[edge_id][ModelEdgeInfo.TENSOR_NAME_LIST].append(tensor_name)
+    
+    def modify_tensors_profile(
+        self,
+        graph: nx.DiGraph,
+        output_size_dict: dict[tuple[str, str], float],
+    ):
+        
+        graph.graph.setdefault(ModelGraphInfo.TENSOR_SIZE_DICT, {})
+
+        ## output_sizes_dict: dict[tuple[str, str], float] : (NextNodeName, TensorName) --> TensorSize
+        sizes_dict = {}
+        for key in output_size_dict.keys():
+            tensor_name = key[1]
+            sizes_dict[tensor_name] = output_size_dict[key]
+
+        graph.graph[ModelGraphInfo.TENSOR_SIZE_DICT].update(sizes_dict)
 
     def profile_weights_size_per_node(
         self, onnx_node: onnx.NodeProto, onnx_model: onnx.ModelProto
