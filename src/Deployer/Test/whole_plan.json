@@ -1,1 +1,130 @@
-{"start_server": "0", "plan_dict": {"yolo11n-seg": {"model_name": "yolo11n-seg", "plan_dict": {"('yolo11n-seg', '0', 0)": {"is_only_input": true, "is_only_output": false, "input_names": ["images"], "output_connections": {"images": ["('yolo11n-seg', '0', 1)"]}}, "('yolo11n-seg', '0', 1)": {"is_only_input": false, "is_only_output": false, "input_names": ["images"], "output_connections": {"output1": ["('yolo11n-seg', '0', 2)"], "output0": ["('yolo11n-seg', '0', 2)"]}}, "('yolo11n-seg', '0', 2)": {"is_only_input": false, "is_only_output": true, "input_names": ["output0", "output1"], "output_connections": {"output0": [], "output1": []}}}, "quantized_nodes": []}}}
+{
+  "start_server": "0",
+  "plan_dict": {
+    "yolo11x-seg": {
+      "model_name": "yolo11x-seg",
+      "plan_dict": {
+        "('yolo11x-seg', '0', 0)": {
+          "is_only_input": true,
+          "is_only_output": false,
+          "input_names": ["images"],
+          "output_connections": { "images": ["('yolo11x-seg', '0', 1)"] }
+        },
+        "('yolo11x-seg', '0', 1)": {
+          "is_only_input": false,
+          "is_only_output": false,
+          "input_names": ["images"],
+          "output_connections": {
+            "/model.3/conv/Conv_output_0_QuantizeLinear_Output": [
+              "('yolo11x-seg', '2', 0)"
+            ]
+          }
+        },
+        "('yolo11x-seg', '2', 0)": {
+          "is_only_input": false,
+          "is_only_output": false,
+          "input_names": ["/model.3/conv/Conv_output_0_QuantizeLinear_Output"],
+          "output_connections": {
+            "/model.6/cv2/act/Mul_output_0": ["('yolo11x-seg', '2', 1)"],
+            "/model.7/conv/Conv_output_0": ["('yolo11x-seg', '1', 0)"],
+            "/model.4/cv2/act/Mul_output_0": ["('yolo11x-seg', '2', 1)"]
+          }
+        },
+        "('yolo11x-seg', '2', 1)": {
+          "is_only_input": false,
+          "is_only_output": false,
+          "input_names": [
+            "/model.10/cv2/act/Mul_output_0",
+            "/model.6/cv2/act/Mul_output_0",
+            "/model.4/cv2/act/Mul_output_0"
+          ],
+          "output_connections": {
+            "/model.23/cv4.0/cv4.0.2/Conv_output_0": [
+              "('yolo11x-seg', '0', 2)"
+            ],
+            "/model.23/Concat_2_output_0": ["('yolo11x-seg', '0', 2)"],
+            "/model.23/cv4.1/cv4.1.1/conv/Conv_output_0": [
+              "('yolo11x-seg', '0', 2)"
+            ],
+            "/model.20/conv/Conv_output_0": ["('yolo11x-seg', '1', 1)"],
+            "/model.23/proto/cv1/conv/Conv_output_0_QuantizeLinear_Output": [
+              "('yolo11x-seg', '0', 2)"
+            ],
+            "/model.23/cv3.0/cv3.0.2/Conv_output_0": [
+              "('yolo11x-seg', '0', 2)"
+            ],
+            "/model.23/cv2.0/cv2.0.0/conv/Conv_output_0_QuantizeLinear_Output": [
+              "('yolo11x-seg', '0', 2)"
+            ]
+          }
+        },
+        "('yolo11x-seg', '0', 2)": {
+          "is_only_input": false,
+          "is_only_output": false,
+          "input_names": [
+            "/model.23/proto/cv1/conv/Conv_output_0_QuantizeLinear_Output",
+            "/model.23/cv2.0/cv2.0.0/conv/Conv_output_0_QuantizeLinear_Output",
+            "/model.23/cv4.0/cv4.0.2/Conv_output_0",
+            "/model.23/cv4.1/cv4.1.1/conv/Conv_output_0",
+            "/model.23/Concat_2_output_0",
+            "/model.23/cv3.0/cv3.0.2/Conv_output_0",
+            "/model.23/Concat_3_output_0",
+            "/model.23/cv4.2/cv4.2.2/Conv_output_0"
+          ],
+          "output_connections": {
+            "output0": ["('yolo11x-seg', '0', 3)"],
+            "output1": ["('yolo11x-seg', '0', 3)"]
+          }
+        },
+        "('yolo11x-seg', '1', 1)": {
+          "is_only_input": false,
+          "is_only_output": false,
+          "input_names": [
+            "/model.10/cv2/act/Mul_output_0",
+            "/model.20/conv/Conv_output_0"
+          ],
+          "output_connections": {
+            "/model.23/cv4.2/cv4.2.2/Conv_output_0": [
+              "('yolo11x-seg', '0', 2)"
+            ],
+            "/model.23/Concat_3_output_0": ["('yolo11x-seg', '0', 2)"]
+          }
+        },
+        "('yolo11x-seg', '1', 0)": {
+          "is_only_input": false,
+          "is_only_output": false,
+          "input_names": ["/model.7/conv/Conv_output_0"],
+          "output_connections": {
+            "/model.10/cv2/act/Mul_output_0": [
+              "('yolo11x-seg', '1', 1)",
+              "('yolo11x-seg', '2', 1)"
+            ]
+          }
+        },
+        "('yolo11x-seg', '0', 3)": {
+          "is_only_input": false,
+          "is_only_output": true,
+          "input_names": ["output1", "output0"],
+          "output_connections": { "output1": [], "output0": [] }
+        }
+      },
+      "quantized_nodes": [
+        "/model.1/conv/Conv",
+        "/model.2/cv2/conv/Conv",
+        "/model.3/conv/Conv",
+        "/model.4/cv2/conv/Conv",
+        "/model.5/conv/Conv",
+        "/model.16/cv1/conv/Conv",
+        "/model.17/conv/Conv",
+        "/model.23/proto/cv1/conv/Conv",
+        "/model.23/cv4.0/cv4.0.0/conv/Conv",
+        "/model.23/cv2.0/cv2.0.0/conv/Conv",
+        "/model.23/proto/upsample/ConvTranspose",
+        "/model.23/proto/cv2/conv/Conv"
+      ],
+      "latency_cost": 1.8978562493256792,
+      "energy_cost": 30.15534131279011,
+      "device_energy": 5.736727400877489
+    }
+  }
+}

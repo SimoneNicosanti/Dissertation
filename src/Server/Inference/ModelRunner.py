@@ -1,6 +1,9 @@
+import subprocess
+
 import numpy
 import onnxruntime as ort
 
+from Common import ProviderInit
 from CommonIds.ComponentId import ComponentId
 from Server.Utils.InferenceInfo import TensorWrapper
 
@@ -11,17 +14,12 @@ class ModelRunner:
 
         self.component_sessions: dict[ComponentId, ort.InferenceSession] = {}
 
-        providers = []
+        providers = ProviderInit.init_providers_list()
         sess_options = ort.SessionOptions()
-        if "CUDAExecutionProvider" in ort.get_available_providers():
-            providers.append("CUDAExecutionProvider")
-        elif "OpenVINOExecutionProvider" in ort.get_available_providers():
-            providers.append("OpenVINOExecutionProvider")
+        if ProviderInit.test_openvino_ep(providers):
             sess_options.graph_optimization_level = (
                 ort.GraphOptimizationLevel.ORT_DISABLE_ALL
             )
-        else:
-            providers.append("CPUExecutionProvider")
 
         for comp_info, comp_path in component_dict.items():
             comp_session = ort.InferenceSession(

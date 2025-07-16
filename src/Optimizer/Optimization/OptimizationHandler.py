@@ -1,3 +1,4 @@
+import os
 import time
 from dataclasses import dataclass
 
@@ -7,17 +8,20 @@ import pulp
 from CommonIds.NodeId import NodeId
 from CommonPlan.SolvedModelGraph import SolvedGraphInfo, SolvedNodeInfo
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
-from CommonProfile.ModelInfo import ModelEdgeInfo, ModelNodeInfo
+from CommonProfile.ModelInfo import ModelEdgeInfo, ModelGraphInfo, ModelNodeInfo
 from CommonProfile.ModelProfile import ModelProfile, Regressor
 from Optimizer.Optimization import EnergyComputer, LatencyComputer, VarsBuilder
 from Optimizer.Optimization.ConstraintsBuilder import ConstraintsBuilder
 from Optimizer.Optimization.OptimizationKeys import (
-    EdgeAssKey,
     MemoryUseKey,
     NodeAssKey,
     QuantizationKey,
+    TensorAssKey,
 )
 from Optimizer.Optimization.RegressorBuilder import RegressorBuilder
+
+INT_VARS_VALUE_THR = 0.90  ## To handle float approximation
+CPLEX_PATH = "/opt/ibm/cplex/cplex/bin/x86-64_linux/cplex"
 
 
 @dataclass
@@ -38,6 +42,13 @@ class OptimizationHandler:
         pass
 
     @staticmethod
+    def get_solver():
+        if os.path.exists(CPLEX_PATH):
+            return pulp.CPLEX_CMD(path=CPLEX_PATH)
+        else:
+            return pulp.SCIP_PY()
+
+    @staticmethod
     def optimize(
         model_profile_list: list[ModelProfile],
         network_graph: nx.DiGraph,
@@ -53,7 +64,7 @@ class OptimizationHandler:
         (
             first_problem,
             first_node_ass_vars,
-            first_edge_ass_vars,
+            first_tensor_ass_vars,
             first_quantization_vars,
             _,
             _,
@@ -78,7 +89,7 @@ class OptimizationHandler:
                 model_graphs,
                 network_graph,
                 first_node_ass_vars,
-                first_edge_ass_vars,
+                first_tensor_ass_vars,
                 opt_params.requests_number,
                 server_execution_profile_pool,
             )
@@ -90,7 +101,7 @@ class OptimizationHandler:
                 model_graphs,
                 network_graph,
                 first_node_ass_vars,
-                first_edge_ass_vars,
+                first_tensor_ass_vars,
                 opt_params.requests_number,
                 server_execution_profile_pool,
             )
@@ -98,7 +109,7 @@ class OptimizationHandler:
             pass
 
         first_problem += first_problem_cost
-        first_problem.solve(pulp.GLPK_CMD(msg=False))
+        first_problem.solve(OptimizationHandler.get_solver())
 
         if pulp.LpStatus[first_problem.status] != "Optimal":
             return None
@@ -174,11 +185,14 @@ class OptimizationHandler:
         )
         final_problem += final_problem_cost
 
-        final_problem.solve(pulp.GLPK_CMD(msg=False))
+        # Risolvi
+
+        final_problem.solve(OptimizationHandler.get_solver())
 
         if pulp.LpStatus[final_problem.status] != "Optimal":
             return None
 
+        print("")
         first_obj_name = (
             "⌛ Latency" if latency_weight >= energy_weight else "🔋 Energy"
         )
@@ -231,7 +245,7 @@ class OptimizationHandler:
         problem: pulp.LpProblem,
         model_graph: nx.DiGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable],
         quantization_vars: dict[QuantizationKey, pulp.LpVariable] = None,
     ) -> nx.DiGraph:
 
@@ -251,11 +265,11 @@ class OptimizationHandler:
                 node_ass_vars.items(),
             )
         )
-        filtered_edge_ass: dict[EdgeAssKey, pulp.LpVariable] = dict(
+        filtered_tensor_ass: dict[TensorAssKey, pulp.LpVariable] = dict(
             filter(
                 lambda item: item[0].mod_name == graph_name
                 and not item[0].is_quantized,
-                edge_ass_vars.items(),
+                tensor_ass_vars.items(),
             )
         )
         filtered_quant_vars: dict[QuantizationKey, pulp.LpVariable] = dict(
@@ -265,8 +279,12 @@ class OptimizationHandler:
             )
         )
 
+        assigned_nodes_dict: dict[NodeId, set[NodeId]] = {}
+
+        print("Analyzing node assignments...")
+        tot_assigned = 0
         for node_ass_key, node_ass_var in filtered_node_ass.items():
-            if node_ass_var.varValue == 1.0:
+            if node_ass_var.varValue >= INT_VARS_VALUE_THR:
                 mod_node_id = node_ass_key.mod_node_id
                 net_node_id = node_ass_key.net_node_id
 
@@ -281,45 +299,85 @@ class OptimizationHandler:
                     ),
                 )
 
+                assigned_nodes_dict.setdefault(net_node_id, set())
+                assigned_nodes_dict[net_node_id].add(mod_node_id)
+
+                tot_assigned += 1
+
             pass
+        print("Done Analyzing node assignments...")
+        print("\t Total assigned nodes: ", tot_assigned)
 
-        for edge_ass_key, edge_ass_var in filtered_edge_ass.items():
-            if edge_ass_var.varValue == 1.0:
-                mod_edge_id = edge_ass_key.mod_edge_id
-                net_edge_id = edge_ass_key.net_edge_id
-
-                ## Renaming tensors according to quantization
-                ## TODO This would be better placed in other class (like plan builder)
-                quantization_key = QuantizationKey(
-                    mod_edge_id[0], edge_ass_key.mod_name
-                )
-                tensor_name_list = []
-                if (
-                    quantization_key in quantization_vars
-                    and quantization_vars[quantization_key].varValue == 1.0
+        print("Analyzing tensor assignments...")
+        tensors_dict: dict[str, list] = model_graph.graph[
+            ModelGraphInfo.TENSOR_SIZE_DICT
+        ]
+        all_dests_per_tensor: dict[str, set[NodeId]] = {}
+        for edge in model_graph.edges:
+            for tensor_name in tensors_dict.keys():
+                all_dests_per_tensor.setdefault(tensor_name, set())
+                if tensor_name in model_graph.edges[edge].get(
+                    ModelEdgeInfo.TENSOR_NAME_LIST
                 ):
-                    for elem in model_graph.edges[mod_edge_id].get(
-                        ModelEdgeInfo.TENSOR_NAME_LIST, []
+                    all_dests_per_tensor[tensor_name].add(edge[1])
+        print("\t Done Analyzing tensors dests...")
+
+        print("\t Analyzing actual tensor assignments...")
+        for tensor_ass_key, tensor_ass_var in filtered_tensor_ass.items():
+            tensor_name = tensor_ass_key.tensor_name
+            tensor_info = tensors_dict[tensor_name]  ## src_node_name, tensor_size
+
+            src_node_name = tensor_info[0]
+            src_node_id = NodeId(src_node_name)
+
+            poss_dst_nodes = all_dests_per_tensor[tensor_name]
+
+            net_edge_id = tensor_ass_key.net_edge_id
+
+            if tensor_ass_var.varValue >= INT_VARS_VALUE_THR:
+                ## There is at least one node on the receiver server
+                ## We have to find these nodes
+
+                actual_dst_nodes = assigned_nodes_dict[net_edge_id[1]].intersection(
+                    poss_dst_nodes
+                )
+
+                for act_dst_node_id in actual_dst_nodes:
+                    mod_edge_id = (src_node_id, act_dst_node_id)
+
+                    ## Renaming tensors according to quantization
+                    quantization_key = QuantizationKey(
+                        mod_edge_id[0], tensor_ass_key.mod_name
+                    )
+                    tensor_name_list = []
+                    if (
+                        quantization_key in quantization_vars
+                        and quantization_vars[quantization_key].varValue
+                        >= INT_VARS_VALUE_THR
                     ):
-                        renamed_elem = elem + "_QuantizeLinear_Output"
-                        tensor_name_list.append(renamed_elem)
-                        pass
-                else:
-                    tensor_name_list = model_graph.edges[mod_edge_id].get(
-                        ModelEdgeInfo.TENSOR_NAME_LIST, []
+                        for elem in model_graph.edges[mod_edge_id].get(
+                            ModelEdgeInfo.TENSOR_NAME_LIST, []
+                        ):
+                            renamed_elem = elem + "_QuantizeLinear_Output"
+                            tensor_name_list.append(renamed_elem)
+                            pass
+                    else:
+                        tensor_name_list = model_graph.edges[mod_edge_id].get(
+                            ModelEdgeInfo.TENSOR_NAME_LIST, []
+                        )
+
+                    solved_model_graph.add_edge(
+                        mod_edge_id[0],
+                        mod_edge_id[1],
+                        net_edge_id=net_edge_id,
+                        tensor_name_list=tensor_name_list,
                     )
 
-                solved_model_graph.add_edge(
-                    mod_edge_id[0],
-                    mod_edge_id[1],
-                    net_edge_id=net_edge_id,
-                    tensor_name_list=tensor_name_list,
-                )
-
             pass
+        print("Done Analyzing tensor assignments...")
 
         for quant_key, quant_var in filtered_quant_vars.items():
-            if quant_var.varValue == 1.0:
+            if quant_var.varValue >= INT_VARS_VALUE_THR:
 
                 mod_node_id = quant_key.mod_node_id
                 solved_model_graph.nodes[mod_node_id][SolvedNodeInfo.QUANTIZED] = True
@@ -341,7 +399,7 @@ class OptimizationHandler:
         problem: pulp.LpProblem = pulp.LpProblem("Partitioning", pulp.LpMinimize)
 
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = {}
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = {}
+        tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable] = {}
         mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = {}
         quantization_vars: dict[QuantizationKey, pulp.LpVariable] = {}
 
@@ -354,11 +412,11 @@ class OptimizationHandler:
             node_ass_vars.update(curr_node_ass_vars)
             print("Done Defining Node Ass Vars")
 
-            curr_edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable] = (
-                VarsBuilder.define_edge_assignment_vars(curr_mod_graph, network_graph)
+            curr_tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable] = (
+                VarsBuilder.define_tensor_assignment_vars(curr_mod_graph, network_graph)
             )
-            edge_ass_vars.update(curr_edge_ass_vars)
-            print("Done Defining Edge Ass Vars")
+            tensor_ass_vars.update(curr_tensor_ass_vars)
+            print("Done Defining Tensor Ass Vars")
 
             curr_mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = (
                 VarsBuilder.define_memory_use_vars(
@@ -379,22 +437,23 @@ class OptimizationHandler:
             ConstraintsBuilder.add_node_assignment_constraints(
                 problem, curr_mod_graph, node_ass_vars, start_server
             )
-            ConstraintsBuilder.add_edge_assignment_constraints(
-                problem, curr_mod_graph, edge_ass_vars
+            ConstraintsBuilder.add_tensor_assignment_constraints(
+                problem, curr_mod_graph, network_graph, node_ass_vars, tensor_ass_vars
             )
 
-            ConstraintsBuilder.add_input_flow_constraints(
-                problem, curr_mod_graph, network_graph, node_ass_vars, edge_ass_vars
-            )
-            ConstraintsBuilder.add_output_flow_constraints(
-                problem, curr_mod_graph, network_graph, node_ass_vars, edge_ass_vars
+            # ConstraintsBuilder.add_input_flow_constraints(
+            #     problem, curr_mod_graph, network_graph, node_ass_vars, tensor_ass_vars
+            # )
+            # ConstraintsBuilder.add_output_flow_constraints(
+            #     problem, curr_mod_graph, network_graph, node_ass_vars, tensor_ass_vars
+            # )
+
+            ConstraintsBuilder.add_tensor_ass_vars_product_constraint(
+                problem, curr_mod_graph, tensor_ass_vars, quantization_vars
             )
 
         ConstraintsBuilder.add_node_ass_vars_product_constraint(
             problem, node_ass_vars, quantization_vars
-        )
-        ConstraintsBuilder.add_edge_ass_vars_product_constraint(
-            problem, edge_ass_vars, quantization_vars
         )
 
         ConstraintsBuilder.add_memory_constraints(
@@ -409,7 +468,7 @@ class OptimizationHandler:
             model_graphs,
             network_graph,
             node_ass_vars,
-            edge_ass_vars,
+            tensor_ass_vars,
             opt_params.requests_number,
             start_server,
             server_execution_profile_pool,
@@ -436,7 +495,7 @@ class OptimizationHandler:
         return (
             problem,
             node_ass_vars,
-            edge_ass_vars,
+            tensor_ass_vars,
             quantization_vars,
             device_energy_expr,
             regressor_expressions,

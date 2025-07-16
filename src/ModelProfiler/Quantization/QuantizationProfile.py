@@ -1,3 +1,4 @@
+import subprocess
 import tempfile
 
 import networkx as nx
@@ -8,6 +9,7 @@ import pandas as pd
 import tqdm
 from onnxruntime.quantization.calibrate import CalibrationDataReader
 
+from Common import ProviderInit
 from CommonIds.NodeId import NodeId
 from CommonProfile.ModelInfo import ModelNodeInfo
 from CommonQuantization import SoftQuantization
@@ -16,10 +18,13 @@ from CommonQuantization import SoftQuantization
 class NoiseEvaluator:
     def __init__(self, model: onnx.ModelProto, noise_test_set: np.ndarray):
         self.noise_test_set = []
+        self.providers = ProviderInit.init_providers_list()
+        self.has_cuda = ProviderInit.test_cuda_ep(self.providers)
+
         for elem in noise_test_set:
             elem_batch = np.expand_dims(elem, axis=0)
 
-            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+            if self.has_cuda:
                 elem_batch = onnxruntime.OrtValue.ortvalue_from_numpy(
                     elem_batch, "cuda"
                 )
@@ -34,19 +39,13 @@ class NoiseEvaluator:
         # 0 = VERBOSE, 1 = INFO, 2 = WARNING, 3 = ERROR, 4 = FATAL
         so.log_severity_level = 3
 
-        providers = []
-        if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
-            providers.append("CUDAExecutionProvider")
-        elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
-            providers.append("OpenVINOExecutionProvider")
+        if ProviderInit.test_openvino_ep(self.providers):
             so.graph_optimization_level = (
                 onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
             )
-        else:
-            providers.append("CPUExecutionProvider")
 
         sess = onnxruntime.InferenceSession(
-            model.SerializeToString(), sess_options=so, providers=providers
+            model.SerializeToString(), sess_options=so, providers=self.providers
         )
 
         results = []
@@ -55,7 +54,7 @@ class NoiseEvaluator:
         for elem_batch in self.noise_test_set:
             input = {input_info.name: elem_batch}
 
-            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+            if self.has_cuda:
                 ort_result = sess.run_with_ort_values(None, input)
                 result = [ort_res.numpy() for ort_res in ort_result]
             else:

@@ -105,7 +105,7 @@ def start_ping_server():
 
     ping_port = ConfigReader.ConfigReader().read_int("ports", "PING_PORT")
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
     add_PingServicer_to_server(PingServer(), server)
 
     server.add_insecure_port(f"[::]:{ping_port}")

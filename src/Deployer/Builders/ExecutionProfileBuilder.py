@@ -41,6 +41,11 @@ class ExecutionProfileBuilder:
         server_exec_profile_pool = ServerExecutionProfilePool()
 
         for server_info in all_server_info.all_server_info:
+            print(
+                "\t Contacting Server {} for Profiles".format(
+                    server_info.server_id.server_id
+                )
+            )
             server_addr = server_info.reachability_info.ip_address
             server_profile_port = ConfigReader.ConfigReader(
                 "./config/config.ini"
@@ -67,7 +72,7 @@ class ExecutionProfileBuilder:
                     model_id.model_name,
                     ModelExecutionProfile().decode(execution_profile_dict),
                 )
-                print("Decoded")
+                print(f"\t\t Received Profile For Model >> {model_id.model_name}")
 
             server_exec_profile_pool.put_execution_profiles_for_server(
                 NodeId(server_info.server_id.server_id), server_exec_profile

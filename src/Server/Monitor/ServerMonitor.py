@@ -1,10 +1,11 @@
 import configparser
 import json
+import socket
+import subprocess
 import threading
 import time
 
 import grpc
-import iperf3
 import psutil
 
 from Common import ConfigReader
@@ -32,6 +33,8 @@ class ServerMonitor:
         self.server_chan_dict: dict[str, grpc.Channel] = {}
 
         self.server_id = server_id
+        hostname = socket.gethostname()
+        self.self_ip_addr = socket.gethostbyname(hostname)
 
         self.flops_value = None
 
@@ -57,6 +60,9 @@ class ServerMonitor:
             key: value for key, value in self.bandwidths.items()
         }
         send_state["latencies"] = {key: value for key, value in self.latencies.items()}
+
+        send_state["self_ip_addr"] = self.self_ip_addr
+        send_state["server_id"] = self.server_id
 
         send_state_str = json.dumps(send_state)
         registry_stub: RegisterStub = RegisterStub(self.registry_chan)
@@ -186,51 +192,73 @@ class ServerMonitor:
             latency_ns = rtt_ns / 2
             latency = latency_ns * 1e-9
         except Exception:
+            print("Could not ping the server")
             latency = None
         return latency
 
     def __evaluate_bandwidth(self, server_ip_addr: str):
-        iperf3_client = iperf3.Client()
 
-        iperf3_client.server_hostname = server_ip_addr
-
-        iperf3_client.port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        port = ConfigReader.ConfigReader("./config/config.ini").read_int(
             "ports", "IPERF3_PORT"
         )
 
-        iperf3_client.protocol = "tcp"
+        duration = ConfigReader.ConfigReader("./config/config.ini").read_int(
+            "monitor", "IPERF3_TEST_DURATION_SEC"
+        )
 
-        iperf3_client.duration = ConfigReader.ConfigReader(
-            "./config/config.ini"
-        ).read_int("monitor", "IPERF3_TEST_DURATION_SEC")
-
-        iperf3_client.bandwidth = (
+        bandwidth = (
             ConfigReader.ConfigReader("./config/config.ini").read_int(
                 "monitor", "IPERF3_TEST_BANDWIDTH"
             )
             * 10**9
         )
 
-        run_success = False
-        while not run_success:
-            test_result = iperf3_client.run()
+        cmd = [
+            "iperf3",
+            "-c",
+            server_ip_addr,
+            "-p",
+            str(port),
+            "-t",
+            str(duration),
+            "--zerocopy",
+            "-b",
+            str(bandwidth),
+            "-P",
+            "1",
+            "--json",
+        ]
 
-            if test_result.error:
+        run_success = False
+        sent_MB_s = None
+        while not run_success:
+
+            # trunk-ignore(bandit/B603)
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            test_result: dict = json.loads(result.stdout)
+            test_error = result.stderr
+
+            if len(test_error) > 0:
+                ## An error has occurred
                 run_success = False
 
-                error_string: str = test_result.error
-                if error_string.find("busy") == -1:
-                    ## Other kind of error
-                    return None
+                print(f"Bandwidth Test to {server_ip_addr} >> ", test_error)
+                time.sleep(1)
+            else:
+                end_dict: dict = test_result.get("end", {})
+                sum_sent_dict: dict = end_dict.get("sum_sent", {})
+                bits_per_second: dict = sum_sent_dict.get("bits_per_second", None)
+                if bits_per_second is not None:
+                    sent_MB_s = bits_per_second / (8 * MEGABYTE_SIZE)
+                    run_success = True
                 else:
-                    ## The server is just busy: wait and try again
+                    print("No 'bits_per_second' Info")
+                    print(result)
+                    run_success = False
+
                     time.sleep(1)
 
-                print(f"Bandwidth Test to {server_ip_addr} >> ", error_string)
-            else:
-                run_success = True
-
-        return test_result.sent_MB_s
+        return sent_MB_s
 
     def init_monitoring(self):
         self.__update_and_send_state()

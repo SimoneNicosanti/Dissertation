@@ -16,7 +16,7 @@ def main():
 
     # Aggiungi argomenti
     parser.add_argument("--model", type=str, help="Model Name", required=True)
-    parser.add_argument("--runs", type=int, help="Number of Runs", default = 100)
+    parser.add_argument("--runs", type=int, help="Number of Runs", default=100)
 
     args = parser.parse_args()
     model_name = args.model
@@ -27,7 +27,7 @@ def main():
     yolo_ppp = YoloPPP(640, 640)
 
     # Pre-process
-    orig_image = cv2.imread("./Client/test/Test_Image.jpg")
+    orig_image = np.random.randint(0, 255, (640, 640, 3), dtype=np.uint8)
     pre_image = yolo_ppp.preprocess(orig_image)
 
     times = np.zeros(runs)

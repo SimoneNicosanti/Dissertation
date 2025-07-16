@@ -14,7 +14,11 @@ def run_onnx_model(input: np.ndarray, model_name: str, runs: int):
 
     providers = []
     sess_options = onnxruntime.SessionOptions()
-    if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
+    if (
+        "CUDAExecutionProvider" in onnxruntime.get_available_providers()
+        and subprocess.run(["nvidia-smi", "-L"], stdout=subprocess.DEVNULL).returncode
+        == 0
+    ):
         providers.append("CUDAExecutionProvider")
     elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
         providers.append("OpenVINOExecutionProvider")

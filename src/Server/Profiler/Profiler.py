@@ -1,3 +1,4 @@
+import subprocess
 import time
 
 import numpy as np
@@ -5,10 +6,13 @@ import onnx
 import onnxruntime
 import onnxruntime as ort
 
+from Common import ProviderInit
+
 
 class ExecutionProfiler:
 
     def __init__(self) -> None:
+        self.providers = ProviderInit.init_providers_list()
         pass
 
     def profile_exec_time(
@@ -23,9 +27,10 @@ class ExecutionProfiler:
     def profile_model_exec_time(
         self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ):
-        if "CUDAExecutionProvider" in ort.get_available_providers():
+
+        if ProviderInit.test_cuda_ep(self.providers):
             execution_times = self.profile_gpu_execution(onnx_model, run_times)
-        elif "OpenVINOExecutionProvider" in ort.get_available_providers():
+        elif ProviderInit.test_openvino_ep(self.providers):
             execution_times = self.profile_openvino_execution(onnx_model, run_times)
         else:
             execution_times = self.profile_cpu_execution(onnx_model, run_times)
@@ -35,7 +40,7 @@ class ExecutionProfiler:
     def profile_gpu_execution(self, onnx_model: onnx.ModelProto, run_times: int):
         sess = ort.InferenceSession(
             onnx_model.SerializeToString(),
-            providers=["CUDAExecutionProvider"],
+            providers=self.providers,
         )
 
         input_dict = {}
@@ -61,7 +66,7 @@ class ExecutionProfiler:
     def profile_openvino_execution(self, onnx_model: onnx.ModelProto, run_times: int):
 
         sess = onnxruntime.InferenceSession(
-            onnx_model.SerializeToString(), providers=["OpenVINOExecutionProvider"]
+            onnx_model.SerializeToString(), providers=self.providers
         )
 
         input_dict = {}

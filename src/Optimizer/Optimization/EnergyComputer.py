@@ -5,7 +5,10 @@ from CommonIds.NodeId import NodeId
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from Optimizer.Optimization import LatencyComputer
-from Optimizer.Optimization.OptimizationKeys import EdgeAssKey, NodeAssKey
+from Optimizer.Optimization.OptimizationKeys import (
+    NodeAssKey,
+    TensorAssKey,
+)
 
 ## TODO Check Normalization Min-Max: Per model or total
 
@@ -14,7 +17,7 @@ def compute_energy_cost(
     model_graphs: list[nx.MultiDiGraph],
     network_graph: nx.DiGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-    edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+    tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable],
     requests_number: dict[str, int],
     server_execution_profile_pool: ServerExecutionProfilePool,
 ) -> pulp.LpAffineExpression:
@@ -30,7 +33,7 @@ def compute_energy_cost(
             model_graph, network_graph, node_ass_vars, server_execution_profile_pool
         )
         model_trans_energy, max_model_trans_energy = compute_trans_energy_per_model(
-            model_graph, network_graph, edge_ass_vars
+            model_graph, network_graph, tensor_ass_vars
         )
 
         normalization_factor = 1  # max(max_model_comp_energy, max_model_trans_energy)
@@ -81,7 +84,7 @@ def compute_comp_energy_per_model(
 def compute_trans_energy_per_model(
     model_graph: nx.MultiDiGraph,
     network_graph: nx.DiGraph,
-    edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+    tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable],
 ) -> tuple[pulp.LpAffineExpression, float]:
     tot_trans_energy = 0
     max_trans_energy = 0
@@ -94,7 +97,7 @@ def compute_trans_energy_per_model(
             node_trans_latency_per_model_diff_dest,
             node_max_trans_latency_per_model,
         ) = LatencyComputer.compute_model_trans_latency_per_node(
-            model_graph, network_graph, edge_ass_vars, net_node_id
+            model_graph, network_graph, tensor_ass_vars, net_node_id
         )
 
         node_trans_energy_per_model_same_dest = (
@@ -126,7 +129,7 @@ def compute_energy_cost_per_net_node(
     model_graphs: list[nx.MultiDiGraph],
     network_graph: nx.DiGraph,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-    edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+    tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable],
     requests_number: dict[str, int],
     net_node_id: NodeId,
     server_execution_profile_pool: ServerExecutionProfilePool,
@@ -154,7 +157,7 @@ def compute_energy_cost_per_net_node(
             LatencyComputer.compute_model_trans_latency_per_node(
                 model_graph,
                 network_graph,
-                edge_ass_vars,
+                tensor_ass_vars,
                 net_node_id,
             )
         )

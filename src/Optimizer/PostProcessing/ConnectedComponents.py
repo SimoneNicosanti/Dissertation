@@ -18,12 +18,14 @@ class ConnectedComponentsFinder:
 
         next_comp_dict: dict[NodeId, int] = {}
 
+        print("Used Net Nodes")
         used_net_nodes = set(
             [
                 node_info[SolvedNodeInfo.NET_NODE_ID]
                 for _, node_info in solved_model_graph.nodes(data=True)
             ]
         )
+        print("Used Net Nodes: ", used_net_nodes)
         for net_node_id in used_net_nodes:
             next_comp_dict[net_node_id] = 0
 
@@ -135,6 +137,5 @@ class ConnectedComponentsFinder:
         is_dag = nx.is_directed_acyclic_graph(component_graph)
         if not is_dag:
             cycles = nx.find_cycle(component_graph)
-            print(cycles)
 
         return nx.is_directed_acyclic_graph(component_graph)

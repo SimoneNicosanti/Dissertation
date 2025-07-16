@@ -159,6 +159,14 @@ class RegistryServer(RegisterServicer):
         latencies: dict = state_dict["latencies"]
         bandwidths = state_dict["bandwidths"]
 
+        to_rmv_edges = set()
+        for edge in self.network_graph.edges:
+            if edge[0] == node_id:
+                to_rmv_edges.add(edge)
+
+        for edge in to_rmv_edges:
+            self.network_graph.remove_edge(edge[0], edge[1])
+
         for next_server_id in latencies.keys():
             next_node_id = NodeId(node_name=next_server_id)
 

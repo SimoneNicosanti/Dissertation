@@ -159,7 +159,11 @@ class OnnxModelProfiler(AbsModelProfiler):
                     output_generator_info_list,
                 )
                 self.modify_tensors_profile(
-                    graph, output_size_dict
+                    graph,
+                    output_size_dict,
+                    onnx_node,
+                    input_receiver_info_list,
+                    output_generator_info_list,
                 )
             elif not is_reachable and onnx_node.op_type == "DequantizeLinear":
                 ## This node is not reachable from input --> It is a node carring weights for other node!!
@@ -257,22 +261,49 @@ class OnnxModelProfiler(AbsModelProfiler):
 
             if tensor_name not in graph.edges[edge_id][ModelEdgeInfo.TENSOR_NAME_LIST]:
                 graph.edges[edge_id][ModelEdgeInfo.TENSOR_NAME_LIST].append(tensor_name)
-    
+
     def modify_tensors_profile(
         self,
         graph: nx.DiGraph,
         output_size_dict: dict[tuple[str, str], float],
+        src_onnx_node: onnx.NodeProto,
+        input_receiver_info_list: list[tuple[str, float]],  ## [input_name, input_size]
+        output_generator_info_list: list[
+            tuple[str, float]
+        ],  ## [output_name, output_size]
     ):
-        
+
         graph.graph.setdefault(ModelGraphInfo.TENSOR_SIZE_DICT, {})
 
         ## output_sizes_dict: dict[tuple[str, str], float] : (NextNodeName, TensorName) --> TensorSize
         sizes_dict = {}
         for key in output_size_dict.keys():
             tensor_name = key[1]
-            sizes_dict[tensor_name] = output_size_dict[key]
+            sizes_dict[tensor_name] = [src_onnx_node.name, output_size_dict[key]]
 
         graph.graph[ModelGraphInfo.TENSOR_SIZE_DICT].update(sizes_dict)
+
+        for input_receiver_info in input_receiver_info_list:
+            tensor_name, tensor_size = (
+                input_receiver_info[0],
+                input_receiver_info[1],
+            )
+
+            graph.graph[ModelGraphInfo.TENSOR_SIZE_DICT][tensor_name] = [
+                AbsModelProfiler.INPUT_GENERATOR_NAME,
+                tensor_size,
+            ]
+
+        for output_generator_info in output_generator_info_list:
+            tensor_name, tensor_size = (
+                output_generator_info[0],
+                output_generator_info[1],
+            )
+
+            graph.graph[ModelGraphInfo.TENSOR_SIZE_DICT][tensor_name] = [
+                src_onnx_node.name,
+                tensor_size,
+            ]
 
     def profile_weights_size_per_node(
         self, onnx_node: onnx.NodeProto, onnx_model: onnx.ModelProto

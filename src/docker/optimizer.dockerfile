@@ -1,4 +1,4 @@
-FROM python:3.9-bookworm
+FROM base-optimizer:latest
 
 RUN pip install grpcio
 RUN pip install grpcio-tools
@@ -15,6 +15,8 @@ RUN groupadd -g 1234 customgroup && \
 
 RUN apt update 
 RUN apt install screen -y
+
+RUN pip install pyscipopt
 
 # Optimizer Port
 EXPOSE 50001

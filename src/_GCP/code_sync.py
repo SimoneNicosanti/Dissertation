@@ -6,7 +6,7 @@ import os
 import subprocess
 from pathlib import Path
 
-BASE_COMMAND = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --no-o --no-g --progress --mkpath --recursive --exclude '*.pyc' --exclude '*Out_*.jpg' --exclude '.npz' "
+BASE_COMMAND = "rsync -e 'ssh -o StrictHostKeyChecking=accept-new' -avzu --no-o --no-g --progress --mkpath --recursive --exclude '*.pyc' --exclude '*Out_*.jpg' --exclude '.npz' --exclude '*.tar' "
 
 
 def copy_client(machine_ip):

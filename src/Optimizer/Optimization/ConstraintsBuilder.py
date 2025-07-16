@@ -3,14 +3,14 @@ import pulp
 
 from CommonIds.NodeId import NodeId
 from CommonProfile.ExecutionProfile import ServerExecutionProfilePool
-from CommonProfile.ModelInfo import ModelNodeInfo
+from CommonProfile.ModelInfo import ModelEdgeInfo, ModelGraphInfo, ModelNodeInfo
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from Optimizer.Optimization import EnergyComputer
 from Optimizer.Optimization.OptimizationKeys import (
-    EdgeAssKey,
     MemoryUseKey,
     NodeAssKey,
     QuantizationKey,
+    TensorAssKey,
 )
 
 
@@ -60,21 +60,69 @@ class ConstraintsBuilder:
             problem += x_var == 1
         pass
 
-    def add_edge_assignment_constraints(
+    def add_tensor_assignment_constraints(
         problem: pulp.LpProblem,
         model_graph: nx.MultiDiGraph,
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        network_graph: nx.DiGraph,
+        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+        tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable],
     ):
-        ## One link per model edge
-        for mod_edge_id in model_graph.edges:
-            edge_ass_sum = 0
-            for y_var_key, y_var in edge_ass_vars.items():
-                if y_var_key.check_model_edge_and_name(
-                    mod_edge_id, model_graph.graph["name"]
-                ):
-                    edge_ass_sum += y_var
 
-            problem += edge_ass_sum == 1
+        tensor_info_dict: dict[str, tuple] = model_graph.graph[
+            ModelGraphInfo.TENSOR_SIZE_DICT
+        ]
+
+        for tensor_name, tensor_info in tensor_info_dict.items():
+
+            ## Finding edges bringing this tensor
+            tensor_edges: set[tuple] = set()
+            for edge in model_graph.edges:
+                if tensor_name in model_graph.edges[edge].get(
+                    ModelEdgeInfo.TENSOR_NAME_LIST
+                ):
+                    tensor_edges.add(edge)
+                    pass
+
+            src_node_name = tensor_info[0]
+            src_node_id = NodeId(src_node_name)
+
+            for net_edge_id in network_graph.edges:
+                tensor_ass_key = TensorAssKey(
+                    tensor_name, net_edge_id, model_graph.graph["name"]
+                )
+                tensor_ass_var = tensor_ass_vars[tensor_ass_key]
+
+                src_ass_var = node_ass_vars[
+                    NodeAssKey(src_node_id, net_edge_id[0], model_graph.graph["name"])
+                ]
+
+                problem += tensor_ass_var <= src_ass_var
+
+                dst_ass_var_sum = 0
+                for mod_edge_id in tensor_edges:
+                    dst_ass_key = NodeAssKey(
+                        mod_edge_id[1], net_edge_id[1], model_graph.graph["name"]
+                    )
+                    dst_ass_var_sum += node_ass_vars[dst_ass_key]
+
+                problem += tensor_ass_var <= dst_ass_var_sum
+
+                problem += (
+                    tensor_ass_var
+                    >= src_ass_var + dst_ass_var_sum / len(tensor_edges) - 1
+                )
+
+        pass
+
+        # for mod_edge_id in model_graph.edges:
+        #     edge_ass_sum = 0
+        #     for y_var_key, y_var in tensor_ass_vars.items():
+        #         if y_var_key.check_model_edge_and_name(
+        #             mod_edge_id, model_graph.graph["name"]
+        #         ):
+        #             edge_ass_sum += y_var
+
+        #     problem += edge_ass_sum == 1
         pass
 
     def add_output_flow_constraints(
@@ -82,7 +130,7 @@ class ConstraintsBuilder:
         model_graph: nx.MultiDiGraph,
         network_graph: nx.DiGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        edge_ass_vars: dict[TensorAssKey, pulp.LpVariable],
     ):
         ## First Flow Balance
         for mod_edge_id in model_graph.edges:  ## (i, j)
@@ -91,7 +139,7 @@ class ConstraintsBuilder:
                 for dst_net_node_id in network_graph.nodes:  ## Net Node k
 
                     net_edge_id = (src_net_node_id, dst_net_node_id)
-                    y_var_key = EdgeAssKey(
+                    y_var_key = TensorAssKey(
                         mod_edge_id, net_edge_id, model_graph.graph["name"]
                     )
 
@@ -113,7 +161,7 @@ class ConstraintsBuilder:
         model_graph: nx.MultiDiGraph,
         network_graph: nx.DiGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        edge_ass_vars: dict[TensorAssKey, pulp.LpVariable],
     ):
         ## Second Flow Balance
         for mod_edge_id in model_graph.edges:  ## (i, j)
@@ -121,7 +169,7 @@ class ConstraintsBuilder:
                 y_sum_vars = []
                 for src_net_node_id in network_graph.nodes:  ## Net Node k
                     net_edge_id = (src_net_node_id, dst_net_node_id)
-                    y_var_key = EdgeAssKey(
+                    y_var_key = TensorAssKey(
                         mod_edge_id, net_edge_id, model_graph.graph["name"]
                     )
 
@@ -212,7 +260,7 @@ class ConstraintsBuilder:
         model_graphs: list[nx.MultiDiGraph],
         network_graph: nx.DiGraph,
         node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        edge_ass_vars: dict[TensorAssKey, pulp.LpVariable],
         requests_num: dict[str, int],
         net_node_id: NodeId,
         device_energy_limit: float,
@@ -266,32 +314,62 @@ class ConstraintsBuilder:
         pass
 
     @staticmethod
-    def add_edge_ass_vars_product_constraint(
+    def add_tensor_ass_vars_product_constraint(
         problem: pulp.LpProblem,
-        edge_ass_vars: dict[EdgeAssKey, pulp.LpVariable],
+        model_graph: nx.MultiDiGraph,
+        tensor_ass_vars: dict[TensorAssKey, pulp.LpVariable],
         quantization_vars: dict[QuantizationKey, pulp.LpVariable],
     ):
 
-        quant_edge_ass_keys = filter(lambda x: x.is_quantized, edge_ass_vars.keys())
+        tensors_dict: dict[str, list] = model_graph.graph[
+            ModelGraphInfo.TENSOR_SIZE_DICT
+        ]
 
-        for quant_edge_ass_key in quant_edge_ass_keys:
-            quant_edge_ass_var = edge_ass_vars[quant_edge_ass_key]
+        quant_tensor_ass_keys = filter(lambda x: x.is_quantized, tensor_ass_vars.keys())
+        for quant_tensor_ass_key in quant_tensor_ass_keys:
 
-            edge_ass_key = EdgeAssKey(
-                quant_edge_ass_key.mod_edge_id,
-                quant_edge_ass_key.net_edge_id,
-                quant_edge_ass_key.mod_name,
+            src_node_name = tensors_dict[quant_tensor_ass_key.tensor_name][0]
+            src_node_id = NodeId(src_node_name)
+
+            quant_tensor_ass_var = tensor_ass_vars[quant_tensor_ass_key]
+
+            tensor_ass_key = TensorAssKey(
+                quant_tensor_ass_key.tensor_name,
+                quant_tensor_ass_key.net_edge_id,
+                quant_tensor_ass_key.mod_name,
             )
-            edge_ass_var = edge_ass_vars[edge_ass_key]
+            tensor_ass_var = tensor_ass_vars[tensor_ass_key]
 
-            quant_key = QuantizationKey(
-                quant_edge_ass_key.mod_edge_id[0], quant_edge_ass_key.mod_name
-            )
+            quant_key = QuantizationKey(src_node_id, quant_tensor_ass_key.mod_name)
             quant_var = quantization_vars[quant_key]
 
             ## Constraints for product var
-            problem += quant_edge_ass_var <= edge_ass_var
-            problem += quant_edge_ass_var <= quant_var
-            problem += quant_edge_ass_var >= edge_ass_var + quant_var - 1
+            problem += quant_tensor_ass_var <= tensor_ass_var
+            problem += quant_tensor_ass_var <= quant_var
+            problem += quant_tensor_ass_var >= tensor_ass_var + quant_var - 1
+
+        pass
+
+        # quant_edge_ass_keys = filter(lambda x: x.is_quantized, edge_ass_vars.keys())
+
+        # for quant_edge_ass_key in quant_edge_ass_keys:
+        #     quant_edge_ass_var = edge_ass_vars[quant_edge_ass_key]
+
+        #     edge_ass_key = EdgeAssKey(
+        #         quant_edge_ass_key.mod_edge_id,
+        #         quant_edge_ass_key.net_edge_id,
+        #         quant_edge_ass_key.mod_name,
+        #     )
+        #     edge_ass_var = edge_ass_vars[edge_ass_key]
+
+        #     quant_key = QuantizationKey(
+        #         quant_edge_ass_key.mod_edge_id[0], quant_edge_ass_key.mod_name
+        #     )
+        #     quant_var = quantization_vars[quant_key]
+
+        #     ## Constraints for product var
+        #     problem += quant_edge_ass_var <= edge_ass_var
+        #     problem += quant_edge_ass_var <= quant_var
+        #     problem += quant_edge_ass_var >= edge_ass_var + quant_var - 1
 
         pass
