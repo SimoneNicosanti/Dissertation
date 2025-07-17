@@ -57,6 +57,7 @@ def main():
 
 def start_iperf3_server():
     iperf3_port = ConfigReader.ConfigReader().read_int("ports", "IPERF3_PORT")
+
     subprocess.run(
         ["iperf3", "-s", "-p", f"{iperf3_port}"],
         stdout=subprocess.DEVNULL,

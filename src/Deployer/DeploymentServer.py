@@ -67,6 +67,9 @@ class DeploymentServer(DeploymentServicer):
             deployment_req.start_server,
         )
 
+        if whole_plan is None:
+            return ProducePlanResponse(optimized_plan="")
+
         return ProducePlanResponse(optimized_plan=json.dumps(whole_plan.encode()))
 
     def deploy_plan(self, deployment_request: DeploymentRequest, context):

@@ -63,6 +63,8 @@ def prepare_dataframe(dataframe: pd.DataFrame, add_df: pd.DataFrame):
         "max_noises",
         "device_cpus",
         "edge_cpus",
+        "device_bandwidth",
+        "edge_bandwidth",
     ]
 
     # Filtra righe che NON corrispondono alle tuple in add_df
@@ -83,6 +85,8 @@ def generation_test(
     max_noises,
     device_cpus,
     edge_cpus,
+    device_bandwidth,
+    edge_bandwidth,
     run_nums,
 ):
     ## Plan Production
@@ -105,6 +109,8 @@ def generation_test(
                 "max_noises",
                 "device_cpus",
                 "edge_cpus",
+                "device_bandwidth",
+                "edge_bandwidth",
                 "run_time",
                 "latency_value",
                 "energy_value",
@@ -144,6 +150,9 @@ def generation_test(
         end = time.perf_counter_ns()
         produce_plan_times[idx] = (end - start) * 1e-9
 
+        if produce_plan_response.optimized_plan == "":
+            continue
+
         prod_plan: Plan = WholePlan.decode(
             json.loads(produce_plan_response.optimized_plan)
         ).get_model_plan(model_name)
@@ -179,6 +188,8 @@ def generation_test(
             "max_noises": [max_noises] * run_nums,
             "device_cpus": [device_cpus] * run_nums,
             "edge_cpus": [edge_cpus] * run_nums,
+            "device_bandwidth": [device_bandwidth] * run_nums,
+            "edge_bandwidth": [edge_bandwidth] * run_nums,
             "run_time": produce_plan_times,
             "latency_value": latency_values,
             "energy_value": energy_values,
@@ -205,6 +216,8 @@ def deploy_test(
     max_noises,
     device_cpus,
     edge_cpus,
+    device_bandwidth,
+    edge_bandwidth,
     run_nums,
     produce_plan_response: ProducePlanResponse,
 ):
@@ -226,6 +239,8 @@ def deploy_test(
                 "max_noises",
                 "device_cpus",
                 "edge_cpus",
+                "device_bandwidth",
+                "edge_bandwidth",
                 "run_time",
             ]
         )
@@ -252,6 +267,8 @@ def deploy_test(
             "max_noises": [max_noises] * run_nums,
             "device_cpus": [device_cpus] * run_nums,
             "edge_cpus": [edge_cpus] * run_nums,
+            "device_bandwidth": [device_bandwidth] * run_nums,
+            "edge_bandwidth": [edge_bandwidth] * run_nums,
             "run_time": deploy_times,
         }
     )
@@ -271,6 +288,8 @@ def usage_test(
     max_noises,
     device_cpus,
     edge_cpus,
+    device_bandwidth,
+    edge_bandwidth,
     run_nums,
 ):
 
@@ -292,6 +311,8 @@ def usage_test(
                 "max_noises",
                 "device_cpus",
                 "edge_cpus",
+                "device_bandwidth",
+                "edge_bandwidth",
                 "run_time",
             ]
         )
@@ -320,6 +341,8 @@ def usage_test(
             "max_noises": [max_noises] * run_nums,
             "device_cpus": [device_cpus] * run_nums,
             "edge_cpus": [edge_cpus] * run_nums,
+            "device_bandwidth": [device_bandwidth] * run_nums,
+            "edge_bandwidth": [edge_bandwidth] * run_nums,
             "run_time": plan_use_times,
         }
     )
@@ -361,6 +384,13 @@ def main():
     parser.add_argument("--device-cpus", help="Device CPUs", type=float, required=True)
     parser.add_argument("--edge-cpus", help="Edge CPUs", type=float, required=True)
 
+    parser.add_argument(
+        "--device-bandwidth", help="Device Bandwidth", type=float, required=True
+    )
+    parser.add_argument(
+        "--edge-bandwidth", help="Edge Bandwidth", type=float, required=True
+    )
+
     args = parser.parse_args()
     model_name = args.model
     latency_weight = args.latency_weight
@@ -375,6 +405,9 @@ def main():
     device_cpus = args.device_cpus
     edge_cpus = args.edge_cpus
 
+    device_bandwidth = args.device_bandwidth
+    edge_bandwidth = args.edge_bandwidth
+
     print("📝 Producing Plan")
     produce_plan_response: ProducePlanResponse = generation_test(
         model_name,
@@ -384,8 +417,14 @@ def main():
         max_noises,
         device_cpus,
         edge_cpus,
+        device_bandwidth,
+        edge_bandwidth,
         plan_gen_runs,
     )
+
+    if produce_plan_response.optimized_plan == "":
+        print("❌ Plan Generation Failed")
+        return
 
     print("🚀 Deploying Plan")
     deploy_test(
@@ -396,6 +435,8 @@ def main():
         max_noises,
         device_cpus,
         edge_cpus,
+        device_bandwidth,
+        edge_bandwidth,
         plan_deploy_runs,
         produce_plan_response,
     )
@@ -407,6 +448,8 @@ def main():
         energy_weight,
         device_max_energy,
         max_noises,
+        device_bandwidth,
+        edge_bandwidth,
         device_cpus,
         edge_cpus,
         plan_use_runs,

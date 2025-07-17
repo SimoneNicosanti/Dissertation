@@ -42,17 +42,19 @@ class ServerMonitor:
         self.bandwidths: dict[str, float] = {}
         self.latencies: dict[str, float] = {}
 
+        self.monitor_timer = ConfigReader.ConfigReader(
+            "./config/config.ini"
+        ).read_float("monitor", "MONITOR_TIMER_SEC")
+        self.first_monitor_timer = ConfigReader.ConfigReader(
+            "./config/config.ini"
+        ).read_float("monitor", "FIRST_MONITOR_TIMER_SEC")
+
         pass
 
     def __update_and_send_state(self):
         print("Update and Send State")
         self.__update_state()
         self.__send_state()
-        monitor_timer = ConfigReader.ConfigReader("./config/config.ini").read_float(
-            "monitor", "MONITOR_TIMER_SEC"
-        )
-
-        threading.Timer(monitor_timer, self.__update_and_send_state).start()
 
     def __send_state(self):
         send_state = {key: value for key, value in self.current_state.items()}
@@ -224,8 +226,6 @@ class ServerMonitor:
             "--zerocopy",
             "-b",
             str(bandwidth),
-            "-P",
-            "1",
             "--json",
         ]
 
@@ -261,4 +261,10 @@ class ServerMonitor:
         return sent_MB_s
 
     def init_monitoring(self):
-        self.__update_and_send_state()
+        threading.Thread(target=self.__monitor, daemon=True).start()
+
+    def __monitor(self):
+        time.sleep(self.first_monitor_timer)
+        while True:
+            self.__update_and_send_state()
+            time.sleep(self.monitor_timer)
