@@ -10,3 +10,5 @@ coco128/
 *.npz
 *.tfstate.backup
 *.tfstate
+*.bin
+*.tar

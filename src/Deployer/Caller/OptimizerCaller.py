@@ -60,6 +60,9 @@ class OptimizerCaller:
             optimization_req
         )
 
+        if optimization_response.optimized_plan == "":
+            return None
+
         whole_plan: WholePlan = WholePlan.decode(
             json.loads(optimization_response.optimized_plan)
         )

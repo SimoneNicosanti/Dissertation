@@ -67,6 +67,7 @@ class OptmizationServer(OptimizationServicer):
             opt_params=optimization_params,
             server_execution_profile_pool=execution_profile_pool,
         )
+        print("Done Optimization")
 
         if solved_graphs is None:
             print("No Solution Found")
@@ -80,9 +81,13 @@ class OptmizationServer(OptimizationServicer):
                 print(graph_name + " is not solved")
                 continue
 
+            print("Post Processing " + graph_name)
             PostProcessor.post_process_solution_graph(solved_graph)
+            print("Done Post Processing " + graph_name)
 
+            print("Building Plan for " + graph_name)
             plan: Plan = PlanBuilder.build_plan(solved_graph)
+            print("Done Building Plan for " + graph_name)
 
             whole_plan.put_model_plan(graph_name, plan)
 

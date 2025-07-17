@@ -1,18 +1,22 @@
 import copy
 import os
+import subprocess
 import tempfile
 from pathlib import Path
 
 import onnx
+import onnxruntime
 from onnxruntime.quantization import (
     CalibrationDataReader,
     QuantType,
 )
-import onnxruntime
 from onnxruntime.quantization.calibrate import TensorsData, create_calibrator
 from onnxruntime.quantization.qdq_quantizer import QDQQuantizer
 from onnxruntime.quantization.quant_utils import load_model_with_shape_infer
 from onnxruntime.quantization.registry import QDQRegistry, QLinearOpsRegistry
+
+from Common import ProviderInit
+
 
 def prepare_quantization(
     model_path: str, calibration_data_reader: CalibrationDataReader
@@ -20,13 +24,7 @@ def prepare_quantization(
 
     augmented_model_path = model_path.replace(".onnx", "_augmented.onnx")
 
-    providers = []
-    if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
-        providers.append("CUDAExecutionProvider")
-    elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
-        providers.append("OpenVINOExecutionProvider")
-    else:
-        providers.append("CPUExecutionProvider")
+    providers = ProviderInit.init_providers_list()
 
     calibrator = create_calibrator(
         model_path,

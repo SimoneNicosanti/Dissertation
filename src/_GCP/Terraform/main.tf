@@ -84,13 +84,6 @@ resource "google_compute_firewall" "allow_internal_egress" {
   direction          = "EGRESS"  # Traffico in uscita
 }
 
-
-variable "enable_gpu" {
-  description = "Se true, abilita GPU e VM preemptible"
-  type        = bool
-  default     = false
-}
-
 variable "enable_device" {
   type = bool
   default = false
@@ -111,7 +104,7 @@ variable "enable_cloud" {
 locals {
   all_names = ["registry", "optimizer", "model-manager", "deployer", "device", "edge", "cloud"]
   all_ips   = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16", "10.0.1.17"]
-  all_types = ["e2-standard-2", "n1-standard-4", "g2-standard-4", "e2-standard-2", "c3-standard-4", "c3-standard-4", "n1-standard-4"]
+  all_types = ["e2-standard-2", "c4-standard-16", "g2-standard-4", "e2-standard-2", "c3-standard-4", "c3-standard-4", "n1-standard-4"]
 
   enabled_map = {
     "registry"      = true,
@@ -119,8 +112,8 @@ locals {
     "model-manager" = true,
     "deployer"      = true,
     "device"        = var.enable_device,
-    "edge"      = var.enable_edge,
-    "cloud"      = var.enable_cloud
+    "edge"          = var.enable_edge,
+    "cloud"         = var.enable_cloud
   }
 
   enabled_indices = [for i, name in local.all_names : i if local.enabled_map[name]]
@@ -145,7 +138,7 @@ resource "google_compute_instance" "vm_instances" {
 
   boot_disk {
     initialize_params {
-      image = "simone-image-9"
+      image = "simone-image-10"
       size  = 75
     }
   }
@@ -164,7 +157,7 @@ resource "google_compute_instance" "vm_instances" {
 
 
 
-  # GPU Tesla T4 SOLO per model-manager
+  # GPU Tesla T4 SOLO per cloud se attivo
   dynamic "guest_accelerator" {
   for_each = local.names[count.index] == "cloud" ? [1] : []
     content {

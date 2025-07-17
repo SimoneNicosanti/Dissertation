@@ -1,4 +1,5 @@
 import json
+import time
 
 import grpc
 
@@ -24,18 +25,21 @@ def main():
     )
 
     produce_plan_request = ProducePlanRequest(
-        models_ids=[ModelId(model_name="yolo11s-seg")],
-        latency_weight=1,
-        energy_weight=0.0,
+        models_ids=[ModelId(model_name="yolo11x-seg")],
+        latency_weight=0.25,
+        energy_weight=0.75,
         device_max_energy=0,  ## Measured in Joules
         requests_number=[1],
-        max_noises=[10],
+        max_noises=[0.5],
         start_server="0",
     )
 
+    start = time.perf_counter_ns()
     produce_plan_response: ProducePlanResponse = deployer_stub.produce_plan(
         produce_plan_request
     )
+    end = time.perf_counter_ns()
+    print("Generation Time: ", (end - start) * 1e-9)
 
     whole_plan = WholePlan.decode(json.loads(produce_plan_response.optimized_plan))
 

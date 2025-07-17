@@ -44,12 +44,13 @@ class ExecutionProfileServer(ExecutionProfileServicer):
         self, request: ExecutionProfileRequest, context
     ) -> ExecutionProfileResponse:
         print("Received Execution Profile Request")
-        print(request.model_id)
+        print("\t ", request.model_id)
         model_exec_profile = self.read_profile(request.model_id)
 
         model_id: ModelId = request.model_id
 
         if model_exec_profile is None:
+            print("\t Cache Miss")
             model_exec_profile = ModelExecutionProfile()
 
             profiler = ExecutionProfiler()
@@ -62,7 +63,7 @@ class ExecutionProfileServer(ExecutionProfileServicer):
                     layer_model, self.layer_run_times, is_quantized
                 )
                 print(
-                    "Profiled {} with Quantization {} >> {}".format(
+                    "\t\t Profiled {} with Quantization {} >> {}%.3f".format(
                         layer_name, is_quantized, layer_exec_time
                     )
                 )
@@ -77,12 +78,12 @@ class ExecutionProfileServer(ExecutionProfileServicer):
                 else:
                     tot_not_quant += layer_exec_time
 
-            print(f"Total quantized time: {tot_quant}")
-            print(f"Total not quantized time: {tot_not_quant}")
+            print(f"\t Total quantized time: {tot_quant}")
+            print(f"\t Total not quantized time: {tot_not_quant}")
 
             # model_exec_profile.set_total_execution_time(tot_quant + tot_not_quant)
 
-        print("Done Profiling for model {}".format(model_id.model_name))
+        print("\t Done Profiling for model {}".format(model_id.model_name))
         self.save_profile(model_id, model_exec_profile)
 
         model_exec_profile_json = json.dumps(model_exec_profile.encode())

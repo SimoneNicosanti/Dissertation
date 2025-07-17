@@ -2,13 +2,13 @@ import networkx as nx
 import pulp
 
 from CommonIds.NodeId import NodeId
-from CommonProfile.ModelInfo import ModelNodeInfo
+from CommonProfile.ModelInfo import ModelGraphInfo, ModelNodeInfo
 from CommonProfile.NetworkInfo import NetworkNodeInfo
 from Optimizer.Optimization.OptimizationKeys import (
-    EdgeAssKey,
     MemoryUseKey,
     NodeAssKey,
     QuantizationKey,
+    TensorAssKey,
 )
 
 
@@ -43,28 +43,57 @@ def define_node_assignment_vars(
     return vars_table
 
 
-def define_edge_assignment_vars(
+def define_tensor_assignment_vars(
     model_graph: nx.MultiDiGraph,
     network_graph: nx.DiGraph,
-) -> dict[EdgeAssKey, pulp.LpVariable]:
-    vars_table: dict[EdgeAssKey, pulp.LpVariable] = {}
-    for mod_edge_id in list(model_graph.edges):
+) -> dict[TensorAssKey, pulp.LpVariable]:
+    vars_table: dict[TensorAssKey, pulp.LpVariable] = {}
+    tensor_dict: dict[str, list] = model_graph.graph[ModelGraphInfo.TENSOR_SIZE_DICT]
+
+    for tensor_name, tensor_info in tensor_dict.items():
         for net_edge_id in list(network_graph.edges):
-            var_name: str = __build_edge_var_name(
-                mod_edge_id, net_edge_id, model_graph, network_graph
+            var_name = __build_tensor_var_name(
+                tensor_name, net_edge_id, model_graph, network_graph
             )
             lp_variable = pulp.LpVariable(var_name, cat=pulp.LpBinary)
 
-            table_key = EdgeAssKey(mod_edge_id, net_edge_id, model_graph.graph["name"])
+            table_key = TensorAssKey(
+                tensor_name, net_edge_id, model_graph.graph["name"]
+            )
             vars_table[table_key] = lp_variable
 
-            if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
-                quant_table_key = EdgeAssKey(
-                    mod_edge_id, net_edge_id, model_graph.graph["name"], True
+            src_node_name = tensor_info[0]
+            src_node_id = NodeId(src_node_name)
+
+            if model_graph.nodes[src_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+                quant_table_key = TensorAssKey(
+                    tensor_name, net_edge_id, model_graph.graph["name"], True
                 )
                 quant_var_name = var_name + "_q"
                 quant_lp_var = pulp.LpVariable(quant_var_name, cat=pulp.LpBinary)
                 vars_table[quant_table_key] = quant_lp_var
+
+    return vars_table
+
+    # for mod_edge_id in list(model_graph.edges):
+    #     for net_edge_id in list(network_graph.edges):
+    #         var_name: str = __build_edge_var_name(
+    #             mod_edge_id, net_edge_id, model_graph, network_graph
+    #         )
+    #         lp_variable = pulp.LpVariable(var_name, cat=pulp.LpBinary)
+
+    #         table_key = TensorAssKey(
+    #             mod_edge_id, net_edge_id, model_graph.graph["name"]
+    #         )
+    #         vars_table[table_key] = lp_variable
+
+    #         if model_graph.nodes[mod_edge_id[0]].get(ModelNodeInfo.QUANTIZABLE, False):
+    #             quant_table_key = TensorAssKey(
+    #                 mod_edge_id, net_edge_id, model_graph.graph["name"], True
+    #             )
+    #             quant_var_name = var_name + "_q"
+    #             quant_lp_var = pulp.LpVariable(quant_var_name, cat=pulp.LpBinary)
+    #             vars_table[quant_table_key] = quant_lp_var
 
     return vars_table
 
@@ -134,4 +163,27 @@ def __build_edge_var_name(
     net_edge_str = "({}_{})".format(net_src_idx, net_dst_idx)
     return "y_(mod_edge_{})(net_edge_{})({})".format(
         mod_edge_str, net_edge_str, model_name
+    )
+
+
+def __build_tensor_var_name(
+    tensor_name: str,
+    net_edge_id: tuple[NodeId, NodeId],
+    model_graph: nx.MultiDiGraph,
+    network_graph: nx.DiGraph,
+):
+
+    net_src_node, net_dst_node = net_edge_id
+    net_src_idx, net_dst_idx = (
+        network_graph.nodes[net_src_node][NetworkNodeInfo.IDX],
+        network_graph.nodes[net_dst_node][NetworkNodeInfo.IDX],
+    )
+
+    ## To avoid problems with name formatting r name lenght
+    tensor_hash = hash(tensor_name)
+
+    model_name = model_graph.graph["name"]
+    net_edge_str = "({}_{})".format(net_src_idx, net_dst_idx)
+    return "z_(tensor_{})(net_edge_{})({})".format(
+        tensor_hash, net_edge_str, model_name
     )

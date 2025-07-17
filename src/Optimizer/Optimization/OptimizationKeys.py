@@ -18,16 +18,31 @@ class NodeAssKey:
         )
 
 
+# @dataclass(frozen=True)
+# class TensorAssKey:
+#     mod_edge_id: tuple[NodeId, NodeId]
+#     net_edge_id: tuple[NodeId, NodeId]
+#     mod_name: str
+#     is_quantized: bool = False
+
+#     def check_model_edge_and_name(self, other_edge_id: tuple, other_mod_name: str):
+#         return (
+#             self.mod_edge_id == other_edge_id
+#             and self.mod_name == other_mod_name
+#             and not self.is_quantized
+#         )
+
+
 @dataclass(frozen=True)
-class EdgeAssKey:
-    mod_edge_id: tuple[NodeId, NodeId]
+class TensorAssKey:
+    tensor_name: str
     net_edge_id: tuple[NodeId, NodeId]
     mod_name: str
     is_quantized: bool = False
 
-    def check_model_edge_and_name(self, other_edge_id: tuple, other_mod_name: str):
+    def check_model_tensor_and_name(self, other_tensor_name: str, other_mod_name: str):
         return (
-            self.mod_edge_id == other_edge_id
+            self.tensor_name == other_tensor_name
             and self.mod_name == other_mod_name
             and not self.is_quantized
         )

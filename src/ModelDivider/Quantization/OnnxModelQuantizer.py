@@ -7,6 +7,8 @@ from onnxruntime.quantization.calibrate import CalibrationDataReader
 from onnxruntime.quantization.preprocess import quant_pre_process
 from onnxruntime.quantization.quantize import quantize_static
 
+from Common import ProviderInit
+
 
 class OnnxModelQuantizer:
 
@@ -24,13 +26,7 @@ class OnnxModelQuantizer:
 
             temp_file_name_quant = temp_dir + "/quantized_model.onnx"
 
-            providers = []
-            if "CUDAExecutionProvider" in onnxruntime.get_available_providers():
-                providers.append("CUDAExecutionProvider")
-            elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
-                providers.append("OpenVINOExecutionProvider")
-            else:
-                providers.append("CPUExecutionProvider")
+            providers = ProviderInit.init_providers_list()
 
             quantize_static(
                 temp_file_name,

@@ -57,6 +57,7 @@ def main():
 
 def start_iperf3_server():
     iperf3_port = ConfigReader.ConfigReader().read_int("ports", "IPERF3_PORT")
+
     subprocess.run(
         ["iperf3", "-s", "-p", f"{iperf3_port}"],
         stdout=subprocess.DEVNULL,
@@ -105,7 +106,7 @@ def start_ping_server():
 
     ping_port = ConfigReader.ConfigReader().read_int("ports", "PING_PORT")
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
     add_PingServicer_to_server(PingServer(), server)
 
     server.add_insecure_port(f"[::]:{ping_port}")

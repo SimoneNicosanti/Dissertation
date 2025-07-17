@@ -14,6 +14,7 @@ def main():
     x_points = dataframe["model_case"]
     plt.scatter(x_points, dataframe["num_nodes"], label="Number of Nodes")
     plt.scatter(x_points, dataframe["num_edges"], label="Number of Edges")
+    plt.scatter(x_points, dataframe["num_tensors"], label="Number of Tensors")
     plt.xticks(rotation=45)
 
     # Etichette e legenda
@@ -28,7 +29,7 @@ def main():
     plt.tight_layout()
     plt.grid()
     plt.savefig("../Images/model_sizes_plot.png")
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":

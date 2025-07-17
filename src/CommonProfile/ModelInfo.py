@@ -15,3 +15,7 @@ class ModelEdgeInfo:
     TENSOR_NAME_LIST = "tensor_name_list"
 
     pass
+
+class ModelGraphInfo:
+    NAME = "name"
+    TENSOR_SIZE_DICT = "tensor_size_dict"

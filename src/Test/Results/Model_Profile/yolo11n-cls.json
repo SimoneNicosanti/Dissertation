@@ -2,7 +2,436 @@
   "graph": {
     "directed": true,
     "multigraph": false,
-    "graph": { "name": "yolo11n-cls" },
+    "graph": {
+      "name": "yolo11n-cls",
+      "tensor_size_dict": {
+        "/model.0/conv/Conv_output_0": ["/model.0/conv/Conv", 6.25],
+        "images": ["InputGenerator", 4.6875],
+        "/model.0/act/Sigmoid_output_0": ["/model.0/act/Sigmoid", 6.25],
+        "/model.0/act/Mul_output_0": ["/model.0/act/Mul", 6.25],
+        "/model.1/conv/Conv_output_0": ["/model.1/conv/Conv", 3.125],
+        "/model.1/act/Sigmoid_output_0": ["/model.1/act/Sigmoid", 3.125],
+        "/model.1/act/Mul_output_0": ["/model.1/act/Mul", 3.125],
+        "/model.2/cv1/conv/Conv_output_0": ["/model.2/cv1/conv/Conv", 3.125],
+        "/model.2/cv1/act/Sigmoid_output_0": [
+          "/model.2/cv1/act/Sigmoid",
+          3.125
+        ],
+        "/model.2/cv1/act/Mul_output_0": ["/model.2/cv1/act/Mul", 3.125],
+        "/model.2/Split_output_0": ["/model.2/Split", 1.5625],
+        "/model.2/Split_output_1": ["/model.2/Split", 1.5625],
+        "/model.2/m.0/cv1/conv/Conv_output_0": [
+          "/model.2/m.0/cv1/conv/Conv",
+          0.78125
+        ],
+        "/model.2/m.0/cv1/act/Sigmoid_output_0": [
+          "/model.2/m.0/cv1/act/Sigmoid",
+          0.78125
+        ],
+        "/model.2/m.0/cv1/act/Mul_output_0": [
+          "/model.2/m.0/cv1/act/Mul",
+          0.78125
+        ],
+        "/model.2/m.0/cv2/conv/Conv_output_0": [
+          "/model.2/m.0/cv2/conv/Conv",
+          1.5625
+        ],
+        "/model.2/m.0/cv2/act/Sigmoid_output_0": [
+          "/model.2/m.0/cv2/act/Sigmoid",
+          1.5625
+        ],
+        "/model.2/m.0/cv2/act/Mul_output_0": [
+          "/model.2/m.0/cv2/act/Mul",
+          1.5625
+        ],
+        "/model.2/m.0/Add_output_0": ["/model.2/m.0/Add", 1.5625],
+        "/model.2/Concat_output_0": ["/model.2/Concat", 4.6875],
+        "/model.2/cv2/conv/Conv_output_0": ["/model.2/cv2/conv/Conv", 6.25],
+        "/model.2/cv2/act/Sigmoid_output_0": ["/model.2/cv2/act/Sigmoid", 6.25],
+        "/model.2/cv2/act/Mul_output_0": ["/model.2/cv2/act/Mul", 6.25],
+        "/model.3/conv/Conv_output_0": ["/model.3/conv/Conv", 1.5625],
+        "/model.3/act/Sigmoid_output_0": ["/model.3/act/Sigmoid", 1.5625],
+        "/model.3/act/Mul_output_0": ["/model.3/act/Mul", 1.5625],
+        "/model.4/cv1/conv/Conv_output_0": ["/model.4/cv1/conv/Conv", 1.5625],
+        "/model.4/cv1/act/Sigmoid_output_0": [
+          "/model.4/cv1/act/Sigmoid",
+          1.5625
+        ],
+        "/model.4/cv1/act/Mul_output_0": ["/model.4/cv1/act/Mul", 1.5625],
+        "/model.4/Split_output_0": ["/model.4/Split", 0.78125],
+        "/model.4/Split_output_1": ["/model.4/Split", 0.78125],
+        "/model.4/m.0/cv1/conv/Conv_output_0": [
+          "/model.4/m.0/cv1/conv/Conv",
+          0.390625
+        ],
+        "/model.4/m.0/cv1/act/Sigmoid_output_0": [
+          "/model.4/m.0/cv1/act/Sigmoid",
+          0.390625
+        ],
+        "/model.4/m.0/cv1/act/Mul_output_0": [
+          "/model.4/m.0/cv1/act/Mul",
+          0.390625
+        ],
+        "/model.4/m.0/cv2/conv/Conv_output_0": [
+          "/model.4/m.0/cv2/conv/Conv",
+          0.78125
+        ],
+        "/model.4/m.0/cv2/act/Sigmoid_output_0": [
+          "/model.4/m.0/cv2/act/Sigmoid",
+          0.78125
+        ],
+        "/model.4/m.0/cv2/act/Mul_output_0": [
+          "/model.4/m.0/cv2/act/Mul",
+          0.78125
+        ],
+        "/model.4/m.0/Add_output_0": ["/model.4/m.0/Add", 0.78125],
+        "/model.4/Concat_output_0": ["/model.4/Concat", 2.34375],
+        "/model.4/cv2/conv/Conv_output_0": ["/model.4/cv2/conv/Conv", 3.125],
+        "/model.4/cv2/act/Sigmoid_output_0": [
+          "/model.4/cv2/act/Sigmoid",
+          3.125
+        ],
+        "/model.4/cv2/act/Mul_output_0": ["/model.4/cv2/act/Mul", 3.125],
+        "/model.5/conv/Conv_output_0": ["/model.5/conv/Conv", 0.78125],
+        "/model.5/act/Sigmoid_output_0": ["/model.5/act/Sigmoid", 0.78125],
+        "/model.5/act/Mul_output_0": ["/model.5/act/Mul", 0.78125],
+        "/model.6/cv1/conv/Conv_output_0": ["/model.6/cv1/conv/Conv", 0.78125],
+        "/model.6/cv1/act/Sigmoid_output_0": [
+          "/model.6/cv1/act/Sigmoid",
+          0.78125
+        ],
+        "/model.6/cv1/act/Mul_output_0": ["/model.6/cv1/act/Mul", 0.78125],
+        "/model.6/Split_output_0": ["/model.6/Split", 0.390625],
+        "/model.6/Split_output_1": ["/model.6/Split", 0.390625],
+        "/model.6/m.0/cv1/conv/Conv_output_0": [
+          "/model.6/m.0/cv1/conv/Conv",
+          0.1953125
+        ],
+        "/model.6/m.0/cv2/conv/Conv_output_0": [
+          "/model.6/m.0/cv2/conv/Conv",
+          0.1953125
+        ],
+        "/model.6/m.0/cv1/act/Sigmoid_output_0": [
+          "/model.6/m.0/cv1/act/Sigmoid",
+          0.1953125
+        ],
+        "/model.6/m.0/cv2/act/Sigmoid_output_0": [
+          "/model.6/m.0/cv2/act/Sigmoid",
+          0.1953125
+        ],
+        "/model.6/m.0/cv1/act/Mul_output_0": [
+          "/model.6/m.0/cv1/act/Mul",
+          0.1953125
+        ],
+        "/model.6/m.0/cv2/act/Mul_output_0": [
+          "/model.6/m.0/cv2/act/Mul",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.0/cv1/conv/Conv_output_0": [
+          "/model.6/m.0/m/m.0/cv1/conv/Conv",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.0/cv1/act/Sigmoid_output_0": [
+          "/model.6/m.0/m/m.0/cv1/act/Sigmoid",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.0/cv1/act/Mul_output_0": [
+          "/model.6/m.0/m/m.0/cv1/act/Mul",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.0/cv2/conv/Conv_output_0": [
+          "/model.6/m.0/m/m.0/cv2/conv/Conv",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.0/cv2/act/Sigmoid_output_0": [
+          "/model.6/m.0/m/m.0/cv2/act/Sigmoid",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.0/cv2/act/Mul_output_0": [
+          "/model.6/m.0/m/m.0/cv2/act/Mul",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.0/Add_output_0": [
+          "/model.6/m.0/m/m.0/Add",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.1/cv1/conv/Conv_output_0": [
+          "/model.6/m.0/m/m.1/cv1/conv/Conv",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.1/cv1/act/Sigmoid_output_0": [
+          "/model.6/m.0/m/m.1/cv1/act/Sigmoid",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.1/cv1/act/Mul_output_0": [
+          "/model.6/m.0/m/m.1/cv1/act/Mul",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.1/cv2/conv/Conv_output_0": [
+          "/model.6/m.0/m/m.1/cv2/conv/Conv",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.1/cv2/act/Sigmoid_output_0": [
+          "/model.6/m.0/m/m.1/cv2/act/Sigmoid",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.1/cv2/act/Mul_output_0": [
+          "/model.6/m.0/m/m.1/cv2/act/Mul",
+          0.1953125
+        ],
+        "/model.6/m.0/m/m.1/Add_output_0": [
+          "/model.6/m.0/m/m.1/Add",
+          0.1953125
+        ],
+        "/model.6/m.0/Concat_output_0": ["/model.6/m.0/Concat", 0.390625],
+        "/model.6/m.0/cv3/conv/Conv_output_0": [
+          "/model.6/m.0/cv3/conv/Conv",
+          0.390625
+        ],
+        "/model.6/m.0/cv3/act/Sigmoid_output_0": [
+          "/model.6/m.0/cv3/act/Sigmoid",
+          0.390625
+        ],
+        "/model.6/m.0/cv3/act/Mul_output_0": [
+          "/model.6/m.0/cv3/act/Mul",
+          0.390625
+        ],
+        "/model.6/Concat_output_0": ["/model.6/Concat", 1.171875],
+        "/model.6/cv2/conv/Conv_output_0": ["/model.6/cv2/conv/Conv", 0.78125],
+        "/model.6/cv2/act/Sigmoid_output_0": [
+          "/model.6/cv2/act/Sigmoid",
+          0.78125
+        ],
+        "/model.6/cv2/act/Mul_output_0": ["/model.6/cv2/act/Mul", 0.78125],
+        "/model.7/conv/Conv_output_0": ["/model.7/conv/Conv", 0.390625],
+        "/model.7/act/Sigmoid_output_0": ["/model.7/act/Sigmoid", 0.390625],
+        "/model.7/act/Mul_output_0": ["/model.7/act/Mul", 0.390625],
+        "/model.8/cv1/conv/Conv_output_0": ["/model.8/cv1/conv/Conv", 0.390625],
+        "/model.8/cv1/act/Sigmoid_output_0": [
+          "/model.8/cv1/act/Sigmoid",
+          0.390625
+        ],
+        "/model.8/cv1/act/Mul_output_0": ["/model.8/cv1/act/Mul", 0.390625],
+        "/model.8/Split_output_0": ["/model.8/Split", 0.1953125],
+        "/model.8/Split_output_1": ["/model.8/Split", 0.1953125],
+        "/model.8/m.0/cv1/conv/Conv_output_0": [
+          "/model.8/m.0/cv1/conv/Conv",
+          0.09765625
+        ],
+        "/model.8/m.0/cv2/conv/Conv_output_0": [
+          "/model.8/m.0/cv2/conv/Conv",
+          0.09765625
+        ],
+        "/model.8/m.0/cv1/act/Sigmoid_output_0": [
+          "/model.8/m.0/cv1/act/Sigmoid",
+          0.09765625
+        ],
+        "/model.8/m.0/cv2/act/Sigmoid_output_0": [
+          "/model.8/m.0/cv2/act/Sigmoid",
+          0.09765625
+        ],
+        "/model.8/m.0/cv1/act/Mul_output_0": [
+          "/model.8/m.0/cv1/act/Mul",
+          0.09765625
+        ],
+        "/model.8/m.0/cv2/act/Mul_output_0": [
+          "/model.8/m.0/cv2/act/Mul",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.0/cv1/conv/Conv_output_0": [
+          "/model.8/m.0/m/m.0/cv1/conv/Conv",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.0/cv1/act/Sigmoid_output_0": [
+          "/model.8/m.0/m/m.0/cv1/act/Sigmoid",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.0/cv1/act/Mul_output_0": [
+          "/model.8/m.0/m/m.0/cv1/act/Mul",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.0/cv2/conv/Conv_output_0": [
+          "/model.8/m.0/m/m.0/cv2/conv/Conv",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.0/cv2/act/Sigmoid_output_0": [
+          "/model.8/m.0/m/m.0/cv2/act/Sigmoid",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.0/cv2/act/Mul_output_0": [
+          "/model.8/m.0/m/m.0/cv2/act/Mul",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.0/Add_output_0": [
+          "/model.8/m.0/m/m.0/Add",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.1/cv1/conv/Conv_output_0": [
+          "/model.8/m.0/m/m.1/cv1/conv/Conv",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.1/cv1/act/Sigmoid_output_0": [
+          "/model.8/m.0/m/m.1/cv1/act/Sigmoid",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.1/cv1/act/Mul_output_0": [
+          "/model.8/m.0/m/m.1/cv1/act/Mul",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.1/cv2/conv/Conv_output_0": [
+          "/model.8/m.0/m/m.1/cv2/conv/Conv",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.1/cv2/act/Sigmoid_output_0": [
+          "/model.8/m.0/m/m.1/cv2/act/Sigmoid",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.1/cv2/act/Mul_output_0": [
+          "/model.8/m.0/m/m.1/cv2/act/Mul",
+          0.09765625
+        ],
+        "/model.8/m.0/m/m.1/Add_output_0": [
+          "/model.8/m.0/m/m.1/Add",
+          0.09765625
+        ],
+        "/model.8/m.0/Concat_output_0": ["/model.8/m.0/Concat", 0.1953125],
+        "/model.8/m.0/cv3/conv/Conv_output_0": [
+          "/model.8/m.0/cv3/conv/Conv",
+          0.1953125
+        ],
+        "/model.8/m.0/cv3/act/Sigmoid_output_0": [
+          "/model.8/m.0/cv3/act/Sigmoid",
+          0.1953125
+        ],
+        "/model.8/m.0/cv3/act/Mul_output_0": [
+          "/model.8/m.0/cv3/act/Mul",
+          0.1953125
+        ],
+        "/model.8/Concat_output_0": ["/model.8/Concat", 0.5859375],
+        "/model.8/cv2/conv/Conv_output_0": ["/model.8/cv2/conv/Conv", 0.390625],
+        "/model.8/cv2/act/Sigmoid_output_0": [
+          "/model.8/cv2/act/Sigmoid",
+          0.390625
+        ],
+        "/model.8/cv2/act/Mul_output_0": ["/model.8/cv2/act/Mul", 0.390625],
+        "/model.9/cv1/conv/Conv_output_0": ["/model.9/cv1/conv/Conv", 0.390625],
+        "/model.9/cv1/act/Sigmoid_output_0": [
+          "/model.9/cv1/act/Sigmoid",
+          0.390625
+        ],
+        "/model.9/cv1/act/Mul_output_0": ["/model.9/cv1/act/Mul", 0.390625],
+        "/model.9/Split_output_0": ["/model.9/Split", 0.1953125],
+        "/model.9/Split_output_1": ["/model.9/Split", 0.1953125],
+        "/model.9/m/m.0/attn/qkv/conv/Conv_output_0": [
+          "/model.9/m/m.0/attn/qkv/conv/Conv",
+          0.390625
+        ],
+        "/model.9/m/m.0/attn/Reshape_output_0": [
+          "/model.9/m/m.0/attn/Reshape",
+          0.390625
+        ],
+        "/model.9/m/m.0/attn/Split_output_0": [
+          "/model.9/m/m.0/attn/Split",
+          0.09765625
+        ],
+        "/model.9/m/m.0/attn/Split_output_1": [
+          "/model.9/m/m.0/attn/Split",
+          0.09765625
+        ],
+        "/model.9/m/m.0/attn/Split_output_2": [
+          "/model.9/m/m.0/attn/Split",
+          0.1953125
+        ],
+        "/model.9/m/m.0/attn/Transpose_output_0": [
+          "/model.9/m/m.0/attn/Transpose",
+          0.09765625
+        ],
+        "/model.9/m/m.0/attn/Reshape_2_output_0": [
+          "/model.9/m/m.0/attn/Reshape_2",
+          0.1953125
+        ],
+        "/model.9/m/m.0/attn/MatMul_output_0": [
+          "/model.9/m/m.0/attn/MatMul",
+          1.220703125
+        ],
+        "/model.9/m/m.0/attn/pe/conv/Conv_output_0": [
+          "/model.9/m/m.0/attn/pe/conv/Conv",
+          0.1953125
+        ],
+        "/model.9/m/m.0/attn/Mul_output_0": [
+          "/model.9/m/m.0/attn/Mul",
+          1.220703125
+        ],
+        "/model.9/m/m.0/attn/Softmax_output_0": [
+          "/model.9/m/m.0/attn/Softmax",
+          1.220703125
+        ],
+        "/model.9/m/m.0/attn/Transpose_1_output_0": [
+          "/model.9/m/m.0/attn/Transpose_1",
+          1.220703125
+        ],
+        "/model.9/m/m.0/attn/MatMul_1_output_0": [
+          "/model.9/m/m.0/attn/MatMul_1",
+          0.1953125
+        ],
+        "/model.9/m/m.0/attn/Reshape_1_output_0": [
+          "/model.9/m/m.0/attn/Reshape_1",
+          0.1953125
+        ],
+        "/model.9/m/m.0/attn/Add_output_0": [
+          "/model.9/m/m.0/attn/Add",
+          0.1953125
+        ],
+        "/model.9/m/m.0/attn/proj/conv/Conv_output_0": [
+          "/model.9/m/m.0/attn/proj/conv/Conv",
+          0.1953125
+        ],
+        "/model.9/m/m.0/Add_output_0": ["/model.9/m/m.0/Add", 0.1953125],
+        "/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0": [
+          "/model.9/m/m.0/ffn/ffn.0/conv/Conv",
+          0.390625
+        ],
+        "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid_output_0": [
+          "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid",
+          0.390625
+        ],
+        "/model.9/m/m.0/ffn/ffn.0/act/Mul_output_0": [
+          "/model.9/m/m.0/ffn/ffn.0/act/Mul",
+          0.390625
+        ],
+        "/model.9/m/m.0/ffn/ffn.1/conv/Conv_output_0": [
+          "/model.9/m/m.0/ffn/ffn.1/conv/Conv",
+          0.1953125
+        ],
+        "/model.9/m/m.0/Add_1_output_0": ["/model.9/m/m.0/Add_1", 0.1953125],
+        "/model.9/Concat_output_0": ["/model.9/Concat", 0.390625],
+        "/model.9/cv2/conv/Conv_output_0": ["/model.9/cv2/conv/Conv", 0.390625],
+        "/model.9/cv2/act/Sigmoid_output_0": [
+          "/model.9/cv2/act/Sigmoid",
+          0.390625
+        ],
+        "/model.9/cv2/act/Mul_output_0": ["/model.9/cv2/act/Mul", 0.390625],
+        "/model.10/conv/conv/Conv_output_0": [
+          "/model.10/conv/conv/Conv",
+          1.953125
+        ],
+        "/model.10/conv/act/Sigmoid_output_0": [
+          "/model.10/conv/act/Sigmoid",
+          1.953125
+        ],
+        "/model.10/conv/act/Mul_output_0": ["/model.10/conv/act/Mul", 1.953125],
+        "/model.10/pool/GlobalAveragePool_output_0": [
+          "/model.10/pool/GlobalAveragePool",
+          0.0048828125
+        ],
+        "/model.10/Flatten_output_0": ["/model.10/Flatten", 0.0048828125],
+        "/model.10/linear/Gemm_output_0": [
+          "/model.10/linear/Gemm",
+          0.003814697265625
+        ],
+        "output0": ["/model.10/Softmax", 0.003814697265625]
+      }
+    },
     "nodes": [
       {
         "idx": 0,
