@@ -169,7 +169,11 @@ def copy_test(machine_ip):
 
     ## Remove results to avoid interference
     # trunk-ignore(bandit/B605)
-    os.system("ssh customuser@{} rm -r ~/src/Test/Results/*".format(machine_ip))
+    os.system(
+        "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q customuser@{} rm -r ~/src/Test/Results/*".format(
+            machine_ip
+        )
+    )
 
     ## Sync again everything
     command = BASE_COMMAND + " ../Test/ customuser@{}:~/src/Test".format(machine_ip)

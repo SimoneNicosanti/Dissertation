@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Ottimizzazione.md",
+                "file": "Notes/Esperimenti.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Ottimizzazione"
+              "title": "Esperimenti"
             }
           }
         ]
@@ -166,6 +166,7 @@
   },
   "active": "9c09b47c2b9f6d57",
   "lastOpenFiles": [
+    "Notes/Ottimizzazione.md",
     "Schermata del 2025-07-02 17-07-18.png",
     "Schermata del 2025-07-02 16-33-42.png",
     "Notes/Rumore di Quantizzazione.md",
@@ -178,7 +179,6 @@
     "Notes/Images/Schermata del 2025-06-18 17-01-59.png",
     "Notes/Images/Schermata del 2025-06-18 16-58-53.png",
     "Notes/Images/Schermata del 2025-06-18 16-58-03.png",
-    "Notes/Images/Schermata del 2025-06-18 16-42-25.png",
     "Notes/Colloqui/2025-06-20.md",
     "Notes/Architettura/Diagrams_OK",
     "Notes/Architettura/Diagrams/Diagram.svg.xml",
@@ -196,7 +196,6 @@
     "Paper/Note Sugli Articoli.md",
     "Notes/Indice Tesi.md",
     "Notes/Quantizzazione.md",
-    "Notes/Ottimizzazione.md",
     "Notes/Colloqui/HELO.md",
     "Notes/Ottimizzazione - Altro.md",
     "Notes/Architettura/Architettura 2.md",
