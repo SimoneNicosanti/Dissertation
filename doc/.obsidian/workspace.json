@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Esperimenti.md",
+                "file": "Notes/Ottimizzazione.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Esperimenti"
+              "title": "Ottimizzazione"
             }
           }
         ]
@@ -166,6 +166,7 @@
   },
   "active": "9c09b47c2b9f6d57",
   "lastOpenFiles": [
+    "Notes/Esperimenti.md",
     "Notes/Ottimizzazione.md",
     "Schermata del 2025-07-02 17-07-18.png",
     "Schermata del 2025-07-02 16-33-42.png",
@@ -192,7 +193,6 @@
     "Diagram.svg.xml",
     "Diagram 2.svg.xml",
     "Diagram 1.svg.xml",
-    "Notes/Esperimenti.md",
     "Paper/Note Sugli Articoli.md",
     "Notes/Indice Tesi.md",
     "Notes/Quantizzazione.md",

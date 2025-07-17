@@ -92,7 +92,7 @@ def generation_test(
     ## Plan Production
 
     csv_path = os.path.join(
-        "../Results/DeviceOnlyPlan",
+        "../Results/DeviceEdgePlan",
         build_file_name(
             "Generation",
         ),
@@ -222,7 +222,7 @@ def deploy_test(
     produce_plan_response: ProducePlanResponse,
 ):
     csv_path = os.path.join(
-        "../Results/DeviceOnlyPlan",
+        "../Results/DeviceEdgePlan",
         build_file_name(
             "Deployment",
         ),
@@ -294,7 +294,7 @@ def usage_test(
 ):
 
     csv_path = os.path.join(
-        "../Results/DeviceOnlyPlan",
+        "../Results/DeviceEdgePlan",
         build_file_name(
             "Usage",
         ),
@@ -358,7 +358,7 @@ def usage_test(
 
 def main():
 
-    os.makedirs("../Results/DeviceOnlyPlan", exist_ok=True)
+    os.makedirs("../Results/DeviceEdgePlan", exist_ok=True)
 
     parser = argparse.ArgumentParser()
 
@@ -448,10 +448,10 @@ def main():
         energy_weight,
         device_max_energy,
         max_noises,
-        device_bandwidth,
-        edge_bandwidth,
         device_cpus,
         edge_cpus,
+        device_bandwidth,
+        edge_bandwidth,
         plan_use_runs,
     )
     print("🤖 Use Plan with Avg Time >> ", plan_use_times.mean())

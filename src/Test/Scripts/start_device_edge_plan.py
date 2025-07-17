@@ -6,7 +6,7 @@ import time
 COMMAND = "./start_test.sh DeviceEdgePlan.py --model {} --latency-weight {} --energy-weight {} --device-max-energy {} --max-noises {} --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus {} --edge-cpus {} --device-bandwidth {} --edge-bandwidth {}"
 
 
-MODELS = ["yolo11m", "yolo11x-seg"]
+MODELS = ["yolo11m"]  # , "yolo11x-seg"]
 LW = [1.0, 0.75, 0.5, 0.25, 0.0]
 DEVICE_MAX_ENERGYS = [0.0]
 MAX_NOISES = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.5]
