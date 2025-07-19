@@ -140,8 +140,8 @@ def generation_test(
             json.loads(produce_plan_response.optimized_plan)
         ).get_model_plan(model_name)
 
-        latency_values[idx] = prod_plan.get_latency_cost()
-        energy_values[idx] = prod_plan.get_energy_cost()
+        latency_values[idx] = prod_plan.get_latency_value()
+        energy_values[idx] = prod_plan.get_energy_value()
         device_energy_values[idx] = (
             0 if device_max_energy is None else prod_plan.get_device_energy()
         )

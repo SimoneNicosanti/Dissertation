@@ -21,7 +21,6 @@ from Server.Utils.InputReceiver import InputReceiver
 from Server.Utils.OutputSender import OutputSender
 
 ## This has to be a different service running on the client
-## Actually it should be started by the deployer --> I.E. The one asking for the plan optimization
 
 
 class FrontEndServer(InferenceServicer):

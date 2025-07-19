@@ -58,6 +58,8 @@ class PlanBuilder:
             solved_graph.graph[SolvedGraphInfo.LATENCY_VALUE],
             solved_graph.graph[SolvedGraphInfo.ENERGY_VALUE],
             solved_graph.graph[SolvedGraphInfo.DEVICE_ENERGY_VALUE],
+            solved_graph.graph[SolvedGraphInfo.LATENCY_COST],
+            solved_graph.graph[SolvedGraphInfo.ENERGY_COST],
         )
 
     @staticmethod

@@ -42,11 +42,36 @@ class OptimizationHandler:
         pass
 
     @staticmethod
-    def get_solver():
+    def get_solver(warmStart=False, gapRel=None):
         if os.path.exists(CPLEX_PATH):
-            return pulp.CPLEX_CMD(path=CPLEX_PATH)
+            return pulp.CPLEX_CMD(
+                path=CPLEX_PATH, warmStart=False, gapRel=gapRel, msg=False
+            )
         else:
-            return pulp.SCIP_PY()
+            return pulp.SCIP_PY(warmStart=warmStart, msg=False)
+
+    def prepare_warm_start(
+        src_node_ass_vars,
+        src_tensor_ass_vars,
+        src_quantization_vars,
+        dst_node_ass_vars,
+        dst_tensor_ass_vars,
+        dst_quantization_vars,
+    ):
+        return
+
+        for key in src_node_ass_vars:
+            dst_node_ass_vars[key].setInitialValue(
+                1 if src_node_ass_vars[key] >= INT_VARS_VALUE_THR else 0
+            )
+        for key in src_tensor_ass_vars:
+            dst_tensor_ass_vars[key].setInitialValue(
+                1 if src_tensor_ass_vars[key] >= INT_VARS_VALUE_THR else 0
+            )
+        for key in src_quantization_vars:
+            dst_quantization_vars[key].setInitialValue(
+                1 if src_quantization_vars[key] >= INT_VARS_VALUE_THR else 0
+            )
 
     @staticmethod
     def optimize(
@@ -61,13 +86,14 @@ class OptimizationHandler:
             model_profile.get_model_graph() for model_profile in model_profile_list
         ]
 
+        problem: pulp.LpProblem
         (
-            first_problem,
-            first_node_ass_vars,
-            first_tensor_ass_vars,
-            first_quantization_vars,
-            _,
-            _,
+            problem,
+            node_ass_vars,
+            tensor_ass_vars,
+            quantization_vars,
+            device_energy_expr,
+            regr_expr,
         ) = OptimizationHandler.prepare_problem(
             model_profile_list,
             network_graph,
@@ -75,6 +101,86 @@ class OptimizationHandler:
             opt_params,
             server_execution_profile_pool,
         )
+
+        min_latency_cost = LatencyComputer.compute_latency_cost(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            tensor_ass_vars,
+            opt_params.requests_number,
+            server_execution_profile_pool,
+        )
+
+        problem.setObjective(min_latency_cost)
+        problem.sense = pulp.LpMinimize
+        problem.solve(OptimizationHandler.get_solver(gapRel=0.01))
+        if pulp.LpStatus[problem.status] != "Optimal":
+            return None
+        min_lat_cost = min_latency_cost.value()
+
+        en_val_on_min_lat = EnergyComputer.compute_energy_cost(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            tensor_ass_vars,
+            opt_params.requests_number,
+            server_execution_profile_pool,
+        )
+        en_val_on_min_lat = en_val_on_min_lat.value()
+
+        min_energy_cost = EnergyComputer.compute_energy_cost(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            tensor_ass_vars,
+            opt_params.requests_number,
+            server_execution_profile_pool,
+        )
+        problem.setObjective(min_energy_cost)
+        problem.sense = pulp.LpMinimize
+        problem.solve(OptimizationHandler.get_solver(gapRel=0.01))
+        if pulp.LpStatus[problem.status] != "Optimal":
+            return None
+        min_en_cost = min_energy_cost.value()
+
+        lat_val_on_min_en = LatencyComputer.compute_latency_cost(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            tensor_ass_vars,
+            opt_params.requests_number,
+            server_execution_profile_pool,
+        )
+        lat_val_on_min_en = lat_val_on_min_en.value()
+
+        max_lat_cost = max(lat_val_on_min_en, min_lat_cost)
+        max_en_cost = max(en_val_on_min_lat, min_en_cost)
+
+        final_latency_cost = LatencyComputer.compute_latency_cost(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            tensor_ass_vars,
+            opt_params.requests_number,
+            server_execution_profile_pool,
+        )
+        final_latency_cost = (final_latency_cost - min_lat_cost) / (
+            max_lat_cost - min_lat_cost + 1e-9
+        )
+        print("Max and Min Latency Cost >> ", max_lat_cost, min_lat_cost)
+
+        final_energy_cost = EnergyComputer.compute_energy_cost(
+            model_graphs,
+            network_graph,
+            node_ass_vars,
+            tensor_ass_vars,
+            opt_params.requests_number,
+            server_execution_profile_pool,
+        )
+        final_energy_cost = (final_energy_cost - min_en_cost) / (
+            max_en_cost - min_en_cost + 1e-9
+        )
+        print("Max and Min Energy Cost >> ", max_en_cost, min_en_cost)
 
         latency_weight = opt_params.latency_weight / (
             opt_params.latency_weight + opt_params.energy_weight
@@ -83,157 +189,55 @@ class OptimizationHandler:
             opt_params.latency_weight + opt_params.energy_weight
         )
 
-        if latency_weight >= energy_weight:
-            ## First optimize Latency
-            first_problem_cost = LatencyComputer.compute_latency_cost(
-                model_graphs,
-                network_graph,
-                first_node_ass_vars,
-                first_tensor_ass_vars,
-                opt_params.requests_number,
-                server_execution_profile_pool,
-            )
+        problem.setObjective(
+            latency_weight * final_latency_cost + energy_weight * final_energy_cost
+        )
+        problem.sense = pulp.LpMinimize
+        problem.solve(OptimizationHandler.get_solver())
 
-            pass
-        else:
-            ## First optimize Energy
-            first_problem_cost = EnergyComputer.compute_energy_cost(
-                model_graphs,
-                network_graph,
-                first_node_ass_vars,
-                first_tensor_ass_vars,
-                opt_params.requests_number,
-                server_execution_profile_pool,
-            )
-
-            pass
-
-        first_problem += first_problem_cost
-        first_problem.solve(OptimizationHandler.get_solver())
-
-        if pulp.LpStatus[first_problem.status] != "Optimal":
+        if pulp.LpStatus[problem.status] != "Optimal":
             return None
 
-        first_optimum_value = first_problem.objective.value()
-        print("First Optimization Value: ", first_optimum_value)
+        print("💰 Latency Cost >> ", final_latency_cost.value())
+        print("💡 Energy Cost >> ", final_energy_cost.value())
 
-        max_weight = max(latency_weight, energy_weight)
-        allowed_increase = 1 - max_weight
-        print("Allowed % Increase: ", allowed_increase)
-
-        (
-            final_problem,
-            final_node_ass_vars,
-            final_edge_ass_vars,
-            final_quantization_vars,
-            device_max_exergy,
-            regressors_expr,
-        ) = OptimizationHandler.prepare_problem(
-            model_profile_list,
-            network_graph,
-            start_server,
-            opt_params,
-            server_execution_profile_pool,
+        latency_value = (
+            final_latency_cost.value() * (max_lat_cost - min_lat_cost + 1e-9)
+            + min_lat_cost
         )
-        print("Done Defining Final Problem")
-
-        if latency_weight >= energy_weight:
-            ## Optimize Energy Binding Latency
-
-            final_other_cost = LatencyComputer.compute_latency_cost(
-                model_graphs,
-                network_graph,
-                final_node_ass_vars,
-                final_edge_ass_vars,
-                opt_params.requests_number,
-                server_execution_profile_pool,
-            )
-
-            final_problem_cost = EnergyComputer.compute_energy_cost(
-                model_graphs,
-                network_graph,
-                final_node_ass_vars,
-                final_edge_ass_vars,
-                opt_params.requests_number,
-                server_execution_profile_pool,
-            )
-
-            pass
-        else:
-            ## Optimize Latency Binding Energy
-
-            final_other_cost = EnergyComputer.compute_energy_cost(
-                model_graphs,
-                network_graph,
-                final_node_ass_vars,
-                final_edge_ass_vars,
-                opt_params.requests_number,
-                server_execution_profile_pool,
-            )
-
-            final_problem_cost = LatencyComputer.compute_latency_cost(
-                model_graphs,
-                network_graph,
-                final_node_ass_vars,
-                final_edge_ass_vars,
-                opt_params.requests_number,
-                server_execution_profile_pool,
-            )
-
-        final_problem += final_other_cost <= first_optimum_value * (
-            1 + allowed_increase
+        energy_value = (
+            final_energy_cost.value() * (max_en_cost - min_en_cost + 1e-9) + min_en_cost
         )
-        final_problem += final_problem_cost
 
-        # Risolvi
-
-        final_problem.solve(OptimizationHandler.get_solver())
-
-        if pulp.LpStatus[final_problem.status] != "Optimal":
-            return None
-
-        print("")
-        first_obj_name = (
-            "⌛ Latency" if latency_weight >= energy_weight else "🔋 Energy"
-        )
-        second_obj_name = (
-            "🔋 Energy" if latency_weight >= energy_weight else "⌛ Latency"
-        )
-        print(f"Final {first_obj_name} Optimized Value: ", final_other_cost.value())
-        print(f"Final {second_obj_name} Optimized Value: ", final_problem_cost.value())
-        print(
-            "Final 🪫 Device Energy: ",
-            None if device_max_exergy is None else device_max_exergy.value(),
-        )
-        for regressor in regressors_expr:
-            print("Final 📈 Regressor Value:", regressor.value())
+        print("⌛ Final Latency Value  >> ", latency_value)
+        print("🔋 Final Energy Value  >> ", energy_value)
+        print("🪫 Device Energy Value  >> ", device_energy_expr.value())
+        print("📈 Regressor Value  >> ", regr_expr[0].value())
 
         solved_model_graphs: list[nx.DiGraph] = []
         for mod_graph in model_graphs:
             time.perf_counter_ns()
             solved_model_graph: nx.DiGraph = (
                 OptimizationHandler.build_solved_model_graph(
-                    final_problem,
+                    problem,
                     mod_graph,
-                    final_node_ass_vars,
-                    final_edge_ass_vars,
-                    final_quantization_vars,
+                    node_ass_vars,
+                    tensor_ass_vars,
+                    quantization_vars,
                 )
             )
 
             ## TODO We are considering only one model: it is ok for now
-            solved_model_graph.graph[SolvedGraphInfo.LATENCY_VALUE] = (
-                final_other_cost.value()
-                if latency_weight >= energy_weight
-                else final_problem_cost.value()
-            )
-            solved_model_graph.graph[SolvedGraphInfo.ENERGY_VALUE] = (
-                final_problem_cost.value()
-                if latency_weight >= energy_weight
-                else final_other_cost.value()
-            )
+            solved_model_graph.graph[SolvedGraphInfo.LATENCY_VALUE] = latency_value
+            solved_model_graph.graph[SolvedGraphInfo.ENERGY_VALUE] = energy_value
             solved_model_graph.graph[SolvedGraphInfo.DEVICE_ENERGY_VALUE] = (
-                None if device_max_exergy is None else device_max_exergy.value()
+                device_energy_expr.value()
+            )
+            solved_model_graph.graph[SolvedGraphInfo.LATENCY_COST] = (
+                final_latency_cost.value()
+            )
+            solved_model_graph.graph[SolvedGraphInfo.ENERGY_COST] = (
+                final_energy_cost.value()
             )
 
             solved_model_graphs.append(solved_model_graph)
@@ -389,8 +393,8 @@ class OptimizationHandler:
         model_profile_list: list[ModelProfile],
         network_graph: nx.DiGraph,
         start_server: NodeId,
-        opt_params: OptimizationParams = None,
-        server_execution_profile_pool: ServerExecutionProfilePool = None,
+        opt_params: OptimizationParams,
+        server_execution_profile_pool: ServerExecutionProfilePool,
     ):
         model_graphs: list[nx.DiGraph] = [
             model_profile.get_model_graph() for model_profile in model_profile_list
