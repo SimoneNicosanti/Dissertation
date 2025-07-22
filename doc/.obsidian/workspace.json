@@ -13,12 +13,24 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Ottimizzazione.md",
+                "file": "Notes/Esperimenti.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Ottimizzazione"
+              "title": "Esperimenti"
+            }
+          },
+          {
+            "id": "f78588a41d279c36",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "device_predicted_vs_real.png"
+              },
+              "icon": "lucide-image",
+              "title": "device_predicted_vs_real"
             }
           }
         ]
@@ -166,7 +178,10 @@
   },
   "active": "9c09b47c2b9f6d57",
   "lastOpenFiles": [
+    "device_predicted_vs_real.png",
     "Notes/Esperimenti.md",
+    "Schermata del 2025-07-21 19-20-28.png",
+    "Schermata del 2025-07-21 19-14-06.png",
     "Notes/Ottimizzazione.md",
     "Schermata del 2025-07-02 17-07-18.png",
     "Schermata del 2025-07-02 16-33-42.png",
@@ -177,9 +192,6 @@
     "Notes/Images/linear_plot 1.png",
     "Notes/Images/Schermata del 2025-06-19 15-01-30.png",
     "Notes/Images/Schermata del 2025-06-19 13-54-29.png",
-    "Notes/Images/Schermata del 2025-06-18 17-01-59.png",
-    "Notes/Images/Schermata del 2025-06-18 16-58-53.png",
-    "Notes/Images/Schermata del 2025-06-18 16-58-03.png",
     "Notes/Colloqui/2025-06-20.md",
     "Notes/Architettura/Diagrams_OK",
     "Notes/Architettura/Diagrams/Diagram.svg.xml",

@@ -109,10 +109,10 @@ services:
     working_dir: /src
     cap_add:
       - NET_ADMIN
-    deploy:
-      resources:
-        limits: # Hard Limit
-          cpus: "1.25"
+    # deploy:
+    #   resources:
+    #     limits: # Hard Limit
+    #       cpus: "1.25"
 
   cloud:
     build:
@@ -185,10 +185,10 @@ services:
     working_dir: /src
     cap_add:
       - NET_ADMIN
-    deploy:
-      resources:
-        limits: # Hard Limit
-          cpus: 0.75
+    # deploy:
+    #   resources:
+    #     limits: # Hard Limit
+    #       cpus: 0.75
 
   model_manager:
     build:

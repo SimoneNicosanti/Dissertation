@@ -108,6 +108,13 @@ class PoolServer(ModelPoolServicer):
                     model_chunk=pull_response.model_chunk,
                 )
 
+        for pull_response in ModelYielder.pull_yield(onnx_model):
+            yield LayerPullResponse(
+                layer_name="WholeModel",
+                is_quantized=False,
+                model_chunk=pull_response.model_chunk,
+            )
+
         ## Quantized model
         quant_model_file_path = model_file_path.replace(".onnx", "_quant.onnx")
 
@@ -127,6 +134,14 @@ class PoolServer(ModelPoolServicer):
                     is_quantized=True,
                     model_chunk=pull_response.model_chunk,
                 )
+
+        quant_onnx_model = onnx.load_model(quant_model_file_path)
+        for pull_response in ModelYielder.pull_yield(quant_onnx_model):
+            yield LayerPullResponse(
+                layer_name="WholeModel",
+                is_quantized=True,
+                model_chunk=pull_response.model_chunk,
+            )
 
         return
 

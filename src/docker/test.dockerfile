@@ -1,4 +1,7 @@
-FROM python:3.10-bookworm
+FROM nvidia/cuda:12.9.0-cudnn-devel-ubuntu22.04
+
+# Install Python e dipendenze base
+RUN apt-get update && apt-get install -y python3 python3-pip git
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \

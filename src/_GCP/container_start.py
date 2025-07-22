@@ -5,7 +5,7 @@ import configparser
 import os
 
 
-def modify_energy_config(original_name: str, cpus: float = 0.0):
+def modify_energy_config(original_name: str, cpus: int = 0):
 
     if original_name != "edge" and original_name != "device":
         return
@@ -27,7 +27,7 @@ def modify_energy_config(original_name: str, cpus: float = 0.0):
         config.write(f)
 
 
-def map_execution_profiles(original_name: str, cpus: float = 0.0):
+def map_execution_profiles(original_name: str, cpus: int = 0):
 
     directory = "/home/customuser/Exec_Profile/"
 
@@ -36,7 +36,7 @@ def map_execution_profiles(original_name: str, cpus: float = 0.0):
     map_list = []
 
     if cpus == 0:
-        find_part = "_0.0_"
+        find_part = "_0_"
     else:
         find_part = f"_{cpus}_"
 
@@ -68,7 +68,7 @@ def main():
     parser.add_argument("--name", type=str, help="Name for Container", required=True)
     # parser.add_argument("--dockerfile", type=str, help="Dockerfile Name", required=True)
     parser.add_argument("--memory", type=float, help="Memory Size for Container")
-    parser.add_argument("--cpus", type=float, help="CPUs percentage for Container")
+    parser.add_argument("--cpus", type=int, help="CPUs number to set affinity to")
     parser.add_argument(
         "--gpu",
         help="Use GPU for Container",
@@ -113,7 +113,8 @@ def main():
     if args.memory is not None:
         command += f" -m {args.memory}g"
     if args.cpus is not None:
-        command += f" --cpus={args.cpus}"
+        cpus_list = [x for x in range(args.cpus)]
+        command += f" --cpuset-cpus={','.join(map(str, cpus_list))}"
 
     ## Setting Volumes
     command += " -v /home/customuser/src:/src"
@@ -135,6 +136,7 @@ def main():
             use_name = "client"
         else:
             use_name = original_name
+
         for map_tuple in map_execution_profiles(
             use_name, args.cpus if args.cpus is not None else 0.0
         ):
@@ -152,6 +154,9 @@ def main():
         modify_energy_config(original_name, args.cpus)
     else:
         modify_energy_config(original_name, 0)
+
+    if args.gpu is True:
+        os.system(f"docker exec -it {cont_name} pip install onnxruntime-gpu")
 
     # trunk-ignore(bandit/B605)
     os.system(f"docker exec -it --workdir {work_dir} {cont_name} /bin/bash")

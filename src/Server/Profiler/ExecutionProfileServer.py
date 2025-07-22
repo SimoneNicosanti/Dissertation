@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 from typing import Iterator
 
 import grpc
@@ -55,31 +54,36 @@ class ExecutionProfileServer(ExecutionProfileServicer):
 
             profiler = ExecutionProfiler()
 
-            tot_quant = 0
-            tot_not_quant = 0
+            tot_avg_quant = 0
+            tot_med_quant = 0
+            tot_avg_not_quant = 0
+            tot_med_not_quant = 0
             for layer_name, layer_model, is_quantized in self.retrieve_layers(model_id):
 
-                layer_exec_time = profiler.profile_exec_time(
+                avg_layer_exec_time, med_layer_exec_time = profiler.profile_exec_time(
                     layer_model, self.layer_run_times, is_quantized
                 )
-                print(
-                    "\t\t Profiled {} with Quantization {} >> {}%.3f".format(
-                        layer_name, is_quantized, layer_exec_time
-                    )
-                )
+                print(f"\t\t Profiled {layer_name} with Quantization {is_quantized} ")
 
                 node_id = NodeId(layer_name)
                 model_exec_profile.put_layer_execution_profile(
-                    node_id, layer_exec_time, is_quantized
+                    node_id, avg_layer_exec_time, med_layer_exec_time, is_quantized
                 )
 
                 if is_quantized:
-                    tot_quant += layer_exec_time
+                    tot_avg_quant += avg_layer_exec_time
+                    tot_med_quant += med_layer_exec_time
                 else:
-                    tot_not_quant += layer_exec_time
+                    tot_avg_not_quant += avg_layer_exec_time
+                    tot_med_not_quant += med_layer_exec_time
 
-            print(f"\t Total quantized time: {tot_quant}")
-            print(f"\t Total not quantized time: {tot_not_quant}")
+            print("\t Total not quantized time >> ")
+            print(f"\t\t Average >> {tot_avg_not_quant}")
+            print(f"\t\t Median >> {tot_med_not_quant}")
+
+            print("\t Total quantized time >> ")
+            print(f"\t\t Average >> {tot_avg_quant}")
+            print(f"\t\t Median >> {tot_med_quant}")
 
             # model_exec_profile.set_total_execution_time(tot_quant + tot_not_quant)
 

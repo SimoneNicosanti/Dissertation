@@ -269,6 +269,49 @@ Casi da considerare:
 Annota e salva i valori di output del piano!
 
 
+## Limiti di Container
+
+Processori delle macchine (https://cloud.google.com/compute/docs/cpu-platforms?hl=it):
+- C3-Standard
+	- Sapphire Rapids
+	- Freq Base >> 2.2
+- E2-Standard
+	- Skylake
+	- Freq Base >> 2.0
+
+Le differenze potrebbero essere dovuto ai processori diversi??
+
+| Macchina      | Numero CPUs | Modello | Tempo Medio [s] | Avg Predetto [s] |
+| ------------- | ----------- | ------- | --------------- | ---------------- |
+| c3-standard-4 | 1           | x-seg   | 2.2             |                  |
+| c3-standard-4 | 1           | m-det   | 0.55            |                  |
+| c3-standard-4 | 2           | m-det   | 0.27            |                  |
+| c3-standard-4 | 2           | x-seg   | 1.11            |                  |
+| c3-standard-4 | 3           | m-det   | 0.28            |                  |
+| c3-standard-4 | 3           | x-seg   | 1.11            |                  |
+|               |             |         |                 |                  |
+| e2-standard-4 | 1           | x-seg   | 5.2             | 6.12             |
+| e2-standard-4 | 1           | m-det   | 1.26            | 1.95             |
+| e2-standard-4 | 2           | x-seg   | 2.64            |                  |
+| e2-standard-4 | 2           | m-det   | 0.63            |                  |
+| e2-standard-4 | 3           | x-seg   | 2.63            |                  |
+| e2-standard-4 | 3           | m-det   | 0.63            |                  |
+
+La differenza può sicuramente essere imputata alle ottimizzazioni aggiuntive fatte dal provider.
+
+
+Yolo11x-seg profiling
+![[Schermata del 2025-07-21 19-14-06.png]]
+
+Yolo11m profiling
+![[Schermata del 2025-07-21 19-20-28.png]]
+NOTA Aggiuntiva: con il modello yolo11m quantizzato, il tempo medio di inferenza per il modello completo con affinity=0 (singola CPU) è circa 0.78, quindi anche qui la predizione può essere abbastanza precisa.
+![[device_predicted_vs_real.png]]
+
+
+Fatto anche il confronto con il profiling livello per livello su edge: più o meno ci siamo, ma ci sono circa 700 ms di ottimizzazioni che non vengono catturati in modo opportuno.
+
+Per GPU invece ci siamo: è stato necessario fare run con IOBinding, ma tutto sommato nulla di problematico
 
 ## Scalabilità Problema
 Provare partendo da un modello Yolo, crea un modello fittizio per vedere la scalabilità del problema.

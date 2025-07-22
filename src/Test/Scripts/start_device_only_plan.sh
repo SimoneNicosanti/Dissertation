@@ -12,7 +12,7 @@
 ############################## YOLO11m-det ##############################
 ./start_test.sh DeviceOnlyPlan.py --model yolo11m --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
 
-# ## lw = 1.0, ew = 0.0
+## lw = 1.0, ew = 0.0
 ./start_test.sh DeviceOnlyPlan.py --model yolo11m --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.025 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
 ./start_test.sh DeviceOnlyPlan.py --model yolo11m --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.05 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
 ./start_test.sh DeviceOnlyPlan.py --model yolo11m --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.075 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1

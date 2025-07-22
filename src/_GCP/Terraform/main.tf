@@ -104,7 +104,7 @@ variable "enable_cloud" {
 locals {
   all_names = ["registry", "optimizer", "model-manager", "deployer", "device", "edge", "cloud"]
   all_ips   = ["10.0.1.11", "10.0.1.12", "10.0.1.13", "10.0.1.14", "10.0.1.15", "10.0.1.16", "10.0.1.17"]
-  all_types = ["e2-standard-2", "c4-standard-16", "g2-standard-4", "e2-standard-2", "c3-standard-4", "c3-standard-4", "n1-standard-4"]
+  all_types = ["e2-standard-2", "c4-standard-16", "g2-standard-4", "e2-standard-2", "e2-standard-4", "c3-standard-4", "n1-standard-4"]
 
   enabled_map = {
     "registry"      = true,
@@ -135,6 +135,8 @@ resource "google_compute_instance" "vm_instances" {
   name         = local.names[count.index]
   machine_type = local.machine_types[count.index]
   zone         = "europe-west3-b"
+
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
