@@ -53,24 +53,41 @@ class ModelExecutionProfile:
     def get_not_quantized_layer_time(self, node_id: NodeId) -> float:
         if node_id not in self.model_execution_profile_dict:
             return 0
-        ## Median appears more stable than average
+
+        pred_layer_time = self.model_execution_profile_dict[node_id]["nq_avg_time"]
+        pred_tot_time = self.get_total_not_quantized_time()
+        real_tot_time = self.model_execution_profile_dict[NodeId("WholeModel")][
+            "nq_avg_time"
+        ]
+        return (pred_layer_time / pred_tot_time) * real_tot_time
         return self.model_execution_profile_dict[node_id]["nq_avg_time"]
 
     def get_quantized_layer_time(self, node_id: NodeId) -> float:
         if node_id not in self.model_execution_profile_dict:
             return 0
-        ## Median appears more stable than average
+
+        pred_layer_time = self.model_execution_profile_dict[node_id]["q_avg_time"]
+        pred_tot_time = self.get_total_quantized_time()
+        real_tot_time = self.model_execution_profile_dict[NodeId("WholeModel")][
+            "q_avg_time"
+        ]
+        return (pred_layer_time / pred_tot_time) * real_tot_time
+
         return self.model_execution_profile_dict[node_id]["q_avg_time"]
 
     def get_total_not_quantized_time(self) -> tuple[float, float]:
         tot_avg_time = 0
         for node_id in self.model_execution_profile_dict:
+            if node_id.node_name == "WholeModel":
+                continue
             tot_avg_time += self.model_execution_profile_dict[node_id]["nq_avg_time"]
         return tot_avg_time
 
     def get_total_quantized_time(self) -> tuple[float, float]:
         tot_avg_time = 0
         for node_id in self.model_execution_profile_dict:
+            if node_id.node_name == "WholeModel":
+                continue
             tot_avg_time += self.model_execution_profile_dict[node_id]["q_avg_time"]
         return tot_avg_time
 

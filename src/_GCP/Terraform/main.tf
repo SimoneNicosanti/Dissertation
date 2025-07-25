@@ -10,7 +10,7 @@ terraform {
 
 provider "google" {
   project = "ai-at-edge-442215"  # Replace with your GCP project ID
-  region  = "europe-west3-b"
+  region  = "europe-west4-a"
 }
 
 # Create a VPC Network
@@ -24,7 +24,7 @@ resource "google_compute_subnetwork" "main_subnet" {
   name          = "main-subnet"
   network       = google_compute_network.main_vpc.id
   ip_cidr_range = "10.0.1.0/24"
-  region        = "europe-west3"
+  region        = "europe-west4"
 }
 
 # Create a Firewall Rule to allow SSH
@@ -134,7 +134,7 @@ resource "google_compute_instance" "vm_instances" {
   count        = length(local.names)
   name         = local.names[count.index]
   machine_type = local.machine_types[count.index]
-  zone         = "europe-west3-b"
+  zone         = "europe-west4-a"
 
   allow_stopping_for_update = true
 
