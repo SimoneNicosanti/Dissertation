@@ -14,7 +14,7 @@ def plan_vs_real_comparison():
     sns.set_style("whitegrid")  # Altri: "darkgrid", "white", "dark", "ticks"
     # fig, axes = plt.subplots(figsize=(14, 7), nrows=2, ncols=1)
 
-    models = ["yolo11m"]
+    models = ["yolo11x-seg"]
     for i in range(len(models)):
         model = models[i]
 

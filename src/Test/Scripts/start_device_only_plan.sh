@@ -24,15 +24,15 @@
 ./start_test.sh DeviceOnlyPlan.py --model yolo11m --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.5 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
 
 # ############################## YOLO11x-seg ##############################
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
 
-# ## lw = 1.0, ew = 0.0
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.025 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.05 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.075 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.1 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.125 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.15 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.175 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.2 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.5 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+## lw = 1.0, ew = 0.0
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.025 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.05 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.075 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.1 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.125 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.15 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.175 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.2 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11x-seg --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.5 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1

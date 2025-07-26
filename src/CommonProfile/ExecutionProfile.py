@@ -71,9 +71,8 @@ class ModelExecutionProfile:
         real_tot_time = self.model_execution_profile_dict[NodeId("WholeModel")][
             "q_avg_time"
         ]
-        return (pred_layer_time / pred_tot_time) * real_tot_time
 
-        return self.model_execution_profile_dict[node_id]["q_avg_time"]
+        return (pred_layer_time / pred_tot_time) * real_tot_time
 
     def get_total_not_quantized_time(self) -> tuple[float, float]:
         tot_avg_time = 0

@@ -10,6 +10,8 @@ def modify_energy_config(original_name: str, cpus: int = 0):
     if original_name != "edge" and original_name != "device":
         return
 
+    return
+
     config = configparser.ConfigParser()
     config.read("./src/config/energy_config.ini")
 
