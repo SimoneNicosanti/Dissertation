@@ -74,7 +74,10 @@ class ModelExecutionProfile:
 
         return (pred_layer_time / pred_tot_time) * real_tot_time
 
-    def get_total_not_quantized_time(self) -> tuple[float, float]:
+    def get_total_not_quantized_time(self) -> float:
+        if NodeId("TotalSum") in self.model_execution_profile_dict:
+            return self.model_execution_profile_dict[NodeId("TotalSum")]["nq_avg_time"]
+
         tot_avg_time = 0
         for node_id in self.model_execution_profile_dict:
             if node_id.node_name == "WholeModel":
@@ -82,7 +85,10 @@ class ModelExecutionProfile:
             tot_avg_time += self.model_execution_profile_dict[node_id]["nq_avg_time"]
         return tot_avg_time
 
-    def get_total_quantized_time(self) -> tuple[float, float]:
+    def get_total_quantized_time(self) -> float:
+        if NodeId("TotalSum") in self.model_execution_profile_dict:
+            return self.model_execution_profile_dict[NodeId("TotalSum")]["q_avg_time"]
+
         tot_avg_time = 0
         for node_id in self.model_execution_profile_dict:
             if node_id.node_name == "WholeModel":

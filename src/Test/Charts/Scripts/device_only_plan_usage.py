@@ -49,14 +49,18 @@ def main():
         ax = axes[i]
 
         sns.lineplot(
-            data=usage_df[usage_df["model_name"] == model],
+            data=usage_df[
+                (usage_df["model_name"] == model) & (usage_df["device_cpus"] == 0.5)
+            ],
             x="max_noises",
             y="run_time",
             ax=ax,
             label="Real Usage",
         )
         sns.lineplot(
-            data=plan_df[plan_df["model_name"] == model],
+            data=plan_df[
+                (plan_df["model_name"] == model) & (plan_df["device_cpus"] == 0.5)
+            ],
             x="max_noises",
             y="latency_value",
             ax=ax,

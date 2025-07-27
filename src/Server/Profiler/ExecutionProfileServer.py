@@ -70,12 +70,14 @@ class ExecutionProfileServer(ExecutionProfileServicer):
                     node_id, avg_layer_exec_time, med_layer_exec_time, is_quantized
                 )
 
-                if is_quantized:
+                if is_quantized and layer_name != "WholeModel":
                     tot_avg_quant += avg_layer_exec_time
                     tot_med_quant += med_layer_exec_time
-                else:
+                elif not is_quantized and layer_name != "WholeModel":
                     tot_avg_not_quant += avg_layer_exec_time
                     tot_med_not_quant += med_layer_exec_time
+                else:
+                    pass
 
             print("\t Total not quantized time >> ")
             print(f"\t\t Average >> {tot_avg_not_quant}")
@@ -85,7 +87,12 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             print(f"\t\t Average >> {tot_avg_quant}")
             print(f"\t\t Median >> {tot_med_quant}")
 
-            # model_exec_profile.set_total_execution_time(tot_quant + tot_not_quant)
+            model_exec_profile.put_layer_execution_profile(
+                NodeId("TotalSum"), tot_avg_not_quant, tot_med_not_quant, False
+            )
+            model_exec_profile.put_layer_execution_profile(
+                NodeId("TotalSum"), tot_avg_quant, tot_med_quant, True
+            )
 
         print("\t Done Profiling for model {}".format(model_id.model_name))
         self.save_profile(model_id, model_exec_profile)

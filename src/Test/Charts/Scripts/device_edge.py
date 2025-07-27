@@ -8,57 +8,104 @@ USAGE_PATH = "../../Results/DeviceEdgePlan/device_edge_plan_Usage.csv"
 
 def plan_vs_real_comparison():
     plan_df = pd.read_csv(GENERATION_PATH)
+    plan_df = (
+        plan_df.groupby(
+            [
+                "model_name",
+                "energy_weight",
+                "latency_weight",
+                "device_max_energy",
+                "max_noises",
+                "device_cpus",
+                "edge_cpus",
+                "device_bandwidth",
+                "edge_bandwidth",
+            ]
+        )["latency_value"]
+        .mean()
+        .reset_index()
+    ).rename(columns={"latency_value": "plan_latency"})
 
     usage_df = pd.read_csv(USAGE_PATH)
+    usage_df = (
+        usage_df.groupby(
+            [
+                "model_name",
+                "energy_weight",
+                "latency_weight",
+                "device_max_energy",
+                "max_noises",
+                "device_cpus",
+                "edge_cpus",
+                "device_bandwidth",
+                "edge_bandwidth",
+            ]
+        )["run_time"]
+        .mean()
+        .reset_index()
+    ).rename(columns={"run_time": "real_time"})
+
+    merged_df = plan_df.merge(
+        usage_df,
+        on=[
+            "model_name",
+            "energy_weight",
+            "latency_weight",
+            "device_max_energy",
+            "max_noises",
+            "device_cpus",
+            "edge_cpus",
+            "device_bandwidth",
+            "edge_bandwidth",
+        ],
+        how="inner",
+    )
+
+    df_long = pd.melt(
+        merged_df,
+        id_vars=[
+            "model_name",
+            "energy_weight",
+            "latency_weight",
+            "device_max_energy",
+            "max_noises",
+            "device_cpus",
+            "edge_cpus",
+            "device_bandwidth",
+            "edge_bandwidth",
+        ],
+        value_vars=["plan_latency", "real_time"],
+        var_name="time_type",
+        value_name="time_value",
+    )
 
     sns.set_style("whitegrid")  # Altri: "darkgrid", "white", "dark", "ticks"
-    # fig, axes = plt.subplots(figsize=(14, 7), nrows=2, ncols=1)
 
     models = ["yolo11x-seg"]
     for i in range(len(models)):
         model = models[i]
+        # fig, axes = plt.subplots(figsize=(14, 7), nrows=5, ncols=2)
 
-        for lw in plan_df["latency_weight"].unique():
-            fig, axes = plt.subplots(figsize=(14, 7), nrows=2, ncols=1)
+        g = sns.relplot(
+            data=df_long[df_long["model_name"] == model],
+            x="max_noises",
+            y="time_value",
+            hue="time_type",
+            col="latency_weight",
+            col_wrap=3,
+            palette="colorblind",
+            kind="line",
+            facet_kws={"sharey": False, "sharex": False},
+            height=3.5,  # ↓ decrease from default (usually 5)
+            aspect=1.5,  # width/height ratio (optional)
+        )
 
-            sns.lineplot(
-                data=plan_df[
-                    (plan_df["model_name"] == model) & (plan_df["latency_weight"] == lw)
-                ],
-                x="max_noises",
-                y="latency_value",
-                ax=axes[0],
-                palette="colorblind",
-                hue="latency_weight",
-            )
+        xticks = df_long[df_long["model_name"] == model]["max_noises"].unique()
+        for ax in g.axes.flat:
+            ax.set_xticks(xticks)
+            ax.set_xticklabels([f"{x}" for x in xticks], rotation=45)
 
-            sns.lineplot(
-                data=usage_df[
-                    (usage_df["model_name"] == model)
-                    & (usage_df["latency_weight"] == lw)
-                ],
-                x="max_noises",
-                y="run_time",
-                ax=axes[1],
-                palette="colorblind",
-                hue="latency_weight",
-            )
-
-            axes[0].set_xticks(ticks=usage_df["max_noises"].unique())
-            axes[1].set_xticks(ticks=usage_df["max_noises"].unique())
-            # axes.set_xlabel("Max Noises")
-            # axes.set_ylabel("Time [s]")
-
-            plt.show()
-
-        # ax.set_xticks(ticks=usage_df["max_noises"].unique())
-        # ax.set_xlabel("Max Noises")
-
-        # ax.set_ylabel("Time [s]")
-
-        # ax.set_title(f"Modello : {model}")
-
-    fig.suptitle("Device Only Plan -- Max Noise vs Time")
+    # fig.suptitle("Device Only Plan -- Max Noise vs Time")
 
     plt.tight_layout()
     plt.show()
@@ -92,7 +139,7 @@ def pred_values_trends():
     )
     group_df.columns = ["_".join(col).strip("_") for col in group_df.columns]
 
-    models = ["yolo11m"]
+    models = ["yolo11m", "yolo11x-seg"]
 
     sns.set_style("whitegrid")
 
@@ -132,7 +179,7 @@ def pred_values_trends():
 
 
 def main():
-    num_components_chart()
+    # num_components_chart()
     pred_values_trends()
     plan_vs_real_comparison()
 

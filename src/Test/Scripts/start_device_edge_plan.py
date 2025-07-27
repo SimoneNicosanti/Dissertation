@@ -3,7 +3,7 @@ import os
 import subprocess
 import time
 
-COMMAND = "./start_test.sh DeviceEdgePlan.py --model {} --latency-weight {} --energy-weight {} --device-max-energy {} --max-noises {} --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 25 --device-cpus {} --edge-cpus {} --device-bandwidth {} --edge-bandwidth {}"
+COMMAND = "./start_test.sh DeviceEdgePlan.py --model {} --latency-weight {} --energy-weight {} --device-max-energy {} --max-noises {} --plan-gen-runs 1 --plan-deploy-runs 1 --plan-use-runs 25 --device-cpus {} --edge-cpus {} --device-bandwidth {} --edge-bandwidth {}"
 
 
 MODELS = ["yolo11m", "yolo11x-seg"]

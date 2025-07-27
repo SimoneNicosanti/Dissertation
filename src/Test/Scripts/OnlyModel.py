@@ -61,7 +61,7 @@ def main():
     parser.add_argument(
         "--models", nargs="+", type=str, help="Model Names", required=True
     )
-    parser.add_argument("--cpus", type=int, help="Number of CPUs", required=True)
+    parser.add_argument("--cpus", type=float, help="Number of CPUs", required=True)
     parser.add_argument("--runs", type=int, help="Number of Runs", default=50)
     parser.add_argument("--server", type=str, help="Server Name", required=True)
 

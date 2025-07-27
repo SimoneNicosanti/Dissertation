@@ -10,8 +10,6 @@ def modify_energy_config(original_name: str, cpus: int = 0):
     if original_name != "edge" and original_name != "device":
         return
 
-    return
-
     config = configparser.ConfigParser()
     config.read("./src/config/energy_config.ini")
 
@@ -70,7 +68,7 @@ def main():
     parser.add_argument("--name", type=str, help="Name for Container", required=True)
     # parser.add_argument("--dockerfile", type=str, help="Dockerfile Name", required=True)
     parser.add_argument("--memory", type=float, help="Memory Size for Container")
-    parser.add_argument("--cpus", type=int, help="CPUs number to set affinity to")
+    parser.add_argument("--cpus", type=float, help="CPUs number to set affinity to")
     parser.add_argument(
         "--gpu",
         help="Use GPU for Container",
@@ -115,8 +113,9 @@ def main():
     if args.memory is not None:
         command += f" -m {args.memory}g"
     if args.cpus is not None:
-        cpus_list = [x for x in range(args.cpus)]
-        command += f" --cpuset-cpus={','.join(map(str, cpus_list))}"
+        # cpus_list = [x for x in range(args.cpus)]
+        # command += f" --cpuset-cpus={','.join(map(str, cpus_list))}"
+        command += f" --cpus={args.cpus}"
 
     ## Setting Volumes
     command += " -v /home/customuser/src:/src"

@@ -6,8 +6,8 @@
 ############################## YOLO11n-cls ##############################
 
 ## Only one test is needed, regardless of weights if noise == 0
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11n-cls --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
-# ./start_test.sh DeviceOnlyPlan.py --model yolo11n-cls --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.05 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11n-cls --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
+./start_test.sh DeviceOnlyPlan.py --model yolo11n-cls --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.05 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
 
 # ############################## YOLO11m-det ##############################
 ./start_test.sh DeviceOnlyPlan.py --model yolo11m --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0 --plan-gen-runs 10 --plan-deploy-runs 1 --plan-use-runs 50 --device-cpus $1
