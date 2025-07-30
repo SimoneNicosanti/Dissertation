@@ -104,8 +104,8 @@ services:
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
 
-      - ./Test/Results/Exec_Profile/Edge_yolo11x-seg_1.25_exec_profile.json:/server_data/models_profiles/yolo11x-seg_profile.json
-      - ./Test/Results/Exec_Profile/Edge_yolo11m_1.25_exec_profile.json:/server_data/models_profiles/yolo11m_profile.json
+      - ./Test/Results/Exec_Profile/Edge_yolo11x-seg_1.0_exec_profile.json:/server_data/models_profiles/yolo11x-seg_profile.json
+      - ./Test/Results/Exec_Profile/Edge_yolo11m_1.0_exec_profile.json:/server_data/models_profiles/yolo11m_profile.json
     working_dir: /src
     cap_add:
       - NET_ADMIN
@@ -141,8 +141,8 @@ services:
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
 
-      - ./Test/Results/Exec_Profile/Cloud_yolo11x-seg_0.0_exec_profile.json:/server_data/models_profiles/yolo11x-seg_profile.json
-      - ./Test/Results/Exec_Profile/Cloud_yolo11m_0.0_exec_profile.json:/server_data/models_profiles/yolo11m_profile.json
+      - ./Test/Results/Exec_Profile/Edge_yolo11x-seg_1.0_exec_profile.json:/server_data/models_profiles/yolo11x-seg_profile.json
+      - ./Test/Results/Exec_Profile/Edge_yolo11m_1.0_exec_profile.json:/server_data/models_profiles/yolo11m_profile.json
     working_dir: /src
     cap_add:
       - NET_ADMIN
@@ -180,8 +180,8 @@ services:
 
       - ./Other/latency_scripts/delay_script.py:/root/delay_script.py
 
-      - ./Test/Results/Exec_Profile/Client_yolo11x-seg_0.75_exec_profile.json:/server_data/models_profiles/yolo11x-seg_profile.json
-      - ./Test/Results/Exec_Profile/Client_yolo11m_0.75_exec_profile.json:/server_data/models_profiles/yolo11m_profile.json
+      - ./Test/Results/Exec_Profile/Client_yolo11x-seg_0.5_exec_profile.json:/server_data/models_profiles/yolo11x-seg_profile.json
+      - ./Test/Results/Exec_Profile/Client_yolo11m_0.5_exec_profile.json:/server_data/models_profiles/yolo11m_profile.json
     working_dir: /src
     cap_add:
       - NET_ADMIN

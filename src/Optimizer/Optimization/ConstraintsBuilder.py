@@ -125,66 +125,66 @@ class ConstraintsBuilder:
         #     problem += edge_ass_sum == 1
         pass
 
-    def add_output_flow_constraints(
-        problem: pulp.LpProblem,
-        model_graph: nx.MultiDiGraph,
-        network_graph: nx.DiGraph,
-        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        edge_ass_vars: dict[TensorAssKey, pulp.LpVariable],
-    ):
-        ## First Flow Balance
-        for mod_edge_id in model_graph.edges:  ## (i, j)
-            for src_net_node_id in network_graph.nodes:  ## Net Node h
-                y_sum_vars = []
-                for dst_net_node_id in network_graph.nodes:  ## Net Node k
+    # def add_output_flow_constraints(
+    #     problem: pulp.LpProblem,
+    #     model_graph: nx.MultiDiGraph,
+    #     network_graph: nx.DiGraph,
+    #     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+    #     edge_ass_vars: dict[TensorAssKey, pulp.LpVariable],
+    # ):
+    #     ## First Flow Balance
+    #     for mod_edge_id in model_graph.edges:  ## (i, j)
+    #         for src_net_node_id in network_graph.nodes:  ## Net Node h
+    #             y_sum_vars = []
+    #             for dst_net_node_id in network_graph.nodes:  ## Net Node k
 
-                    net_edge_id = (src_net_node_id, dst_net_node_id)
-                    y_var_key = TensorAssKey(
-                        mod_edge_id, net_edge_id, model_graph.graph["name"]
-                    )
+    #                 net_edge_id = (src_net_node_id, dst_net_node_id)
+    #                 y_var_key = TensorAssKey(
+    #                     mod_edge_id, net_edge_id, model_graph.graph["name"]
+    #                 )
 
-                    if edge_ass_vars.get(y_var_key) is not None:
-                        y_sum_vars.append(edge_ass_vars[y_var_key])
+    #                 if edge_ass_vars.get(y_var_key) is not None:
+    #                     y_sum_vars.append(edge_ass_vars[y_var_key])
 
-                x_var_key = NodeAssKey(
-                    mod_edge_id[0],
-                    src_net_node_id,
-                    model_graph.graph["name"],
-                )
-                x_var = node_ass_vars[x_var_key]
+    #             x_var_key = NodeAssKey(
+    #                 mod_edge_id[0],
+    #                 src_net_node_id,
+    #                 model_graph.graph["name"],
+    #             )
+    #             x_var = node_ass_vars[x_var_key]
 
-                problem += x_var == pulp.lpSum(y_sum_vars)
-        pass
+    #             problem += x_var == pulp.lpSum(y_sum_vars)
+    #     pass
 
-    def add_input_flow_constraints(
-        problem: pulp.LpProblem,
-        model_graph: nx.MultiDiGraph,
-        network_graph: nx.DiGraph,
-        node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-        edge_ass_vars: dict[TensorAssKey, pulp.LpVariable],
-    ):
-        ## Second Flow Balance
-        for mod_edge_id in model_graph.edges:  ## (i, j)
-            for dst_net_node_id in network_graph.nodes:  ## Net Node k
-                y_sum_vars = []
-                for src_net_node_id in network_graph.nodes:  ## Net Node k
-                    net_edge_id = (src_net_node_id, dst_net_node_id)
-                    y_var_key = TensorAssKey(
-                        mod_edge_id, net_edge_id, model_graph.graph["name"]
-                    )
+    # def add_input_flow_constraints(
+    #     problem: pulp.LpProblem,
+    #     model_graph: nx.MultiDiGraph,
+    #     network_graph: nx.DiGraph,
+    #     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
+    #     edge_ass_vars: dict[TensorAssKey, pulp.LpVariable],
+    # ):
+    #     ## Second Flow Balance
+    #     for mod_edge_id in model_graph.edges:  ## (i, j)
+    #         for dst_net_node_id in network_graph.nodes:  ## Net Node k
+    #             y_sum_vars = []
+    #             for src_net_node_id in network_graph.nodes:  ## Net Node k
+    #                 net_edge_id = (src_net_node_id, dst_net_node_id)
+    #                 y_var_key = TensorAssKey(
+    #                     mod_edge_id, net_edge_id, model_graph.graph["name"]
+    #                 )
 
-                    if edge_ass_vars.get(y_var_key) is not None:
-                        y_sum_vars.append(edge_ass_vars[y_var_key])
+    #                 if edge_ass_vars.get(y_var_key) is not None:
+    #                     y_sum_vars.append(edge_ass_vars[y_var_key])
 
-                x_var_key = NodeAssKey(
-                    mod_edge_id[1],
-                    dst_net_node_id,
-                    model_graph.graph["name"],
-                )
-                x_var = node_ass_vars[x_var_key]
+    #             x_var_key = NodeAssKey(
+    #                 mod_edge_id[1],
+    #                 dst_net_node_id,
+    #                 model_graph.graph["name"],
+    #             )
+    #             x_var = node_ass_vars[x_var_key]
 
-                problem += x_var == pulp.lpSum(y_sum_vars)
-        pass
+    #             problem += x_var == pulp.lpSum(y_sum_vars)
+    #     pass
 
     @staticmethod
     def add_memory_constraints(

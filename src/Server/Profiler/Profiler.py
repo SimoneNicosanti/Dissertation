@@ -30,11 +30,17 @@ class ExecutionProfiler:
     ):
 
         if ProviderInit.test_cuda_ep(self.providers):
-            execution_times = self.profile_gpu_execution(onnx_model, run_times)
+            execution_times = self.profile_gpu_execution(
+                onnx_model, run_times, is_quantized
+            )
         elif ProviderInit.test_openvino_ep(self.providers):
-            execution_times = self.profile_openvino_execution(onnx_model, run_times)
+            execution_times = self.profile_openvino_execution(
+                onnx_model, run_times, is_quantized
+            )
         else:
-            execution_times = self.profile_cpu_execution(onnx_model, run_times)
+            execution_times = self.profile_cpu_execution(
+                onnx_model, run_times, is_quantized
+            )
 
         execution_times = execution_times * 1e-9
 
@@ -43,7 +49,9 @@ class ExecutionProfiler:
             np.median(execution_times),
         )
 
-    def profile_gpu_execution(self, onnx_model: onnx.ModelProto, run_times: int):
+    def profile_gpu_execution(
+        self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
+    ):
         sess = ort.InferenceSession(
             onnx_model.SerializeToString(),
             providers=self.providers,
@@ -83,9 +91,11 @@ class ExecutionProfiler:
 
         return execution_times
 
-    def profile_openvino_execution(self, onnx_model: onnx.ModelProto, run_times: int):
-
+    def profile_openvino_execution(
+        self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
+    ):
         sess_opt = onnxruntime.SessionOptions()
+        # sess_opt.log_severity_level = 0
         # sess_opt.graph_optimization_level = (
         #     onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
         # )
@@ -110,7 +120,9 @@ class ExecutionProfiler:
             execution_times[idx] = end - start
         return execution_times
 
-    def profile_cpu_execution(self, onnx_model: onnx.ModelProto, run_times: int):
+    def profile_cpu_execution(
+        self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
+    ):
 
         sess = ort.InferenceSession(
             onnx_model.SerializeToString(),

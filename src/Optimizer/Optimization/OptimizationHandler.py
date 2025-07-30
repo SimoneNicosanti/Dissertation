@@ -50,29 +50,6 @@ class OptimizationHandler:
         else:
             return pulp.SCIP_PY(warmStart=warmStart, msg=False)
 
-    def prepare_warm_start(
-        src_node_ass_vars,
-        src_tensor_ass_vars,
-        src_quantization_vars,
-        dst_node_ass_vars,
-        dst_tensor_ass_vars,
-        dst_quantization_vars,
-    ):
-        return
-
-        for key in src_node_ass_vars:
-            dst_node_ass_vars[key].setInitialValue(
-                1 if src_node_ass_vars[key] >= INT_VARS_VALUE_THR else 0
-            )
-        for key in src_tensor_ass_vars:
-            dst_tensor_ass_vars[key].setInitialValue(
-                1 if src_tensor_ass_vars[key] >= INT_VARS_VALUE_THR else 0
-            )
-        for key in src_quantization_vars:
-            dst_quantization_vars[key].setInitialValue(
-                1 if src_quantization_vars[key] >= INT_VARS_VALUE_THR else 0
-            )
-
     @staticmethod
     def optimize(
         model_profile_list: list[ModelProfile],
@@ -113,7 +90,7 @@ class OptimizationHandler:
 
         problem.setObjective(min_latency_cost)
         problem.sense = pulp.LpMinimize
-        problem.solve(OptimizationHandler.get_solver(gapRel=0.01))
+        problem.solve(OptimizationHandler.get_solver(gapRel=0.0))
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
         min_lat_cost = min_latency_cost.value()
@@ -138,7 +115,7 @@ class OptimizationHandler:
         )
         problem.setObjective(min_energy_cost)
         problem.sense = pulp.LpMinimize
-        problem.solve(OptimizationHandler.get_solver(gapRel=0.01))
+        problem.solve(OptimizationHandler.get_solver(gapRel=0.0))
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
         min_en_cost = min_energy_cost.value()
@@ -209,10 +186,15 @@ class OptimizationHandler:
             final_energy_cost.value() * (max_en_cost - min_en_cost + 1e-9) + min_en_cost
         )
 
+        tot_quantized = 0
+        for quant_var in quantization_vars.values():
+            tot_quantized += 1 if quant_var.value() >= INT_VARS_VALUE_THR else 0
+
         print("⌛ Final Latency Value  >> ", latency_value)
         print("🔋 Final Energy Value  >> ", energy_value)
         print("🪫 Device Energy Value  >> ", device_energy_expr.value())
         print("📈 Regressor Value  >> ", regr_expr[0].value())
+        print("🥞 Total Quantized Layers >> ", tot_quantized)
 
         solved_model_graphs: list[nx.DiGraph] = []
         for mod_graph in model_graphs:
@@ -288,6 +270,7 @@ class OptimizationHandler:
         print("Analyzing node assignments...")
         tot_assigned = 0
         for node_ass_key, node_ass_var in filtered_node_ass.items():
+
             if node_ass_var.varValue >= INT_VARS_VALUE_THR:
                 mod_node_id = node_ass_key.mod_node_id
                 net_node_id = node_ass_key.net_node_id
@@ -407,7 +390,6 @@ class OptimizationHandler:
         mem_use_vars: dict[MemoryUseKey, pulp.LpVariable] = {}
         quantization_vars: dict[QuantizationKey, pulp.LpVariable] = {}
 
-        time.perf_counter_ns()
         ## Defining variables
         for curr_mod_graph in model_graphs:
             curr_node_ass_vars: dict[NodeAssKey, pulp.LpVariable] = (

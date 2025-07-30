@@ -84,7 +84,6 @@ def plan_vs_real_comparison():
     models = ["yolo11x-seg"]
     for i in range(len(models)):
         model = models[i]
-        # fig, axes = plt.subplots(figsize=(14, 7), nrows=5, ncols=2)
 
         g = sns.relplot(
             data=df_long[df_long["model_name"] == model],
@@ -105,14 +104,71 @@ def plan_vs_real_comparison():
             ax.set_xticks(xticks)
             ax.set_xticklabels([f"{x}" for x in xticks], rotation=45)
 
-    # fig.suptitle("Device Only Plan -- Max Noise vs Time")
+        # fig.suptitle("Device Only Plan -- Max Noise vs Time")
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.savefig(f"../Images/device_edge_plan_{model}_trends.png")
 
 
 def num_components_chart():
-    df = pd.read_csv(GENERATION_PATH)
+    plan_df = pd.read_csv(GENERATION_PATH)
+    plan_df = (
+        plan_df.groupby(
+            [
+                "model_name",
+                "energy_weight",
+                "latency_weight",
+                "device_max_energy",
+                "max_noises",
+                "device_cpus",
+                "edge_cpus",
+                "device_bandwidth",
+                "edge_bandwidth",
+            ]
+        )[["device_components", "edge_components"]]
+        .mean()
+        .reset_index()
+    )
+    plan_df["device_components"] = plan_df["device_components"] - 2
+    df_long = plan_df.melt(
+        id_vars=[
+            "model_name",
+            "energy_weight",
+            "latency_weight",
+            "device_max_energy",
+            "max_noises",
+            "device_cpus",
+            "edge_cpus",
+            "device_bandwidth",
+            "edge_bandwidth",
+        ],
+        value_vars=["device_components", "edge_components"],
+        var_name="device_type",
+        value_name="comps_num",
+    )
+
+    sns.set_style("whitegrid")
+
+    models = ["yolo11m", "yolo11x-seg"]
+
+    for _, model in enumerate(models):
+        model_df = df_long[df_long["model_name"] == model]
+
+        g = sns.catplot(
+            data=model_df,
+            x="max_noises",
+            y="comps_num",
+            hue="device_type",
+            col="latency_weight",
+            col_wrap=3,
+            palette="colorblind",
+            kind="bar",
+            # facet_kws={"sharey": False, "sharex": False},
+            height=3.5,  # ↓ decrease from default (usually 5)
+            aspect=1.5,  # width/height ratio (optional)
+        )
+
+        plt.show()
 
     pass
 
@@ -175,12 +231,10 @@ def pred_values_trends():
         plt.tight_layout()
         plt.savefig("../Images/" + model + "_planned_latency_energy_trends.png")
 
-    plt.clf()
-
 
 def main():
     # num_components_chart()
-    pred_values_trends()
+    # pred_values_trends()
     plan_vs_real_comparison()
 
     pass

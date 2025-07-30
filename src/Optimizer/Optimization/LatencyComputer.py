@@ -30,10 +30,10 @@ def compute_latency_cost(
     for model_graph in model_graphs:
         model_weight = requests_number.get(model_graph.graph["name"]) / total_requests
 
-        model_comp_latency, max_model_comp_latency = compute_comp_latency_per_model(
+        model_comp_latency, _ = compute_comp_latency_per_model(
             model_graph, network_graph, node_ass_vars, server_execution_profile_pool
         )
-        model_trans_latency, max_model_trans_latency = compute_trans_latency_per_model(
+        model_trans_latency, _ = compute_trans_latency_per_model(
             model_graph, network_graph, tensor_ass_vars
         )
 
@@ -57,6 +57,7 @@ def compute_comp_latency_per_model(
     tot_comp_latency = 0
     max_comp_latency = 0
     for net_node_id in network_graph.nodes:
+        print("NET NODE ID >> ", net_node_id)
         node_comp_latency_per_model, node_max_comp_latency_per_model = (
             compute_model_comp_latency_per_node(
                 model_graph,
@@ -221,7 +222,7 @@ def __get_computation_time(
     net_node_id: NodeId,
     model_execution_profile: ModelExecutionProfile,
     node_ass_vars: dict[NodeAssKey, pulp.LpVariable],
-) -> float:
+) -> tuple[pulp.LpAffineExpression, float]:
 
     not_quant_ass_key = NodeAssKey(mod_node_id, net_node_id, model_graph.graph["name"])
     not_quant_time = model_execution_profile.get_not_quantized_layer_time(mod_node_id)
@@ -230,6 +231,7 @@ def __get_computation_time(
     max_comp_time = not_quant_time
 
     if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
+        # print("Quantized Layer >> ", mod_node_id.node_name)
         quant_time = model_execution_profile.get_quantized_layer_time(mod_node_id)
         quant_ass_key = NodeAssKey(
             mod_node_id, net_node_id, model_graph.graph["name"], True
@@ -239,6 +241,7 @@ def __get_computation_time(
             not_quant_time * node_ass_vars[not_quant_ass_key]
             - (not_quant_time - quant_time) * node_ass_vars[quant_ass_key]
         )
+        print("Times Expr >> ", time_expr)
 
         max_comp_time = max(max_comp_time, quant_time)
 
