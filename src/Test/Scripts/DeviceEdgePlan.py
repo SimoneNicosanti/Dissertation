@@ -327,6 +327,13 @@ def usage_test(
         )
     }
 
+    ## Cold Start Runs
+    print("🥶 Cold Start Runs")
+    for _ in tqdm.tqdm(range(5)):
+        inference_caller.call_inference(model_name, input_dict)
+
+    ## Hot Runs
+    print("🥵 Hot Runs")
     plan_use_times = np.zeros(run_nums)
     for idx in tqdm.tqdm(range(run_nums)):
         _, infer_time, _ = inference_caller.call_inference(model_name, input_dict)

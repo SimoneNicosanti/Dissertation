@@ -37,20 +37,42 @@ def main():
         interp_avg_time = 0
         for key in exec_profile_dict.keys():
 
-            if key in layer_list:
-                metric_name = "q_avg_time"
-            else:
-                metric_name = "nq_avg_time"
-
-            tot_avg_time = exec_profile_dict["TotalSum"][metric_name]
-            whole_model_avg_time = exec_profile_dict["WholeModel"][metric_name]
-
             if key != "WholeModel" and key != "TotalSum":
+                tot_avg_time = exec_profile_dict["TotalSum"]["nq_avg_time"]
+                whole_model_avg_time = exec_profile_dict["WholeModel"]["nq_avg_time"]
+
                 interp_value = (
-                    exec_profile_dict[key][metric_name] / tot_avg_time
+                    exec_profile_dict[key]["nq_avg_time"] / tot_avg_time
                 ) * whole_model_avg_time
 
+                if key in layer_list:
+
+                    pred_layer_gain = (
+                        exec_profile_dict[key]["nq_avg_time"]
+                        - exec_profile_dict[key]["q_avg_time"]
+                    )
+                    pred_tot_gain = (
+                        exec_profile_dict["TotalSum"]["nq_avg_time"]
+                        - exec_profile_dict["TotalSum"]["q_avg_time"]
+                    )
+
+                    real_tot_gain = (
+                        exec_profile_dict["WholeModel"]["nq_avg_time"]
+                        - exec_profile_dict["WholeModel"]["q_avg_time"]
+                    )
+
+                    real_layer_gain = (pred_layer_gain / pred_tot_gain) * real_tot_gain
+                    print("Values for layer >> ", key)
+                    print("\t NQ Layer Real Time >> ", interp_value)
+                    interp_value = interp_value - real_layer_gain
+                    print("\t Gain >> ", real_layer_gain)
+                    print("\t Q Layer Real Time >> ", interp_value)
+                    print("")
+
                 interp_avg_time += interp_value
+
+            # if key in layer_list:
+            #     print(key, exec_profile_dict[key][metric_name], interp_value)
 
     print("Interpolation Time >> ", interp_avg_time)
     return

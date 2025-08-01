@@ -60,6 +60,7 @@ def plan_vs_real_comparison():
         ],
         how="inner",
     )
+    merged_df["diff_time"] = merged_df["real_time"] - merged_df["plan_latency"]
 
     df_long = pd.melt(
         merged_df,
@@ -108,6 +109,25 @@ def plan_vs_real_comparison():
 
         plt.tight_layout()
         plt.savefig(f"../Images/device_edge_plan_{model}_trends.png")
+
+    for i in range(len(models)):
+        model = models[i]
+
+        g = sns.relplot(
+            data=merged_df[merged_df["model_name"] == model],
+            x="max_noises",
+            y="diff_time",
+            col="latency_weight",
+            col_wrap=3,
+            palette="colorblind",
+            kind="line",
+            facet_kws={"sharey": False, "sharex": False},
+            height=3.5,  # ↓ decrease from default (usually 5)
+            aspect=1.5,  # width/height ratio (optional)
+        )
+
+        plt.tight_layout()
+        plt.show()  # (f"../Images/device_edge_plan_{model}_diff.png")
 
 
 def num_components_chart():

@@ -54,9 +54,9 @@ class LayerDivider:
             quantized_inputs = []
             quantized_outputs = []
             for input_name in sub_input:
-                quantized_inputs.append(input_name + "_QuantizeLinear_Output")
+                quantized_inputs.append(input_name)  # + "_QuantizeLinear_Output")
             for output_name in sub_output:
-                quantized_outputs.append(output_name + "_QuantizeLinear_Output")
+                quantized_outputs.append(output_name + "_DequantizeLinear_Output")
 
             has_quantized_io = True
             for input_name in quantized_inputs:

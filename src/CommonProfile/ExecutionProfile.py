@@ -72,6 +72,28 @@ class ModelExecutionProfile:
         ]
         return (pred_layer_time / pred_tot_time) * real_tot_time
 
+    def get_quantization_gain(self, node_id: NodeId) -> float:
+        if node_id not in self.model_execution_profile_dict:
+            return 0
+
+        pred_layer_gain = (
+            self.model_execution_profile_dict[node_id]["nq_avg_time"]
+            - self.model_execution_profile_dict[node_id]["q_avg_time"]
+        )
+        pred_tot_gain = (
+            self.model_execution_profile_dict[NodeId("TotalSum")]["nq_avg_time"]
+            - self.model_execution_profile_dict[NodeId("TotalSum")]["q_avg_time"]
+        )
+
+        real_tot_gain = (
+            self.model_execution_profile_dict[NodeId("WholeModel")]["nq_avg_time"]
+            - self.model_execution_profile_dict[NodeId("WholeModel")]["q_avg_time"]
+        )
+
+        real_layer_gain = (pred_layer_gain / pred_tot_gain) * real_tot_gain
+
+        return real_layer_gain
+
     def get_total_not_quantized_time(self) -> float:
         if NodeId("TotalSum") in self.model_execution_profile_dict:
             return self.model_execution_profile_dict[NodeId("TotalSum")]["nq_avg_time"]
