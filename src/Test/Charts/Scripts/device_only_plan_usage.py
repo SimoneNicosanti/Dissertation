@@ -28,6 +28,7 @@ def main():
     plan_df = pd.read_csv(
         "../../Results/DeviceOnlyPlan/device_only_plan_Generation.csv"
     )
+
     # plan_df = plan_df[
     #     (plan_df["model_name"] == "yolo11m") | (plan_df["model_name"] == "yolo11x-seg")
     # ]

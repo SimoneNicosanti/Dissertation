@@ -169,7 +169,7 @@ def num_components_chart():
 
     sns.set_style("whitegrid")
 
-    models = ["yolo11m", "yolo11x-seg"]
+    models = ["yolo11x-seg"]
 
     for _, model in enumerate(models):
         model_df = df_long[df_long["model_name"] == model]
@@ -253,7 +253,7 @@ def pred_values_trends():
 
 
 def main():
-    # num_components_chart()
+    num_components_chart()
     # pred_values_trends()
     plan_vs_real_comparison()
 

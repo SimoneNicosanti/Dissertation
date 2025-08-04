@@ -17,9 +17,10 @@ class ModelRunner:
         providers = ProviderInit.init_providers_list()
         sess_options = ort.SessionOptions()
         if ProviderInit.test_openvino_ep(providers):
-            sess_options.graph_optimization_level = (
-                ort.GraphOptimizationLevel.ORT_DISABLE_ALL
-            )
+            # sess_options.graph_optimization_level = (
+            #     ort.GraphOptimizationLevel.ORT_DISABLE_ALL
+            # )
+            pass
 
         for comp_info, comp_path in component_dict.items():
             comp_session = ort.InferenceSession(

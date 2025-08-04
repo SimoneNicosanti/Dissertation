@@ -95,9 +95,9 @@ class ExecutionProfiler:
         self, onnx_model: onnx.ModelProto, run_times: int, is_quantized: bool
     ):
         sess_opt = onnxruntime.SessionOptions()
-        sess_opt.graph_optimization_level = (
-            onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
-        )
+        # sess_opt.graph_optimization_level = (
+        #     onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
+        # )
         sess = onnxruntime.InferenceSession(
             onnx_model.SerializeToString(),
             providers=self.providers,
