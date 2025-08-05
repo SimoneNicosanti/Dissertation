@@ -30,38 +30,71 @@ def main():
         "/model.23/proto/cv2/conv/Conv",
     ]
 
+    # layer_list = layers = [
+    #     "/model.5/conv/Conv",
+    #     "/model.23/proto/upsample/ConvTranspose",
+    #     "/model.23/proto/cv2/conv/Conv",
+    # ]
+
+    # layer_list = layers = [
+    #     "/model.2/cv2/conv/Conv",
+    #     "/model.4/cv2/conv/Conv",
+    #     "/model.5/conv/Conv",
+    #     "/model.17/conv/Conv",
+    #     "/model.23/proto/cv1/conv/Conv",
+    #     "/model.23/cv4.0/cv4.0.0/conv/Conv",
+    #     "/model.23/cv2.0/cv2.0.0/conv/Conv",
+    #     "/model.23/proto/upsample/ConvTranspose",
+    #     "/model.23/proto/cv2/conv/Conv",
+    # ]
+
+    # layer_list = layers = [
+    #     "/model.2/cv2/conv/Conv",
+    #     "/model.3/conv/Conv",
+    #     "/model.4/cv2/conv/Conv",
+    #     "/model.5/conv/Conv",
+    #     "/model.17/conv/Conv",
+    #     "/model.23/proto/cv1/conv/Conv",
+    #     "/model.23/cv4.0/cv4.0.0/conv/Conv",
+    #     "/model.23/cv2.0/cv2.0.0/conv/Conv",
+    #     "/model.23/proto/upsample/ConvTranspose",
+    #     "/model.23/proto/cv2/conv/Conv",
+    # ]
+
     profile_file = "../../Results/Exec_Profile/Client_yolo11x-seg_0.5_exec_profile.json"
     with open(profile_file, "r") as f:
         exec_profile_dict = json.load(f)
 
+        nq_tot_sum = exec_profile_dict["TotalSum"]["nq_avg_time"]
+        q_tot_sum_int = exec_profile_dict["TotalSum"]["q_avg_time"]
+
         interp_avg_time = 0
         for key in exec_profile_dict.keys():
 
-            nq_ratio = (
-                1
-                - exec_profile_dict["WholeModel"]["nq_avg_time"]
-                / exec_profile_dict["TotalSum"]["nq_avg_time"]
-            )
-            q_ratio = (
-                1
-                - exec_profile_dict["WholeModel"]["q_avg_time"]
-                / exec_profile_dict["TotalSum"]["q_avg_time"]
-            )
-
             if key != "WholeModel" and key != "TotalSum":
 
-                if key in layer_list:
-                    interp_value = (1 - q_ratio) * exec_profile_dict[key]["q_avg_time"]
-                else:
-                    interp_value = (1 - nq_ratio) * exec_profile_dict[key][
-                        "nq_avg_time"
-                    ]
+                k_nq = 1 - exec_profile_dict["WholeModel"]["nq_avg_time"] / nq_tot_sum
+                k_q = (
+                    (q_tot_sum_int - exec_profile_dict["WholeModel"]["q_avg_time"])
+                    - (nq_tot_sum - exec_profile_dict["WholeModel"]["nq_avg_time"])
+                ) / q_tot_sum_int
 
-                interp_avg_time += interp_value
+                value = (1 - k_nq) * exec_profile_dict[key]["nq_avg_time"]
+
+                if key in layer_list:
+                    gain = (
+                        exec_profile_dict[key]["nq_avg_time"]
+                        - (1 - k_q) * exec_profile_dict[key]["q_avg_time"]
+                    )
+
+                    value = value - gain
+
+                interp_avg_time += value
+
+            pass
 
             # if key in layer_list:
             #     print(key, exec_profile_dict[key][metric_name], interp_value)
-
     print("Interpolation Time >> ", interp_avg_time)
     return
 

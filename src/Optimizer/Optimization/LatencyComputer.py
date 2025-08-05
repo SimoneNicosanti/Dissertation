@@ -233,13 +233,14 @@ def __get_computation_time(
     if model_graph.nodes[mod_node_id].get(ModelNodeInfo.QUANTIZABLE, False):
         # print("Quantized Layer >> ", mod_node_id.node_name)
         quant_time = model_execution_profile.get_quantized_layer_time(mod_node_id)
+        quant_gain = model_execution_profile.get_quantization_gain(mod_node_id)
         quant_ass_key = NodeAssKey(
             mod_node_id, net_node_id, model_graph.graph["name"], True
         )
 
         time_expr = (
             not_quant_time * node_ass_vars[not_quant_ass_key]
-            - (not_quant_time - quant_time) * node_ass_vars[quant_ass_key]
+            - quant_gain * node_ass_vars[quant_ass_key]
         )
 
         max_comp_time = max(max_comp_time, quant_time)
