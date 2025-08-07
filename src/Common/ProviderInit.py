@@ -13,8 +13,8 @@ def init_providers_list() -> list[str]:
 
     elif "OpenVINOExecutionProvider" in ort.get_available_providers():
         providers.append("OpenVINOExecutionProvider")
-    else:
-        providers.append("CPUExecutionProvider")
+
+    providers.append("CPUExecutionProvider")
 
     return providers
 

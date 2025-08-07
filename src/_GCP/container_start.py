@@ -36,7 +36,7 @@ def map_execution_profiles(original_name: str, cpus: int = 0):
     map_list = []
 
     if cpus == 0:
-        find_part = "_0_"
+        find_part = "_0.0_"
     else:
         find_part = f"_{cpus}_"
 
