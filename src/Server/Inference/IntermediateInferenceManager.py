@@ -51,6 +51,5 @@ class IntermediateInferenceManager(InferenceManager):
                 output_info_list = model_runner.run_component(
                     component_id, tensor_wrapper_list
                 )
-                print("Inference Done")
 
         return output_info_list

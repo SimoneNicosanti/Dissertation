@@ -44,17 +44,14 @@ class FrontEndServer(InferenceServicer):
         component_info, request_info, tensor_wrapper_list = (
             self.input_receiver.handle_input_stream(input_stream)
         )
-        print("Received Input")
 
         ## 2. Do actual inference
         out_tensor_wrap_list = self.__do_inference(
             component_info, request_info, tensor_wrapper_list
         )
-        print("Completed Inference")
 
         if out_tensor_wrap_list is not None:
             ## 3. Send Output
-            print("Sending Inference Output")
             with self.managers_lock.gen_rlock():
                 plan_wrapper = self.plan_wrapper_dict[component_info.model_name]
 
@@ -65,7 +62,6 @@ class FrontEndServer(InferenceServicer):
                 request_info,
                 out_tensor_wrap_list,
             )
-            print("Sent Output")
 
         ## Lock or Unlock threads for response wait
         ## If the component is the input one --> The thread will be blocked
@@ -77,7 +73,6 @@ class FrontEndServer(InferenceServicer):
 
             ## If Output Component --> Yield output
             if plan_wrapper.is_component_only_input(component_info):
-                print("Yielding result")
                 with self.requests_lock.gen_wlock():
                     inference_output = self.final_results_dict.pop(request_info)
                 yield from ResponseGenerator.yield_response(
@@ -98,7 +93,7 @@ class FrontEndServer(InferenceServicer):
             plan_wrapper = self.plan_wrapper_dict[component_info.model_name]
 
         if plan_wrapper.is_component_only_input(component_info):
-            print("Locking Input Thread")
+            print("\t Locking Input Thread")
 
             waiting_event = threading.Event()
             with self.requests_lock.gen_wlock():
@@ -119,7 +114,7 @@ class FrontEndServer(InferenceServicer):
                 self.final_results_dict[request_info] = out_tensor_wrap_list
                 waiting_event = self.pending_request_dict.pop(request_info)
 
-            print("Unlocking Thread")
+            print("\t Unlocking Thread")
             waiting_event.set()
 
             return 0
@@ -130,14 +125,11 @@ class FrontEndServer(InferenceServicer):
         request_info: RequestInfo,
         tensor_wrap_list: list[TensorWrapper],
     ) -> list[TensorWrapper]:
-        print("Do Inference")
         with self.managers_lock.gen_rlock():
             model_manager = self.model_managers[component_info.model_name]
-        print("Retrieved Model Manager")
         out_tensor_wrap_list = model_manager.pass_input_and_infer(
             component_info, request_info, tensor_wrap_list
         )
-        print("Passed Input to Manager")
 
         return out_tensor_wrap_list
 

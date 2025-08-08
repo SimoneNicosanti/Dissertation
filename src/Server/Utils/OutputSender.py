@@ -1,4 +1,5 @@
 import io
+import time
 
 import grpc
 from readerwriterlock import rwlock
@@ -47,7 +48,7 @@ class OutputSender:
         next_components_dict: dict[ComponentId, list[str]] = plan.find_next_connections(
             component_id
         )
-
+        start = time.perf_counter_ns()
         for next_comp_info in next_components_dict.keys():
             next_comp_inputs = next_components_dict[next_comp_info]
 
@@ -68,6 +69,10 @@ class OutputSender:
             ## The stream will actually be empty, but we have to do it anyway
             for _ in response_stream:
                 pass
+
+        end = time.perf_counter_ns()
+        send_output_time = (end - start) * 1e-9
+        print("\t Sent Output with Time >> ", send_output_time)
 
         pass
 

@@ -20,7 +20,6 @@ def yield_response(out_tensor_wrap_list: list[TensorWrapper], inference_time: fl
         )
         byte_buffer = io.BytesIO(tensor_wrap.numpy_array.tobytes())
         while chunk_data := byte_buffer.read(chunk_size_bytes):
-            print("Sending Chunk")
             tensor_chunk = TensorChunk(
                 chunk_size=len(chunk_data), chunk_data=chunk_data
             )

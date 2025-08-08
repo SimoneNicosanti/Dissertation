@@ -35,8 +35,6 @@ def main():
     )
     end = time.perf_counter_ns()
 
-    print("Profile Time >> ", (end - start) * 1e-9)
-
 
 if __name__ == "__main__":
     main()

@@ -191,7 +191,7 @@ class ServerMonitor:
             end = time.perf_counter_ns()
             rtt_ns = (end - start) / ping_times
 
-            latency_ns = rtt_ns / 2
+            latency_ns = rtt_ns
             latency = latency_ns * 1e-9
         except Exception:
             print("Could not ping the server")
