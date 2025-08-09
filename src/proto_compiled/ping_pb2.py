@@ -25,13 +25,15 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nping.proto\x12\toptimizer\x1a\x0c\x63ommon.proto24\n\x04Ping\x12,\n\x0clatency_test\x12\r.common.Empty\x1a\r.common.Emptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nping.proto\x12\toptimizer\x1a\x0c\x63ommon.proto\"#\n\x10\x42\x61ndwidthMessage\x12\x0f\n\x07payload\x18\x01 \x01(\x0c\x32t\n\x04Ping\x12,\n\x0clatency_test\x12\r.common.Empty\x1a\r.common.Empty\x12>\n\x0e\x62\x61ndwidth_test\x12\x1b.optimizer.BandwidthMessage\x1a\r.common.Empty(\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ping_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_PING']._serialized_start=39
-  _globals['_PING']._serialized_end=91
+  _globals['_BANDWIDTHMESSAGE']._serialized_start=39
+  _globals['_BANDWIDTHMESSAGE']._serialized_end=74
+  _globals['_PING']._serialized_start=76
+  _globals['_PING']._serialized_end=192
 # @@protoc_insertion_point(module_scope)

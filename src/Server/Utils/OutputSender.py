@@ -48,6 +48,7 @@ class OutputSender:
         next_components_dict: dict[ComponentId, list[str]] = plan.find_next_connections(
             component_id
         )
+
         start = time.perf_counter_ns()
         print("\t Sending Output")
         for next_comp_info in next_components_dict.keys():
@@ -216,7 +217,5 @@ class OutputSender:
                         self.next_server_channel[next_component_id.net_node_id] = (
                             channel
                         )
-
         server_stub = InferenceStub(channel)
-
         return server_stub

@@ -9,3 +9,8 @@ class PingServer(PingServicer):
 
     def latency_test(self, request, context):
         return Empty()
+
+    def bandwidth_test(self, request_stream, context):
+        for _ in request_stream:
+            pass
+        return Empty()

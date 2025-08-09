@@ -1,7 +1,6 @@
 import configparser
 import json
 import socket
-import subprocess
 import threading
 import time
 
@@ -10,6 +9,7 @@ import psutil
 
 from Common import ConfigReader
 from proto_compiled.common_pb2 import Empty
+from proto_compiled.ping_pb2 import BandwidthMessage
 from proto_compiled.ping_pb2_grpc import PingStub
 from proto_compiled.register_pb2 import AllServerInfo, ServerState
 from proto_compiled.register_pb2_grpc import RegisterStub
@@ -160,7 +160,7 @@ class ServerMonitor:
                 self.latencies[server_info.server_id.server_id] = latency
 
                 bandwidth = self.__evaluate_bandwidth(
-                    server_info.reachability_info.ip_address
+                    server_info.reachability_info.ip_address, server_chan
                 )
 
                 if bandwidth is not None:
@@ -198,65 +198,85 @@ class ServerMonitor:
             latency = None
         return latency
 
-    def __evaluate_bandwidth(self, server_ip_addr: str):
+    def __evaluate_bandwidth(self, server_ip_addr: str, server_chan: grpc.Channel):
 
-        port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "ports", "IPERF3_PORT"
-        )
+        ping_server_stub = PingStub(server_chan)
 
-        duration = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "monitor", "IPERF3_TEST_DURATION_SEC"
-        )
+        max_msg_size = int(3.5 * MEGABYTE_SIZE)
+        tot_msgs = 25
 
-        bandwidth = (
-            ConfigReader.ConfigReader("./config/config.ini").read_int(
-                "monitor", "IPERF3_TEST_BANDWIDTH"
-            )
-            * 10**9
-        )
+        def message_yielder():
+            msg = BandwidthMessage(payload=bytes(max_msg_size))
+            for _ in range(tot_msgs):
+                yield msg
 
-        cmd = [
-            "iperf3",
-            "-c",
-            server_ip_addr,
-            "-p",
-            str(port),
-            "-t",
-            str(duration),
-            "--zerocopy",
-            "-b",
-            str(bandwidth),
-            "--json",
-        ]
+        start = time.perf_counter_ns()
+        ping_server_stub.bandwidth_test(message_yielder())
+        end = time.perf_counter_ns()
+        tot_sent_time = (end - start) * 1e-9
 
-        run_success = False
-        sent_MB_s = None
-        while not run_success:
+        tot_sent_B = max_msg_size * tot_msgs
+        tot_sent_MB = tot_sent_B / MEGABYTE_SIZE
 
-            # trunk-ignore(bandit/B603)
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            test_result: dict = json.loads(result.stdout)
-            test_error = result.stderr
+        return tot_sent_MB / tot_sent_time
 
-            if len(test_error) > 0:
-                ## An error has occurred
-                run_success = False
+        # port = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        #     "ports", "IPERF3_PORT"
+        # )
 
-                print(f"Bandwidth Test to {server_ip_addr} >> ", test_error)
-                time.sleep(1)
-            else:
-                end_dict: dict = test_result.get("end", {})
-                sum_sent_dict: dict = end_dict.get("sum_sent", {})
-                bits_per_second: dict = sum_sent_dict.get("bits_per_second", None)
-                if bits_per_second is not None:
-                    sent_MB_s = bits_per_second / (8 * MEGABYTE_SIZE)
-                    run_success = True
-                else:
-                    print("No 'bits_per_second' Info")
-                    print(result)
-                    run_success = False
+        # duration = ConfigReader.ConfigReader("./config/config.ini").read_int(
+        #     "monitor", "IPERF3_TEST_DURATION_SEC"
+        # )
 
-                    time.sleep(1)
+        # bandwidth = (
+        #     ConfigReader.ConfigReader("./config/config.ini").read_int(
+        #         "monitor", "IPERF3_TEST_BANDWIDTH"
+        #     )
+        #     * 10**9
+        # )
+
+        # cmd = [
+        #     "iperf3",
+        #     "-c",
+        #     server_ip_addr,
+        #     "-p",
+        #     str(port),
+        #     "-t",
+        #     str(duration),
+        #     "--zerocopy",
+        #     "-b",
+        #     str(bandwidth),
+        #     "--json",
+        # ]
+
+        # run_success = False
+        # sent_MB_s = None
+        # while not run_success:
+
+        #     # trunk-ignore(bandit/B603)
+        #     result = subprocess.run(cmd, capture_output=True, text=True)
+        #     test_result: dict = json.loads(result.stdout)
+        #     test_error = result.stderr
+
+        #     if len(test_error) > 0:
+        #         ## An error has occurred
+        #         run_success = False
+
+        #         print(f"Bandwidth Test to {server_ip_addr} >> ", test_error)
+        #         time.sleep(1)
+        #     else:
+        #         end_dict: dict = test_result.get("end", {})
+        #         sum_sent_dict: dict = end_dict.get("sum_sent", {})
+        #         bits_per_second: dict = sum_sent_dict.get("bits_per_second", None)
+        #         if bits_per_second is not None:
+        #             sent_MB_s = bits_per_second / (8 * MEGABYTE_SIZE)
+        #             run_success = True
+        #         else:
+        #             print("No 'bits_per_second' Info")
+        #             print(result)
+        #             run_success = False
+
+        #             time.sleep(1)
 
         return sent_MB_s
 
