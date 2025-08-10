@@ -60,5 +60,5 @@ class InferenceManager(abc.ABC):
         self,
         component_id: ComponentId,
         tensor_wrapper_list: list[TensorWrapper],
-    ):
+    ) -> list[TensorWrapper]:
         pass

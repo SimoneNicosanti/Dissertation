@@ -49,7 +49,6 @@ def main():
                     print("")
 
                     splitted_command = command.split(" ")
-                    # trunk-ignore(bandit/B605)
                     # trunk-ignore(bandit/B603)
                     subprocess.run(splitted_command)
 

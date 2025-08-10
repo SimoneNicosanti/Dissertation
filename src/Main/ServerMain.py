@@ -44,8 +44,6 @@ def main():
     server_monitor = ServerMonitor(register_response.server_id)
     server_monitor.init_monitoring()
 
-    start_iperf3_server()
-
     inference_server.wait_for_termination()
     execution_profile_server.wait_for_termination()
     ping_server.wait_for_termination()
@@ -55,14 +53,14 @@ def main():
     pass
 
 
-def start_iperf3_server():
-    iperf3_port = ConfigReader.ConfigReader().read_int("ports", "IPERF3_PORT")
+# def start_iperf3_server():
+#     iperf3_port = ConfigReader.ConfigReader().read_int("ports", "IPERF3_PORT")
 
-    subprocess.run(
-        ["iperf3", "-s", "-p", f"{iperf3_port}"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+#     subprocess.run(
+#         ["iperf3", "-s", "-p", f"{iperf3_port}"],
+#         stdout=subprocess.DEVNULL,
+#         stderr=subprocess.DEVNULL,
+#     )
 
 
 def register_to_registry():
@@ -103,7 +101,6 @@ def start_inference_server(server_id: str):
 
 
 def start_ping_server():
-
     ping_port = ConfigReader.ConfigReader().read_int("ports", "PING_PORT")
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))

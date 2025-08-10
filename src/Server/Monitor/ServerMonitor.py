@@ -143,6 +143,7 @@ class ServerMonitor:
 
             if server_info.server_id.server_id not in self.server_chan_dict.keys():
                 ## Opening channel for the first time to this server
+
                 server_chan = grpc.insecure_channel(
                     "{}:{}".format(
                         server_info.reachability_info.ip_address,
@@ -159,9 +160,7 @@ class ServerMonitor:
                 ## Successfully pinged the server
                 self.latencies[server_info.server_id.server_id] = latency
 
-                bandwidth = self.__evaluate_bandwidth(
-                    server_info.reachability_info.ip_address, server_chan
-                )
+                bandwidth = self.__evaluate_bandwidth(server_chan)
 
                 if bandwidth is not None:
                     self.bandwidths[server_info.server_id.server_id] = bandwidth
@@ -191,94 +190,36 @@ class ServerMonitor:
             end = time.perf_counter_ns()
             rtt_ns = (end - start) / ping_times
 
-            latency_ns = rtt_ns
+            latency_ns = rtt_ns / 2
             latency = latency_ns * 1e-9
         except Exception:
             print("Could not ping the server")
             latency = None
         return latency
 
-    def __evaluate_bandwidth(self, server_ip_addr: str, server_chan: grpc.Channel):
+    def __evaluate_bandwidth(self, server_chan: grpc.Channel):
 
         ping_server_stub = PingStub(server_chan)
 
-        max_msg_size = int(3.5 * MEGABYTE_SIZE)
-        tot_msgs = 25
+        max_msg_size_bytes = ConfigReader.ConfigReader().read_bytes_chunk_size()
+        tot_msgs = 50
+        
+        msg = BandwidthMessage(payload=bytes(max_msg_size_bytes))
 
-        def message_yielder():
-            msg = BandwidthMessage(payload=bytes(max_msg_size))
+        def bandwidth_message_yield():
             for _ in range(tot_msgs):
                 yield msg
 
         start = time.perf_counter_ns()
-        ping_server_stub.bandwidth_test(message_yielder())
+        ping_server_stub.bandwidth_test(bandwidth_message_yield())
         end = time.perf_counter_ns()
-        tot_sent_time = (end - start) * 1e-9
 
-        tot_sent_B = max_msg_size * tot_msgs
+        tot_time_sec = (end - start) * 1e-9
+
+        tot_sent_B = max_msg_size_bytes * tot_msgs
         tot_sent_MB = tot_sent_B / MEGABYTE_SIZE
 
-        return tot_sent_MB / tot_sent_time
-
-        # port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-        #     "ports", "IPERF3_PORT"
-        # )
-
-        # duration = ConfigReader.ConfigReader("./config/config.ini").read_int(
-        #     "monitor", "IPERF3_TEST_DURATION_SEC"
-        # )
-
-        # bandwidth = (
-        #     ConfigReader.ConfigReader("./config/config.ini").read_int(
-        #         "monitor", "IPERF3_TEST_BANDWIDTH"
-        #     )
-        #     * 10**9
-        # )
-
-        # cmd = [
-        #     "iperf3",
-        #     "-c",
-        #     server_ip_addr,
-        #     "-p",
-        #     str(port),
-        #     "-t",
-        #     str(duration),
-        #     "--zerocopy",
-        #     "-b",
-        #     str(bandwidth),
-        #     "--json",
-        # ]
-
-        # run_success = False
-        # sent_MB_s = None
-        # while not run_success:
-
-        #     # trunk-ignore(bandit/B603)
-        #     result = subprocess.run(cmd, capture_output=True, text=True)
-        #     test_result: dict = json.loads(result.stdout)
-        #     test_error = result.stderr
-
-        #     if len(test_error) > 0:
-        #         ## An error has occurred
-        #         run_success = False
-
-        #         print(f"Bandwidth Test to {server_ip_addr} >> ", test_error)
-        #         time.sleep(1)
-        #     else:
-        #         end_dict: dict = test_result.get("end", {})
-        #         sum_sent_dict: dict = end_dict.get("sum_sent", {})
-        #         bits_per_second: dict = sum_sent_dict.get("bits_per_second", None)
-        #         if bits_per_second is not None:
-        #             sent_MB_s = bits_per_second / (8 * MEGABYTE_SIZE)
-        #             run_success = True
-        #         else:
-        #             print("No 'bits_per_second' Info")
-        #             print(result)
-        #             run_success = False
-
-        #             time.sleep(1)
-
-        return sent_MB_s
+        return tot_sent_MB / tot_time_sec
 
     def init_monitoring(self):
         threading.Thread(target=self.__monitor, daemon=True).start()

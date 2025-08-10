@@ -15,31 +15,13 @@ def main():
         "device_cpus",
     ]
 
-    usage_df = pd.read_csv("../../Results/DeviceOnlyPlan/device_only_plan_Usage.csv")
-    # usage_df = usage_df[
-    #     (usage_df["model_name"] == "yolo11m")
-    #     | (usage_df["model_name"] == "yolo11x-seg")
-    # ]
-    # usage_df = (
-    #     usage_df.groupby(group_columns)["run_time"].agg(["mean", "std"]).reset_index()
-    # )
-    # usage_df.rename(columns={"mean": "mean_real", "std": "std_real"}, inplace=True)
+    usage_df = pd.read_csv("../../Results/DevicePlan/usage.csv")
+    usage_df = usage_df[group_columns + ["run_time"]]
 
     plan_df = pd.read_csv(
-        "../../Results/DeviceOnlyPlan/device_only_plan_Generation.csv"
+        "../../Results/DevicePlan/generation.csv"
     )
-
-    # plan_df = plan_df[
-    #     (plan_df["model_name"] == "yolo11m") | (plan_df["model_name"] == "yolo11x-seg")
-    # ]
-    # plan_df = (
-    #     plan_df.groupby(group_columns)["latency_value"]
-    #     .agg(["mean", "std"])
-    #     .reset_index()
-    # )
-    # plan_df.rename(columns={"mean": "mean_plan", "std": "std_plan"}, inplace=True)
-
-    # merged_df = pd.merge(usage_df, plan_df, on=group_columns, how="inner")
+    plan_df = plan_df[group_columns + ["latency_value"]]
 
     sns.set_style("whitegrid")  # Altri: "darkgrid", "white", "dark", "ticks"
     fig, axes = plt.subplots(figsize=(14, 7), nrows=2, ncols=1)
