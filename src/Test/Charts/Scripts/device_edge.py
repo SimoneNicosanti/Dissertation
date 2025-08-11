@@ -2,48 +2,35 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 
-GENERATION_PATH = "../../Results/DeviceEdgePlan/device_edge_plan_Generation.csv"
-USAGE_PATH = "../../Results/DeviceEdgePlan/device_edge_plan_Usage.csv"
+GENERATION_PATH = "../../Results/DeviceEdgePlan/generation.csv"
+USAGE_PATH = "../../Results/DeviceEdgePlan/usage.csv"
 
 
 def plan_vs_real_comparison():
+
+    group_cols = [
+        "model_name",
+        "latency_weight",
+        "energy_weight",
+        "device_max_energy",
+        "max_noises",
+        "device_cpus",
+        "edge_cpus",
+        "device_bandwidth",
+        "edge_bandwidth",
+    ]
+
     plan_df = pd.read_csv(GENERATION_PATH)
+    plan_df = plan_df[group_cols + ["latency_value"]]
     plan_df = (
-        plan_df.groupby(
-            [
-                "model_name",
-                "energy_weight",
-                "latency_weight",
-                "device_max_energy",
-                "max_noises",
-                "device_cpus",
-                "edge_cpus",
-                "device_bandwidth",
-                "edge_bandwidth",
-            ]
-        )["latency_value"]
-        .mean()
-        .reset_index()
+        plan_df.groupby(group_cols)["latency_value"].mean().reset_index()
     ).rename(columns={"latency_value": "plan_latency"})
 
     usage_df = pd.read_csv(USAGE_PATH)
-    usage_df = (
-        usage_df.groupby(
-            [
-                "model_name",
-                "energy_weight",
-                "latency_weight",
-                "device_max_energy",
-                "max_noises",
-                "device_cpus",
-                "edge_cpus",
-                "device_bandwidth",
-                "edge_bandwidth",
-            ]
-        )["run_time"]
-        .mean()
-        .reset_index()
-    ).rename(columns={"run_time": "real_time"})
+    usage_df = usage_df[group_cols + ["run_time"]]
+    usage_df = (usage_df.groupby(group_cols)["run_time"].mean().reset_index()).rename(
+        columns={"run_time": "real_time"}
+    )
 
     merged_df = plan_df.merge(
         usage_df,
@@ -75,7 +62,7 @@ def plan_vs_real_comparison():
             "device_bandwidth",
             "edge_bandwidth",
         ],
-        value_vars=["plan_latency", "real_time"],
+        value_vars=["real_time", "plan_latency"],
         var_name="time_type",
         value_name="time_value",
     )

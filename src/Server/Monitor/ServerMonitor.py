@@ -202,16 +202,20 @@ class ServerMonitor:
         ping_server_stub = PingStub(server_chan)
 
         max_msg_size_bytes = ConfigReader.ConfigReader().read_bytes_chunk_size()
-        tot_msgs = 50
-        
+
         msg = BandwidthMessage(payload=bytes(max_msg_size_bytes))
 
-        def bandwidth_message_yield():
-            for _ in range(tot_msgs):
+        def bandwidth_message_yield(send_msgs_num):
+            for _ in range(send_msgs_num):
                 yield msg
 
+        ## Channel Cold Start
+        ping_server_stub.bandwidth_test(bandwidth_message_yield(5))
+
+        ## Hot Channel Measure
+        tot_msgs = 50
         start = time.perf_counter_ns()
-        ping_server_stub.bandwidth_test(bandwidth_message_yield())
+        ping_server_stub.bandwidth_test(bandwidth_message_yield(tot_msgs))
         end = time.perf_counter_ns()
 
         tot_time_sec = (end - start) * 1e-9

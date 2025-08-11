@@ -3,12 +3,12 @@ import os
 import subprocess
 import time
 
-COMMAND = "./start_test.sh DeviceEdgePlan.py --model {} --latency-weight {} --energy-weight {} --device-max-energy {} --max-noises {} --plan-gen-runs 1 --plan-deploy-runs 1 --plan-use-runs 25 --device-cpus {} --edge-cpus {} --device-bandwidth {} --edge-bandwidth {}"
+COMMAND = "./start_test.sh FullTest.py --model-name {} --latency-weight {} --energy-weight {} --device-max-energy {} --max-noises {} --plan-gen-runs 1 --plan-deploy-runs 1 --plan-use-runs 25 --device-cpus {} --edge --edge-cpus {} --device-bandwidth {} --edge-bandwidth {}"
 
 
 MODELS = ["yolo11x-seg"]
-LW = [1.0, 0.75, 0.5, 0.25, 0.0]
-DEVICE_MAX_ENERGYS = [0.0]
+LW = [1.0, 0.5, 0.0]
+DEVICE_MAX_ENERGY = [0.0]
 MAX_NOISES = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.5]
 
 
@@ -31,7 +31,7 @@ def main():
     for model in MODELS:
         for lw in LW:
             ew = 1 - lw
-            for device_max_energy in DEVICE_MAX_ENERGYS:
+            for device_max_energy in DEVICE_MAX_ENERGY:
                 for max_noise in MAX_NOISES:
                     command = COMMAND.format(
                         model,

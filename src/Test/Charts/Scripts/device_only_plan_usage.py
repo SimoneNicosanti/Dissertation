@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from matplotlib import markers
 
 
 def main():
@@ -18,9 +17,7 @@ def main():
     usage_df = pd.read_csv("../../Results/DevicePlan/usage.csv")
     usage_df = usage_df[group_columns + ["run_time"]]
 
-    plan_df = pd.read_csv(
-        "../../Results/DevicePlan/generation.csv"
-    )
+    plan_df = pd.read_csv("../../Results/DevicePlan/generation.csv")
     plan_df = plan_df[group_columns + ["latency_value"]]
 
     sns.set_style("whitegrid")  # Altri: "darkgrid", "white", "dark", "ticks"
@@ -48,6 +45,7 @@ def main():
             y="latency_value",
             ax=ax,
             label="Plan Usage",
+            ci=None,
         )
 
         ax.set_xticks(ticks=usage_df["max_noises"].unique())
