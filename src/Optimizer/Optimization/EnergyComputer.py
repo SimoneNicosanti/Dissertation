@@ -10,8 +10,6 @@ from Optimizer.Optimization.OptimizationKeys import (
     TensorAssKey,
 )
 
-## TODO Check Normalization Min-Max: Per model or total
-
 
 def compute_energy_cost(
     model_graphs: list[nx.MultiDiGraph],

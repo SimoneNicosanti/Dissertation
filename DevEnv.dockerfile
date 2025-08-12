@@ -1,10 +1,10 @@
 FROM python:3.10-bookworm
 
 ## TensorFlow Dependencies
-RUN pip install ultralytics
-RUN pip install ai-edge-litert
-RUN pip install tensorflow
-RUN pip install keras_cv
+# RUN pip install ultralytics
+# RUN pip install ai-edge-litert
+# RUN pip install tensorflow
+# RUN pip install keras_cv
 ## For compatibility we need numpy 1.x
 RUN pip install 'numpy<2'
 
@@ -16,7 +16,7 @@ RUN pip install prettytable
 RUN pip install imageio
 RUN pip install grpcio
 RUN pip install grpcio-tools
-RUN pip install keras-hub
+# RUN pip install keras-hub
 
 ## Terraform
 RUN apt-get update && apt-get install -y \
@@ -47,10 +47,11 @@ RUN pip install networkx
 RUN pip install readerwriterlock
 
 RUN apt-get install iperf3 -y
-RUN apt install rsync
+RUN apt install rsync -y
 
 RUN pip install supervision
 RUN pip install tqdm
+RUN pip install seaborn
 
 
 

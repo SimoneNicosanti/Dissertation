@@ -1,6 +1,3 @@
-
-
-
 import argparse
 import json
 import os
@@ -16,10 +13,15 @@ from Common.ConfigReader import ConfigReader
 from CommonIds.NodeId import NodeId
 from CommonPlan.Plan import Plan
 from CommonPlan.WholePlan import WholePlan
-from Test.Scripts.Utils.InferenceCaller import InferenceCaller
 from proto_compiled.common_pb2 import ModelId
-from proto_compiled.deployment_pb2 import DeploymentRequest, ProducePlanRequest, ProducePlanResponse
+from proto_compiled.deployment_pb2 import (
+    DeploymentRequest,
+    ProducePlanRequest,
+    ProducePlanResponse,
+)
 from proto_compiled.deployment_pb2_grpc import DeploymentStub
+from Test.Scripts.Utils.InferenceCaller import InferenceCaller
+
 
 def main():
 
@@ -54,15 +56,9 @@ def main():
     parser.add_argument("--edge-cpus", help="Edge CPUs", type=float)
     parser.add_argument("--cloud-cpus", help="Cloud CPUs", type=float)
 
-    parser.add_argument(
-        "--device-bandwidth", help="Device Bandwidth", type=float
-    )
-    parser.add_argument(
-        "--edge-bandwidth", help="Edge Bandwidth", type=float
-    )
-    parser.add_argument(
-        "--cloud-bandwidth", help="Cloud Bandwidth", type=float
-    )
+    parser.add_argument("--device-bandwidth", help="Device Bandwidth", type=float)
+    parser.add_argument("--edge-bandwidth", help="Edge Bandwidth", type=float)
+    parser.add_argument("--cloud-bandwidth", help="Cloud Bandwidth", type=float)
 
     args = parser.parse_args()
 
@@ -71,37 +67,44 @@ def main():
     plan_use_runs = args.plan_use_runs
 
     device_bandwidth = args.device_bandwidth
-    
+
     has_edge = args.edge
     edge_cpus = args.edge_cpus
     edge_bandwidth = args.edge_bandwidth
-    if has_edge and (edge_cpus is None or edge_bandwidth is None or device_bandwidth is None):
-        raise ValueError("Edge CPUs and Edge/Device Bandwidth must be specified if Edge is active")
-    
+    if has_edge and (
+        edge_cpus is None or edge_bandwidth is None or device_bandwidth is None
+    ):
+        raise ValueError(
+            "Edge CPUs and Edge/Device Bandwidth must be specified if Edge is active"
+        )
+
     has_cloud = args.cloud
     cloud_cpus = args.cloud_cpus
     cloud_bandwidth = args.cloud_bandwidth
-    if has_cloud and (cloud_cpus is None or cloud_bandwidth is None or device_bandwidth is None):
-        raise ValueError("Cloud CPUs and Cloud/Device Bandwidth must be specified if Cloud is active")
-
+    if has_cloud and (
+        cloud_cpus is None or cloud_bandwidth is None or device_bandwidth is None
+    ):
+        raise ValueError(
+            "Cloud CPUs and Cloud/Device Bandwidth must be specified if Cloud is active"
+        )
 
     result_folder = build_result_folder(has_edge, has_cloud)
 
     print("📝 Producing Plan")
-    produce_plan_response: ProducePlanResponse = generation_test(args, result_folder, plan_gen_runs)
+    produce_plan_response: ProducePlanResponse = generation_test(
+        args, result_folder, plan_gen_runs
+    )
 
     print("🚀 Deploying Plan")
     deployment_test(args, result_folder, plan_deploy_runs, produce_plan_response)
 
     print("🤖 Using Plan")
-    plan_use_times : np.ndarray = usage_test(args, result_folder, plan_use_runs)
+    plan_use_times: np.ndarray = usage_test(args, result_folder, plan_use_runs)
     print("🤖 Use Plan with Avg Time >> ", plan_use_times.mean())
 
 
-def generation_test(args : argparse.Namespace, result_folder : str, run_nums : int) :
-    csv_path = os.path.join(
-        result_folder, "generation.csv"
-    )
+def generation_test(args: argparse.Namespace, result_folder: str, run_nums: int):
+    csv_path = os.path.join(result_folder, "generation.csv")
 
     if os.path.exists(csv_path):
         dataframe = pd.read_csv(csv_path)
@@ -130,7 +133,14 @@ def generation_test(args : argparse.Namespace, result_folder : str, run_nums : i
                 "cloud_components",
             ]
         )
-    
+
+    plan_path = os.path.join(result_folder, "plan.json")
+    if os.path.exists(plan_path):
+        with open(plan_path, "r") as f:
+            json_plan_obj = json.load(f)
+    else:
+        json_plan_obj = {}
+
     produce_plan_request = ProducePlanRequest(
         models_ids=[ModelId(model_name=args.model_name)],
         latency_weight=args.latency_weight,
@@ -222,12 +232,36 @@ def generation_test(args : argparse.Namespace, result_folder : str, run_nums : i
     dataframe = pd.concat([dataframe, add_df], ignore_index=True)
     dataframe.to_csv(csv_path, index=False)
 
+    json_obj_key = (
+        "{}_lw_{}_ew_{}_dme_{}_mn_{}_dc_{}_ec_{}_cc_{}_db_{}_eb_{}_cb_{}".format(
+            args.model_name,
+            args.latency_weight,
+            args.energy_weight,
+            args.device_max_energy,
+            args.max_noises,
+            args.device_cpus,
+            args.edge_cpus if args.edge else "-1",
+            args.cloud_cpus if args.cloud else "-1",
+            args.device_bandwidth if (args.edge or args.cloud) else "-1",
+            args.edge_bandwidth if args.edge else "-1",
+            args.cloud_bandwidth if args.cloud else "-1",
+        )
+    )
+
+    json_plan_obj[json_obj_key] = prod_plan.encode()
+    with open(plan_path, "w") as f:
+        json.dump(json_plan_obj, f)
+
     return produce_plan_response
 
-def deployment_test(args : argparse.Namespace, result_folder : str, run_nums : int, produce_plan_response: ProducePlanResponse):
-    csv_path = os.path.join(
-        result_folder, "deployment.csv"
-    )
+
+def deployment_test(
+    args: argparse.Namespace,
+    result_folder: str,
+    run_nums: int,
+    produce_plan_response: ProducePlanResponse,
+):
+    csv_path = os.path.join(result_folder, "deployment.csv")
 
     if os.path.exists(csv_path):
         dataframe = pd.read_csv(csv_path)
@@ -248,7 +282,7 @@ def deployment_test(args : argparse.Namespace, result_folder : str, run_nums : i
                 "run_time",
             ]
         )
-    
+
     deployer_stub = get_deployer_stub()
     deployment_request = DeploymentRequest(
         optimized_plan=produce_plan_response.optimized_plan
@@ -282,13 +316,12 @@ def deployment_test(args : argparse.Namespace, result_folder : str, run_nums : i
     dataframe = prepare_dataframe(dataframe, add_df)
     dataframe = pd.concat([dataframe, add_df], ignore_index=True)
     dataframe.to_csv(csv_path, index=False)
-    
+
     pass
 
-def usage_test(args : argparse.Namespace, result_folder : str, run_nums : int) :
-    csv_path = os.path.join(
-        result_folder, "usage.csv"
-    )
+
+def usage_test(args: argparse.Namespace, result_folder: str, run_nums: int):
+    csv_path = os.path.join(result_folder, "usage.csv")
     if os.path.exists(csv_path):
         dataframe = pd.read_csv(csv_path)
     else:
@@ -380,7 +413,7 @@ def prepare_dataframe(dataframe: pd.DataFrame, add_df: pd.DataFrame):
     return dataframe
 
 
-def build_result_folder(has_edge : bool, has_cloud : bool):
+def build_result_folder(has_edge: bool, has_cloud: bool):
 
     result_folder = ""
     if not has_edge and not has_cloud:
@@ -393,7 +426,6 @@ def build_result_folder(has_edge : bool, has_cloud : bool):
         result_folder = "../Results/DeviceEdgeCloudPlan"
 
     os.makedirs(result_folder, exist_ok=True)
-
 
     return result_folder
 

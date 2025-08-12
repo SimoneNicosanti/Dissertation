@@ -32,6 +32,10 @@ class PlanBuilder:
             all_comp_nodes: set[NodeId] = PlanBuilder.__get_all_nodes_in_component(
                 solved_graph, component_id
             )
+            plan_dict[component_id]["component_size"] = len(all_comp_nodes)
+            plan_dict[component_id]["quantized_nodes_num"] = len(
+                (all_comp_nodes.intersection(set(quantized_list)))
+            )
 
             is_only_input, is_only_output = PlanBuilder.__sub_graph_is_empty(
                 solved_graph, all_comp_nodes
@@ -40,7 +44,6 @@ class PlanBuilder:
             plan_dict[component_id]["is_only_input"] = is_only_input
             plan_dict[component_id]["is_only_output"] = is_only_output
 
-            ## TODO Modify to support quantization cuts
             input_names = PlanBuilder.__find_input_names(
                 solved_graph, all_comp_nodes, component_id
             )

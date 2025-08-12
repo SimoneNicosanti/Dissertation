@@ -424,6 +424,5 @@ class OnnxModelProfiler(AbsModelProfiler):
     def __init_size_in_bytes(self, elem_type: onnx.TensorProto.DataType) -> int:
         map_elem = TENSOR_TYPE_MAP.get(elem_type)
         if map_elem is not None:
-            ## TODO Check if this is working for integers too
             return map_elem.np_dtype.itemsize
         return 0

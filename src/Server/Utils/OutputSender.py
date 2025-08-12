@@ -70,15 +70,16 @@ class OutputSender:
                 [tensor.tensor_name for tensor in to_send_list],
             )
             comp_send_start = time.perf_counter_ns()
-            response_stream = next_comp_stub.do_inference(
-                self.__stream_generator(next_comp_info, request_info, to_send_list)
-            )
+            for elem in to_send_list:
+                response_stream = next_comp_stub.do_inference(
+                    self.__stream_generator(next_comp_info, request_info, [elem])
+                )
 
-            ## As the receiver will answer with a stream
-            ## We have to consume it in order to unlock the computation
-            ## The stream will actually be empty, but we have to do it anyway
-            for _ in response_stream:
-                pass
+                ## As the receiver will answer with a stream
+                ## We have to consume it in order to unlock the computation
+                ## The stream will actually be empty, but we have to do it anyway
+                for _ in response_stream:
+                    pass
             comp_send_end = time.perf_counter_ns()
 
             print("\t\t\t Time >> ", (comp_send_end - comp_send_start) * 1e-9)

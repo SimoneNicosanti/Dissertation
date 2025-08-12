@@ -154,13 +154,17 @@ class ServerMonitor:
 
             server_chan = self.server_chan_dict[server_info.server_id.server_id]
 
-            latency = self.__evaluate_latency(server_chan)
+            latency = self.__evaluate_latency(
+                server_chan, server_info.server_id.server_id
+            )
 
             if latency is not None:
                 ## Successfully pinged the server
                 self.latencies[server_info.server_id.server_id] = latency
 
-                bandwidth = self.__evaluate_bandwidth(server_chan)
+                bandwidth = self.__evaluate_bandwidth(
+                    server_chan, server_info.server_id.server_id, latency
+                )
 
                 if bandwidth is not None:
                     self.bandwidths[server_info.server_id.server_id] = bandwidth
@@ -177,7 +181,8 @@ class ServerMonitor:
                 self.latencies.pop(server_info.server_id.server_id, None)
                 self.bandwidths.pop(server_info.server_id.server_id, None)
 
-    def __evaluate_latency(self, server_chan: grpc.Channel):
+    def __evaluate_latency(self, server_chan: grpc.Channel, server_id: str):
+        print("Evaluating latency for server {}".format(server_id))
         try:
             ping_stub = PingStub(server_chan)
 
@@ -190,15 +195,17 @@ class ServerMonitor:
             end = time.perf_counter_ns()
             rtt_ns = (end - start) / ping_times
 
-            latency_ns = rtt_ns / 2
+            latency_ns = rtt_ns
             latency = latency_ns * 1e-9
         except Exception:
             print("Could not ping the server")
             latency = None
         return latency
 
-    def __evaluate_bandwidth(self, server_chan: grpc.Channel):
-
+    def __evaluate_bandwidth(
+        self, server_chan: grpc.Channel, server_id: str, rtt: float
+    ):
+        print("Evaluating bandwidth for server {}".format(server_id))
         ping_server_stub = PingStub(server_chan)
 
         max_msg_size_bytes = ConfigReader.ConfigReader().read_bytes_chunk_size()
@@ -218,7 +225,7 @@ class ServerMonitor:
         ping_server_stub.bandwidth_test(bandwidth_message_yield(tot_msgs))
         end = time.perf_counter_ns()
 
-        tot_time_sec = (end - start) * 1e-9
+        tot_time_sec = (end - start) * 1e-9 - rtt
 
         tot_sent_B = max_msg_size_bytes * tot_msgs
         tot_sent_MB = tot_sent_B / MEGABYTE_SIZE

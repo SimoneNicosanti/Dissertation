@@ -98,7 +98,6 @@ def define_tensor_assignment_vars(
     return vars_table
 
 
-## TODO Fix memory with quantization
 def define_memory_use_vars(
     network_graph: nx.DiGraph, graph_name: str
 ) -> dict[MemoryUseKey, pulp.LpVariable]:
