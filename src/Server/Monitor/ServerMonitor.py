@@ -197,8 +197,9 @@ class ServerMonitor:
 
             latency_ns = rtt_ns
             latency = latency_ns * 1e-9
+            print("\t Done evaluating Latency")
         except Exception:
-            print("Could not ping the server")
+            print("\t Could not ping the server")
             latency = None
         return latency
 
@@ -229,6 +230,8 @@ class ServerMonitor:
 
         tot_sent_B = max_msg_size_bytes * tot_msgs
         tot_sent_MB = tot_sent_B / MEGABYTE_SIZE
+
+        print("\t Done evaluating Bandwidth")
 
         return tot_sent_MB / tot_time_sec
 

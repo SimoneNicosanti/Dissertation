@@ -77,23 +77,39 @@ class ModelExecutionProfile:
         if node_id not in self.model_execution_profile_dict:
             return 0
 
-        q_diff = (
-            self.model_execution_profile_dict[NodeId("TotalSum")]["q_avg_time"]
+        # q_diff = (
+        #     self.model_execution_profile_dict[NodeId("TotalSum")]["q_avg_time"]
+        #     - self.model_execution_profile_dict[NodeId("WholeModel")]["q_avg_time"]
+        # )
+        # nq_diff = (
+        #     self.model_execution_profile_dict[NodeId("TotalSum")]["nq_avg_time"]
+        #     - self.model_execution_profile_dict[NodeId("WholeModel")]["nq_avg_time"]
+        # )
+
+        # k_q = (q_diff - nq_diff) / self.model_execution_profile_dict[
+        #     NodeId("TotalSum")
+        # ]["q_avg_time"]
+
+        # gain_value = (
+        #     self.model_execution_profile_dict[node_id]["nq_avg_time"]
+        #     - (1 - k_q) * self.model_execution_profile_dict[node_id]["q_avg_time"]
+        # )
+
+        num_diff = (
+            self.model_execution_profile_dict[NodeId("WholeModel")]["nq_avg_time"]
             - self.model_execution_profile_dict[NodeId("WholeModel")]["q_avg_time"]
         )
-        nq_diff = (
+        den_diff = (
             self.model_execution_profile_dict[NodeId("TotalSum")]["nq_avg_time"]
-            - self.model_execution_profile_dict[NodeId("WholeModel")]["nq_avg_time"]
+            - self.model_execution_profile_dict[NodeId("TotalSum")]["q_avg_time"]
         )
 
-        k_q = (q_diff - nq_diff) / self.model_execution_profile_dict[
-            NodeId("TotalSum")
-        ]["q_avg_time"]
-
-        gain_value = (
+        pred_diff = (
             self.model_execution_profile_dict[node_id]["nq_avg_time"]
-            - (1 - k_q) * self.model_execution_profile_dict[node_id]["q_avg_time"]
+            - self.model_execution_profile_dict[node_id]["q_avg_time"]
         )
+
+        gain_value = pred_diff * den_diff / num_diff
 
         return gain_value
 

@@ -45,7 +45,12 @@ class OptimizationHandler:
     def get_solver(warmStart=False, gapRel=None):
         if os.path.exists(CPLEX_PATH):
             return pulp.CPLEX_CMD(
-                path=CPLEX_PATH, warmStart=False, gapRel=None, msg=False
+                path=CPLEX_PATH,
+                warmStart=False,
+                gapRel=None,
+                msg=False,
+                # options=["parallelmode=1"],
+                threads=1,  ## Have to set this for result repeatability
             )
         else:
             return pulp.SCIP_PY(warmStart=warmStart, msg=False)
