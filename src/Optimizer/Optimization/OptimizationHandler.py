@@ -180,6 +180,16 @@ class OptimizationHandler:
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
 
+        # start_server_time = LatencyComputer.compute_model_comp_latency_per_node(
+        #     model_graphs[0],
+        #     network_graph,
+        #     node_ass_vars,
+        #     start_server,
+        #     server_execution_profile_pool,
+        # )[0].value()
+
+        # print("⌛ Start Server Time >> ", start_server_time)
+
         print("💰 Latency Cost >> ", final_latency_cost.value())
         print("💡 Energy Cost >> ", final_energy_cost.value())
 

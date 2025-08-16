@@ -1,7 +1,6 @@
 import argparse
 import json
 import os
-import re
 import time
 
 import grpc
@@ -21,6 +20,8 @@ from proto_compiled.deployment_pb2 import (
 )
 from proto_compiled.deployment_pb2_grpc import DeploymentStub
 from Test.Scripts.Utils.InferenceCaller import InferenceCaller
+
+COLD_START_RUNS = 10
 
 
 def main():
@@ -354,7 +355,7 @@ def usage_test(args: argparse.Namespace, result_folder: str, run_nums: int):
 
     ## Cold Start Runs
     print("🥶 Cold Start Runs")
-    for _ in tqdm.tqdm(range(10)):
+    for _ in tqdm.tqdm(range(COLD_START_RUNS)):
         inference_caller.call_inference(args.model_name, input_dict)
 
     ## Hot Runs

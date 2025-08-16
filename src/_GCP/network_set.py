@@ -49,7 +49,7 @@ def main():
 
     if "device" in ip_dict.keys():
         os.system(
-            """ gcloud compute ssh device --command="sudo python3 delay_script.py --dev ens3 --bandwidth 5.0 --latencies 5 55 --ips 10.0.1.16 10.0.1.17" """
+            """ gcloud compute ssh device --command="sudo python3 delay_script.py --dev ens4 --bandwidth 5.0 --latencies 5 55 --ips 10.0.1.16 10.0.1.17" """
         )
         os.system(
             """ gcloud compute ssh device --command="sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0" """

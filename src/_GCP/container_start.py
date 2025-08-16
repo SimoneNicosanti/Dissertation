@@ -13,7 +13,7 @@ def modify_energy_config(original_name: str, cpus: int = 0):
     config = configparser.ConfigParser()
     config.read("./src/config/energy_config.ini")
 
-    base_energy_value = float(config.get("base_values", "COMP_ENERGY_PER_SEC"))
+    base_energy_value = float(config.get(original_name, "COMP_ENERGY_PER_SEC"))
 
     if cpus == 0:
         cpus_multiplier = float(config.get("base_values", "DEFAULT_CORE_NUMS"))
@@ -28,6 +28,7 @@ def modify_energy_config(original_name: str, cpus: int = 0):
 
 
 def map_execution_profiles(original_name: str, cpus: int = 0):
+    return []
 
     directory = "/home/customuser/Exec_Profile/"
 
@@ -113,9 +114,9 @@ def main():
     if args.memory is not None:
         command += f" -m {args.memory}g"
     if args.cpus is not None:
-        # cpus_list = [x for x in range(args.cpus)]
-        # command += f" --cpuset-cpus={','.join(map(str, cpus_list))}"
-        command += f" --cpus={args.cpus}"
+        cpus_list = [x for x in range(int(args.cpus))]
+        command += f" --cpuset-cpus={','.join(map(str, cpus_list))}"
+        # command += f" --cpus={args.cpus}"
 
     ## Setting Volumes
     command += " -v /home/customuser/src:/src"

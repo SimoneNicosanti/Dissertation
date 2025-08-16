@@ -20,11 +20,9 @@ def main():
     parser.add_argument("--edge-cpus", type=float, help="Edge CPUs", required=True)
 
     parser.add_argument(
-        "--device-bandwidth", type=float, help="Device Bandwidth", required=True
+        "--device-bw", type=float, help="Device Bandwidth", required=True
     )
-    parser.add_argument(
-        "--edge-bandwidth", type=float, help="Edge Bandwidth", required=True
-    )
+    parser.add_argument("--edge-bw", type=float, help="Edge Bandwidth", required=True)
 
     args = parser.parse_args()
 
@@ -41,8 +39,8 @@ def main():
                         max_noise,
                         args.device_cpus,
                         args.edge_cpus,
-                        args.device_bandwidth,
-                        args.edge_bandwidth,
+                        args.device_bw,
+                        args.edge_bw,
                     )
                     print("")
                     print("🟢 Running >> ", command)

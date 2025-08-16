@@ -15,7 +15,7 @@ def main():
         columns=["model_name", "server", "cpus", "pred_avg_time", "interp_avg_time"]
     )
 
-    layer_list = [
+    all_quantizable = [
         "/model.1/conv/Conv",
         "/model.2/cv2/conv/Conv",
         "/model.3/conv/Conv",
@@ -30,68 +30,108 @@ def main():
         "/model.23/proto/cv2/conv/Conv",
     ]
 
-    # layer_list = layers = [
-    #     "/model.5/conv/Conv",
-    #     "/model.23/proto/upsample/ConvTranspose",
-    #     "/model.23/proto/cv2/conv/Conv",
-    # ]
+    curr_quant_list = [
+        "/model.5/conv/Conv",
+        "/model.23/proto/upsample/ConvTranspose",
+        "/model.23/proto/cv2/conv/Conv",
+    ]
 
-    # layer_list = layers = [
-    #     "/model.2/cv2/conv/Conv",
-    #     "/model.4/cv2/conv/Conv",
-    #     "/model.5/conv/Conv",
-    #     "/model.17/conv/Conv",
-    #     "/model.23/proto/cv1/conv/Conv",
-    #     "/model.23/cv4.0/cv4.0.0/conv/Conv",
-    #     "/model.23/cv2.0/cv2.0.0/conv/Conv",
-    #     "/model.23/proto/upsample/ConvTranspose",
-    #     "/model.23/proto/cv2/conv/Conv",
-    # ]
+    curr_quant_list = layers = [
+        "/model.2/cv2/conv/Conv",
+        "/model.4/cv2/conv/Conv",
+        "/model.5/conv/Conv",
+        "/model.17/conv/Conv",
+        "/model.23/proto/cv1/conv/Conv",
+        "/model.23/cv4.0/cv4.0.0/conv/Conv",
+        "/model.23/cv2.0/cv2.0.0/conv/Conv",
+        "/model.23/proto/upsample/ConvTranspose",
+        "/model.23/proto/cv2/conv/Conv",
+    ]
 
-    # layer_list = layers = [
-    #     "/model.2/cv2/conv/Conv",
-    #     "/model.3/conv/Conv",
-    #     "/model.4/cv2/conv/Conv",
-    #     "/model.5/conv/Conv",
-    #     "/model.17/conv/Conv",
-    #     "/model.23/proto/cv1/conv/Conv",
-    #     "/model.23/cv4.0/cv4.0.0/conv/Conv",
-    #     "/model.23/cv2.0/cv2.0.0/conv/Conv",
-    #     "/model.23/proto/upsample/ConvTranspose",
-    #     "/model.23/proto/cv2/conv/Conv",
-    # ]
+    curr_quant_list = layers = [
+        "/model.2/cv2/conv/Conv",
+        "/model.3/conv/Conv",
+        "/model.4/cv2/conv/Conv",
+        "/model.5/conv/Conv",
+        "/model.17/conv/Conv",
+        "/model.23/proto/cv1/conv/Conv",
+        "/model.23/cv4.0/cv4.0.0/conv/Conv",
+        "/model.23/cv2.0/cv2.0.0/conv/Conv",
+        "/model.23/proto/upsample/ConvTranspose",
+        "/model.23/proto/cv2/conv/Conv",
+    ]
+
+    curr_quant_list = all_quantizable
 
     profile_file = "../../Results/Exec_Profile/Client_yolo11x-seg_0.5_exec_profile.json"
     with open(profile_file, "r") as f:
         exec_profile_dict = json.load(f)
 
-        nq_tot_sum = exec_profile_dict["TotalSum"]["nq_avg_time"]
-        q_tot_sum_int = exec_profile_dict["TotalSum"]["q_avg_time"]
+        whole_nq_time = exec_profile_dict["WholeModel"]["nq_avg_time"]
+        mixed_model_time = exec_profile_dict["MixedModel"]["q_avg_time"]
+
+        nq_sum = 0
+        q_sum = 0
+        mixed_sum = 0
+        for key in exec_profile_dict.keys():
+            if key != "WholeModel" and key != "TotalSum" and key != "MixedModel":
+                nq_sum += exec_profile_dict[key]["nq_avg_time"]
+
+                if key in all_quantizable:
+                    q_sum += exec_profile_dict[key]["q_avg_time"]
+
+                if key in all_quantizable:
+                    mixed_sum += exec_profile_dict[key]["q_avg_time"]
+                else:
+                    mixed_sum += exec_profile_dict[key]["nq_avg_time"]
+
+        real_mixed_gain = whole_nq_time - mixed_model_time
+        sum_mixed_gain = nq_sum - mixed_sum
+
+        k_nq = 1 - whole_nq_time / nq_sum
+
+        real_quant_sum = mixed_model_time - whole_nq_time
+        for key in exec_profile_dict.keys():
+            if key != "WholeModel" and key != "TotalSum" and key != "MixedModel":
+                if key in all_quantizable:
+                    real_quant_sum += (1 - k_nq) * exec_profile_dict[key]["nq_avg_time"]
+
+        print(q_sum, real_quant_sum)
+        k_q = 1 - real_quant_sum / q_sum
+
+        k_mixed = 1 - real_mixed_gain / sum_mixed_gain
 
         interp_avg_time = 0
         for key in exec_profile_dict.keys():
 
-            if key != "WholeModel" and key != "TotalSum":
+            if key != "WholeModel" and key != "TotalSum" and key != "MixedModel":
+                # layer_time = (1 - k_nq) * exec_profile_dict[key]["nq_avg_time"]
 
-                k_nq = 1 - exec_profile_dict["WholeModel"]["nq_avg_time"] / nq_tot_sum
-                k_q = (
-                    (q_tot_sum_int - exec_profile_dict["WholeModel"]["q_avg_time"])
-                    - (nq_tot_sum - exec_profile_dict["WholeModel"]["nq_avg_time"])
-                ) / q_tot_sum_int
+                # if key not in curr_quant_list:
+                #     layer_gain = 0
+                # else:
+                #     layer_gain = (1 - k_mixed) * (
+                #         exec_profile_dict[key]["nq_avg_time"]
+                #         - exec_profile_dict[key]["q_avg_time"]
+                #     )
+                #     print(
+                #         "Layer Time, Gain, Diff >> ",
+                #         layer_time,
+                #         layer_gain,
+                #         layer_time - layer_gain,
+                #     )
 
-                value = (1 - k_nq) * exec_profile_dict[key]["nq_avg_time"]
+                # interp_avg_time += layer_time - layer_gain
 
-                if key in layer_list:
-                    gain = (
-                        exec_profile_dict[key]["nq_avg_time"]
-                        - (1 - k_q) * exec_profile_dict[key]["q_avg_time"]
-                    )
+                if key not in curr_quant_list:
+                    layer_time = (1 - k_nq) * exec_profile_dict[key]["nq_avg_time"]
+                else:
+                    layer_time_nq = (1 - k_nq) * exec_profile_dict[key]["nq_avg_time"]
+                    layer_time = (1 - k_q) * exec_profile_dict[key]["q_avg_time"]
+                    print(layer_time_nq, layer_time)
+                    pass
 
-                    value = value - gain
-
-                interp_avg_time += value
-
-            pass
+                interp_avg_time += layer_time
 
             # if key in layer_list:
             #     print(key, exec_profile_dict[key][metric_name], interp_value)

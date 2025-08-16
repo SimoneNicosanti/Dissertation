@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -20,101 +21,104 @@ def plan_vs_real_comparison():
         "edge_bandwidth",
     ]
 
+    # ---- Planned times ----
     plan_df = pd.read_csv(GENERATION_PATH)
-    plan_df = plan_df[group_cols + ["latency_value"]]
-    plan_df = (
-        plan_df.groupby(group_cols)["latency_value"].mean().reset_index()
-    ).rename(columns={"latency_value": "plan_latency"})
+    plan_df = plan_df[group_cols + ["latency_value", "energy_value"]]
 
+    # ---- Real times ----
     usage_df = pd.read_csv(USAGE_PATH)
     usage_df = usage_df[group_cols + ["run_time"]]
-    usage_df = (usage_df.groupby(group_cols)["run_time"].mean().reset_index()).rename(
-        columns={"run_time": "real_time"}
-    )
-
-    merged_df = plan_df.merge(
-        usage_df,
-        on=[
-            "model_name",
-            "energy_weight",
-            "latency_weight",
-            "device_max_energy",
-            "max_noises",
-            "device_cpus",
-            "edge_cpus",
-            "device_bandwidth",
-            "edge_bandwidth",
-        ],
-        how="inner",
-    )
-    merged_df["diff_time"] = merged_df["real_time"] - merged_df["plan_latency"]
-
-    df_long = pd.melt(
-        merged_df,
-        id_vars=[
-            "model_name",
-            "energy_weight",
-            "latency_weight",
-            "device_max_energy",
-            "max_noises",
-            "device_cpus",
-            "edge_cpus",
-            "device_bandwidth",
-            "edge_bandwidth",
-        ],
-        value_vars=["real_time", "plan_latency"],
-        var_name="time_type",
-        value_name="time_value",
-    )
-
-    sns.set_style("whitegrid")  # Altri: "darkgrid", "white", "dark", "ticks"
 
     models = ["yolo11x-seg"]
-    for i in range(len(models)):
-        model = models[i]
-
-        g = sns.relplot(
-            data=df_long[df_long["model_name"] == model],
-            x="max_noises",
-            y="time_value",
-            hue="time_type",
-            col="latency_weight",
-            col_wrap=3,
-            palette="colorblind",
-            kind="line",
-            facet_kws={"sharey": False, "sharex": False},
-            height=3.5,  # ↓ decrease from default (usually 5)
-            aspect=1.5,  # width/height ratio (optional)
+    for model in models:
+        axes: list[list[plt.Axes]]
+        fig: plt.Figure
+        fig, axes = plt.subplots(
+            figsize=(14, 7),
+            nrows=2,
+            ncols=len(plan_df["latency_weight"].unique()),
+            sharey="row",
         )
 
-        xticks = df_long[df_long["model_name"] == model]["max_noises"].unique()
-        for ax in g.axes.flat:
-            ax.set_xticks(xticks)
-            ax.set_xticklabels([f"{x}" for x in xticks], rotation=45)
+        lw_list = plan_df["latency_weight"].unique()
+        lw_list.sort()
 
-        # fig.suptitle("Device Only Plan -- Max Noise vs Time")
+        for idx, lw in enumerate(lw_list):  # lw_list :
+            curr_ax = axes[0][idx]
+
+            curr_usage_df = usage_df[
+                (usage_df["model_name"] == model) & (usage_df["latency_weight"] == lw)
+            ]
+
+            curr_ax.plot(
+                curr_usage_df["max_noises"].unique(),
+                curr_usage_df["run_time"].groupby(curr_usage_df["max_noises"]).mean(),
+                marker="o",
+                color="blue",
+                label="Real Latency",
+            )
+
+            curr_plan_df = plan_df[
+                (plan_df["model_name"] == model) & (plan_df["latency_weight"] == lw)
+            ]
+
+            curr_ax.plot(
+                curr_plan_df["max_noises"].unique(),
+                curr_plan_df["latency_value"]
+                .groupby(curr_plan_df["max_noises"])
+                .mean(),
+                marker="o",
+                color="orange",
+                label="Planned Latency",
+            )
+
+            curr_ax.legend()
+
+            curr_ax.set_title(f"Latency Weight: {lw}", fontsize=11)
+
+            curr_ax.set_ylabel("Time [s]")
+            curr_ax.set_xlabel("Max Noise")
+
+            curr_ax.set_xticks(curr_usage_df["max_noises"].unique())
+            curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
+
+        ew_list = np.sort(plan_df["energy_weight"].unique())[::-1]
+
+        for idx, ew in enumerate(ew_list):  # ew_list :
+            curr_ax = axes[1][idx]
+
+            curr_plan_df = plan_df[
+                (plan_df["model_name"] == model) & (plan_df["energy_weight"] == ew)
+            ]
+
+            curr_ax.plot(
+                curr_plan_df["max_noises"].unique(),
+                curr_plan_df["energy_value"].groupby(curr_plan_df["max_noises"]).mean(),
+                marker="o",
+                color="orange",
+                label="Planned Energy",
+            )
+
+            curr_ax.legend()
+
+            curr_ax.set_title(f"Energy Weight: {ew}", fontsize=11)
+
+            curr_ax.set_ylabel("Energy [J]")
+            curr_ax.set_xlabel("Max Noise")
+
+            curr_ax.set_xticks(curr_plan_df["max_noises"].unique())
+            curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
+
+        for ax in fig.get_axes():
+            ax.tick_params(labelleft=True)  # show tick labels
+            ax.yaxis.set_tick_params(which="both", labelleft=True)  # for sa
+
+        fig.suptitle(f"Device + Edge ; Model: {model}", fontsize=13)
 
         plt.tight_layout()
-        plt.savefig(f"../Images/device_edge_plan_{model}_trends.png")
-
-    for i in range(len(models)):
-        model = models[i]
-
-        g = sns.relplot(
-            data=merged_df[merged_df["model_name"] == model],
-            x="max_noises",
-            y="diff_time",
-            col="latency_weight",
-            col_wrap=3,
-            palette="colorblind",
-            kind="line",
-            facet_kws={"sharey": False, "sharex": False},
-            height=3.5,  # ↓ decrease from default (usually 5)
-            aspect=1.5,  # width/height ratio (optional)
+        plt.savefig(
+            f"../Images/Pred_Comparisons/device_edge_plan_comparison_{model}.png"
         )
-
-        plt.tight_layout()
-        plt.show()  # (f"../Images/device_edge_plan_{model}_diff.png")
 
 
 def num_components_chart():
@@ -240,7 +244,7 @@ def pred_values_trends():
 
 
 def main():
-    num_components_chart()
+    # num_components_chart()
     # pred_values_trends()
     plan_vs_real_comparison()
 

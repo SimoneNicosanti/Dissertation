@@ -53,6 +53,11 @@ RUN pip install supervision
 RUN pip install tqdm
 RUN pip install seaborn
 
+RUN apt update
+RUN apt install graphviz libgraphviz-dev pkg-config
+RUN pip install pygraphviz
+
+
 
 
 ## Shell Settings
