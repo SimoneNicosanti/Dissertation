@@ -7,7 +7,7 @@ COMMAND = "./start_test.sh FullTest.py --model-name {} --latency-weight {} --ene
 
 
 MODELS = ["yolo11x-seg"]
-LW = [1.0, 0.5, 0.0]
+LW = [0.0]  # [1.0, 0.5, 0.0]
 DEVICE_MAX_ENERGY = [0.0]
 MAX_NOISES = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.5]
 

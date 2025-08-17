@@ -74,116 +74,134 @@ def main():
 
     models = ["yolo11x-seg"]
     for model in models:
-        fig: plt.Figure
-        axes: list[list[plt.Axes]]
-        fig, axes = plt.subplots(
-            figsize=(14, 7),
-            nrows=2,
-            ncols=len(device_edge_usage_df["latency_weight"].unique()),
-            sharey="row",
-        )
+        for dev_cpus in device_edge_usage_df["device_cpus"].unique():
+            for edge_cpus in device_edge_usage_df["edge_cpus"].unique():
+                fig: plt.Figure
+                axes: list[list[plt.Axes]]
+                fig, axes = plt.subplots(
+                    figsize=(14, 7),
+                    nrows=2,
+                    ncols=len(device_edge_usage_df["latency_weight"].unique()),
+                    sharey="row",
+                )
 
-        latency_weights = device_edge_usage_df["latency_weight"].unique()
-        latency_weights = sorted(latency_weights)
+                latency_weights = device_edge_usage_df["latency_weight"].unique()
+                latency_weights = sorted(latency_weights)
 
-        for i, lw in enumerate(latency_weights):
-            device_usage_df_i = device_usage_df[device_usage_df["model_name"] == model]
-            device_edge_usage_df_i = device_edge_usage_df[
-                (device_edge_usage_df["latency_weight"] == lw)
-                & (device_edge_usage_df["model_name"] == model)
-            ]
-            device_edge_cloud_usage_df_i = device_edge_cloud_usage_df[
-                (device_edge_usage_df["latency_weight"] == lw)
-                & (device_edge_usage_df["model_name"] == model)
-            ]
+                for i, lw in enumerate(latency_weights):
+                    device_usage_df_i = device_usage_df[
+                        (device_usage_df["model_name"] == model)
+                        & (device_usage_df["device_cpus"] == dev_cpus)
+                    ]
+                    device_edge_usage_df_i = device_edge_usage_df[
+                        (device_edge_usage_df["latency_weight"] == lw)
+                        & (device_edge_usage_df["model_name"] == model)
+                        & (device_edge_usage_df["edge_cpus"] == edge_cpus)
+                        & (device_edge_usage_df["device_cpus"] == dev_cpus)
+                    ]
+                    device_edge_cloud_usage_df_i = device_edge_cloud_usage_df[
+                        (device_edge_cloud_usage_df["latency_weight"] == lw)
+                        & (device_edge_cloud_usage_df["model_name"] == model)
+                        & (device_edge_cloud_usage_df["edge_cpus"] == edge_cpus)
+                        & (device_edge_cloud_usage_df["device_cpus"] == dev_cpus)
+                    ]
 
-            curr_ax = axes[0][i]
+                    curr_ax = axes[0][i]
 
-            curr_ax.plot(
-                device_usage_df_i["max_noises"].unique(),
-                device_usage_df_i["run_time"],
-                label="device",
-                marker="o",
-            )
-            curr_ax.plot(
-                device_edge_usage_df_i["max_noises"].unique(),
-                device_edge_usage_df_i["run_time"],
-                label="device + edge",
-                marker="o",
-            )
-            curr_ax.plot(
-                device_edge_cloud_usage_df_i["max_noises"].unique(),
-                device_edge_cloud_usage_df_i["run_time"],
-                label="device + edge + cloud",
-                marker="o",
-            )
+                    curr_ax.plot(
+                        device_usage_df_i["max_noises"].unique(),
+                        device_usage_df_i["run_time"],
+                        label="device",
+                        marker="o",
+                    )
+                    curr_ax.plot(
+                        device_edge_usage_df_i["max_noises"].unique(),
+                        device_edge_usage_df_i["run_time"],
+                        label="device + edge",
+                        marker="o",
+                    )
+                    curr_ax.plot(
+                        device_edge_cloud_usage_df_i["max_noises"].unique(),
+                        device_edge_cloud_usage_df_i["run_time"],
+                        label="device + edge + cloud",
+                        marker="o",
+                    )
 
-            curr_ax.set_title(f"Latency Weight: {lw}", fontsize=11)
+                    curr_ax.set_title(f"Latency Weight: {lw}", fontsize=11)
 
-            curr_ax.set_ylabel("Time [s]")
-            curr_ax.set_xlabel("Max Noise")
+                    curr_ax.set_ylabel("Time [s]")
+                    curr_ax.set_xlabel("Max Noise")
 
-            curr_ax.set_xticks(device_edge_usage_df_i["max_noises"].unique())
-            curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
+                    curr_ax.set_xticks(device_edge_usage_df_i["max_noises"].unique())
+                    curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
 
-            curr_ax.legend()
+                    curr_ax.legend()
 
-        energy_weights = np.sort(device_edge_usage_df["energy_weight"].unique())[::-1]
+                energy_weights = np.sort(
+                    device_edge_usage_df["energy_weight"].unique()
+                )[::-1]
 
-        for i, ew in enumerate(energy_weights):
-            device_plan_gen_df_i = device_plan_gen_df[
-                (device_plan_gen_df["model_name"] == model)
-            ]
-            device_edge_plan_gen_df_i = device_edge_plan_gen_df[
-                (device_edge_plan_gen_df["energy_weight"] == ew)
-                & (device_edge_plan_gen_df["model_name"] == model)
-            ]
-            device_edge_cloud_plan_gen_df_i = device_edge_cloud_plan_gen_df[
-                (device_edge_cloud_plan_gen_df["energy_weight"] == ew)
-                & (device_edge_cloud_plan_gen_df["model_name"] == model)
-            ]
+                for i, ew in enumerate(energy_weights):
+                    device_plan_gen_df_i = device_plan_gen_df[
+                        (device_plan_gen_df["model_name"] == model)
+                        & (device_plan_gen_df["device_cpus"] == dev_cpus)
+                    ]
+                    device_edge_plan_gen_df_i = device_edge_plan_gen_df[
+                        (device_edge_plan_gen_df["energy_weight"] == ew)
+                        & (device_edge_plan_gen_df["model_name"] == model)
+                        & (device_edge_plan_gen_df["edge_cpus"] == edge_cpus)
+                        & (device_edge_plan_gen_df["device_cpus"] == dev_cpus)
+                    ]
+                    device_edge_cloud_plan_gen_df_i = device_edge_cloud_plan_gen_df[
+                        (device_edge_cloud_plan_gen_df["energy_weight"] == ew)
+                        & (device_edge_cloud_plan_gen_df["model_name"] == model)
+                        & (device_edge_cloud_plan_gen_df["edge_cpus"] == edge_cpus)
+                        & (device_edge_cloud_plan_gen_df["device_cpus"] == dev_cpus)
+                    ]
 
-            curr_ax = axes[1][i]
+                    curr_ax = axes[1][i]
 
-            curr_ax.plot(
-                device_plan_gen_df_i["max_noises"].unique(),
-                device_plan_gen_df_i["energy_value"],
-                label="device",
-                marker="o",
-            )
-            curr_ax.plot(
-                device_edge_plan_gen_df_i["max_noises"].unique(),
-                device_edge_plan_gen_df_i["energy_value"],
-                label="device + edge",
-                marker="o",
-            )
-            curr_ax.plot(
-                device_edge_cloud_plan_gen_df_i["max_noises"].unique(),
-                device_edge_cloud_plan_gen_df_i["energy_value"],
-                label="device + edge + cloud",
-                marker="o",
-            )
+                    curr_ax.plot(
+                        device_plan_gen_df_i["max_noises"].unique(),
+                        device_plan_gen_df_i["energy_value"],
+                        label="device",
+                        marker="o",
+                    )
+                    curr_ax.plot(
+                        device_edge_plan_gen_df_i["max_noises"].unique(),
+                        device_edge_plan_gen_df_i["energy_value"],
+                        label="device + edge",
+                        marker="o",
+                    )
+                    curr_ax.plot(
+                        device_edge_cloud_plan_gen_df_i["max_noises"].unique(),
+                        device_edge_cloud_plan_gen_df_i["energy_value"],
+                        label="device + edge + cloud",
+                        marker="o",
+                    )
 
-            curr_ax.set_title(f"Energy Weight: {ew}", fontsize=11)
+                    curr_ax.set_title(f"Energy Weight: {ew}", fontsize=11)
 
-            curr_ax.set_ylabel("Energy [J]")
-            curr_ax.set_xlabel("Max Noise")
+                    curr_ax.set_ylabel("Energy [J]")
+                    curr_ax.set_xlabel("Max Noise")
 
-            curr_ax.set_xticks(device_edge_plan_gen_df_i["max_noises"].unique())
-            curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
+                    curr_ax.set_xticks(device_edge_plan_gen_df_i["max_noises"].unique())
+                    curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
 
-            curr_ax.legend()
+                    curr_ax.legend()
 
-        for ax in fig.get_axes():
-            ax.tick_params(labelleft=True)  # show tick labels
-            ax.yaxis.set_tick_params(which="both", labelleft=True)  # for sa
+                for ax in fig.get_axes():
+                    ax.tick_params(labelleft=True)  # show tick labels
+                    ax.yaxis.set_tick_params(which="both", labelleft=True)  # for sa
 
-        fig.suptitle(f"Baseline Comparison. Model: {model}", fontsize=13)
+                fig.suptitle(f"Baseline Comparison. Model: {model}", fontsize=13)
 
-        plt.tight_layout()
-        plt.savefig(f"../Images/Base_Comparisons/baseline_comparison_{model}.png")
+                plt.tight_layout()
+                plt.savefig(
+                    f"../Images/Base_Comparisons/baseline_comparison_{model}_{dev_cpus}_{edge_cpus}.png"
+                )
 
-        pass
+                pass
 
     pass
 

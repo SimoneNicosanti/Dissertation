@@ -107,8 +107,17 @@ def main():
 
             max_noise = result["max_noises"]
             latency_weight = result["latency_weight"]
+            device_cpus = result["device_cpus"]
+            edge_cpus = result["edge_cpus"]
+            cloud_cpus = result["cloud_cpus"]
 
-            if max_noise == 0.5 and latency_weight == 0.0:
+            if (
+                max_noise == 0.5
+                and latency_weight == 0.0
+                and device_cpus == 1.0
+                and edge_cpus == 1.0
+                and cloud_cpus == 0.0
+            ):
                 curr_plan = Plan.decode(device_edge_cloud_plans[key])
                 draw_execution_graph(curr_plan)
 

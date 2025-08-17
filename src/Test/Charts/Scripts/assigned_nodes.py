@@ -63,13 +63,9 @@ def build_plan_string(
     )
 
 
-def plot_assigned_nodes_for_plan_on_axes(
-    curr_plan: dict, ax_list: list[list[plt.Axes]]
-):
+def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
 
     whole_assigned_sizes = {}
-    latency_weights = set()
-    max_noises = set()
     for key in curr_plan.keys():
 
         model_plan = Plan.decode(curr_plan[key])
@@ -85,9 +81,9 @@ def plot_assigned_nodes_for_plan_on_axes(
 
             max_noise = result["max_noises"]
             latency_weight = result["latency_weight"]
-
-            max_noises.add(max_noise)
-            latency_weights.add(latency_weight)
+            dev_cpus = result["device_cpus"]
+            edge_cpus = result["edge_cpus"]
+            cloud_cpus = result["cloud_cpus"]
 
         curr_assigned_nodes = {}
         for component_id in model_plan.get_all_components():
@@ -100,18 +96,28 @@ def plot_assigned_nodes_for_plan_on_axes(
             curr_assigned_nodes[server_id][1] += component_info["quantized_nodes_num"]
 
         whole_assigned_sizes.setdefault(
-            (latency_weight, max_noise), curr_assigned_nodes
+            (latency_weight, max_noise, dev_cpus, edge_cpus, cloud_cpus),
+            curr_assigned_nodes,
         )
 
     # Prepare list of rows
     rows = []
-    for (latency_weight, max_noises), servers in whole_assigned_sizes.items():
+    for (
+        latency_weight,
+        max_noises,
+        dev_cpus,
+        edge_cpus,
+        cloud_cpus,
+    ), servers in whole_assigned_sizes.items():
         for server_id, layers in servers.items():
             # total_layers = sum(layers)  # if you want total layers per server
             rows.append(
                 {
                     "latency_weight": latency_weight,
                     "max_noises": max_noises,
+                    "device_cpus": dev_cpus,
+                    "edge_cpus": edge_cpus,
+                    "cloud_cpus": cloud_cpus,
                     "server_id": server_id,
                     "num_layers": layers[0],
                     "quant_layers": layers[1],
@@ -125,87 +131,121 @@ def plot_assigned_nodes_for_plan_on_axes(
     df["Num Layers"] = df["num_layers"]
     df["Max Noise"] = df["max_noises"]
 
-    for idx, lw in enumerate(
-        df["latency_weight"].unique()
-    ):  # for each latency weightdf["latency_weight"].unique():
-        curr_ax = ax_list[idx][0]
-        curr_df = df[df["latency_weight"] == lw]
-        sns.barplot(
-            data=curr_df,
-            x="Max Noise",
-            y="Num Layers",
-            hue="Server",
-            ax=curr_ax,
-            hue_order=["Device", "Edge", "Cloud"],
-        )
+    for dev_cpus in df["device_cpus"].unique():
+        for edge_cpus in df["edge_cpus"].unique():
+            for cloud_cpus in df["cloud_cpus"].unique():
 
-        max_height = curr_df["num_layers"].max()
-        curr_ax.set_ylim(0, max_height * 1.1)  # 10% extra space
-
-        # Annotate bars with their height
-        for p in curr_ax.patches:
-            # Only annotate bars with positive height
-            if p.get_height() > 0 and p.get_y() >= 0:
-                curr_ax.text(
-                    x=p.get_x() + p.get_width() / 2,
-                    y=p.get_height(),
-                    s=int(p.get_height()),
-                    ha="center",
-                    va="bottom",
-                    fontsize=8,
+                df_filter = (
+                    (df["device_cpus"] == dev_cpus)
+                    & (df["edge_cpus"] == edge_cpus)
+                    & (df["cloud_cpus"] == cloud_cpus)
                 )
 
-        curr_ax.set_title(
-            f"Total Layers - Latency Weight: {lw}; Energy Weight: {1- lw}", fontsize=11
-        )
-        curr_ax.set_xlabel("Max Noises")
-        curr_ax.set_ylabel("# Assigned Layers")
+                fig: plt.Figure
+                axes: list[list[plt.Axes]]
+                fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(16, 7))
+                for idx, lw in enumerate(
+                    df["latency_weight"].unique()
+                ):  # for each latency weightdf["latency_weight"].unique():
+                    curr_ax = axes[0][idx]
+                    curr_df = df[(df["latency_weight"] == lw) & df_filter]
 
-    for idx, lw in enumerate(
-        df["latency_weight"].unique()
-    ):  # for each latency weightdf["latency_weight"].unique():
+                    if curr_df.empty:
+                        continue
 
-        curr_ax = ax_list[idx][1]
-        curr_df = df[df["latency_weight"] == lw]
-        sns.barplot(
-            data=curr_df,
-            x="Max Noise",
-            y="quant_layers",
-            hue="Server",
-            ax=curr_ax,
-            hue_order=["Device", "Edge", "Cloud"],
-        )
+                    sns.barplot(
+                        data=curr_df,
+                        x="Max Noise",
+                        y="Num Layers",
+                        hue="Server",
+                        ax=curr_ax,
+                        hue_order=["Device", "Edge", "Cloud"],
+                    )
 
-        max_height = curr_df["quant_layers"].max()
-        curr_ax.set_ylim(0, max_height * 1.1)  # 10% extra space
+                    max_height = curr_df["num_layers"].max()
+                    curr_ax.set_ylim(0, max_height * 1.1)  # 10% extra space
 
-        # Annotate bars with their height
-        for p in curr_ax.patches:
-            # Only annotate bars with positive height
-            if p.get_height() > 0 and p.get_y() >= 0:
-                curr_ax.text(
-                    x=p.get_x() + p.get_width() / 2,
-                    y=p.get_height(),
-                    s=int(p.get_height()),
-                    ha="center",
-                    va="bottom",
-                    fontsize=8,
-                )
+                    # Annotate bars with their height
+                    for p in curr_ax.patches:
+                        # Only annotate bars with positive height
+                        if p.get_height() > 0 and p.get_y() >= 0:
+                            curr_ax.text(
+                                x=p.get_x() + p.get_width() / 2,
+                                y=p.get_height(),
+                                s=int(p.get_height()),
+                                ha="center",
+                                va="bottom",
+                                fontsize=8,
+                            )
 
-        curr_ax.set_title(
-            f"Quantized Layers - Latency Weight: {lw}; Energy Weight: {1- lw}",
-            fontsize=11,
-        )
-        curr_ax.set_xlabel("Max Noises")
-        curr_ax.set_ylabel("# Quantized Layers")
+                    curr_ax.set_title(
+                        f"Total Layers - Latency Weight: {lw}; Energy Weight: {1- lw}",
+                        fontsize=11,
+                    )
+                    curr_ax.set_xlabel("Max Noises")
+                    curr_ax.set_ylabel("# Assigned Layers")
+
+                for idx, lw in enumerate(
+                    df["latency_weight"].unique()
+                ):  # for each latency weightdf["latency_weight"].unique():
+
+                    curr_ax = axes[1][idx]
+                    curr_df = df[(df["latency_weight"] == lw) & df_filter]
+                    if curr_df.empty:
+                        continue
+
+                    sns.barplot(
+                        data=curr_df,
+                        x="Max Noise",
+                        y="quant_layers",
+                        hue="Server",
+                        ax=curr_ax,
+                        hue_order=["Device", "Edge", "Cloud"],
+                    )
+
+                    max_height = curr_df["quant_layers"].max()
+                    curr_ax.set_ylim(0, max_height * 1.1)  # 10% extra space
+
+                    # Annotate bars with their height
+                    for p in curr_ax.patches:
+                        # Only annotate bars with positive height
+                        if p.get_height() > 0 and p.get_y() >= 0:
+                            curr_ax.text(
+                                x=p.get_x() + p.get_width() / 2,
+                                y=p.get_height(),
+                                s=int(p.get_height()),
+                                ha="center",
+                                va="bottom",
+                                fontsize=8,
+                            )
+
+                    curr_ax.set_title(
+                        f"Quantized Layers - Latency Weight: {lw}; Energy Weight: {1- lw}",
+                        fontsize=11,
+                    )
+                    curr_ax.set_xlabel("Max Noises")
+                    curr_ax.set_ylabel("# Quantized Layers")
+
+                if cloud_cpus == -1.0:
+                    fig.suptitle(f"Device {dev_cpus} + Edge {edge_cpus} - yolo11x-seg")
+                    plt.tight_layout()
+                    plt.savefig(
+                        f"../Images/Assigned_Nodes/device_edge_assigned_nodes_{dev_cpus}_{edge_cpus}.png"
+                    )
+                else:
+                    fig.suptitle(
+                        f"Device {dev_cpus} + Edge {edge_cpus} + Cloud - yolo11x-seg"
+                    )
+                    plt.tight_layout()
+                    plt.savefig(
+                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_nodes_{dev_cpus}_{edge_cpus}_{cloud_cpus}.png"
+                    )
 
     pass
 
 
-def plot_assigned_components_for_plan_on_axes(curr_plan, ax_list):
-    whole_assigned_sizes = {}
-    latency_weights = set()
-    max_noises = set()
+def plot_assigned_components_for_plan_on_axes(curr_plan):
+    whole_assigned_comps = {}
     for key in curr_plan.keys():
 
         model_plan = Plan.decode(curr_plan[key])
@@ -221,34 +261,43 @@ def plot_assigned_components_for_plan_on_axes(curr_plan, ax_list):
 
             max_noise = result["max_noises"]
             latency_weight = result["latency_weight"]
-
-            max_noises.add(max_noise)
-            latency_weights.add(latency_weight)
+            dev_cpus = result["device_cpus"]
+            edge_cpus = result["edge_cpus"]
+            cloud_cpus = result["cloud_cpus"]
 
         curr_assigned_comps = {}
         for component_id in model_plan.get_all_components():
-            component_info = model_plan.plan_dict[component_id]
 
             server_id = component_id.net_node_id.node_name
             curr_assigned_comps.setdefault(server_id, 0)
 
             curr_assigned_comps[server_id] += 1
 
-        whole_assigned_sizes.setdefault(
-            (latency_weight, max_noise), curr_assigned_comps
+        whole_assigned_comps.setdefault(
+            (latency_weight, max_noise, dev_cpus, edge_cpus, cloud_cpus),
+            curr_assigned_comps,
         )
 
     # Prepare list of rows
     rows = []
-    for (latency_weight, max_noises), servers in whole_assigned_sizes.items():
-        for server_id, comps in servers.items():
+    for (
+        latency_weight,
+        max_noises,
+        dev_cpus,
+        edge_cpus,
+        cloud_cpus,
+    ), servers in whole_assigned_comps.items():
+        for server_id, comps_num in servers.items():
             # total_layers = sum(layers)  # if you want total layers per server
             rows.append(
                 {
                     "latency_weight": latency_weight,
                     "max_noises": max_noises,
+                    "device_cpus": dev_cpus,
+                    "edge_cpus": edge_cpus,
+                    "cloud_cpus": cloud_cpus,
                     "server_id": server_id,
-                    "num_comps": comps,
+                    "num_comps": comps_num,
                 }
             )
 
@@ -256,72 +305,87 @@ def plot_assigned_components_for_plan_on_axes(curr_plan, ax_list):
     df = pd.DataFrame(rows)
     df["server_id"] = df["server_id"].map({"0": "Device", "1": "Edge", "2": "Cloud"})
     df["Server"] = df["server_id"]
-    df["Max Noise"] = df["max_noises"]
 
-    for idx, lw in enumerate(
-        df["latency_weight"].unique()
-    ):  # for each latency weightdf["latency_weight"].unique():
-        curr_ax = ax_list[idx]
-        curr_df = df[df["latency_weight"] == lw]
-        sns.barplot(
-            data=curr_df,
-            x="Max Noise",
-            y="num_comps",
-            hue="Server",
-            ax=curr_ax,
-            hue_order=["Device", "Edge", "Cloud"],
-        )
+    for dev_cpus in df["device_cpus"].unique():
+        for edge_cpus in df["edge_cpus"].unique():
+            for cloud_cpus in df["cloud_cpus"].unique():
 
-        max_height = curr_df["num_comps"].max()
-        curr_ax.set_ylim(0, max_height * 1.1)  # 10% extra space
-
-        # Annotate bars with their height
-        for p in curr_ax.patches:
-            # Only annotate bars with positive height
-            if p.get_height() > 0 and p.get_y() >= 0:
-                curr_ax.text(
-                    x=p.get_x() + p.get_width() / 2,
-                    y=p.get_height(),
-                    s=int(p.get_height()),
-                    ha="center",
-                    va="bottom",
-                    fontsize=8,
+                df_filter = (
+                    (df["device_cpus"] == dev_cpus)
+                    & (df["edge_cpus"] == edge_cpus)
+                    & (df["cloud_cpus"] == cloud_cpus)
                 )
 
-        curr_ax.set_title(
-            f"Total Components - Latency Weight: {lw}; Energy Weight: {1- lw}",
-            fontsize=11,
-        )
-        curr_ax.set_xlabel("Max Noises")
-        curr_ax.set_ylabel("Components Num")
+                fig: plt.Figure
+                axes: list[plt.Axes]
+                fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(16, 8))
+                for idx, lw in enumerate(
+                    df["latency_weight"].unique()
+                ):  # for each latency weightdf["latency_weight"].unique():
+                    curr_ax = axes[idx]
+                    curr_df = df[(df["latency_weight"] == lw) & df_filter]
 
-    pass
-    pass
+                    if curr_df.empty:
+                        continue
+
+                    sns.barplot(
+                        data=curr_df,
+                        x="max_noises",
+                        y="num_comps",
+                        hue="Server",
+                        ax=curr_ax,
+                        hue_order=["Device", "Edge", "Cloud"],
+                    )
+
+                    max_height = curr_df["num_comps"].max()
+                    curr_ax.set_ylim(0, max_height * 1.1)  # 10% extra space
+
+                    # Annotate bars with their height
+                    for p in curr_ax.patches:
+                        # Only annotate bars with positive height
+                        if p.get_height() > 0 and p.get_y() >= 0:
+                            curr_ax.text(
+                                x=p.get_x() + p.get_width() / 2,
+                                y=p.get_height(),
+                                s=int(p.get_height()),
+                                ha="center",
+                                va="bottom",
+                                fontsize=8,
+                            )
+
+                    curr_ax.set_title(
+                        f"Total Components - Latency Weight: {lw}; Energy Weight: {1- lw}",
+                        fontsize=11,
+                    )
+                    curr_ax.set_xlabel("Max Noises")
+                    curr_ax.set_ylabel("# Components")
+
+                if cloud_cpus == -1.0:
+                    fig.suptitle(f"Device {dev_cpus} + Edge {edge_cpus} - yolo11x-seg")
+                    plt.tight_layout()
+                    plt.savefig(
+                        f"../Images/Assigned_Nodes/device_edge_assigned_comps_{dev_cpus}_{edge_cpus}.png"
+                    )
+                else:
+                    fig.suptitle(
+                        f"Device {dev_cpus} + Edge {edge_cpus} + Cloud - yolo11x-seg"
+                    )
+                    plt.tight_layout()
+                    plt.savefig(
+                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_comps_{dev_cpus}_{edge_cpus}_{cloud_cpus}.png"
+                    )
 
 
 def main():
 
-    # device_plans = json.loads(open(DEVICE_PLANS_PATH).read())
     device_edge_plans = json.loads(open(DEVICE_EDGE_PLANS_PATH).read())
-    fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(14, 10))
-    plot_assigned_nodes_for_plan_on_axes(device_edge_plans, axes)
-    fig.suptitle("Device + Edge - yolo11x-seg")
-    plt.tight_layout()
-    plt.savefig("../Images/Assigned_Nodes/device_edge_assigned_nodes.png")
+    plot_assigned_nodes_for_plan_on_axes(device_edge_plans)
 
     device_edge_cloud_plans = json.loads(open(DEVICE_EDGE_CLOUD_PLANS_PATH).read())
-    fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(14, 10))
-    plot_assigned_nodes_for_plan_on_axes(device_edge_cloud_plans, axes)
-    fig.suptitle("Device + Edge + Cloud - yolo11x-seg")
-    plt.tight_layout()
-    plt.savefig("../Images/Assigned_Nodes/device_edge_cloud_assigned_nodes.png")
+    plot_assigned_nodes_for_plan_on_axes(device_edge_cloud_plans)
 
     device_edge_cloud_plans = json.loads(open(DEVICE_EDGE_CLOUD_PLANS_PATH).read())
-    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(14, 10))
-    plot_assigned_components_for_plan_on_axes(device_edge_cloud_plans, axes)
-    fig.suptitle("Device + Edge + Cloud - yolo11x-seg")
-    plt.tight_layout()
-    plt.savefig("../Images/Assigned_Nodes/device_edge_cloud_assigned_components.png")
+    plot_assigned_components_for_plan_on_axes(device_edge_cloud_plans)
 
 
 if __name__ == "__main__":

@@ -13,10 +13,17 @@ def modify_energy_config(original_name: str, cpus: int = 0):
     config = configparser.ConfigParser()
     config.read("./src/config/energy_config.ini")
 
-    base_energy_value = float(config.get(original_name, "COMP_ENERGY_PER_SEC"))
+    if original_name == "device":
+        base_energy_value = float(
+            config.get("base_values", "DEVICE_BASE_COMP_ENERGY_PER_SEC")
+        )
+    else:
+        base_energy_value = float(
+            config.get("base_values", "EDGE_BASE_COMP_ENERGY_PER_SEC")
+        )
 
     if cpus == 0:
-        cpus_multiplier = float(config.get("base_values", "DEFAULT_CORE_NUMS"))
+        cpus_multiplier = 1  # float(config.get("base_values", "DEFAULT_CORE_NUMS"))
     else:
         cpus_multiplier = cpus
 

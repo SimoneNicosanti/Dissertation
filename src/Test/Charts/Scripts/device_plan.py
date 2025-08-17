@@ -1,3 +1,5 @@
+from turtle import color
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -25,55 +27,73 @@ def main():
 
     models = ["yolo11x-seg"]
     for model in models:
-        fig, axes = plt.subplots(figsize=(14, 7), nrows=2, ncols=1)
+        for cpus in usage_df["device_cpus"].unique():
+            fig: plt.Figure
+            axes: list[plt.Axes]
+            fig, axes = plt.subplots(figsize=(14, 7), nrows=2, ncols=1)
 
-        sns.lineplot(
-            data=usage_df[
-                (usage_df["model_name"] == model) & (usage_df["device_cpus"] == 1.0)
-            ],
-            x="max_noises",
-            y="run_time",
-            ax=axes[0],
-            label="Real Latency",
-        )
-        sns.lineplot(
-            data=plan_df[
-                (plan_df["model_name"] == model) & (plan_df["device_cpus"] == 1.0)
-            ],
-            x="max_noises",
-            y="latency_value",
-            label="Plan Latency",
-            ax=axes[0],
-            ci=None,
-        )
+            curr_usage_df = (
+                usage_df[
+                    (usage_df["model_name"] == model)
+                    & (usage_df["device_cpus"] == cpus)
+                ]
+                .groupby(group_columns)
+                .mean()
+                .reset_index()
+            )
 
-        sns.lineplot(
-            data=plan_df[
-                (plan_df["model_name"] == model) & (plan_df["device_cpus"] == 1.0)
-            ],
-            x="max_noises",
-            y="energy_value",
-            label="Plan Energy",
-            ax=axes[1],
-            ci=None,
-        )
+            curr_plan_df = (
+                plan_df[
+                    (plan_df["model_name"] == model) & (plan_df["device_cpus"] == cpus)
+                ]
+                .groupby(group_columns)
+                .mean()
+                .reset_index()
+            )
 
-        axes[0].set_xticks(ticks=usage_df["max_noises"].unique())
-        axes[1].set_xticks(ticks=usage_df["max_noises"].unique())
+            axes[0].plot(
+                usage_df["max_noises"].unique(),
+                curr_usage_df["run_time"],
+                label="Real Latency",
+                color="blue",
+                marker="o",
+            )
+            axes[0].plot(
+                plan_df["max_noises"].unique(),
+                curr_plan_df["latency_value"],
+                label="Plan Latency",
+                color="orange",
+                marker="o",
+            )
+            axes[1].plot(
+                plan_df["max_noises"].unique(),
+                curr_plan_df["energy_value"],
+                label="Plan Energy",
+                color="orange",
+                marker="o",
+            )
 
-        axes[0].set_xlabel("Max Noise")
-        axes[1].set_xlabel("Max Noise")
+            axes[0].set_xticks(ticks=usage_df["max_noises"].unique())
+            axes[1].set_xticks(ticks=usage_df["max_noises"].unique())
 
-        axes[0].set_ylabel("Time [s]")
-        axes[1].set_ylabel("Energy [J]")
+            axes[0].set_xlabel("Max Noise")
+            axes[1].set_xlabel("Max Noise")
 
-        axes[0].set_title("Latency")
-        axes[1].set_title("Energy")
+            axes[0].set_ylabel("Time [s]")
+            axes[1].set_ylabel("Energy [J]")
 
-        fig.suptitle(f"Device - Model {model}")
+            axes[0].set_title("Latency")
+            axes[1].set_title("Energy")
 
-        plt.tight_layout()
-        plt.savefig(f"../Images/Pred_Comparisons/device_plan_comparison_{model}.png")
+            axes[0].legend()
+            axes[1].legend()
+
+            fig.suptitle(f"Device CPUs {cpus} - Model {model}")
+
+            plt.tight_layout()
+            plt.savefig(
+                f"../Images/Pred_Comparisons/Device/device_plan_comparison_{model}_{cpus}.png"
+            )
 
     # pass
 
