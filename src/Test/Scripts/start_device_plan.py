@@ -26,10 +26,10 @@ import time
 # ./start_test.sh FullTest.py --model-name yolo11m --latency-weight 1.0 --energy-weight 0.0 --device-max-energy 0.0 --max-noises 0.5 --plan-gen-runs 1 --plan-deploy-runs 1 --plan-use-runs 25 --device-cpus $1
 
 
-COMMAND = "./start_test.sh FullTest.py --model-name {} --latency-weight {} --energy-weight {} --device-max-energy {} --max-noises {} --plan-gen-runs 1 --plan-deploy-runs 1 --plan-use-runs 25 --device-cpus {} "
+COMMAND = "./start_test.sh FullTest.py --model-name {} --latency-weight {} --energy-weight {} --device-max-energy {} --max-noises {} --plan-gen-runs 1 --plan-deploy-runs 1 --plan-use-runs 25 --device-cpus {}"
 
 MODELS = ["yolo11x-seg"]
-LW = [1.0]  # , 0.5, 0.0]
+LW = [1.0]
 DEVICE_MAX_ENERGY = [0.0]
 MAX_NOISES = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.5]
 

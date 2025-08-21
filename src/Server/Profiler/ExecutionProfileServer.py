@@ -58,6 +58,10 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             tot_med_quant = 0
             tot_avg_not_quant = 0
             tot_med_not_quant = 0
+            tot_avg_whole_model = 0
+            tot_med_whole_model = 0
+            tot_avg_mixed_model = 0
+            tot_med_mixed_model = 0
             for layer_name, layer_model, is_quantized in self.retrieve_layers(model_id):
 
                 avg_layer_exec_time, med_layer_exec_time = profiler.profile_exec_time(
@@ -70,7 +74,14 @@ class ExecutionProfileServer(ExecutionProfileServicer):
                     node_id, avg_layer_exec_time, med_layer_exec_time, is_quantized
                 )
 
-                if layer_name == "WholeModel" or layer_name == "MixedModel":
+                if layer_name == "WholeModel":
+                    tot_avg_whole_model = avg_layer_exec_time
+                    tot_med_whole_model = med_layer_exec_time
+                    continue
+
+                if layer_name == "MixedModel":
+                    tot_avg_mixed_model = avg_layer_exec_time
+                    tot_med_mixed_model = med_layer_exec_time
                     continue
 
                 if is_quantized and layer_name != "WholeModel":
@@ -89,6 +100,10 @@ class ExecutionProfileServer(ExecutionProfileServicer):
             print("\t Total quantized time >> ")
             print(f"\t\t Average >> {tot_avg_quant}")
             print(f"\t\t Median >> {tot_med_quant}")
+
+            print("\t Models times >> ")
+            print(f"\t\t Whole Model >> {tot_avg_whole_model}, {tot_med_whole_model}")
+            print(f"\t\t Mixed Model >> {tot_avg_mixed_model}, {tot_med_mixed_model}")
 
             # model_exec_profile.put_layer_execution_profile(
             #     NodeId("TotalSum"), tot_avg_not_quant, tot_med_not_quant, False

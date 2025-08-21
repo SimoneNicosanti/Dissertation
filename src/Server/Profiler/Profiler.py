@@ -6,13 +6,16 @@ import onnx
 import onnxruntime
 import onnxruntime as ort
 
-from Common import ProviderInit
+from Common import ConfigReader, ProviderInit
 
 
 class ExecutionProfiler:
 
     def __init__(self) -> None:
         self.providers = ProviderInit.init_providers_list()
+        self.cold_start_times = ConfigReader.ConfigReader().read_int(
+            "server_profiler", "COLD_START_RUNS"
+        )
         pass
 
     def profile_exec_time(
@@ -78,7 +81,7 @@ class ExecutionProfiler:
             io_binding.bind_ortvalue_output(output.name, ort_output)
 
         ## Cold Start
-        for _ in range(3):
+        for _ in range(self.cold_start_times):
             sess.run_with_iobinding(io_binding)
 
         execution_times: np.ndarray = np.zeros(run_times)
@@ -109,7 +112,7 @@ class ExecutionProfiler:
             input_elem = np.ones(elem.shape, dtype=self.onnx_to_numpy(elem_type))
             input_dict[elem.name] = ort.OrtValue.ortvalue_from_numpy(input_elem)
         ## Cold Start
-        for _ in range(3):
+        for _ in range(self.cold_start_times):
             sess.run_with_ort_values(None, input_dict)
         execution_times: np.ndarray = np.zeros(run_times)
         for idx in range(run_times):
@@ -134,7 +137,7 @@ class ExecutionProfiler:
             input_dict[elem.name] = ort.OrtValue.ortvalue_from_numpy(input_elem)
 
         ## Cold Start
-        for _ in range(3):
+        for _ in range(self.cold_start_times):
             sess.run_with_ort_values(None, input_dict)
 
         execution_times: np.ndarray = np.zeros(run_times)
