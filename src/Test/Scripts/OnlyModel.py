@@ -14,6 +14,7 @@ def run_onnx_model(input: np.ndarray, model_name: str, runs: int):
 
     model_path = "/model_pool_data/models/" + model_name + ".onnx"
 
+    device_type = "cpu"
     providers = []
     sess_options = onnxruntime.SessionOptions()
     if (
@@ -21,6 +22,7 @@ def run_onnx_model(input: np.ndarray, model_name: str, runs: int):
         and subprocess.run(["nvidia-smi", "-L"], stdout=subprocess.DEVNULL).returncode
         == 0
     ):
+        device_type = "cuda"
         providers.append("CUDAExecutionProvider")
     elif "OpenVINOExecutionProvider" in onnxruntime.get_available_providers():
         providers.append("OpenVINOExecutionProvider")
@@ -38,7 +40,11 @@ def run_onnx_model(input: np.ndarray, model_name: str, runs: int):
 
     input_name = sess.get_inputs()[0].name
 
-    input_dict = {input_name: onnxruntime.OrtValue.ortvalue_from_numpy(input)}
+    input_dict = {
+        input_name: onnxruntime.OrtValue.ortvalue_from_numpy(
+            input, device_type=device_type
+        )
+    }
     ## Cold Start
     for _ in range(10):
         sess.run_with_ort_values(None, input_dict)

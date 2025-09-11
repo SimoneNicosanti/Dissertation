@@ -54,6 +54,7 @@ RUN pip install tqdm
 RUN pip install seaborn
 
 RUN apt update
+RUN pip install Jinja2
 # RUN apt install graphviz libgraphviz-dev pkg-config
 # RUN pip install pygraphviz
 
