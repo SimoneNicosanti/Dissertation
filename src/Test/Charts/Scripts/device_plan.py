@@ -1,6 +1,7 @@
 from turtle import color
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -32,7 +33,7 @@ def main():
             axes: list[plt.Axes]
             fig, axes = plt.subplots(figsize=(14, 7), nrows=2, ncols=1)
 
-            curr_usage_df = (
+            curr_usage_df: pd.DataFrame = (
                 usage_df[
                     (usage_df["model_name"] == model)
                     & (usage_df["device_cpus"] == cpus)
@@ -42,7 +43,7 @@ def main():
                 .reset_index()
             )
 
-            curr_plan_df = (
+            curr_plan_df: pd.DataFrame = (
                 plan_df[
                     (plan_df["model_name"] == model) & (plan_df["device_cpus"] == cpus)
                 ]
@@ -93,6 +94,32 @@ def main():
             plt.tight_layout()
             plt.savefig(
                 f"../Images/Pred_Comparisons/Device/device_plan_comparison_{model}_{cpus}.png"
+            )
+
+            curr_comp_df = curr_usage_df.reset_index().merge(
+                curr_plan_df.reset_index(), on=group_columns, how="inner"
+            )[["max_noises", "run_time", "latency_value"]]
+
+            curr_comp_df.rename(
+                columns={
+                    "max_noises": "\\textbf{Max Noise}",  # "Max Noise",
+                    "run_time": "\\textbf{Run Time}",
+                    "latency_value": "\\textbf{Plan Latency}",
+                },
+                inplace=True,
+            )
+
+            curr_comp_df["\\textbf{Latency Diff}"] = np.abs(
+                curr_comp_df["\\textbf{Run Time}"]
+                - curr_comp_df["\\textbf{Plan Latency}"]
+            )
+
+            curr_comp_df.to_latex(
+                f"../Csv/Pred_Comparisons/Device/device_plan_comparison_{model}_{cpus}.tex",
+                index=False,
+                column_format="|c|c|c|c|",
+                header=True,
+                float_format="%.4f",
             )
 
     # pass

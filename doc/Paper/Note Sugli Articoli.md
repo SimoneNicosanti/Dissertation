@@ -473,7 +473,6 @@ Viene considerata la possibilità che vi sia un "attacco" in senso lato su un li
 > [!PDF|important] [[Splitting_2.pdf#page=3&selection=619,0,624,39&color=important|Splitting_2, p.3]]
 > Besides the inherent uncertainties stemming from variations in computing speed and transmission rates, the collaborative edge inference system may encounter additional non-stochastic uncertainties. We consider the potential presence of an adversary in the system, which aims to select paths to attack during each time slot. 
 
-
 > [!PDF|important] [[Splitting_2.pdf#page=4&selection=152,0,168,39&color=important|Splitting_2, p.4]]
 > Objective: The goal for the learner is to minimize the total inference delay while concurrently reducing the cumulative switching costs across T inference tasks (t = 1, ..., T ). This involves strategically choosing the optimal path and corresponding DNN layer assignment for each task to maximize the following objective function:
 

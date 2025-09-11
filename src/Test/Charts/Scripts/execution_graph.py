@@ -87,6 +87,7 @@ def draw_execution_graph(execution_plan: Plan):
         font_weight="bold",
     )
     plt.title("Execution Plan Graph")
+    plt.subplots_adjust(top=0.5)  # leave enough space for the title
     plt.savefig("../Images/Execution_Graphs/execution_graph.png")
 
     pass
@@ -120,6 +121,7 @@ def main():
             ):
                 curr_plan = Plan.decode(device_edge_cloud_plans[key])
                 draw_execution_graph(curr_plan)
+                print("Has been drawn")
 
     pass
 

@@ -4,33 +4,23 @@
     "type": "split",
     "children": [
       {
-        "id": "9467aadc9f5804ab",
+        "id": "27394fc8bf45f57e",
         "type": "tabs",
         "children": [
           {
-            "id": "9c09b47c2b9f6d57",
+            "id": "05a7744f8156821f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "Notes/Esperimenti.md",
-                "mode": "source",
-                "source": false
+                "file": "Paper/Learning Optimal Partition/Splitting_2.pdf",
+                "page": 12,
+                "left": -10,
+                "top": 628,
+                "zoom": 1.4767156862745099
               },
-              "icon": "lucide-file",
-              "title": "Esperimenti"
-            }
-          },
-          {
-            "id": "f78588a41d279c36",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "device_predicted_vs_real.png"
-              },
-              "icon": "lucide-image",
-              "title": "device_predicted_vs_real"
+              "icon": "lucide-file-text",
+              "title": "Splitting_2"
             }
           }
         ]
@@ -90,7 +80,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 261.5026054382324
+    "width": 299.5026054382324
   },
   "right": {
     "id": "a4a01cf8eab8d31e",
@@ -164,6 +154,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Apri selezione rapida": false,
       "graph:Apri vista grafo": false,
       "canvas:Crea nuova lavagna": false,
@@ -176,10 +167,26 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "9c09b47c2b9f6d57",
+  "active": "05a7744f8156821f",
   "lastOpenFiles": [
-    "device_predicted_vs_real.png",
+    "Paper/Jellyfish/Jellyfish.pdf",
+    "Paper/Jellyfish/Jellyfish - Notes.md",
+    "Paper/Note Sugli Articoli.md",
+    "Paper/JointDNN.pdf",
+    "Paper/Others/Tuli_Splitting.pdf",
+    "Paper/Learning Optimal Partition/Splitting_2.pdf",
+    "Paper/Furcifer/Furcifer_PerCom24.pdf",
+    "Paper/Furcifer/Furcifer - Notes.md",
+    "Paper/CoEdge/CoEdge.pdf",
+    "Paper/CoEdge/CoEdge - Notes.md",
+    "Paper/Gillis/gillis-icdcs21.pdf",
+    "Paper/Neurosurgeon.pdf",
+    "Paper/Graph_Partitioning.pdf",
+    "Paper/energy_optimal_mobile_application_execution.pdf",
     "Notes/Esperimenti.md",
+    "Notes/Indice Tesi.md",
+    "Notes/MobileNetV3Large.md",
+    "device_predicted_vs_real.png",
     "Schermata del 2025-07-21 19-20-28.png",
     "Schermata del 2025-07-21 19-14-06.png",
     "Notes/Ottimizzazione.md",
@@ -193,20 +200,10 @@
     "Notes/Images/Schermata del 2025-06-19 15-01-30.png",
     "Notes/Images/Schermata del 2025-06-19 13-54-29.png",
     "Notes/Colloqui/2025-06-20.md",
-    "Notes/Architettura/Diagrams_OK",
-    "Notes/Architettura/Diagrams/Diagram.svg.xml",
-    "Notes/Architettura/Diagrams/Diagram 2.svg.xml",
-    "Notes/Architettura/Diagrams/Diagram 1.svg.xml",
     "Notes/Altre Note.md",
-    "Diagrammi_Tesi.drawio",
     "Rumore.md",
     "Ottimizzazione 3.0 - Con Quantizzazione - Send.md",
     "Notes/Profiling.md",
-    "Diagram.svg.xml",
-    "Diagram 2.svg.xml",
-    "Diagram 1.svg.xml",
-    "Paper/Note Sugli Articoli.md",
-    "Notes/Indice Tesi.md",
     "Notes/Quantizzazione.md",
     "Notes/Colloqui/HELO.md",
     "Notes/Ottimizzazione - Altro.md",
@@ -216,12 +213,6 @@
     "Notes/Componenti Connesse.md",
     "Notes/Distribuzione.md",
     "Notes/Colloqui/2025-03-22.md",
-    "Notes/Colloqui/2025-03-04.md",
-    "Notes/Colloqui/2025-02-20.md",
-    "Notes/Colloqui/2025-02-05.md",
-    "Notes/Calcolo FLOPS.md",
-    "Notes/Split del Modello.md",
-    "Paper/Neurosurgeon.pdf",
-    "Paper/energy_optimal_mobile_application_execution.pdf"
+    "Notes/Colloqui/2025-03-04.md"
   ]
 }

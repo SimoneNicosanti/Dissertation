@@ -92,6 +92,37 @@ def plan_vs_real_comparison():
                     curr_ax.set_xticks(curr_usage_df["max_noises"].unique())
                     curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
 
+                    curr_plan_df = curr_plan_df.groupby(group_cols).mean().reset_index()
+                    curr_usage_df = (
+                        curr_usage_df.groupby(group_cols).mean().reset_index()
+                    )
+
+                    curr_comp_df = curr_usage_df.reset_index().merge(
+                        curr_plan_df.reset_index(), on=group_cols, how="inner"
+                    )[["max_noises", "run_time", "latency_value"]]
+
+                    curr_comp_df.rename(
+                        columns={
+                            "max_noises": "\\textbf{Max Noise}",  # "Max Noise",
+                            "run_time": "\\textbf{Run Time}",
+                            "latency_value": "\\textbf{Plan Latency}",
+                        },
+                        inplace=True,
+                    )
+
+                    curr_comp_df["\\textbf{Latency Diff}"] = np.abs(
+                        curr_comp_df["\\textbf{Run Time}"]
+                        - curr_comp_df["\\textbf{Plan Latency}"]
+                    )
+
+                    curr_comp_df.to_latex(
+                        f"../Csv/Pred_Comparisons/DeviceEdge/device_edge_plan_comparison_{model}_{dev_cpus}_{edge_cpus}_lw_{lw}.tex",
+                        index=False,
+                        column_format="|c|c|c|c|",
+                        header=True,
+                        float_format="%.4f",
+                    )
+
                 ew_list = np.sort(plan_df["energy_weight"].unique())[::-1]
 
                 for idx, ew in enumerate(ew_list):  # ew_list :

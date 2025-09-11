@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pyparsing import col
 
 DEVICE_USAGE_PATH = "../../Results/DevicePlan/usage.csv"
 DEVICE_PLAN_PATH = "../../Results/DevicePlan/generation.csv"
@@ -30,21 +31,21 @@ def main():
 
     device_usage_df = (
         pd.read_csv(DEVICE_USAGE_PATH)
-        .fillna("None")
+        .fillna(-1)
         .groupby(group_cols)
         .mean()
         .reset_index()
     )
     device_edge_usage_df = (
         pd.read_csv(DEVICE_EDGE_USAGE_PATH)
-        .fillna("None")
+        .fillna(-1)
         .groupby(group_cols)
         .mean()
         .reset_index()
     )
     device_edge_cloud_usage_df = (
         pd.read_csv(DEVICE_EDGE_CLOUD_USAGE_PATH)
-        .fillna("None")
+        .fillna(-1)
         .groupby(group_cols)
         .mean()
         .reset_index()
@@ -52,21 +53,21 @@ def main():
 
     device_plan_gen_df = (
         pd.read_csv(DEVICE_PLAN_PATH)
-        .fillna("None")[group_cols + ["energy_value"]]
+        .fillna(-1)[group_cols + ["energy_value"]]
         .groupby(group_cols)
         .mean()
         .reset_index()
     )
     device_edge_plan_gen_df = (
         pd.read_csv(DEVICE_EDGE_PLAN_PATH)
-        .fillna("None")[group_cols + ["energy_value"]]
+        .fillna(-1)[group_cols + ["energy_value"]]
         .groupby(group_cols)
         .mean()
         .reset_index()
     )
     device_edge_cloud_plan_gen_df = (
         pd.read_csv(DEVICE_EDGE_CLOUD_PLAN_PATH)
-        .fillna("None")[group_cols + ["energy_value"]]
+        .fillna(-1)[group_cols + ["energy_value"]]
         .groupby(group_cols)
         .mean()
         .reset_index()
@@ -125,6 +126,53 @@ def main():
                         device_edge_cloud_usage_df_i["run_time"],
                         label="device + edge + cloud",
                         marker="o",
+                    )
+
+                    drop_columns = [
+                        "model_name",
+                        "latency_weight",
+                        "energy_weight",
+                        "device_max_energy",
+                        "device_cpus",
+                        "edge_cpus",
+                        "cloud_cpus",
+                        "device_bandwidth",
+                        "edge_bandwidth",
+                        "cloud_bandwidth",
+                    ]
+
+                    merge_columns = [
+                        "max_noises",
+                    ]
+
+                    merged_df = (
+                        device_usage_df_i.drop(columns=drop_columns)
+                        .merge(
+                            device_edge_usage_df_i.drop(columns=drop_columns),
+                            on=merge_columns,
+                            suffixes=("_device", "_device_edge"),
+                        )
+                        .merge(
+                            device_edge_cloud_usage_df_i.drop(columns=drop_columns),
+                            on=merge_columns,
+                        )
+                    )
+
+                    merged_df: pd.DataFrame = merged_df.rename(
+                        columns={
+                            "max_noises": "Max Noise",
+                            "run_time_device": "Device",
+                            "run_time_device_edge": "Device+Edge",
+                            "run_time": "Device+Edge+Cloud",
+                        }
+                    )
+
+                    merged_df.to_latex(
+                        f"../Csv/Base_Comparisons/Latency/{model}_{dev_cpus}_{edge_cpus}_lw_{lw}.tex",
+                        column_format="|c|c|c|c|c|",
+                        index=False,
+                        header=True,
+                        float_format="%.4f",
                     )
 
                     curr_ax.set_title(f"Latency Weight: {lw}", fontsize=11)
@@ -189,6 +237,59 @@ def main():
                     curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
 
                     curr_ax.legend()
+
+                    drop_columns = [
+                        "model_name",
+                        "latency_weight",
+                        "energy_weight",
+                        "device_max_energy",
+                        "device_cpus",
+                        "edge_cpus",
+                        "cloud_cpus",
+                        "device_bandwidth",
+                        "edge_bandwidth",
+                        "cloud_bandwidth",
+                    ]
+
+                    merge_columns = [
+                        "max_noises",
+                    ]
+
+                    merged_df = (
+                        device_plan_gen_df_i.drop(columns=drop_columns)
+                        .merge(
+                            device_edge_plan_gen_df_i.drop(columns=drop_columns),
+                            on=merge_columns,
+                            suffixes=("_device", "_device_edge"),
+                        )
+                        .merge(
+                            device_edge_cloud_plan_gen_df_i.drop(columns=drop_columns),
+                            on=merge_columns,
+                        )
+                    )
+
+                    merged_df: pd.DataFrame = merged_df.rename(
+                        columns={
+                            "max_noises": "Max Noise",
+                            "energy_value_device": "Device",
+                            "energy_value_device_edge": "Device+Edge",
+                            "energy_value": "Device+Edge+Cloud",
+                        }
+                    )
+
+                    merged_df.to_latex(
+                        f"../Csv/Base_Comparisons/Energy/{model}_{dev_cpus}_{edge_cpus}_ew_{ew}.tex",
+                        column_format="|c|c|c|c|c|",
+                        index=False,
+                        header=True,
+                        float_format="%.4f",
+                    )
+
+                    print(device_plan_gen_df_i)
+                    print(device_edge_plan_gen_df_i)
+                    print(device_edge_cloud_plan_gen_df_i)
+
+                    print("--------------------------------------")
 
                 for ax in fig.get_axes():
                     ax.tick_params(labelleft=True)  # show tick labels

@@ -40,7 +40,8 @@ def run_onnx_model(input: np.ndarray, model_name: str, runs: int):
 
     input_dict = {input_name: onnxruntime.OrtValue.ortvalue_from_numpy(input)}
     ## Cold Start
-    sess.run_with_ort_values(None, input_dict)
+    for _ in range(10):
+        sess.run_with_ort_values(None, input_dict)
 
     time_array = np.zeros(runs)
 
