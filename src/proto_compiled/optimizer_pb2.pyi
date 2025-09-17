@@ -29,13 +29,17 @@ class OptimizationRequest(_message.Message):
     def __init__(self, models_profiles: _Optional[_Iterable[str]] = ..., network_profile: _Optional[str] = ..., execution_profile_pool: _Optional[str] = ..., latency_weight: _Optional[float] = ..., energy_weight: _Optional[float] = ..., device_max_energy: _Optional[float] = ..., requests_number: _Optional[_Iterable[int]] = ..., max_noises: _Optional[_Iterable[float]] = ..., start_server: _Optional[str] = ...) -> None: ...
 
 class OptimizationResponse(_message.Message):
-    __slots__ = ("optimized_plan", "min_latency_sol_time", "min_energy_sol_time", "whole_sol_time")
+    __slots__ = ("optimized_plan", "problem_build_time", "min_latency_sol_time", "min_energy_sol_time", "whole_sol_time", "post_processing_time")
     OPTIMIZED_PLAN_FIELD_NUMBER: _ClassVar[int]
+    PROBLEM_BUILD_TIME_FIELD_NUMBER: _ClassVar[int]
     MIN_LATENCY_SOL_TIME_FIELD_NUMBER: _ClassVar[int]
     MIN_ENERGY_SOL_TIME_FIELD_NUMBER: _ClassVar[int]
     WHOLE_SOL_TIME_FIELD_NUMBER: _ClassVar[int]
+    POST_PROCESSING_TIME_FIELD_NUMBER: _ClassVar[int]
     optimized_plan: str
+    problem_build_time: float
     min_latency_sol_time: float
     min_energy_sol_time: float
     whole_sol_time: float
-    def __init__(self, optimized_plan: _Optional[str] = ..., min_latency_sol_time: _Optional[float] = ..., min_energy_sol_time: _Optional[float] = ..., whole_sol_time: _Optional[float] = ...) -> None: ...
+    post_processing_time: float
+    def __init__(self, optimized_plan: _Optional[str] = ..., problem_build_time: _Optional[float] = ..., min_latency_sol_time: _Optional[float] = ..., min_energy_sol_time: _Optional[float] = ..., whole_sol_time: _Optional[float] = ..., post_processing_time: _Optional[float] = ...) -> None: ...

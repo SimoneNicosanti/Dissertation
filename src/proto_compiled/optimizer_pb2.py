@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0foptimizer.proto\x12\toptimizer\"\xf4\x01\n\x13OptimizationRequest\x12\x17\n\x0fmodels_profiles\x18\x01 \x03(\t\x12\x17\n\x0fnetwork_profile\x18\x02 \x01(\t\x12\x1e\n\x16\x65xecution_profile_pool\x18\x03 \x01(\t\x12\x16\n\x0elatency_weight\x18\x04 \x01(\x02\x12\x15\n\renergy_weight\x18\x05 \x01(\x02\x12\x19\n\x11\x64\x65vice_max_energy\x18\x06 \x01(\x02\x12\x17\n\x0frequests_number\x18\x07 \x03(\x05\x12\x12\n\nmax_noises\x18\x08 \x03(\x02\x12\x14\n\x0cstart_server\x18\t \x01(\t\"\xd4\x01\n\x14OptimizationResponse\x12\x16\n\x0eoptimized_plan\x18\x01 \x01(\t\x12!\n\x14min_latency_sol_time\x18\x02 \x01(\x02H\x00\x88\x01\x01\x12 \n\x13min_energy_sol_time\x18\x03 \x01(\x02H\x01\x88\x01\x01\x12\x1b\n\x0ewhole_sol_time\x18\x04 \x01(\x02H\x02\x88\x01\x01\x42\x17\n\x15_min_latency_sol_timeB\x16\n\x14_min_energy_sol_timeB\x11\n\x0f_whole_sol_time2e\n\x0cOptimization\x12U\n\x12serve_optimization\x12\x1e.optimizer.OptimizationRequest\x1a\x1f.optimizer.OptimizationResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0foptimizer.proto\x12\toptimizer\"\xf4\x01\n\x13OptimizationRequest\x12\x17\n\x0fmodels_profiles\x18\x01 \x03(\t\x12\x17\n\x0fnetwork_profile\x18\x02 \x01(\t\x12\x1e\n\x16\x65xecution_profile_pool\x18\x03 \x01(\t\x12\x16\n\x0elatency_weight\x18\x04 \x01(\x02\x12\x15\n\renergy_weight\x18\x05 \x01(\x02\x12\x19\n\x11\x64\x65vice_max_energy\x18\x06 \x01(\x02\x12\x17\n\x0frequests_number\x18\x07 \x03(\x05\x12\x12\n\nmax_noises\x18\x08 \x03(\x02\x12\x14\n\x0cstart_server\x18\t \x01(\t\"\xc8\x02\n\x14OptimizationResponse\x12\x16\n\x0eoptimized_plan\x18\x01 \x01(\t\x12\x1f\n\x12problem_build_time\x18\x02 \x01(\x02H\x00\x88\x01\x01\x12!\n\x14min_latency_sol_time\x18\x03 \x01(\x02H\x01\x88\x01\x01\x12 \n\x13min_energy_sol_time\x18\x04 \x01(\x02H\x02\x88\x01\x01\x12\x1b\n\x0ewhole_sol_time\x18\x05 \x01(\x02H\x03\x88\x01\x01\x12!\n\x14post_processing_time\x18\x06 \x01(\x02H\x04\x88\x01\x01\x42\x15\n\x13_problem_build_timeB\x17\n\x15_min_latency_sol_timeB\x16\n\x14_min_energy_sol_timeB\x11\n\x0f_whole_sol_timeB\x17\n\x15_post_processing_time2e\n\x0cOptimization\x12U\n\x12serve_optimization\x12\x1e.optimizer.OptimizationRequest\x1a\x1f.optimizer.OptimizationResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,7 +34,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_OPTIMIZATIONREQUEST']._serialized_start=31
   _globals['_OPTIMIZATIONREQUEST']._serialized_end=275
   _globals['_OPTIMIZATIONRESPONSE']._serialized_start=278
-  _globals['_OPTIMIZATIONRESPONSE']._serialized_end=490
-  _globals['_OPTIMIZATION']._serialized_start=492
-  _globals['_OPTIMIZATION']._serialized_end=593
+  _globals['_OPTIMIZATIONRESPONSE']._serialized_end=606
+  _globals['_OPTIMIZATION']._serialized_start=608
+  _globals['_OPTIMIZATION']._serialized_end=709
 # @@protoc_insertion_point(module_scope)
