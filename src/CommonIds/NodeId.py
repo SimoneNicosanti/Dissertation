@@ -5,6 +5,10 @@ from dataclasses import dataclass
 class NodeId:
     node_name: str
 
+    def __post_init__(self):
+        # Force conversion to string, regardless of input type
+        object.__setattr__(self, "node_name", str(self.node_name))
+
     def __repr__(self):
         return self.node_name
 

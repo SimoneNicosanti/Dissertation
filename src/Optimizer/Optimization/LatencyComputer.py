@@ -57,7 +57,6 @@ def compute_comp_latency_per_model(
     tot_comp_latency = 0
     max_comp_latency = 0
     for net_node_id in network_graph.nodes:
-        print("NET NODE ID >> ", net_node_id)
         node_comp_latency_per_model, node_max_comp_latency_per_model = (
             compute_model_comp_latency_per_node(
                 model_graph,

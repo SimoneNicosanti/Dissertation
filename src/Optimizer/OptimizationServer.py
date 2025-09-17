@@ -38,7 +38,6 @@ class OptmizationServer(OptimizationServicer):
         )
         print("Decoded Network Profile")
 
-        ## TODO Integrate the execution profile!!
         execution_profile_pool: ServerExecutionProfilePool = (
             ServerExecutionProfilePool.decode(
                 json.loads(opt_request.execution_profile_pool)
@@ -59,13 +58,15 @@ class OptmizationServer(OptimizationServicer):
         )
 
         start_server = NodeId(opt_request.start_server)
-
-        solved_graphs: list[nx.DiGraph] = OptimizationHandler.optimize(
-            models_profile_list,
-            network_profile.get_network_graph(),
-            start_server,
-            opt_params=optimization_params,
-            server_execution_profile_pool=execution_profile_pool,
+        solved_graphs: list[nx.DiGraph]
+        solved_graphs, min_lat_sol_time, min_energy_sol_time, whole_sol_time = (
+            OptimizationHandler.optimize(
+                models_profile_list,
+                network_profile.get_network_graph(),
+                start_server,
+                opt_params=optimization_params,
+                server_execution_profile_pool=execution_profile_pool,
+            )
         )
         print("Done Optimization")
 
@@ -95,4 +96,9 @@ class OptmizationServer(OptimizationServicer):
 
         whole_plan_json = json.dumps(encoded_whole_plan)
 
-        return OptimizationResponse(optimized_plan=whole_plan_json)
+        return OptimizationResponse(
+            optimized_plan=whole_plan_json,
+            min_latency_sol_time=min_lat_sol_time,
+            min_energy_sol_time=min_energy_sol_time,
+            whole_sol_time=whole_sol_time,
+        )

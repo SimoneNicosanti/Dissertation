@@ -116,13 +116,16 @@ class OnnxModelProfiler(AbsModelProfiler):
         for tensor_info in infered_model.graph.value_info:
             tensor_info_dict[tensor_info.name] = tensor_info
 
-        flops_dict: dict[str, float] = self.profile_all_flops(onnx_model)
+        flops_dict: dict[str, float]
+        type_dict: dict[str, str]
+        flops_dict, type_dict = self.profile_all_flops(onnx_model)
         print("\t Profiled FLOPS")
 
         for onnx_node in infered_model.graph.node:
 
             ## profile flops
             node_flops: float = flops_dict[onnx_node.name]
+            node_type: str = type_dict[onnx_node.name]
 
             ## profile weights size
             weights_size: float = self.profile_weights_size_per_node(
@@ -149,7 +152,12 @@ class OnnxModelProfiler(AbsModelProfiler):
             if is_reachable:
                 ## It is a reachable node
                 self.modify_node_profile(
-                    onnx_node, graph, node_flops, weights_size, total_output_size
+                    onnx_node,
+                    graph,
+                    node_flops,
+                    weights_size,
+                    total_output_size,
+                    node_type,
                 )
                 self.modify_edge_profiles(
                     onnx_node,
@@ -187,11 +195,13 @@ class OnnxModelProfiler(AbsModelProfiler):
         node_flops: float,
         weights_size: float,
         total_output_size: float,
+        node_type: str,
     ):
         node_id = NodeId(onnx_node.name)
         graph.nodes[node_id].setdefault(ModelNodeInfo.FLOPS, 0)
         graph.nodes[node_id].setdefault(ModelNodeInfo.WEIGHTS_SIZE, 0)
         graph.nodes[node_id].setdefault(ModelNodeInfo.OUTPUTS_SIZE, 0)
+        graph.nodes[node_id].setdefault(ModelNodeInfo.NODE_TYPE, node_type)
 
         graph.nodes[node_id][ModelNodeInfo.FLOPS] += node_flops
         graph.nodes[node_id][ModelNodeInfo.WEIGHTS_SIZE] += weights_size
@@ -391,6 +401,7 @@ class OnnxModelProfiler(AbsModelProfiler):
             m.graph.print_node_map(temp_file.name, metric="FLOPs")
 
             flops_dict = {}
+            type_dict = {}
             with open(temp_file.name, "r") as f:
                 reader = csv.reader(f)
                 for idx, row in enumerate(reader):
@@ -399,8 +410,9 @@ class OnnxModelProfiler(AbsModelProfiler):
 
                     name, flops = row[0], row[2]
                     flops_dict[name] = float(flops)
+                    type_dict[name] = str(row[1])
 
-        return flops_dict
+        return flops_dict, type_dict
 
     def compute_tensor_size(
         self,

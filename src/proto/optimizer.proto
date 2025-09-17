@@ -20,4 +20,7 @@ message OptimizationRequest {
 
 message OptimizationResponse {
     string optimized_plan = 1 ; // PlanPool Encoded as JSON
+    optional float min_latency_sol_time = 2 ;
+    optional float min_energy_sol_time = 3 ;
+    optional float whole_sol_time = 4 ;
 }

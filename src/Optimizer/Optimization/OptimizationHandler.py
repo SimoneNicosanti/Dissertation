@@ -62,7 +62,7 @@ class OptimizationHandler:
         start_server: NodeId,
         opt_params: OptimizationParams = None,
         server_execution_profile_pool: ServerExecutionProfilePool = None,
-    ) -> list[nx.DiGraph]:
+    ) -> tuple[list[nx.DiGraph], float, float, float]:
 
         model_graphs: list[nx.DiGraph] = [
             model_profile.get_model_graph() for model_profile in model_profile_list
@@ -95,10 +95,16 @@ class OptimizationHandler:
 
         problem.setObjective(min_latency_cost)
         problem.sense = pulp.LpMinimize
+
+        start = time.perf_counter_ns()
         problem.solve(OptimizationHandler.get_solver(gapRel=0.0))
+        end = time.perf_counter_ns()
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
         min_lat_cost = min_latency_cost.value()
+        print("Solved Min Latency Problem")
+
+        min_latency_sol_time = (end - start) * 1e-9
 
         en_val_on_min_lat = EnergyComputer.compute_energy_cost(
             model_graphs,
@@ -120,10 +126,16 @@ class OptimizationHandler:
         )
         problem.setObjective(min_energy_cost)
         problem.sense = pulp.LpMinimize
+
+        start = time.perf_counter_ns()
         problem.solve(OptimizationHandler.get_solver(gapRel=0.0))
+        end = time.perf_counter_ns()
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
         min_en_cost = min_energy_cost.value()
+        print("Solved Min Energy Problem")
+
+        min_energy_sol_time = (end - start) * 1e-9
 
         lat_val_on_min_en = LatencyComputer.compute_latency_cost(
             model_graphs,
@@ -175,10 +187,15 @@ class OptimizationHandler:
             latency_weight * final_latency_cost + energy_weight * final_energy_cost
         )
         problem.sense = pulp.LpMinimize
+
+        start = time.perf_counter_ns()
         problem.solve(OptimizationHandler.get_solver())
+        end = time.perf_counter_ns()
 
         if pulp.LpStatus[problem.status] != "Optimal":
             return None
+
+        whole_sol_time = (end - start) * 1e-9
 
         # start_server_time = LatencyComputer.compute_model_comp_latency_per_node(
         #     model_graphs[0],
@@ -240,7 +257,12 @@ class OptimizationHandler:
             solved_model_graphs.append(solved_model_graph)
             time.perf_counter_ns()
 
-        return solved_model_graphs
+        return (
+            solved_model_graphs,
+            min_latency_sol_time,
+            min_energy_sol_time,
+            whole_sol_time,
+        )
 
     def build_solved_model_graph(
         problem: pulp.LpProblem,
@@ -482,9 +504,15 @@ class OptimizationHandler:
         for model_profile in model_profile_list:
             regressor: Regressor = model_profile.get_regressor()
 
-            regressor_expression = RegressorBuilder.build_regressor_expression(
-                problem, regressor, model_profile.get_model_graph(), quantization_vars
-            )
+            if len(regressor.interactions) == 0:
+                regressor_expression = pulp.LpAffineExpression(constant=0)
+            else:
+                regressor_expression = RegressorBuilder.build_regressor_expression(
+                    problem,
+                    regressor,
+                    model_profile.get_model_graph(),
+                    quantization_vars,
+                )
 
             problem += (
                 regressor_expression

@@ -1,3 +1,5 @@
+import itertools
+
 import networkx as nx
 import pulp
 
@@ -111,6 +113,18 @@ class ConstraintsBuilder:
                     tensor_ass_var
                     >= src_ass_var + dst_ass_var_sum / len(tensor_edges) - 1
                 )
+
+        ## Each tensor has to be transmitted on at least one network edge
+        ## Even if it is the self network edge
+        for tensor_name in tensor_info_dict.keys():
+            sum_edges = 0
+            for net_edge_id in network_graph.edges:
+                tensor_ass_key = TensorAssKey(
+                    tensor_name, net_edge_id, model_graph.graph["name"]
+                )
+                tensor_ass_var = tensor_ass_vars[tensor_ass_key]
+                sum_edges += tensor_ass_var
+            problem += sum_edges >= 1
 
         pass
 

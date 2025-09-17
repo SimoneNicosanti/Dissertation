@@ -1,7 +1,8 @@
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Optional as _Optional
+from collections.abc import Iterable as _Iterable
+from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -28,7 +29,13 @@ class OptimizationRequest(_message.Message):
     def __init__(self, models_profiles: _Optional[_Iterable[str]] = ..., network_profile: _Optional[str] = ..., execution_profile_pool: _Optional[str] = ..., latency_weight: _Optional[float] = ..., energy_weight: _Optional[float] = ..., device_max_energy: _Optional[float] = ..., requests_number: _Optional[_Iterable[int]] = ..., max_noises: _Optional[_Iterable[float]] = ..., start_server: _Optional[str] = ...) -> None: ...
 
 class OptimizationResponse(_message.Message):
-    __slots__ = ("optimized_plan",)
+    __slots__ = ("optimized_plan", "min_latency_sol_time", "min_energy_sol_time", "whole_sol_time")
     OPTIMIZED_PLAN_FIELD_NUMBER: _ClassVar[int]
+    MIN_LATENCY_SOL_TIME_FIELD_NUMBER: _ClassVar[int]
+    MIN_ENERGY_SOL_TIME_FIELD_NUMBER: _ClassVar[int]
+    WHOLE_SOL_TIME_FIELD_NUMBER: _ClassVar[int]
     optimized_plan: str
-    def __init__(self, optimized_plan: _Optional[str] = ...) -> None: ...
+    min_latency_sol_time: float
+    min_energy_sol_time: float
+    whole_sol_time: float
+    def __init__(self, optimized_plan: _Optional[str] = ..., min_latency_sol_time: _Optional[float] = ..., min_energy_sol_time: _Optional[float] = ..., whole_sol_time: _Optional[float] = ...) -> None: ...
