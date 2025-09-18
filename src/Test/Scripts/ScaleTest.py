@@ -176,7 +176,7 @@ def random_test(server_num=None):
                 ~(
                     (dataframe["num_nodes"] == num_nodes)
                     & (dataframe["num_tensors"] == num_tensors)
-                    & (dataframe["max_net_nodes"] == max_net_nodes)
+                    & (dataframe["net_nodes"] == max_net_nodes)
                 )
             ]
 
@@ -281,7 +281,7 @@ def static_test(server_num=None):
                 ~(
                     (dataframe["num_nodes"] == num_nodes)
                     & (dataframe["num_tensors"] == num_tensors)
-                    & (dataframe["max_net_nodes"] == max_net_nodes)
+                    & (dataframe["net_nodes"] == max_net_nodes)
                 )
             ]
 

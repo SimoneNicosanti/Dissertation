@@ -137,6 +137,8 @@ def fix_net_nodes_change_layers(case: str):
 def main():
     fix_layers_change_net_nodes(case="static")
     fix_net_nodes_change_layers(case="static")
+
+    fix_layers_change_net_nodes(case="random")
     pass
 
 
