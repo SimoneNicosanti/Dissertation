@@ -1,5 +1,8 @@
+import argparse
 import json
+import os
 import time
+import warnings
 
 import grpc
 import pandas as pd
@@ -11,11 +14,21 @@ from CommonProfile.ModelProfile import ModelProfile
 from proto_compiled.optimizer_pb2 import OptimizationRequest, OptimizationResponse
 from proto_compiled.optimizer_pb2_grpc import OptimizationStub
 
-MAX_NODE_SIZE_ITERATIONS = 1
-BRANCH_SIZE_INCREMENT = 50
-MAX_NET_NODES = 3
+warnings.simplefilter("ignore", category=FutureWarning)
+
+
+RANDOM_ITERATIONS = 5
+RAND_MAIN_BRANCH_SIZE_INCREMENT = 50
+RAND_OTHER_BRANCH_SIZE_INCREMENT = 15
+
+STATIC_ITERATIONS = 10
+STATIC_BRANCH_SIZE_INCREMENT = 150
+
 SKIP_PROB = 0.15
-CONFIG_RUN_NUMS = 2
+
+MAX_NET_NODES = 6
+
+CONFIG_RUN_NUMS = 5
 
 
 def get_optimizer_stub():
@@ -112,7 +125,7 @@ def build_current_network_configuration(generated_profile: ModelProfile, max_net
     return profile_pool, network_profile
 
 
-def main():
+def random_test(server_num=None):
 
     optimizer_stub = get_optimizer_stub()
 
@@ -123,20 +136,25 @@ def main():
 
     curr_branch_sizes = [500, 50, 50, 50, 50]
 
-    dataframe = pd.DataFrame(
-        columns=[
-            "num_nodes",
-            "num_tensors",
-            "net_nodes",
-            "build_time",
-            "latency_time",
-            "energy_time",
-            "whole_time",
-            "total_time",
-        ]
-    )
+    if os.path.exists("../Results/ScaleTest/random_scale_test.csv"):
+        # os.remove("../Results/ScaleTest/random_scale_test.csv")
+        dataframe = pd.read_csv("../Results/ScaleTest/random_scale_test.csv")
+    else:
+        dataframe = pd.DataFrame(
+            columns=[
+                "num_nodes",
+                "num_tensors",
+                "net_nodes",
+                "build_time",
+                "latency_time",
+                "energy_time",
+                "whole_time",
+                "post_time",
+                "total_time",
+            ]
+        )
 
-    for _ in range(MAX_NODE_SIZE_ITERATIONS):
+    for _ in range(RANDOM_ITERATIONS):
 
         generated_profile: ModelProfile = ProfileGenerator.build_model_profile(
             base_profile, curr_branch_sizes, SKIP_PROB
@@ -145,7 +163,22 @@ def main():
         num_nodes = len(generated_profile.get_model_graph().nodes)
         num_tensors = len(generated_profile.get_model_graph().graph["tensor_size_dict"])
 
-        for max_net_nodes in range(1, MAX_NET_NODES + 1):
+        if server_num is None:
+            start_server_idx = 1
+            end_server_idx = MAX_NET_NODES
+        else:
+            start_server_idx = server_num
+            end_server_idx = server_num
+
+        for max_net_nodes in range(start_server_idx, end_server_idx + 1):
+
+            dataframe = dataframe[
+                ~(
+                    (dataframe["num_nodes"] == num_nodes)
+                    & (dataframe["num_tensors"] == num_tensors)
+                    & (dataframe["max_net_nodes"] == max_net_nodes)
+                )
+            ]
 
             print("Testing Configuration >>")
             print(f"\t Branches >> {curr_branch_sizes}")
@@ -185,15 +218,149 @@ def main():
                     optimization_response.min_latency_sol_time,
                     optimization_response.min_energy_sol_time,
                     optimization_response.whole_sol_time,
+                    optimization_response.post_processing_time,
                     plan_time,
                 ]
 
+                dataframe.to_csv(
+                    "../Results/ScaleTest/random_scale_test.csv", index=False
+                )
+
         for i in range(len(curr_branch_sizes)):
-            curr_branch_sizes[i] += BRANCH_SIZE_INCREMENT
+            if i == 0:
+                increment = RAND_MAIN_BRANCH_SIZE_INCREMENT
+            else:
+                increment = RAND_OTHER_BRANCH_SIZE_INCREMENT
+            curr_branch_sizes[i] += increment
 
         pass
 
-    dataframe.to_csv("../Results/ScaleTest/scale_test.csv", index=False)
+
+def static_test(server_num=None):
+
+    optimizer_stub = get_optimizer_stub()
+
+    curr_branch_sizes = [500]
+
+    if os.path.exists("../Results/ScaleTest/static_scale_test.csv"):
+        dataframe = pd.read_csv("../Results/ScaleTest/static_scale_test.csv")
+    else:
+        dataframe = pd.DataFrame(
+            columns=[
+                "num_nodes",
+                "num_tensors",
+                "net_nodes",
+                "build_time",
+                "latency_time",
+                "energy_time",
+                "whole_time",
+                "post_time",
+                "total_time",
+            ]
+        )
+
+    for _ in range(STATIC_ITERATIONS):
+
+        generated_profile: ModelProfile = ProfileGenerator.build_model_profile(
+            None, curr_branch_sizes, 0.0, False
+        )
+
+        num_nodes = len(generated_profile.get_model_graph().nodes)
+        num_tensors = len(generated_profile.get_model_graph().graph["tensor_size_dict"])
+
+        if server_num is None:
+            start_server_idx = 1
+            end_server_idx = MAX_NET_NODES
+        else:
+            start_server_idx = server_num
+            end_server_idx = server_num
+
+        for max_net_nodes in range(start_server_idx, end_server_idx + 1):
+
+            dataframe = dataframe[
+                ~(
+                    (dataframe["num_nodes"] == num_nodes)
+                    & (dataframe["num_tensors"] == num_tensors)
+                    & (dataframe["max_net_nodes"] == max_net_nodes)
+                )
+            ]
+
+            print("Testing Configuration >>")
+            print(f"\t Branches >> {curr_branch_sizes}")
+            print(f"\t Server Nodes >> {max_net_nodes}")
+
+            profile_pool, network_profile = build_current_network_configuration(
+                generated_profile, max_net_nodes
+            )
+
+            for _ in range(CONFIG_RUN_NUMS):
+
+                optimization_req = OptimizationRequest(
+                    models_profiles=[json.dumps(generated_profile.encode())],
+                    network_profile=json.dumps(network_profile.encode()),
+                    execution_profile_pool=json.dumps(profile_pool.encode()),
+                    latency_weight=0.5,
+                    energy_weight=0.5,
+                    device_max_energy=0,
+                    requests_number=[1],
+                    max_noises=[0.0],
+                    start_server="0",
+                )
+
+                start = time.perf_counter_ns()
+                optimization_response: OptimizationResponse = (
+                    optimizer_stub.serve_optimization(optimization_req)
+                )
+                end = time.perf_counter_ns()
+
+                plan_time = (end - start) * 1e-9
+
+                dataframe.loc[len(dataframe)] = [
+                    num_nodes,
+                    num_tensors,
+                    max_net_nodes,
+                    optimization_response.problem_build_time,
+                    optimization_response.min_latency_sol_time,
+                    optimization_response.min_energy_sol_time,
+                    optimization_response.whole_sol_time,
+                    optimization_response.post_processing_time,
+                    plan_time,
+                ]
+
+                dataframe.to_csv(
+                    "../Results/ScaleTest/static_scale_test.csv", index=False
+                )
+
+        for i in range(len(curr_branch_sizes)):
+            if i == 0:
+                increment = STATIC_BRANCH_SIZE_INCREMENT
+            else:
+                increment = STATIC_BRANCH_SIZE_INCREMENT
+            curr_branch_sizes[i] += increment
+
+        pass
+
+
+def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--case",
+        type=str,
+        help="Test Case",
+        required=True,
+        choices=["static", "random"],
+    )
+    parser.add_argument("--server-num", type=int, help="Server Number", default=None)
+
+    args = parser.parse_args()
+
+    if args.case == "random":
+        random_test()
+    else:
+        static_test(args.server_num)
+
+    # random_test()
 
 
 if __name__ == "__main__":

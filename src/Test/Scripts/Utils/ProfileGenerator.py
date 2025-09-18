@@ -1,6 +1,5 @@
 import networkx as nx
 import numpy as np
-from networkx.readwrite import json_graph
 
 from CommonIds.NodeId import NodeId
 from CommonProfile.ExecutionProfile import (
@@ -98,7 +97,7 @@ def __merge_models(
 
         ## Get two random nodes from the main branch
         ## First node must be before the second node
-        ## Use idx to check this
+        ## Use topo sort for this
         main_branch_length = len(main_branch_nodes)
         ## Get Random Split Point in the first part of the branch
         split_node_id: NodeId = random_generator.choice(
@@ -238,7 +237,7 @@ def __add_input_output_nodes(
     gen_model_graph.add_edge(
         main_branch_last_node,
         receiver_id,
-        tot_tensor_size=gen_model_graph.nodes[main_branch_last_node]["outputs_size"],
+        tot_tensor_size=main_branch.nodes[main_branch_last_node]["outputs_size"],
         tensor_name_list=[f"{main_branch_last_node}_Output"],
     )
 
@@ -250,12 +249,22 @@ def __add_input_output_nodes(
     pass
 
 
-def __build_model_graph(
+def __build_random_model_graph(
     start_model: nx.DiGraph,
     branch_nodes: list[int],
     skip_prob: float = 0.0,
 ):
-    random_generator = np.random.default_rng(seed=42)
+
+    seed_increment = 0
+    random_generator_dict = {}
+    for branch_idx in range(len(branch_nodes)):
+        random_generator_dict[branch_idx] = {
+            "branch_build": np.random.default_rng(seed=42 + seed_increment),
+            "skip_add": np.random.default_rng(seed=42 + seed_increment + 1),
+        }
+        seed_increment += 2
+    merge_model_generator = np.random.default_rng(seed=42 + seed_increment)
+
     start_model_stats = __analyze_start_model(start_model)
 
     gen_model_graph = nx.DiGraph(name="GeneratedModel", tensor_size_dict={})
@@ -265,17 +274,22 @@ def __build_model_graph(
         ## Generating Current Branch
         # print(f"Building Branch Num >> {branch_idx}")
         curr_branch = __build_model_branch(
-            start_model_stats, curr_branch_nodes, random_generator, curr_node_idx
+            start_model_stats,
+            curr_branch_nodes,
+            random_generator_dict[branch_idx]["branch_build"],
+            curr_node_idx,
         )
 
         ## Adding skips to the current branch
         # print("Adding Skips")
-        __add_skips_to_branch(curr_branch, skip_prob, random_generator)
+        __add_skips_to_branch(
+            curr_branch, skip_prob, random_generator_dict[branch_idx]["skip_add"]
+        )
 
         ## Merging Current Branch to the Main Model
         # print("Merging Models")
         gen_model_graph = __merge_models(
-            gen_model_graph, main_branch, curr_branch, random_generator
+            gen_model_graph, main_branch, curr_branch, merge_model_generator
         )
 
         ## Updating Main Branch
@@ -289,6 +303,28 @@ def __build_model_graph(
     __add_input_output_nodes(gen_model_graph, main_branch, curr_node_idx)
 
     return gen_model_graph
+
+
+def __build_static_model_graph(num_nodes: int) -> nx.DiGraph:
+    ## Building fake stats for the reference model
+    stats_dict = {}
+    stats_dict["edge_probabilities"] = {"Conv": {"Conv": 1.0}}
+    stats_dict["edge_sizes"] = {("Conv", "Conv"): [INPUT_SIZE]}
+    stats_dict["layer_types_info"] = {
+        "Conv": {"flops": [1e9], "weights_size": [4], "outputs_size": [INPUT_SIZE]}
+    }
+
+    gen_model = nx.DiGraph(name="GeneratedModel", tensor_size_dict={})
+
+    main_branch = __build_model_branch(
+        stats_dict, num_nodes, np.random.default_rng(seed=42), start_idx=1
+    )
+
+    gen_model = __merge_models(gen_model, None, main_branch, None)
+
+    __add_input_output_nodes(gen_model, main_branch, num_nodes + 2)
+
+    return gen_model
 
 
 def __analyze_start_model(start_model: nx.DiGraph):
@@ -354,13 +390,18 @@ def build_model_profile(
     start_model: nx.DiGraph,
     branch_nodes: list[int],
     skip_prob: float = 0.0,
+    random_build: bool = True,
 ) -> ModelProfile:
 
     fake_profile = ModelProfile()
 
-    generated_graph: nx.DiGraph = __build_model_graph(
-        start_model, branch_nodes, skip_prob
-    )
+    if random_build:
+        generated_graph: nx.DiGraph = __build_random_model_graph(
+            start_model, branch_nodes, skip_prob
+        )
+    else:
+        generated_graph: nx.DiGraph = __build_static_model_graph(branch_nodes[0])
+
     fake_profile.set_model_graph(generated_graph)
 
     regressor = Regressor()

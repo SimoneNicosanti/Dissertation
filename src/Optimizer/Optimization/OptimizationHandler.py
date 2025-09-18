@@ -49,7 +49,7 @@ class OptimizationHandler:
                 path=CPLEX_PATH,
                 warmStart=False,
                 gapRel=None,
-                msg=True,
+                msg=False,
                 # options=["parallelmode=1"],
                 threads=1,  ## Have to set this for result repeatability
             )
