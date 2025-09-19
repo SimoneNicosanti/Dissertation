@@ -356,7 +356,7 @@ def main():
     args = parser.parse_args()
 
     if args.case == "random":
-        random_test()
+        random_test(args.server_num)
     else:
         static_test(args.server_num)
 
