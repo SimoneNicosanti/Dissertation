@@ -19,31 +19,33 @@ def fix_layers_change_net_nodes(case: str):
         fig: plt.Figure
         axes: list[plt.Axes]
         if chart_idx == 0:
-            fig, axes = plt.subplots(figsize=(14, 5), nrows=1, ncols=max_charts)
-            fig.tight_layout(pad=1.75)  # default is 1.08
+            fig, axes = plt.subplots(
+                figsize=(14, 5), nrows=1, ncols=max_charts, sharey=True
+            )
+            fig.tight_layout(pad=2.5)  # default is 1.08
             # fig.tight_layout(rect=[0.1, 0.1, 0.1, 0.1])  # can also adjust the rectangle
 
         curr_df = dataframe[dataframe["num_nodes"] == num_node]
 
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["net_nodes"], curr_df["build_time"], label="Build Time", marker="o"
         )
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["net_nodes"],
             curr_df["latency_time"],
             label="Latency Time",
             marker="o",
         )
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["net_nodes"],
             curr_df["energy_time"],
             label="Energy Time",
             marker="o",
         )
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["net_nodes"], curr_df["whole_time"], label="Whole Time", marker="o"
         )
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["net_nodes"], curr_df["post_time"], label="Post Time", marker="o"
         )
         # axes[chart_idx].plot(
@@ -53,7 +55,7 @@ def fix_layers_change_net_nodes(case: str):
         axes[chart_idx].set_title("Num of Layers: " + str(num_node), fontsize=10)
         axes[chart_idx].set_xlabel("Num of Net Nodes")
         axes[chart_idx].set_xticks(curr_df["net_nodes"])
-        axes[chart_idx].set_ylabel("Time [s]")
+        axes[chart_idx].set_ylabel("Log Time [s]")
         axes[chart_idx].legend()
 
         chart_idx += 1
@@ -85,16 +87,18 @@ def fix_net_nodes_change_layers(case: str):
         fig: plt.Figure
         axes: list[plt.Axes]
         if chart_idx == 0:
-            fig, axes = plt.subplots(figsize=(14, 5), nrows=1, ncols=max_charts)
-            fig.tight_layout(pad=1.75)  # default is 1.08
+            fig, axes = plt.subplots(
+                figsize=(14, 5), nrows=1, ncols=max_charts, sharey=True
+            )
+            fig.tight_layout(pad=2.5)  # default is 1.08
             # fig.tight_layout(rect=[0.1, 0.1, 0.1, 0.1])  # can also adjust the rectangle
 
         curr_df = dataframe[dataframe["net_nodes"] == net_node]
 
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["num_nodes"], curr_df["build_time"], label="Build Time", marker="o"
         )
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["num_nodes"],
             curr_df["latency_time"],
             label="Latency Time",
@@ -106,10 +110,10 @@ def fix_net_nodes_change_layers(case: str):
             label="Energy Time",
             marker="o",
         )
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["num_nodes"], curr_df["whole_time"], label="Whole Time", marker="o"
         )
-        axes[chart_idx].plot(
+        axes[chart_idx].semilogy(
             curr_df["num_nodes"], curr_df["post_time"], label="Post Time", marker="o"
         )
         # axes[chart_idx].plot(
@@ -119,7 +123,7 @@ def fix_net_nodes_change_layers(case: str):
         axes[chart_idx].set_title("Num of Net Nodes: " + str(net_node), fontsize=10)
         axes[chart_idx].set_xlabel("Num of Layers")
         axes[chart_idx].set_xticks(curr_df["num_nodes"])
-        axes[chart_idx].set_ylabel("Time [s]")
+        axes[chart_idx].set_ylabel("Log Time [s]")
         axes[chart_idx].legend()
 
         chart_idx += 1
