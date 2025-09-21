@@ -63,7 +63,7 @@ class OptimizationHandler:
         start_server: NodeId,
         opt_params: OptimizationParams = None,
         server_execution_profile_pool: ServerExecutionProfilePool = None,
-    ) -> tuple[list[nx.DiGraph], float, float, float]:
+    ) -> tuple[list[nx.DiGraph], float, float, float, float]:
 
         model_graphs: list[nx.DiGraph] = [
             model_profile.get_model_graph() for model_profile in model_profile_list
@@ -118,7 +118,7 @@ class OptimizationHandler:
         problem.solve(OptimizationHandler.get_solver(gapRel=0.0))
         end = time.perf_counter_ns()
         if pulp.LpStatus[problem.status] != "Optimal":
-            return None
+            return None, -1, -1, -1, -1
         min_lat_cost = latency_expression.value()
         print("Solved Min Latency Problem")
 
@@ -133,7 +133,7 @@ class OptimizationHandler:
         problem.solve(OptimizationHandler.get_solver(gapRel=0.0))
         end = time.perf_counter_ns()
         if pulp.LpStatus[problem.status] != "Optimal":
-            return None
+            return None, -1, -1, -1, -1
         min_en_cost = energy_expression.value()
         print("Solved Min Energy Problem")
 
@@ -171,7 +171,7 @@ class OptimizationHandler:
         end = time.perf_counter_ns()
 
         if pulp.LpStatus[problem.status] != "Optimal":
-            return None
+            return None, -1, -1, -1, -1
 
         whole_sol_time = (end - start) * 1e-9
 
