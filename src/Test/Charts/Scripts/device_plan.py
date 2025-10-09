@@ -93,7 +93,7 @@ def main():
 
             plt.tight_layout()
             plt.savefig(
-                f"../Images/Pred_Comparisons/Device/device_plan_comparison_{model}_{cpus}.svg"
+                f"../Images/Pred_Comparisons/Device/device_plan_comparison_{model}_{cpus}.eps"
             )
 
             curr_comp_df = curr_usage_df.reset_index().merge(

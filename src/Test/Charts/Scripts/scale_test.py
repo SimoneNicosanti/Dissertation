@@ -60,12 +60,12 @@ def fix_layers_change_net_nodes(case: str):
 
         chart_idx += 1
         if chart_idx == max_charts:
-            plt.savefig(f"../Images/Scale_Test/{case}/Fix_Layers/fig_{fig_num}.svg")
+            plt.savefig(f"../Images/Scale_Test/{case}/Fix_Layers/fig_{fig_num}.eps")
             fig_num += 1
             chart_idx = 0
 
     if chart_idx != 0:
-        plt.savefig(f"../Images/Scale_Test/{case}/Fix_Layers/fig_{fig_num}.svg")
+        plt.savefig(f"../Images/Scale_Test/{case}/Fix_Layers/fig_{fig_num}.eps")
 
     pass
 
@@ -128,12 +128,12 @@ def fix_net_nodes_change_layers(case: str):
 
         chart_idx += 1
         if chart_idx == max_charts:
-            plt.savefig(f"../Images/Scale_Test/{case}/Fix_Net_Nodes/fig_{fig_num}.svg")
+            plt.savefig(f"../Images/Scale_Test/{case}/Fix_Net_Nodes/fig_{fig_num}.eps")
             fig_num += 1
             chart_idx = 0
 
     if chart_idx != 0:
-        plt.savefig(f"../Images/Scale_Test/{case}/Fix_Net_Nodes/fig_{fig_num}.svg")
+        plt.savefig(f"../Images/Scale_Test/{case}/Fix_Net_Nodes/fig_{fig_num}.eps")
 
     pass
 

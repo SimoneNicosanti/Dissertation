@@ -99,7 +99,7 @@ def main():
     ax.legend()
 
     plt.tight_layout()
-    plt.savefig("../Images/Real_vs_Sum/real_vs_sum.svg")
+    plt.savefig("../Images/Real_vs_Sum/real_vs_sum.eps")
 
 
 if __name__ == "__main__":
