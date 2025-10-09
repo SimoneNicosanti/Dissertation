@@ -33,7 +33,7 @@ def plot_consumption_line(dataframe: pd.DataFrame, max_value):
     fig.suptitle("Device Energy Consumption Trend")
     fig.tight_layout()
 
-    plt.savefig("../Images/Energy_Limit/energy_limit_plot.png")
+    plt.savefig("../Images/Energy_Limit/energy_limit_plot.svg")
     pass
 
 
@@ -72,7 +72,7 @@ def plot_layers_bar_chart(dataframe: pd.DataFrame):
     plt.xlabel("Energy limit")
     plt.ylabel("Number of layers")
     plt.tight_layout()
-    plt.savefig("../Images/Energy_Limit/energy_limit_layers.png")
+    plt.savefig("../Images/Energy_Limit/energy_limit_layers.svg")
     pass
 
 

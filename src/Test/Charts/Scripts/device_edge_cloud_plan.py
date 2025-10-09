@@ -124,7 +124,7 @@ def plan_vs_real_comparison():
 
                 plt.tight_layout()
                 plt.savefig(
-                    f"../Images/Pred_Comparisons/DeviceEdgeCloud/device_edge_cloud_plan_comparison_{model}_{dev_cpus}_{edge_cpus}.png"
+                    f"../Images/Pred_Comparisons/DeviceEdgeCloud/device_edge_cloud_plan_comparison_{model}_{dev_cpus}_{edge_cpus}.svg"
                 )
 
 

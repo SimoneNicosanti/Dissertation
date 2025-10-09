@@ -230,7 +230,7 @@ def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
                     fig.suptitle(f"Device {dev_cpus} + Edge {edge_cpus} - yolo11x-seg")
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_assigned_nodes_{dev_cpus}_{edge_cpus}.png"
+                        f"../Images/Assigned_Nodes/device_edge_assigned_nodes_{dev_cpus}_{edge_cpus}.svg"
                     )
                 else:
                     fig.suptitle(
@@ -238,7 +238,7 @@ def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
                     )
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_nodes_{dev_cpus}_{edge_cpus}_{cloud_cpus}.png"
+                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_nodes_{dev_cpus}_{edge_cpus}_{cloud_cpus}.svg"
                     )
 
     pass
@@ -364,7 +364,7 @@ def plot_assigned_components_for_plan_on_axes(curr_plan):
                     fig.suptitle(f"Device {dev_cpus} + Edge {edge_cpus} - yolo11x-seg")
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_assigned_comps_{dev_cpus}_{edge_cpus}.png"
+                        f"../Images/Assigned_Nodes/device_edge_assigned_comps_{dev_cpus}_{edge_cpus}.svg"
                     )
                 else:
                     fig.suptitle(
@@ -372,7 +372,7 @@ def plot_assigned_components_for_plan_on_axes(curr_plan):
                     )
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_comps_{dev_cpus}_{edge_cpus}_{cloud_cpus}.png"
+                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_comps_{dev_cpus}_{edge_cpus}_{cloud_cpus}.svg"
                     )
 
 

@@ -299,7 +299,7 @@ def main():
 
                 plt.tight_layout()
                 plt.savefig(
-                    f"../Images/Base_Comparisons/baseline_comparison_{model}_{dev_cpus}_{edge_cpus}.png"
+                    f"../Images/Base_Comparisons/baseline_comparison_{model}_{dev_cpus}_{edge_cpus}.svg"
                 )
 
                 pass
