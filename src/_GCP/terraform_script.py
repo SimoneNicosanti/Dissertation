@@ -13,6 +13,9 @@ def main():
     parser.add_argument(
         "--case", type=str, help="Apply or Destroy", required=True, choices=["a", "d"]
     )
+    parser.add_argument(
+        "--only-optimizer", action="store_true", help="Use only optimizer"
+    )
     parser.add_argument("--gpu", action="store_true", help="Use GPU on Manager")
     parser.add_argument("--device", action="store_true", help="Activate Device")
     parser.add_argument("--edge", action="store_true", help="Activate Edge")
@@ -32,6 +35,8 @@ def main():
             command += """ -var="enable_edge=true" """
         if args.cloud:
             command += """ -var="enable_cloud=true" """
+        if args.only_optimizer:
+            command += """ -var="only_optimizer=true" """
 
     else:
         command += " destroy"

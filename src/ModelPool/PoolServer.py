@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Iterator
 
@@ -5,10 +6,13 @@ import grpc
 import onnx
 
 from Common.ConfigReader import ConfigReader
+from CommonIds.NodeId import NodeId
 from CommonModel import ModelYielder
+from CommonProfile.ModelInfo import ModelNodeInfo
+from CommonProfile.ModelProfile import ModelProfile
 from ModelPool.DummyQuantizer import DummyQuantizer
 from ModelPool.LayerDivider import LayerDivider
-from proto_compiled.common_pb2 import ComponentId
+from proto_compiled.common_pb2 import ComponentId, ModelId
 from proto_compiled.model_pool_pb2 import (
     CalibrationChunk,
     CalibrationPullRequest,
@@ -20,6 +24,8 @@ from proto_compiled.model_pool_pb2 import (
     PushResponse,
 )
 from proto_compiled.model_pool_pb2_grpc import ModelPoolServicer
+from proto_compiled.model_profile_pb2 import ProfileRequest, ProfileResponse
+from proto_compiled.model_profile_pb2_grpc import ModelProfileStub
 
 MEGABYTE_SIZE = 1024 * 1024
 
@@ -108,9 +114,31 @@ class PoolServer(ModelPoolServicer):
                     model_chunk=pull_response.model_chunk,
                 )
 
+        for pull_response in ModelYielder.pull_yield(onnx_model):
+            yield LayerPullResponse(
+                layer_name="WholeModel",
+                is_quantized=False,
+                model_chunk=pull_response.model_chunk,
+            )
+
+        model_profile_stub = ModelProfileStub(grpc.insecure_channel("localhost:50004"))
+        model_profile_response: ProfileResponse = model_profile_stub.profile_model(
+            ProfileRequest(
+                model_id=ModelId(model_name=model_name), profile_regression=False
+            )
+        )
+        model_profile: ModelProfile = ModelProfile.decode(
+            json.loads(model_profile_response.model_profile)
+        )
+        quantizable_layers = []
+        for node_id in model_profile.model_graph.nodes:
+            if model_profile.model_graph.nodes[node_id].get(
+                ModelNodeInfo.QUANTIZABLE, False
+            ):
+                quantizable_layers.append(node_id.node_name)
+
         ## Quantized model
         quant_model_file_path = model_file_path.replace(".onnx", "_quant.onnx")
-
         if not os.path.exists(quant_model_file_path):
             DummyQuantizer.dummy_quantize(model_file_path, quant_model_file_path)
 
@@ -118,6 +146,9 @@ class PoolServer(ModelPoolServicer):
             model_file_path, quant_onnx_model_path=quant_model_file_path
         )
         for layer in onnx_model.graph.node:
+            if layer.name not in quantizable_layers:
+                continue
+
             layer_model = self.build_layer_model(
                 model_name, layer.name, quantized_layer_divider, quantized=True
             )
@@ -127,6 +158,19 @@ class PoolServer(ModelPoolServicer):
                     is_quantized=True,
                     model_chunk=pull_response.model_chunk,
                 )
+
+        mixed_model_file_path = model_file_path.replace(".onnx", "_mixed.onnx")
+        if not os.path.exists(mixed_model_file_path):
+            DummyQuantizer.dummy_quantize(
+                model_file_path, mixed_model_file_path, quantizable_layers
+            )
+        mixed_model = onnx.load_model(mixed_model_file_path)
+        for pull_response in ModelYielder.pull_yield(mixed_model):
+            yield LayerPullResponse(
+                layer_name="MixedModel",
+                is_quantized=True,
+                model_chunk=pull_response.model_chunk,
+            )
 
         return
 
@@ -184,7 +228,7 @@ class PoolServer(ModelPoolServicer):
 
         model_name = request.model_id.model_name
 
-        file_name = f"yolo11_calibration.npy"
+        file_name = "yolo11_calibration.npy"
         file_dir = ConfigReader().read_str("model_pool_dirs", "CALIBRATION_DATASET_DIR")
 
         file_path = os.path.join(file_dir, file_name)

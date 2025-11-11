@@ -41,46 +41,53 @@ def get_profiler_stub():
     return model_profiler
 
 
-def profile_nodes_edges(model_name: str):
+def profile_nodes_edges(model_names: str):
     model_profiler = get_profiler_stub()
 
-    dataframe = pd.DataFrame(columns=["model_case", "num_nodes", "num_edges", "num_tensors"])
+    dataframe = pd.DataFrame(
+        columns=["model_name", "num_nodes", "num_edges", "num_tensors"]
+    )
 
-    for mod_size in SIZE_LIST:
-        for mod_case in CASE_LIST:
-            final_model_name = MODEL_NAME + mod_size + mod_case
+    for final_model_name in model_names:
 
-            profile_request = ProfileRequest(
-                model_id=ModelId(model_name=final_model_name), profile_regression=False
-            )
+        profile_request = ProfileRequest(
+            model_id=ModelId(model_name=final_model_name), profile_regression=False
+        )
 
-            time.perf_counter_ns()
-            profile_response: ProfileResponse = model_profiler.profile_model(
-                profile_request
-            )
-            time.perf_counter_ns()
+        time.perf_counter_ns()
+        profile_response: ProfileResponse = model_profiler.profile_model(
+            profile_request
+        )
+        time.perf_counter_ns()
 
-            # print("Profile Time >> ", (end - start) * 1e-9)
+        # print("Profile Time >> ", (end - start) * 1e-9)
 
-            model_profile: ModelProfile = ModelProfile.decode(
-                json.loads(profile_response.model_profile)
-            )
+        model_profile: ModelProfile = ModelProfile.decode(
+            json.loads(profile_response.model_profile)
+        )
 
-            num_nodes = len(model_profile.get_model_graph().nodes)
-            num_edges = len(model_profile.get_model_graph().edges)
-            num_tensors = len(model_profile.get_model_graph().graph[ModelGraphInfo.TENSOR_SIZE_DICT])
+        num_nodes = len(model_profile.get_model_graph().nodes)
+        num_edges = len(model_profile.get_model_graph().edges)
+        num_tensors = len(
+            model_profile.get_model_graph().graph[ModelGraphInfo.TENSOR_SIZE_DICT]
+        )
 
-            model_case = mod_size + (mod_case if mod_case != "" else "-det")
-            new_df = pd.DataFrame(
-                {
-                    "model_case": [model_case],
-                    "num_nodes": [num_nodes],
-                    "num_edges": [num_edges],
-                    "num_tensors": [num_tensors],
-                }
-            )
+        new_df = pd.DataFrame(
+            {
+                "model_case": [final_model_name],
+                "num_nodes": [num_nodes],
+                "num_edges": [num_edges],
+                "num_tensors": [num_tensors],
+            }
+        )
 
-            dataframe = pd.concat([dataframe, new_df], ignore_index=True)
+        dataframe = pd.concat([dataframe, new_df], ignore_index=True)
+
+        model_profile_json = profile_response.model_profile
+        with open(
+            f"/src/Test/Results/Model_Profile/{final_model_name}_easy.json", "w"
+        ) as f:
+            f.write(model_profile_json)
 
     dataframe.to_csv("/src/Test/Results/model_sizes.csv", index=False)
 
@@ -146,13 +153,9 @@ def main():
     prof_case = args.case
     runs = args.runs
 
-    if model_names[0] == "ALL" and prof_case == "size":
-        profile_nodes_edges(None)
-    elif model_names[0] == "ALL" and prof_case == "whole":
-        whole_profile(None, runs)
-    elif model_names[0] != "ALL" and prof_case == "size":
+    if prof_case == "size":
         profile_nodes_edges(model_names)
-    elif model_names[0] != "ALL" and prof_case == "whole":
+    else:
         whole_profile(model_names, runs)
 
 

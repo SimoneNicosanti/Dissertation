@@ -10,20 +10,17 @@ RUN pip install readerwriterlock
 RUN pip install networkx
 RUN pip install "numpy<2"
 RUN pip install onnx
-RUN pip install onnxruntime
 RUN pip install onnxslim
 RUN pip install onnx-tool
 RUN pip install pandas
 RUN pip install scikit-learn
-
-# RUN pip install onnxruntime-openvino
-# RUN pip install onnxruntime-gpu
 
 RUN pip install tqdm
 
 RUN apt update 
 RUN apt install screen -y
 
+RUN pip install onnxruntime
 RUN pip install onnxruntime-gpu
 
 

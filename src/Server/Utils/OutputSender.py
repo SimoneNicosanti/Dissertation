@@ -1,4 +1,5 @@
 import io
+import time
 
 import grpc
 from readerwriterlock import rwlock
@@ -48,26 +49,44 @@ class OutputSender:
             component_id
         )
 
+        start = time.perf_counter_ns()
+        print("\t Sending Output")
         for next_comp_info in next_components_dict.keys():
             next_comp_inputs = next_components_dict[next_comp_info]
 
-            to_send_list = filter(
-                lambda item: item.tensor_name in next_comp_inputs, infer_output
+            to_send_list = list(
+                filter(lambda item: item.tensor_name in next_comp_inputs, infer_output)
             )
 
             next_comp_stub: InferenceStub = self.__get_stub_for_next_server(
                 plan, next_comp_info, request_info
             )
 
-            response_stream = next_comp_stub.do_inference(
-                self.__stream_generator(next_comp_info, request_info, to_send_list)
+            print(
+                f"\t\t Sending To Next Component {next_comp_info} >> ",
             )
+            print(
+                "\t\t\t Sending Tensors >> ",
+                [tensor.tensor_name for tensor in to_send_list],
+            )
+            comp_send_start = time.perf_counter_ns()
+            for elem in to_send_list:
+                response_stream = next_comp_stub.do_inference(
+                    self.__stream_generator(next_comp_info, request_info, [elem])
+                )
 
-            ## As the receiver will answer with a stream
-            ## We have to consume it in order to unlock the computation
-            ## The stream will actually be empty, but we have to do it anyway
-            for _ in response_stream:
-                pass
+                ## As the receiver will answer with a stream
+                ## We have to consume it in order to unlock the computation
+                ## The stream will actually be empty, but we have to do it anyway
+                for _ in response_stream:
+                    pass
+            comp_send_end = time.perf_counter_ns()
+
+            print("\t\t\t Time >> ", (comp_send_end - comp_send_start) * 1e-9)
+
+        end = time.perf_counter_ns()
+        send_output_time = (end - start) * 1e-9
+        print("\t\t Sent Output with Time >> ", send_output_time)
 
         pass
 
@@ -91,6 +110,7 @@ class OutputSender:
             callback_port=request_info.callback_port,
         )
 
+        tensors_size = []
         for tensor_wrapper in to_send_list:
             tensor_info = TensorInfo(
                 name=tensor_wrapper.tensor_name,
@@ -99,6 +119,7 @@ class OutputSender:
             )
 
             byte_buffer = io.BytesIO(tensor_wrapper.numpy_array.tobytes())
+            byte_size = len(byte_buffer.getvalue()) / (1e6)
             while chunk_data := byte_buffer.read(self.chunk_size_bytes):
                 tensor_chunk = TensorChunk(
                     chunk_size=len(chunk_data), chunk_data=chunk_data
@@ -110,6 +131,8 @@ class OutputSender:
                     component_id=component_id,
                     input_tensor=tensor,
                 )
+            tensors_size.append(byte_size)
+        print("\t\t\t Tensors Size [MB] >> ", tensors_size)
 
     def __get_stub_for_next_server(
         self,
@@ -149,6 +172,7 @@ class OutputSender:
                     channel = self.callback_channel_dict[next_component_id.net_node_id]
 
             if not is_present:
+                print("\t\t No Channel Found >> Creating One")
                 with self.callback_channel_lock.gen_wlock():
                     ## Chek if it has not been changed in the meantime
                     if (
@@ -178,6 +202,7 @@ class OutputSender:
                     channel = self.next_server_channel[next_component_id.net_node_id]
 
             if not is_present:
+                print("\t\t No Channel Found >> Creating One")
                 with self.server_channel_lock.gen_wlock():
                     ## Chek if it has not been changed in the meantime
                     if next_component_id.net_node_id in self.next_server_channel.keys():
@@ -193,7 +218,5 @@ class OutputSender:
                         self.next_server_channel[next_component_id.net_node_id] = (
                             channel
                         )
-
         server_stub = InferenceStub(channel)
-
         return server_stub

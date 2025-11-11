@@ -4,8 +4,9 @@ import grpc
 import warnings
 
 import common_pb2 as common__pb2
+import ping_pb2 as ping__pb2
 
-GRPC_GENERATED_VERSION = '1.71.0'
+GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -39,6 +40,11 @@ class PingStub(object):
                 request_serializer=common__pb2.Empty.SerializeToString,
                 response_deserializer=common__pb2.Empty.FromString,
                 _registered_method=True)
+        self.bandwidth_test = channel.stream_unary(
+                '/optimizer.Ping/bandwidth_test',
+                request_serializer=ping__pb2.BandwidthMessage.SerializeToString,
+                response_deserializer=common__pb2.Empty.FromString,
+                _registered_method=True)
 
 
 class PingServicer(object):
@@ -50,12 +56,23 @@ class PingServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def bandwidth_test(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_PingServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'latency_test': grpc.unary_unary_rpc_method_handler(
                     servicer.latency_test,
                     request_deserializer=common__pb2.Empty.FromString,
+                    response_serializer=common__pb2.Empty.SerializeToString,
+            ),
+            'bandwidth_test': grpc.stream_unary_rpc_method_handler(
+                    servicer.bandwidth_test,
+                    request_deserializer=ping__pb2.BandwidthMessage.FromString,
                     response_serializer=common__pb2.Empty.SerializeToString,
             ),
     }
@@ -85,6 +102,33 @@ class Ping(object):
             target,
             '/optimizer.Ping/latency_test',
             common__pb2.Empty.SerializeToString,
+            common__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def bandwidth_test(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_unary(
+            request_iterator,
+            target,
+            '/optimizer.Ping/bandwidth_test',
+            ping__pb2.BandwidthMessage.SerializeToString,
             common__pb2.Empty.FromString,
             options,
             channel_credentials,

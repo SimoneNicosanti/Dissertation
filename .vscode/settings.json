@@ -2,5 +2,8 @@
   "editor.defaultFormatter": "trunk.io",
   "editor.formatOnSave": true,
   "python.analysis.indexing": true,
-  "python.analysis.autoImportCompletions": true
+  "python.analysis.autoImportCompletions": true,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }

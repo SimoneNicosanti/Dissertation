@@ -1,1 +1,1618 @@
-{"graph": {"directed": true, "multigraph": false, "graph": {"name": "yolo11n-cls"}, "nodes": [{"idx": 0, "flops": 0, "weights_size": 0, "outputs_size": 0, "generator": true, "id": "InputGenerator"}, {"idx": 1, "flops": 91750400.0, "weights_size": 0.001708984375, "outputs_size": 6.25, "quantizable": true, "id": "/model.0/conv/Conv"}, {"idx": 2, "flops": 104857600.0, "weights_size": 0, "outputs_size": 6.25, "quantizable": true, "id": "/model.0/act/Sigmoid"}, {"idx": 3, "flops": 3276800.0, "weights_size": 0, "outputs_size": 6.25, "id": "/model.0/act/Mul"}, {"idx": 4, "flops": 237568000.0, "weights_size": 0.0177001953125, "outputs_size": 3.125, "quantizable": true, "id": "/model.1/conv/Conv"}, {"idx": 5, "flops": 52428800.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.1/act/Sigmoid"}, {"idx": 6, "flops": 1638400.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.1/act/Mul"}, {"idx": 7, "flops": 54067200.0, "weights_size": 0.0040283203125, "outputs_size": 3.125, "id": "/model.2/cv1/conv/Conv"}, {"idx": 8, "flops": 52428800.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.2/cv1/act/Sigmoid"}, {"idx": 9, "flops": 1638400.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.2/cv1/act/Mul"}, {"idx": 10, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 3.125, "id": "/model.2/Split"}, {"idx": 11, "flops": 0.0, "weights_size": 0, "outputs_size": 4.6875, "id": "/model.2/Concat"}, {"idx": 12, "flops": 59392000.0, "weights_size": 0.004425048828125, "outputs_size": 0.78125, "id": "/model.2/m.0/cv1/conv/Conv"}, {"idx": 13, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.2/m.0/Add"}, {"idx": 14, "flops": 160563200.0, "weights_size": 0.011962890625, "outputs_size": 6.25, "quantizable": true, "id": "/model.2/cv2/conv/Conv"}, {"idx": 15, "flops": 104857600.0, "weights_size": 0, "outputs_size": 6.25, "quantizable": true, "id": "/model.2/cv2/act/Sigmoid"}, {"idx": 16, "flops": 3276800.0, "weights_size": 0, "outputs_size": 6.25, "id": "/model.2/cv2/act/Mul"}, {"idx": 17, "flops": 472678400.0, "weights_size": 0.140869140625, "outputs_size": 1.5625, "quantizable": true, "id": "/model.3/conv/Conv"}, {"idx": 18, "flops": 26214400.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.3/act/Sigmoid"}, {"idx": 19, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.3/act/Mul"}, {"idx": 20, "flops": 53248000.0, "weights_size": 0.015869140625, "outputs_size": 1.5625, "id": "/model.4/cv1/conv/Conv"}, {"idx": 21, "flops": 26214400.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.4/cv1/act/Sigmoid"}, {"idx": 22, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.4/cv1/act/Mul"}, {"idx": 23, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 1.5625, "id": "/model.4/Split"}, {"idx": 24, "flops": 0.0, "weights_size": 0, "outputs_size": 2.34375, "id": "/model.4/Concat"}, {"idx": 25, "flops": 59187200.0, "weights_size": 0.01763916015625, "outputs_size": 0.390625, "id": "/model.4/m.0/cv1/conv/Conv"}, {"idx": 26, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.4/m.0/Add"}, {"idx": 27, "flops": 158924800.0, "weights_size": 0.04736328125, "outputs_size": 3.125, "quantizable": true, "id": "/model.4/cv2/conv/Conv"}, {"idx": 28, "flops": 52428800.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.4/cv2/act/Sigmoid"}, {"idx": 29, "flops": 1638400.0, "weights_size": 0, "outputs_size": 3.125, "id": "/model.4/cv2/act/Mul"}, {"idx": 30, "flops": 472268800.0, "weights_size": 0.56298828125, "outputs_size": 0.78125, "quantizable": true, "id": "/model.5/conv/Conv"}, {"idx": 31, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.5/act/Sigmoid"}, {"idx": 32, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.5/act/Mul"}, {"idx": 33, "flops": 52838400.0, "weights_size": 0.06298828125, "outputs_size": 0.78125, "id": "/model.6/cv1/conv/Conv"}, {"idx": 34, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv1/act/Sigmoid"}, {"idx": 35, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv1/act/Mul"}, {"idx": 36, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 0.78125, "id": "/model.6/Split"}, {"idx": 37, "flops": 0.0, "weights_size": 0, "outputs_size": 1.171875, "id": "/model.6/Concat"}, {"idx": 38, "flops": 6656000.0, "weights_size": 0.0079345703125, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv1/conv/Conv"}, {"idx": 39, "flops": 6656000.0, "weights_size": 0.0079345703125, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv2/conv/Conv"}, {"idx": 40, "flops": 79052800.0, "weights_size": 0.09423828125, "outputs_size": 0.78125, "quantizable": true, "id": "/model.6/cv2/conv/Conv"}, {"idx": 41, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv2/act/Sigmoid"}, {"idx": 42, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.6/cv2/act/Mul"}, {"idx": 43, "flops": 236134400.0, "weights_size": 1.1259765625, "outputs_size": 0.390625, "quantizable": true, "id": "/model.7/conv/Conv"}, {"idx": 44, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.7/act/Sigmoid"}, {"idx": 45, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.7/act/Mul"}, {"idx": 46, "flops": 52633600.0, "weights_size": 0.2509765625, "outputs_size": 0.390625, "id": "/model.8/cv1/conv/Conv"}, {"idx": 47, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv1/act/Sigmoid"}, {"idx": 48, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv1/act/Mul"}, {"idx": 49, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 0.390625, "id": "/model.8/Split"}, {"idx": 50, "flops": 0.0, "weights_size": 0, "outputs_size": 0.5859375, "id": "/model.8/Concat"}, {"idx": 51, "flops": 6604800.0, "weights_size": 0.031494140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv1/conv/Conv"}, {"idx": 52, "flops": 6604800.0, "weights_size": 0.031494140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv2/conv/Conv"}, {"idx": 53, "flops": 78848000.0, "weights_size": 0.3759765625, "outputs_size": 0.390625, "quantizable": true, "id": "/model.8/cv2/conv/Conv"}, {"idx": 54, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv2/act/Sigmoid"}, {"idx": 55, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.8/cv2/act/Mul"}, {"idx": 56, "flops": 52633600.0, "weights_size": 0.2509765625, "outputs_size": 0.390625, "id": "/model.9/cv1/conv/Conv"}, {"idx": 57, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv1/act/Sigmoid"}, {"idx": 58, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv1/act/Mul"}, {"idx": 59, "flops": 0.0, "weights_size": 1.52587890625e-05, "outputs_size": 0.390625, "id": "/model.9/Split"}, {"idx": 60, "flops": 0.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/Concat"}, {"idx": 61, "flops": 26419200.0, "weights_size": 0.1259765625, "outputs_size": 0.390625, "id": "/model.9/m/m.0/attn/qkv/conv/Conv"}, {"idx": 62, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/Add"}, {"idx": 63, "flops": 26419200.0, "weights_size": 0.1259765625, "outputs_size": 0.390625, "id": "/model.9/m/m.0/ffn/ffn.0/conv/Conv"}, {"idx": 64, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/Add_1"}, {"idx": 65, "flops": 52633600.0, "weights_size": 0.2509765625, "outputs_size": 0.390625, "id": "/model.9/cv2/conv/Conv"}, {"idx": 66, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv2/act/Sigmoid"}, {"idx": 67, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/cv2/act/Mul"}, {"idx": 68, "flops": 263168000.0, "weights_size": 1.2548828125, "outputs_size": 1.953125, "quantizable": true, "id": "/model.10/conv/conv/Conv"}, {"idx": 69, "flops": 32768000.0, "weights_size": 0, "outputs_size": 1.953125, "id": "/model.10/conv/act/Sigmoid"}, {"idx": 70, "flops": 1024000.0, "weights_size": 0, "outputs_size": 1.953125, "id": "/model.10/conv/act/Mul"}, {"idx": 71, "flops": 1034240.0, "weights_size": 0, "outputs_size": 0.0048828125, "id": "/model.10/pool/GlobalAveragePool"}, {"idx": 72, "flops": 0.0, "weights_size": 0, "outputs_size": 0.0048828125, "id": "/model.10/Flatten"}, {"idx": 73, "flops": 2562000.0, "weights_size": 4.886627197265625, "outputs_size": 0.003814697265625, "id": "/model.10/linear/Gemm"}, {"idx": 74, "flops": 72000.0, "weights_size": 0, "outputs_size": 0.003814697265625, "id": "/model.10/Softmax"}, {"idx": 75, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid"}, {"idx": 76, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.9/m/m.0/ffn/ffn.0/act/Mul"}, {"idx": 77, "flops": 26316800.0, "weights_size": 0.12548828125, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/ffn/ffn.1/conv/Conv"}, {"idx": 78, "flops": 0.0, "weights_size": 3.0517578125e-05, "outputs_size": 0.390625, "id": "/model.9/m/m.0/attn/Reshape"}, {"idx": 79, "flops": 0.0, "weights_size": 2.288818359375e-05, "outputs_size": 0.390625, "id": "/model.9/m/m.0/attn/Split"}, {"idx": 80, "flops": 0.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.9/m/m.0/attn/Transpose"}, {"idx": 81, "flops": 20480000.0, "weights_size": 0, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/MatMul"}, {"idx": 82, "flops": 0.0, "weights_size": 3.0517578125e-05, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/Reshape_2"}, {"idx": 83, "flops": 40960000.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/MatMul_1"}, {"idx": 84, "flops": 0.0, "weights_size": 3.0517578125e-05, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/Reshape_1"}, {"idx": 85, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/Add"}, {"idx": 86, "flops": 13209600.0, "weights_size": 0.06298828125, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/proj/conv/Conv"}, {"idx": 87, "flops": 1024000.0, "weights_size": 0.0048828125, "outputs_size": 0.1953125, "id": "/model.9/m/m.0/attn/pe/conv/Conv"}, {"idx": 88, "flops": 640000.0, "weights_size": 3.814697265625e-06, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/Mul"}, {"idx": 89, "flops": 23040000.0, "weights_size": 0, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/Softmax"}, {"idx": 90, "flops": 0.0, "weights_size": 0, "outputs_size": 1.220703125, "id": "/model.9/m/m.0/attn/Transpose_1"}, {"idx": 91, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv2/act/Sigmoid"}, {"idx": 92, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv2/act/Mul"}, {"idx": 93, "flops": 0.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.8/m.0/Concat"}, {"idx": 94, "flops": 13209600.0, "weights_size": 0.06298828125, "outputs_size": 0.1953125, "id": "/model.8/m.0/cv3/conv/Conv"}, {"idx": 95, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.8/m.0/cv3/act/Sigmoid"}, {"idx": 96, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.8/m.0/cv3/act/Mul"}, {"idx": 97, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv1/act/Sigmoid"}, {"idx": 98, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/cv1/act/Mul"}, {"idx": 99, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv1/conv/Conv"}, {"idx": 100, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/Add"}, {"idx": 101, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv1/conv/Conv"}, {"idx": 102, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/Add"}, {"idx": 103, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv1/act/Sigmoid"}, {"idx": 104, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv1/act/Mul"}, {"idx": 105, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv2/conv/Conv"}, {"idx": 106, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv2/act/Sigmoid"}, {"idx": 107, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.1/cv2/act/Mul"}, {"idx": 108, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv1/act/Sigmoid"}, {"idx": 109, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv1/act/Mul"}, {"idx": 110, "flops": 29542400.0, "weights_size": 0.140869140625, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv2/conv/Conv"}, {"idx": 111, "flops": 1638400.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv2/act/Sigmoid"}, {"idx": 112, "flops": 51200.0, "weights_size": 0, "outputs_size": 0.09765625, "id": "/model.8/m.0/m/m.0/cv2/act/Mul"}, {"idx": 113, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv2/act/Sigmoid"}, {"idx": 114, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv2/act/Mul"}, {"idx": 115, "flops": 0.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.6/m.0/Concat"}, {"idx": 116, "flops": 13312000.0, "weights_size": 0.015869140625, "outputs_size": 0.390625, "id": "/model.6/m.0/cv3/conv/Conv"}, {"idx": 117, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.6/m.0/cv3/act/Sigmoid"}, {"idx": 118, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.6/m.0/cv3/act/Mul"}, {"idx": 119, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv1/act/Sigmoid"}, {"idx": 120, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/cv1/act/Mul"}, {"idx": 121, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv1/conv/Conv"}, {"idx": 122, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/Add"}, {"idx": 123, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv1/conv/Conv"}, {"idx": 124, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/Add"}, {"idx": 125, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv1/act/Sigmoid"}, {"idx": 126, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv1/act/Mul"}, {"idx": 127, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv2/conv/Conv"}, {"idx": 128, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv2/act/Sigmoid"}, {"idx": 129, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.1/cv2/act/Mul"}, {"idx": 130, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv1/act/Sigmoid"}, {"idx": 131, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv1/act/Mul"}, {"idx": 132, "flops": 29593600.0, "weights_size": 0.0352783203125, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv2/conv/Conv"}, {"idx": 133, "flops": 3276800.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv2/act/Sigmoid"}, {"idx": 134, "flops": 102400.0, "weights_size": 0, "outputs_size": 0.1953125, "id": "/model.6/m.0/m/m.0/cv2/act/Mul"}, {"idx": 135, "flops": 6553600.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.4/m.0/cv1/act/Sigmoid"}, {"idx": 136, "flops": 204800.0, "weights_size": 0, "outputs_size": 0.390625, "id": "/model.4/m.0/cv1/act/Mul"}, {"idx": 137, "flops": 59392000.0, "weights_size": 0.0177001953125, "outputs_size": 0.78125, "id": "/model.4/m.0/cv2/conv/Conv"}, {"idx": 138, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.4/m.0/cv2/act/Sigmoid"}, {"idx": 139, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.4/m.0/cv2/act/Mul"}, {"idx": 140, "flops": 13107200.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.2/m.0/cv1/act/Sigmoid"}, {"idx": 141, "flops": 409600.0, "weights_size": 0, "outputs_size": 0.78125, "id": "/model.2/m.0/cv1/act/Mul"}, {"idx": 142, "flops": 59801600.0, "weights_size": 0.00445556640625, "outputs_size": 1.5625, "id": "/model.2/m.0/cv2/conv/Conv"}, {"idx": 143, "flops": 26214400.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.2/m.0/cv2/act/Sigmoid"}, {"idx": 144, "flops": 819200.0, "weights_size": 0, "outputs_size": 1.5625, "id": "/model.2/m.0/cv2/act/Mul"}, {"idx": 145, "receiver": true, "flops": 0, "weights_size": 0, "outputs_size": 0, "id": "OutputReceiver"}], "links": [{"tot_tensor_size": 4.6875, "tensor_name_list": ["images"], "source": "InputGenerator", "target": "/model.0/conv/Conv"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/conv/Conv_output_0"], "source": "/model.0/conv/Conv", "target": "/model.0/act/Sigmoid"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/conv/Conv_output_0"], "source": "/model.0/conv/Conv", "target": "/model.0/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/act/Sigmoid_output_0"], "source": "/model.0/act/Sigmoid", "target": "/model.0/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.0/act/Mul_output_0"], "source": "/model.0/act/Mul", "target": "/model.1/conv/Conv"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/conv/Conv_output_0"], "source": "/model.1/conv/Conv", "target": "/model.1/act/Sigmoid"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/conv/Conv_output_0"], "source": "/model.1/conv/Conv", "target": "/model.1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/act/Sigmoid_output_0"], "source": "/model.1/act/Sigmoid", "target": "/model.1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.1/act/Mul_output_0"], "source": "/model.1/act/Mul", "target": "/model.2/cv1/conv/Conv"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/conv/Conv_output_0"], "source": "/model.2/cv1/conv/Conv", "target": "/model.2/cv1/act/Sigmoid"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/conv/Conv_output_0"], "source": "/model.2/cv1/conv/Conv", "target": "/model.2/cv1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/act/Sigmoid_output_0"], "source": "/model.2/cv1/act/Sigmoid", "target": "/model.2/cv1/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/cv1/act/Mul_output_0"], "source": "/model.2/cv1/act/Mul", "target": "/model.2/Split"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.2/Split_output_0", "/model.2/Split_output_1"], "source": "/model.2/Split", "target": "/model.2/Concat"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/Split_output_1"], "source": "/model.2/Split", "target": "/model.2/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/Split_output_1"], "source": "/model.2/Split", "target": "/model.2/m.0/Add"}, {"tot_tensor_size": 4.6875, "tensor_name_list": ["/model.2/Concat_output_0"], "source": "/model.2/Concat", "target": "/model.2/cv2/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/conv/Conv_output_0"], "source": "/model.2/m.0/cv1/conv/Conv", "target": "/model.2/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/conv/Conv_output_0"], "source": "/model.2/m.0/cv1/conv/Conv", "target": "/model.2/m.0/cv1/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/Add_output_0"], "source": "/model.2/m.0/Add", "target": "/model.2/Concat"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/conv/Conv_output_0"], "source": "/model.2/cv2/conv/Conv", "target": "/model.2/cv2/act/Sigmoid"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/conv/Conv_output_0"], "source": "/model.2/cv2/conv/Conv", "target": "/model.2/cv2/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/act/Sigmoid_output_0"], "source": "/model.2/cv2/act/Sigmoid", "target": "/model.2/cv2/act/Mul"}, {"tot_tensor_size": 6.25, "tensor_name_list": ["/model.2/cv2/act/Mul_output_0"], "source": "/model.2/cv2/act/Mul", "target": "/model.3/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/conv/Conv_output_0"], "source": "/model.3/conv/Conv", "target": "/model.3/act/Sigmoid"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/conv/Conv_output_0"], "source": "/model.3/conv/Conv", "target": "/model.3/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/act/Sigmoid_output_0"], "source": "/model.3/act/Sigmoid", "target": "/model.3/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.3/act/Mul_output_0"], "source": "/model.3/act/Mul", "target": "/model.4/cv1/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/conv/Conv_output_0"], "source": "/model.4/cv1/conv/Conv", "target": "/model.4/cv1/act/Sigmoid"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/conv/Conv_output_0"], "source": "/model.4/cv1/conv/Conv", "target": "/model.4/cv1/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/act/Sigmoid_output_0"], "source": "/model.4/cv1/act/Sigmoid", "target": "/model.4/cv1/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/cv1/act/Mul_output_0"], "source": "/model.4/cv1/act/Mul", "target": "/model.4/Split"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.4/Split_output_0", "/model.4/Split_output_1"], "source": "/model.4/Split", "target": "/model.4/Concat"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/Split_output_1"], "source": "/model.4/Split", "target": "/model.4/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/Split_output_1"], "source": "/model.4/Split", "target": "/model.4/m.0/Add"}, {"tot_tensor_size": 2.34375, "tensor_name_list": ["/model.4/Concat_output_0"], "source": "/model.4/Concat", "target": "/model.4/cv2/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/conv/Conv_output_0"], "source": "/model.4/m.0/cv1/conv/Conv", "target": "/model.4/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/conv/Conv_output_0"], "source": "/model.4/m.0/cv1/conv/Conv", "target": "/model.4/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/Add_output_0"], "source": "/model.4/m.0/Add", "target": "/model.4/Concat"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/conv/Conv_output_0"], "source": "/model.4/cv2/conv/Conv", "target": "/model.4/cv2/act/Sigmoid"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/conv/Conv_output_0"], "source": "/model.4/cv2/conv/Conv", "target": "/model.4/cv2/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/act/Sigmoid_output_0"], "source": "/model.4/cv2/act/Sigmoid", "target": "/model.4/cv2/act/Mul"}, {"tot_tensor_size": 3.125, "tensor_name_list": ["/model.4/cv2/act/Mul_output_0"], "source": "/model.4/cv2/act/Mul", "target": "/model.5/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/conv/Conv_output_0"], "source": "/model.5/conv/Conv", "target": "/model.5/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/conv/Conv_output_0"], "source": "/model.5/conv/Conv", "target": "/model.5/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/act/Sigmoid_output_0"], "source": "/model.5/act/Sigmoid", "target": "/model.5/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.5/act/Mul_output_0"], "source": "/model.5/act/Mul", "target": "/model.6/cv1/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/conv/Conv_output_0"], "source": "/model.6/cv1/conv/Conv", "target": "/model.6/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/conv/Conv_output_0"], "source": "/model.6/cv1/conv/Conv", "target": "/model.6/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/act/Sigmoid_output_0"], "source": "/model.6/cv1/act/Sigmoid", "target": "/model.6/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv1/act/Mul_output_0"], "source": "/model.6/cv1/act/Mul", "target": "/model.6/Split"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/Split_output_0", "/model.6/Split_output_1"], "source": "/model.6/Split", "target": "/model.6/Concat"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/Split_output_1"], "source": "/model.6/Split", "target": "/model.6/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/Split_output_1"], "source": "/model.6/Split", "target": "/model.6/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 1.171875, "tensor_name_list": ["/model.6/Concat_output_0"], "source": "/model.6/Concat", "target": "/model.6/cv2/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/cv1/conv/Conv", "target": "/model.6/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/cv1/conv/Conv", "target": "/model.6/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/cv2/conv/Conv", "target": "/model.6/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/cv2/conv/Conv", "target": "/model.6/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/conv/Conv_output_0"], "source": "/model.6/cv2/conv/Conv", "target": "/model.6/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/conv/Conv_output_0"], "source": "/model.6/cv2/conv/Conv", "target": "/model.6/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/act/Sigmoid_output_0"], "source": "/model.6/cv2/act/Sigmoid", "target": "/model.6/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.6/cv2/act/Mul_output_0"], "source": "/model.6/cv2/act/Mul", "target": "/model.7/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/conv/Conv_output_0"], "source": "/model.7/conv/Conv", "target": "/model.7/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/conv/Conv_output_0"], "source": "/model.7/conv/Conv", "target": "/model.7/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/act/Sigmoid_output_0"], "source": "/model.7/act/Sigmoid", "target": "/model.7/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.7/act/Mul_output_0"], "source": "/model.7/act/Mul", "target": "/model.8/cv1/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/conv/Conv_output_0"], "source": "/model.8/cv1/conv/Conv", "target": "/model.8/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/conv/Conv_output_0"], "source": "/model.8/cv1/conv/Conv", "target": "/model.8/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/act/Sigmoid_output_0"], "source": "/model.8/cv1/act/Sigmoid", "target": "/model.8/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv1/act/Mul_output_0"], "source": "/model.8/cv1/act/Mul", "target": "/model.8/Split"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/Split_output_0", "/model.8/Split_output_1"], "source": "/model.8/Split", "target": "/model.8/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/Split_output_1"], "source": "/model.8/Split", "target": "/model.8/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/Split_output_1"], "source": "/model.8/Split", "target": "/model.8/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.5859375, "tensor_name_list": ["/model.8/Concat_output_0"], "source": "/model.8/Concat", "target": "/model.8/cv2/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/cv1/conv/Conv", "target": "/model.8/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/cv1/conv/Conv", "target": "/model.8/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/cv2/conv/Conv", "target": "/model.8/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/cv2/conv/Conv", "target": "/model.8/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/conv/Conv_output_0"], "source": "/model.8/cv2/conv/Conv", "target": "/model.8/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/conv/Conv_output_0"], "source": "/model.8/cv2/conv/Conv", "target": "/model.8/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/act/Sigmoid_output_0"], "source": "/model.8/cv2/act/Sigmoid", "target": "/model.8/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.8/cv2/act/Mul_output_0"], "source": "/model.8/cv2/act/Mul", "target": "/model.9/cv1/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/conv/Conv_output_0"], "source": "/model.9/cv1/conv/Conv", "target": "/model.9/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/conv/Conv_output_0"], "source": "/model.9/cv1/conv/Conv", "target": "/model.9/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/act/Sigmoid_output_0"], "source": "/model.9/cv1/act/Sigmoid", "target": "/model.9/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv1/act/Mul_output_0"], "source": "/model.9/cv1/act/Mul", "target": "/model.9/Split"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/Split_output_0"], "source": "/model.9/Split", "target": "/model.9/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/Split_output_1"], "source": "/model.9/Split", "target": "/model.9/m/m.0/attn/qkv/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/Split_output_1"], "source": "/model.9/Split", "target": "/model.9/m/m.0/Add"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/Concat_output_0"], "source": "/model.9/Concat", "target": "/model.9/cv2/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/attn/qkv/conv/Conv_output_0"], "source": "/model.9/m/m.0/attn/qkv/conv/Conv", "target": "/model.9/m/m.0/attn/Reshape"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/Add_output_0"], "source": "/model.9/m/m.0/Add", "target": "/model.9/m/m.0/ffn/ffn.0/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/Add_output_0"], "source": "/model.9/m/m.0/Add", "target": "/model.9/m/m.0/Add_1"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/conv/Conv", "target": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/conv/Conv_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/conv/Conv", "target": "/model.9/m/m.0/ffn/ffn.0/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/Add_1_output_0"], "source": "/model.9/m/m.0/Add_1", "target": "/model.9/Concat"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/conv/Conv_output_0"], "source": "/model.9/cv2/conv/Conv", "target": "/model.9/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/conv/Conv_output_0"], "source": "/model.9/cv2/conv/Conv", "target": "/model.9/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/act/Sigmoid_output_0"], "source": "/model.9/cv2/act/Sigmoid", "target": "/model.9/cv2/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/cv2/act/Mul_output_0"], "source": "/model.9/cv2/act/Mul", "target": "/model.10/conv/conv/Conv"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/conv/Conv_output_0"], "source": "/model.10/conv/conv/Conv", "target": "/model.10/conv/act/Sigmoid"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/conv/Conv_output_0"], "source": "/model.10/conv/conv/Conv", "target": "/model.10/conv/act/Mul"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/act/Sigmoid_output_0"], "source": "/model.10/conv/act/Sigmoid", "target": "/model.10/conv/act/Mul"}, {"tot_tensor_size": 1.953125, "tensor_name_list": ["/model.10/conv/act/Mul_output_0"], "source": "/model.10/conv/act/Mul", "target": "/model.10/pool/GlobalAveragePool"}, {"tot_tensor_size": 0.0048828125, "tensor_name_list": ["/model.10/pool/GlobalAveragePool_output_0"], "source": "/model.10/pool/GlobalAveragePool", "target": "/model.10/Flatten"}, {"tot_tensor_size": 0.0048828125, "tensor_name_list": ["/model.10/Flatten_output_0"], "source": "/model.10/Flatten", "target": "/model.10/linear/Gemm"}, {"tot_tensor_size": 0.003814697265625, "tensor_name_list": ["/model.10/linear/Gemm_output_0"], "source": "/model.10/linear/Gemm", "target": "/model.10/Softmax"}, {"tot_tensor_size": 0.003814697265625, "tensor_name_list": ["output0"], "source": "/model.10/Softmax", "target": "OutputReceiver"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/act/Sigmoid_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/act/Sigmoid", "target": "/model.9/m/m.0/ffn/ffn.0/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.0/act/Mul_output_0"], "source": "/model.9/m/m.0/ffn/ffn.0/act/Mul", "target": "/model.9/m/m.0/ffn/ffn.1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/ffn/ffn.1/conv/Conv_output_0"], "source": "/model.9/m/m.0/ffn/ffn.1/conv/Conv", "target": "/model.9/m/m.0/Add_1"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_output_0"], "source": "/model.9/m/m.0/attn/Reshape", "target": "/model.9/m/m.0/attn/Split"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_0"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/Transpose"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_1"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/MatMul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_2"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/Reshape_2"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Split_output_2"], "source": "/model.9/m/m.0/attn/Split", "target": "/model.9/m/m.0/attn/MatMul_1"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.9/m/m.0/attn/Transpose_output_0"], "source": "/model.9/m/m.0/attn/Transpose", "target": "/model.9/m/m.0/attn/MatMul"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/MatMul_output_0"], "source": "/model.9/m/m.0/attn/MatMul", "target": "/model.9/m/m.0/attn/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_2_output_0"], "source": "/model.9/m/m.0/attn/Reshape_2", "target": "/model.9/m/m.0/attn/pe/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/MatMul_1_output_0"], "source": "/model.9/m/m.0/attn/MatMul_1", "target": "/model.9/m/m.0/attn/Reshape_1"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Reshape_1_output_0"], "source": "/model.9/m/m.0/attn/Reshape_1", "target": "/model.9/m/m.0/attn/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/Add_output_0"], "source": "/model.9/m/m.0/attn/Add", "target": "/model.9/m/m.0/attn/proj/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/proj/conv/Conv_output_0"], "source": "/model.9/m/m.0/attn/proj/conv/Conv", "target": "/model.9/m/m.0/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.9/m/m.0/attn/pe/conv/Conv_output_0"], "source": "/model.9/m/m.0/attn/pe/conv/Conv", "target": "/model.9/m/m.0/attn/Add"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/Mul_output_0"], "source": "/model.9/m/m.0/attn/Mul", "target": "/model.9/m/m.0/attn/Softmax"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/Softmax_output_0"], "source": "/model.9/m/m.0/attn/Softmax", "target": "/model.9/m/m.0/attn/Transpose_1"}, {"tot_tensor_size": 1.220703125, "tensor_name_list": ["/model.9/m/m.0/attn/Transpose_1_output_0"], "source": "/model.9/m/m.0/attn/Transpose_1", "target": "/model.9/m/m.0/attn/MatMul_1"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.8/m.0/cv2/act/Sigmoid", "target": "/model.8/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv2/act/Mul_output_0"], "source": "/model.8/m.0/cv2/act/Mul", "target": "/model.8/m.0/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/Concat_output_0"], "source": "/model.8/m.0/Concat", "target": "/model.8/m.0/cv3/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/conv/Conv_output_0"], "source": "/model.8/m.0/cv3/conv/Conv", "target": "/model.8/m.0/cv3/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/conv/Conv_output_0"], "source": "/model.8/m.0/cv3/conv/Conv", "target": "/model.8/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/act/Sigmoid_output_0"], "source": "/model.8/m.0/cv3/act/Sigmoid", "target": "/model.8/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.8/m.0/cv3/act/Mul_output_0"], "source": "/model.8/m.0/cv3/act/Mul", "target": "/model.8/Concat"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.8/m.0/cv1/act/Sigmoid", "target": "/model.8/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/act/Mul_output_0"], "source": "/model.8/m.0/cv1/act/Mul", "target": "/model.8/m.0/m/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/cv1/act/Mul_output_0"], "source": "/model.8/m.0/cv1/act/Mul", "target": "/model.8/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv1/conv/Conv", "target": "/model.8/m.0/m/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv1/conv/Conv", "target": "/model.8/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/Add_output_0"], "source": "/model.8/m.0/m/m.0/Add", "target": "/model.8/m.0/m/m.1/cv1/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/Add_output_0"], "source": "/model.8/m.0/m/m.0/Add", "target": "/model.8/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv1/conv/Conv", "target": "/model.8/m.0/m/m.1/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv1/conv/Conv", "target": "/model.8/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/Add_output_0"], "source": "/model.8/m.0/m/m.1/Add", "target": "/model.8/m.0/Concat"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.1/cv1/act/Sigmoid", "target": "/model.8/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv1/act/Mul_output_0"], "source": "/model.8/m.0/m/m.1/cv1/act/Mul", "target": "/model.8/m.0/m/m.1/cv2/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv2/conv/Conv", "target": "/model.8/m.0/m/m.1/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.1/cv2/conv/Conv", "target": "/model.8/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.1/cv2/act/Sigmoid", "target": "/model.8/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.1/cv2/act/Mul_output_0"], "source": "/model.8/m.0/m/m.1/cv2/act/Mul", "target": "/model.8/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.0/cv1/act/Sigmoid", "target": "/model.8/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv1/act/Mul_output_0"], "source": "/model.8/m.0/m/m.0/cv1/act/Mul", "target": "/model.8/m.0/m/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv2/conv/Conv", "target": "/model.8/m.0/m/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.8/m.0/m/m.0/cv2/conv/Conv", "target": "/model.8/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.8/m.0/m/m.0/cv2/act/Sigmoid", "target": "/model.8/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.09765625, "tensor_name_list": ["/model.8/m.0/m/m.0/cv2/act/Mul_output_0"], "source": "/model.8/m.0/m/m.0/cv2/act/Mul", "target": "/model.8/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.6/m.0/cv2/act/Sigmoid", "target": "/model.6/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv2/act/Mul_output_0"], "source": "/model.6/m.0/cv2/act/Mul", "target": "/model.6/m.0/Concat"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/Concat_output_0"], "source": "/model.6/m.0/Concat", "target": "/model.6/m.0/cv3/conv/Conv"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/conv/Conv_output_0"], "source": "/model.6/m.0/cv3/conv/Conv", "target": "/model.6/m.0/cv3/act/Sigmoid"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/conv/Conv_output_0"], "source": "/model.6/m.0/cv3/conv/Conv", "target": "/model.6/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/act/Sigmoid_output_0"], "source": "/model.6/m.0/cv3/act/Sigmoid", "target": "/model.6/m.0/cv3/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.6/m.0/cv3/act/Mul_output_0"], "source": "/model.6/m.0/cv3/act/Mul", "target": "/model.6/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.6/m.0/cv1/act/Sigmoid", "target": "/model.6/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/act/Mul_output_0"], "source": "/model.6/m.0/cv1/act/Mul", "target": "/model.6/m.0/m/m.0/cv1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/cv1/act/Mul_output_0"], "source": "/model.6/m.0/cv1/act/Mul", "target": "/model.6/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv1/conv/Conv", "target": "/model.6/m.0/m/m.0/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv1/conv/Conv", "target": "/model.6/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/Add_output_0"], "source": "/model.6/m.0/m/m.0/Add", "target": "/model.6/m.0/m/m.1/cv1/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/Add_output_0"], "source": "/model.6/m.0/m/m.0/Add", "target": "/model.6/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv1/conv/Conv", "target": "/model.6/m.0/m/m.1/cv1/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv1/conv/Conv", "target": "/model.6/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/Add_output_0"], "source": "/model.6/m.0/m/m.1/Add", "target": "/model.6/m.0/Concat"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.1/cv1/act/Sigmoid", "target": "/model.6/m.0/m/m.1/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv1/act/Mul_output_0"], "source": "/model.6/m.0/m/m.1/cv1/act/Mul", "target": "/model.6/m.0/m/m.1/cv2/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv2/conv/Conv", "target": "/model.6/m.0/m/m.1/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.1/cv2/conv/Conv", "target": "/model.6/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.1/cv2/act/Sigmoid", "target": "/model.6/m.0/m/m.1/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.1/cv2/act/Mul_output_0"], "source": "/model.6/m.0/m/m.1/cv2/act/Mul", "target": "/model.6/m.0/m/m.1/Add"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.0/cv1/act/Sigmoid", "target": "/model.6/m.0/m/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv1/act/Mul_output_0"], "source": "/model.6/m.0/m/m.0/cv1/act/Mul", "target": "/model.6/m.0/m/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv2/conv/Conv", "target": "/model.6/m.0/m/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/conv/Conv_output_0"], "source": "/model.6/m.0/m/m.0/cv2/conv/Conv", "target": "/model.6/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.6/m.0/m/m.0/cv2/act/Sigmoid", "target": "/model.6/m.0/m/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.1953125, "tensor_name_list": ["/model.6/m.0/m/m.0/cv2/act/Mul_output_0"], "source": "/model.6/m.0/m/m.0/cv2/act/Mul", "target": "/model.6/m.0/m/m.0/Add"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.4/m.0/cv1/act/Sigmoid", "target": "/model.4/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.390625, "tensor_name_list": ["/model.4/m.0/cv1/act/Mul_output_0"], "source": "/model.4/m.0/cv1/act/Mul", "target": "/model.4/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/conv/Conv_output_0"], "source": "/model.4/m.0/cv2/conv/Conv", "target": "/model.4/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/conv/Conv_output_0"], "source": "/model.4/m.0/cv2/conv/Conv", "target": "/model.4/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.4/m.0/cv2/act/Sigmoid", "target": "/model.4/m.0/cv2/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.4/m.0/cv2/act/Mul_output_0"], "source": "/model.4/m.0/cv2/act/Mul", "target": "/model.4/m.0/Add"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/act/Sigmoid_output_0"], "source": "/model.2/m.0/cv1/act/Sigmoid", "target": "/model.2/m.0/cv1/act/Mul"}, {"tot_tensor_size": 0.78125, "tensor_name_list": ["/model.2/m.0/cv1/act/Mul_output_0"], "source": "/model.2/m.0/cv1/act/Mul", "target": "/model.2/m.0/cv2/conv/Conv"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/conv/Conv_output_0"], "source": "/model.2/m.0/cv2/conv/Conv", "target": "/model.2/m.0/cv2/act/Sigmoid"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/conv/Conv_output_0"], "source": "/model.2/m.0/cv2/conv/Conv", "target": "/model.2/m.0/cv2/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/act/Sigmoid_output_0"], "source": "/model.2/m.0/cv2/act/Sigmoid", "target": "/model.2/m.0/cv2/act/Mul"}, {"tot_tensor_size": 1.5625, "tensor_name_list": ["/model.2/m.0/cv2/act/Mul_output_0"], "source": "/model.2/m.0/cv2/act/Mul", "target": "/model.2/m.0/Add"}]}, "regressor": {"interactions": {"('/model.3/conv/Conv',)": 5.825269358080556e-05, "('/model.5/conv/Conv',)": 2.9127260832276426e-08, "('/model.10/conv/conv/Conv',)": 2.52949707098758e-05, "('/model.1/conv/Conv',)": 0.0007778278756762589, "('/model.7/conv/Conv',)": 2.3854301603555477e-05, "('/model.2/cv2/conv/Conv',)": 6.908250898230083e-05, "('/model.4/cv2/conv/Conv',)": 0.00010560151208934267, "('/model.0/act/Sigmoid',)": 0.000319768775443377, "('/model.2/cv2/act/Sigmoid',)": 8.128119098354267e-05, "('/model.0/conv/Conv',)": 0.0002929908971392838, "('/model.6/cv2/conv/Conv',)": 9.035631772677133e-06, "('/model.8/cv2/conv/Conv',)": 2.0644338628576854e-05, "('/model.3/conv/Conv', '/model.5/conv/Conv')": 1.583933605747333e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv')": -3.973676647876545e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv')": -6.044590441217913e-05, "('/model.3/conv/Conv', '/model.7/conv/Conv')": -2.8485282272431966e-07, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv')": -1.2805607974784222e-05, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv')": -1.9018478056963685e-06, "('/model.3/conv/Conv', '/model.0/act/Sigmoid')": -2.270693076565934e-05, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.2878489801600076e-05, "('/model.3/conv/Conv', '/model.0/conv/Conv')": -4.037371232251769e-05, "('/model.3/conv/Conv', '/model.6/cv2/conv/Conv')": -1.1166086209293821e-05, "('/model.3/conv/Conv', '/model.8/cv2/conv/Conv')": -1.397836559038856e-05, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv')": -1.0396553302300183e-05, "('/model.5/conv/Conv', '/model.1/conv/Conv')": -1.8722151379514024e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv')": -1.0518548021673312e-05, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv')": 7.858667570666747e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv')": 4.939725079992224e-06, "('/model.5/conv/Conv', '/model.0/act/Sigmoid')": -3.2610106934948717e-06, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.1560430442655035e-05, "('/model.5/conv/Conv', '/model.0/conv/Conv')": 6.911746277702587e-06, "('/model.5/conv/Conv', '/model.6/cv2/conv/Conv')": 8.536345532105994e-06, "('/model.5/conv/Conv', '/model.8/cv2/conv/Conv')": -7.871957538128953e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv')": -9.118633116743964e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv')": -6.969256030421531e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": -1.546795838181154e-05, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": 3.5396143782022785e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": -9.673207419640586e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": 6.519911249737258e-06, "('/model.10/conv/conv/Conv', '/model.0/conv/Conv')": -6.735686586107882e-06, "('/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": 9.979331649801105e-06, "('/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": -1.3187167011183374e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv')": -9.576717617367037e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": -5.420875473924889e-05, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -6.667908799330373e-05, "('/model.1/conv/Conv', '/model.0/act/Sigmoid')": -0.00023896741845913982, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": -8.784079468271709e-05, "('/model.1/conv/Conv', '/model.0/conv/Conv')": -0.00028546073738183427, "('/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -1.8071694752455988e-05, "('/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": -1.8968397660983026e-05, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": -1.3425825242286219e-05, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": 2.398538245714295e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid')": -1.1140442964240353e-06, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 9.461118808286847e-06, "('/model.7/conv/Conv', '/model.0/conv/Conv')": -5.5417835078995105e-06, "('/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -1.7112313776385633e-07, "('/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 4.1059143490677146e-06, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": -3.4218351371719606e-05, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 9.328652225599565e-06, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -8.072495634549725e-05, "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": -7.205956314254216e-06, "('/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.7738207472213453e-05, "('/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -1.3105177608581295e-05, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -3.370665497456748e-05, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.8764409764321214e-06, "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -5.611124060010104e-06, "('/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -3.545254039512226e-06, "('/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.703885801335261e-06, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -1.7361798611745214e-05, "('/model.0/act/Sigmoid', '/model.0/conv/Conv')": -0.00028781672895641675, "('/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.2942112510985865e-05, "('/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -8.70669920743231e-06, "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -1.5283784257369782e-05, "('/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 6.251418373939813e-06, "('/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 6.533152531844197e-06, "('/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 1.8782533420837622e-05, "('/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 3.9470980645834325e-06, "('/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.72731745448271e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.10/conv/conv/Conv')": 5.584888384376418e-07, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.1/conv/Conv')": -5.73637739617208e-07, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.7/conv/Conv')": -3.877450590141808e-08, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.2/cv2/conv/Conv')": -3.302346094705334e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.4/cv2/conv/Conv')": 1.3897162441825717e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.0/act/Sigmoid')": 5.143407823182222e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.6041242532917283e-07, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.0/conv/Conv')": 1.5857045674220368e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.6/cv2/conv/Conv')": -5.850048007098032e-06, "('/model.3/conv/Conv', '/model.5/conv/Conv', '/model.8/cv2/conv/Conv')": -5.16882548780338e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.1/conv/Conv')": 8.344242221177198e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.7/conv/Conv')": 2.4252916192643044e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": -3.7901210697711274e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": -8.102359395307613e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": 1.2384669360626495e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.434925978780873e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/conv/Conv')": 6.319180022827833e-06, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": -3.800489236360941e-07, "('/model.3/conv/Conv', '/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": 6.44739743668104e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": 1.6280458043626064e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 2.4702398571811414e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -3.4863520549029483e-06, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": 1.2394552336846741e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.9497167582094122e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": 5.155989678178544e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": 1.0532072663857008e-05, "('/model.3/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 1.0051374468633472e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": -7.397089401865006e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -4.151257689431664e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": 6.819588718866371e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": -9.30799707848126e-07, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": 5.006283493982398e-06, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -2.5495024892837356e-07, "('/model.3/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 2.3566307399990443e-06, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": -3.448085506290393e-06, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -1.1706481393134027e-05, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.0386868164735652e-05, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": -3.330743058677043e-05, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -4.2031021272441753e-07, "('/model.3/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -2.691431185591076e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 3.0664415769852544e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -1.2986249632118783e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 9.05142061274868e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 1.5958551684156148e-06, "('/model.3/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.6613330519371045e-06, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -9.045101916103648e-06, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 2.0736103312242956e-05, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.9588361290923016e-06, "('/model.3/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 5.855325020980064e-06, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -1.2269650372222956e-05, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -3.531526141396568e-07, "('/model.3/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -4.605074296361436e-07, "('/model.3/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 3.824015695436964e-06, "('/model.3/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 5.2218502652476574e-06, "('/model.3/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 7.177231737856053e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.1/conv/Conv')": 2.3735795488926266e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.7/conv/Conv')": 5.8975331359824315e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv')": -7.042575619964249e-07, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv')": -2.5670045944366824e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/act/Sigmoid')": 5.207901764804226e-06, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.7101395786507406e-07, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.0/conv/Conv')": 5.625808686711753e-07, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv')": -1.8626526678955013e-07, "('/model.5/conv/Conv', '/model.10/conv/conv/Conv', '/model.8/cv2/conv/Conv')": 4.080332143327739e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": 5.948445082337825e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 3.398386794638694e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -6.279413823288352e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": 6.649979142970429e-07, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": 6.906295973490058e-07, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": -4.2544271522852905e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -4.287181714628189e-06, "('/model.5/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 6.266413078564414e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 9.563883128702576e-07, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": 3.741915209823234e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": -3.492768007165974e-07, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.5256956960193303e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": -4.818691583371388e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": 1.8462457886413207e-06, "('/model.5/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 4.6506734103808007e-07, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 4.973970718873557e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": -2.5207471389988924e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -7.003145525365322e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 2.5949680113691647e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -3.6575812757111133e-06, "('/model.5/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -3.854660518832057e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -6.221986648138182e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -4.0221542547649975e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -9.530982458882344e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 3.7844709420352906e-06, "('/model.5/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.751070288054472e-06, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -2.413578485761401e-06, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 6.909566830669727e-07, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -4.326150961200191e-07, "('/model.5/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 4.956651781380525e-06, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.706403415555068e-06, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -6.991923003345929e-07, "('/model.5/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -3.0982826561127996e-06, "('/model.5/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -1.3464896710146165e-08, "('/model.5/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 4.7680642960782195e-06, "('/model.5/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -4.857767786228757e-07, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.7/conv/Conv')": -4.262412682098198e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/conv/Conv')": 3.728876348286475e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.4/cv2/conv/Conv')": -1.923545917735112e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.0/act/Sigmoid')": 3.986285181945196e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid')": -2.3289868652984327e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.0/conv/Conv')": -3.603354088879195e-07, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.6/cv2/conv/Conv')": -2.6858798761070517e-06, "('/model.10/conv/conv/Conv', '/model.1/conv/Conv', '/model.8/cv2/conv/Conv')": 1.385669080225158e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 6.688827579782333e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": 1.9749278479899802e-07, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": -3.3763987812228765e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.621310613420032e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": 3.6594938511576473e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -2.2282296894820402e-06, "('/model.10/conv/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 1.6597699596191258e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 2.72319598052488e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 5.599990279981279e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.325865756709031e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 7.311909313659253e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.3627598853710487e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.1312466741179728e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -2.1675793842102674e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -3.195948472127077e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": -1.8140640875960325e-06, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -8.257600259217412e-08, "('/model.10/conv/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.308937446824318e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 3.8210380105475525e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": -2.6559921328833566e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -1.2541070971832117e-06, "('/model.10/conv/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.9739197998876594e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.8710524477252802e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.653619612107502e-06, "('/model.10/conv/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -5.2578808250015944e-06, "('/model.10/conv/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -3.539004415551144e-07, "('/model.10/conv/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -3.033215269920931e-06, "('/model.10/conv/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -7.576880029180899e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/conv/Conv')": 7.3313180937231975e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.4/cv2/conv/Conv')": -2.7014910809248466e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.0/act/Sigmoid')": 2.7784435400268293e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid')": -1.6633234300286165e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.0/conv/Conv')": -1.8473224693379257e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.6/cv2/conv/Conv')": -2.5699791675954975e-06, "('/model.1/conv/Conv', '/model.7/conv/Conv', '/model.8/cv2/conv/Conv')": 2.038482887584333e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 1.2944773841594567e-05, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.318359541962763e-05, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 5.392884669646843e-05, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 3.490378251728349e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 1.1321914469381521e-06, "('/model.1/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 5.52289125324033e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.0313652254284398e-05, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 1.4462933836905303e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 8.786572432305401e-07, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 6.456584279354005e-06, "('/model.1/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.0470508953347158e-07, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 1.791681584895437e-05, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 0.0002070961524551138, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": -7.327457932551233e-06, "('/model.1/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -1.0254734511502307e-06, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.4219998388708174e-05, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 3.254843316007751e-06, "('/model.1/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 2.7640274246297085e-07, "('/model.1/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -9.236286346585472e-06, "('/model.1/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -2.621837085659951e-06, "('/model.1/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.037003852805944e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv')": 4.483971445142879e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid')": 6.530626461565308e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 2.739370290344782e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.0/conv/Conv')": 3.2348112998274457e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": 3.800837104150616e-06, "('/model.7/conv/Conv', '/model.2/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 1.1935025835467202e-07, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": -1.9006002106729471e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": -3.3333687625408417e-06, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 3.4983509590392006e-08, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -5.964902905582941e-07, "('/model.7/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -8.65560890490192e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -3.3595454173583852e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": -2.150572113683344e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.5069001955183968e-06, "('/model.7/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.303332114647811e-06, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": -4.769613859635481e-07, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -6.808765831012314e-06, "('/model.7/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -5.328971830704209e-06, "('/model.7/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 1.983409522394089e-06, "('/model.7/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -3.1494255081379474e-06, "('/model.7/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 3.329094403517848e-07, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid')": 1.4017444300975173e-05, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid')": 3.2393840305125775e-06, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.0/conv/Conv')": 2.3243213810641536e-05, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv')": -1.6585057728483836e-06, "('/model.2/cv2/conv/Conv', '/model.4/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.4734961282723775e-06, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": 6.232974325844354e-06, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": -3.463399167880544e-05, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 6.177425124763387e-06, "('/model.2/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": 1.5060892862738417e-06, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 9.572773544967775e-06, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -2.0335877957208955e-06, "('/model.2/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 3.7025041658646583e-06, "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": 8.17089855931899e-06, "('/model.2/cv2/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 4.192857008333316e-06, "('/model.2/cv2/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 9.365166609765077e-06, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid')": -2.3162815905244808e-08, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.0/conv/Conv')": 1.4649034015588748e-05, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv')": 6.358236251379282e-06, "('/model.4/cv2/conv/Conv', '/model.0/act/Sigmoid', '/model.8/cv2/conv/Conv')": -8.878217735024941e-07, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.1860343408970373e-06, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": 1.4442050879269556e-06, "('/model.4/cv2/conv/Conv', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": -3.0534991272306077e-06, "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -6.7297093717241585e-06, "('/model.4/cv2/conv/Conv', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -3.2092609730796835e-07, "('/model.4/cv2/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -4.9072723762152905e-06, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv')": 1.3020622252923217e-05, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv')": -5.214124452953369e-06, "('/model.0/act/Sigmoid', '/model.2/cv2/act/Sigmoid', '/model.8/cv2/conv/Conv')": 2.4377927456888335e-06, "('/model.0/act/Sigmoid', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -8.561481004575337e-06, "('/model.0/act/Sigmoid', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": -5.188470262336415e-07, "('/model.0/act/Sigmoid', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -3.1967099900719235e-06, "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv', '/model.6/cv2/conv/Conv')": -3.924058967944539e-06, "('/model.2/cv2/act/Sigmoid', '/model.0/conv/Conv', '/model.8/cv2/conv/Conv')": 7.691903846630845e-08, "('/model.2/cv2/act/Sigmoid', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": 2.1356039733578776e-07, "('/model.0/conv/Conv', '/model.6/cv2/conv/Conv', '/model.8/cv2/conv/Conv')": -6.157337156070702e-06}, "intercept": 7.613023359761921e-05, "degree": 3, "train_score": 0.9987263994345498, "test_score": 0.995867144881373}}
+[
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 349,
+    "ts": 1,
+    "ph": "X",
+    "name": "model_loading_array",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 34502,
+    "ts": 10316,
+    "ph": "X",
+    "name": "session_initialization",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 102804,
+    "ts": 46488,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 102821,
+    "ts": 46485,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 102843,
+    "ts": 46470,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 92237,
+    "ts": 149530,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 92252,
+    "ts": 149528,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 92270,
+    "ts": 149517,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14395,
+    "ts": 241935,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14413,
+    "ts": 241933,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14431,
+    "ts": 241920,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 88322,
+    "ts": 256526,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 88337,
+    "ts": 256523,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 88356,
+    "ts": 256512,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 88572,
+    "ts": 345035,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 88588,
+    "ts": 345032,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 88608,
+    "ts": 345020,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14269,
+    "ts": 433797,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14284,
+    "ts": 433795,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14301,
+    "ts": 433783,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86163,
+    "ts": 448236,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86179,
+    "ts": 448234,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86197,
+    "ts": 448223,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14174,
+    "ts": 534577,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14188,
+    "ts": 534575,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14206,
+    "ts": 534564,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86095,
+    "ts": 548923,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86111,
+    "ts": 548921,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86129,
+    "ts": 548910,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14326,
+    "ts": 635209,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14340,
+    "ts": 635206,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14358,
+    "ts": 635194,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86253,
+    "ts": 649703,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86273,
+    "ts": 649701,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86296,
+    "ts": 649691,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14133,
+    "ts": 736152,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14149,
+    "ts": 736149,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14166,
+    "ts": 736138,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86284,
+    "ts": 750459,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86300,
+    "ts": 750457,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86318,
+    "ts": 750446,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14242,
+    "ts": 836930,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14256,
+    "ts": 836928,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14273,
+    "ts": 836916,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86210,
+    "ts": 851346,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86224,
+    "ts": 851345,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86243,
+    "ts": 851334,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14362,
+    "ts": 937743,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14375,
+    "ts": 937740,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14394,
+    "ts": 937728,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 90453,
+    "ts": 952277,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 90468,
+    "ts": 952275,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 90487,
+    "ts": 952264,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 13988,
+    "ts": 1042931,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14002,
+    "ts": 1042928,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14021,
+    "ts": 1042917,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 84553,
+    "ts": 1057100,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 84567,
+    "ts": 1057098,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 84585,
+    "ts": 1057087,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 91800,
+    "ts": 1141834,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 91815,
+    "ts": 1141832,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 91833,
+    "ts": 1141821,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14412,
+    "ts": 1233806,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14425,
+    "ts": 1233804,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14440,
+    "ts": 1233794,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14026,
+    "ts": 1248395,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14043,
+    "ts": 1248393,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14060,
+    "ts": 1248382,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 82835,
+    "ts": 1262600,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 82849,
+    "ts": 1262599,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 82865,
+    "ts": 1262590,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86108,
+    "ts": 1345617,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86124,
+    "ts": 1345615,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 86142,
+    "ts": 1345603,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14354,
+    "ts": 1431907,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14369,
+    "ts": 1431904,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14388,
+    "ts": 1431892,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14023,
+    "ts": 1446430,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14035,
+    "ts": 1446428,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 14051,
+    "ts": 1446418,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 83844,
+    "ts": 1460618,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 83858,
+    "ts": 1460616,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 83875,
+    "ts": 1460606,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  },
+  {
+    "cat": "Node",
+    "pid": 14,
+    "tid": 38,
+    "dur": 90208,
+    "ts": 1544635,
+    "ph": "X",
+    "name": "OpenVINOExecutionProvider_OpenVINO-EP-subgraph_1_0_kernel_time",
+    "args": {
+      "thread_scheduling_stats": {
+        "main_thread": {
+          "thread_pool_name": "session-1-intra-op",
+          "thread_id": "139738497410752",
+          "block_size": [],
+          "core": -1,
+          "Distribution": 0,
+          "DistributionEnqueue": 0,
+          "Run": 0,
+          "Wait": 0,
+          "WaitRevoke": 0
+        },
+        "sub_threads": { "139738480625344": { "num_run": 0, "core": -1 } }
+      },
+      "output_type_shape": [{ "float": [1, 96, 320, 320] }],
+      "output_size": "39321600",
+      "parameter_size": "10752",
+      "activation_size": "4915200",
+      "node_index": "1",
+      "input_type_shape": [
+        { "float": [1, 3, 640, 640] },
+        { "float": [96] },
+        { "float": [96, 3, 3, 3] }
+      ],
+      "provider": "OpenVINOExecutionProvider",
+      "op_name": "OpenVINO-EP-subgraph_1"
+    }
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 90223,
+    "ts": 1544633,
+    "ph": "X",
+    "name": "SequentialExecutor::Execute",
+    "args": {}
+  },
+  {
+    "cat": "Session",
+    "pid": 14,
+    "tid": 38,
+    "dur": 90241,
+    "ts": 1544622,
+    "ph": "X",
+    "name": "model_run",
+    "args": {}
+  }
+]

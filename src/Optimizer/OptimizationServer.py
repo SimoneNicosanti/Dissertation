@@ -1,4 +1,5 @@
 import json
+import time
 
 import networkx as nx
 
@@ -38,7 +39,6 @@ class OptmizationServer(OptimizationServicer):
         )
         print("Decoded Network Profile")
 
-        ## TODO Integrate the execution profile!!
         execution_profile_pool: ServerExecutionProfilePool = (
             ServerExecutionProfilePool.decode(
                 json.loads(opt_request.execution_profile_pool)
@@ -59,8 +59,14 @@ class OptmizationServer(OptimizationServicer):
         )
 
         start_server = NodeId(opt_request.start_server)
-
-        solved_graphs: list[nx.DiGraph] = OptimizationHandler.optimize(
+        solved_graphs: list[nx.DiGraph]
+        (
+            solved_graphs,
+            problem_build_time,
+            min_lat_sol_time,
+            min_energy_sol_time,
+            whole_sol_time,
+        ) = OptimizationHandler.optimize(
             models_profile_list,
             network_profile.get_network_graph(),
             start_server,
@@ -75,6 +81,7 @@ class OptmizationServer(OptimizationServicer):
 
         ## Problem Post Processing
         whole_plan = WholePlan(start_server)
+        start = time.perf_counter_ns()
         for solved_graph in solved_graphs:
             graph_name = solved_graph.graph["name"]
             if not solved_graph.graph[SolvedGraphInfo.SOLVED]:
@@ -90,9 +97,18 @@ class OptmizationServer(OptimizationServicer):
             print("Done Building Plan for " + graph_name)
 
             whole_plan.put_model_plan(graph_name, plan)
+        end = time.perf_counter_ns()
+        post_processing_time = (end - start) * 1e-9
 
         encoded_whole_plan = whole_plan.encode()
 
         whole_plan_json = json.dumps(encoded_whole_plan)
 
-        return OptimizationResponse(optimized_plan=whole_plan_json)
+        return OptimizationResponse(
+            optimized_plan=whole_plan_json,
+            problem_build_time=problem_build_time,
+            min_latency_sol_time=min_lat_sol_time,
+            min_energy_sol_time=min_energy_sol_time,
+            whole_sol_time=whole_sol_time,
+            post_processing_time=post_processing_time,
+        )

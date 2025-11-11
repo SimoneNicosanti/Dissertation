@@ -6,6 +6,7 @@ class ModelNodeInfo:
     GENERATOR = "generator"
     RECEIVER = "receiver"
     QUANTIZABLE = "quantizable"
+    NODE_TYPE = "node_type"
 
     pass
 

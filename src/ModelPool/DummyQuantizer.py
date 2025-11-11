@@ -10,7 +10,11 @@ class DummyQuantizer:
     def __init__(self):
         pass
 
-    def dummy_quantize(input_model_path: str, output_model_path: str) -> None:
+    def dummy_quantize(
+        input_model_path: str,
+        output_model_path: str,
+        nodes_to_quantize: list[str] = None,
+    ) -> None:
 
         with tempfile.NamedTemporaryFile(suffix=".onnx", delete=True) as temp_file:
             quant_pre_process(input_model_path, temp_file.name)
@@ -21,6 +25,7 @@ class DummyQuantizer:
                 # activation_type=QuantType.QUInt8,
                 # weight_type=QuantType.QUInt8,
                 extra_options={"ActivationSymmetric": True, "WeightSymmetric": True},
+                nodes_to_quantize=nodes_to_quantize,
             )
 
     class ZeroDataReader(CalibrationDataReader):

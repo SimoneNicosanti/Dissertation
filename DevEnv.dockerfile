@@ -47,10 +47,17 @@ RUN pip install networkx
 RUN pip install readerwriterlock
 
 # RUN apt-get install iperf3 -y
-# RUN apt install rsync -y
+RUN apt install rsync -y
 
 # RUN pip install supervision
 RUN pip install tqdm
+RUN pip install seaborn
+
+RUN apt update
+RUN pip install Jinja2
+# RUN apt install graphviz libgraphviz-dev pkg-config
+# RUN pip install pygraphviz
+
 
 
 

@@ -19,43 +19,140 @@ class ModelExecutionProfile:
         model_execution_profile = ModelExecutionProfile()
 
         for node_name, layer_execution_profile in transformed_dict.items():
-            model_execution_profile.put_layer_execution_profile(
-                NodeId(node_name), layer_execution_profile[0], False
-            )
-            model_execution_profile.put_layer_execution_profile(
-                NodeId(node_name), layer_execution_profile[1], True
-            )
+            if "nq_avg_time" in layer_execution_profile:
+                model_execution_profile.put_layer_execution_profile(
+                    NodeId(node_name),
+                    layer_execution_profile["nq_avg_time"],
+                    layer_execution_profile["nq_med_time"],
+                    False,
+                )
+            if "q_avg_time" in layer_execution_profile:
+                model_execution_profile.put_layer_execution_profile(
+                    NodeId(node_name),
+                    layer_execution_profile["q_avg_time"],
+                    layer_execution_profile["q_med_time"],
+                    True,
+                )
 
         return model_execution_profile
 
     def put_layer_execution_profile(
-        self, node_id: NodeId, execution_time: float, is_quantized: bool
+        self,
+        node_id: NodeId,
+        avg_exec_time: float,
+        med_exec_time: float,
+        is_quantized: bool,
     ):
-        self.model_execution_profile_dict.setdefault(node_id, [0, 0])
-        idx = 1 if is_quantized else 0
-        self.model_execution_profile_dict[node_id][idx] = execution_time
+
+        self.model_execution_profile_dict.setdefault(node_id, {})
+        if not is_quantized:
+            self.model_execution_profile_dict[node_id]["nq_avg_time"] = avg_exec_time
+            self.model_execution_profile_dict[node_id]["nq_med_time"] = med_exec_time
+        else:
+            self.model_execution_profile_dict[node_id]["q_avg_time"] = avg_exec_time
+            self.model_execution_profile_dict[node_id]["q_med_time"] = med_exec_time
 
     def get_not_quantized_layer_time(self, node_id: NodeId) -> float:
         if node_id not in self.model_execution_profile_dict:
             return 0
-        return self.model_execution_profile_dict[node_id][0]
+
+        k_nq = self.compute_nq_scale_factor()
+
+        return (1 - k_nq) * self.model_execution_profile_dict[node_id]["nq_avg_time"]
 
     def get_quantized_layer_time(self, node_id: NodeId) -> float:
         if node_id not in self.model_execution_profile_dict:
             return 0
-        return self.model_execution_profile_dict[node_id][1]
+
+        k_q = self.compute_q_scale_factor()
+
+        return (1 - k_q) * self.model_execution_profile_dict[node_id]["q_avg_time"]
+
+    def get_quantization_gain(self, node_id: NodeId) -> float:
+        if node_id not in self.model_execution_profile_dict:
+            return 0
+
+        k_g = self.compute_gain_scale_factor()
+
+        return (1 - k_g) * (
+            self.model_execution_profile_dict[node_id]["nq_avg_time"]
+            - self.model_execution_profile_dict[node_id]["q_avg_time"]
+        )
 
     def get_total_not_quantized_time(self) -> float:
-        total_time = 0
+        tot_avg_time = 0
         for node_id in self.model_execution_profile_dict:
-            total_time += self.get_not_quantized_layer_time(node_id)
-        return total_time
+            if node_id.node_name in ["WholeModel", "TotalSum", "MixedModel"]:
+                continue
+            tot_avg_time += self.model_execution_profile_dict[node_id]["nq_avg_time"]
+        return tot_avg_time
 
-    def get_total_quantized_time(self) -> float:
-        total_time = 0
+    def compute_nq_scale_factor(self):
+        whole_nq_time = self.model_execution_profile_dict[NodeId("WholeModel")][
+            "nq_avg_time"
+        ]
+        nq_sum = self.get_total_not_quantized_time()
+
+        k_nq = 1 - whole_nq_time / nq_sum
+
+        return k_nq
+
+    def compute_gain_scale_factor(self):
+        whole_mixed_time = self.model_execution_profile_dict[NodeId("MixedModel")][
+            "q_avg_time"
+        ]
+        whole_nq_time = self.model_execution_profile_dict[NodeId("WholeModel")][
+            "nq_avg_time"
+        ]
+
+        whole_gain = whole_nq_time - whole_mixed_time
+
+        gain_sum = 0
         for node_id in self.model_execution_profile_dict:
-            total_time += self.get_quantized_layer_time(node_id)
-        return total_time
+            if node_id.node_name in ["WholeModel", "TotalSum", "MixedModel"]:
+                continue
+
+            if (
+                self.model_execution_profile_dict[node_id].get("q_avg_time", None)
+                is not None
+            ):
+                gain_sum += (
+                    self.model_execution_profile_dict[node_id]["nq_avg_time"]
+                    - self.model_execution_profile_dict[node_id]["q_avg_time"]
+                )
+
+        k_gain = 1 - whole_gain / gain_sum
+
+        return k_gain
+
+    def compute_q_scale_factor(self):
+        whole_mixed_time = self.model_execution_profile_dict[NodeId("MixedModel")][
+            "q_avg_time"
+        ]
+        whole_nq_time = self.model_execution_profile_dict[NodeId("WholeModel")][
+            "nq_avg_time"
+        ]
+
+        k_nq = self.compute_nq_scale_factor()
+
+        real_quant_sum = whole_mixed_time - whole_nq_time
+        q_sum = 0
+        for node_id in self.model_execution_profile_dict:
+            if node_id.node_name in ["WholeModel", "TotalSum", "MixedModel"]:
+                continue
+
+            if (
+                self.model_execution_profile_dict[node_id].get("q_avg_time", None)
+                is not None
+            ):
+                real_quant_sum += (1 - k_nq) * self.model_execution_profile_dict[
+                    node_id
+                ]["nq_avg_time"]
+                q_sum += self.model_execution_profile_dict[node_id]["q_avg_time"]
+
+        k_q = 1 - real_quant_sum / q_sum
+
+        return k_q
 
 
 class ServerExecutionProfile:

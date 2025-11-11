@@ -1,7 +1,6 @@
 import configparser
 import json
 import socket
-import subprocess
 import threading
 import time
 
@@ -10,6 +9,7 @@ import psutil
 
 from Common import ConfigReader
 from proto_compiled.common_pb2 import Empty
+from proto_compiled.ping_pb2 import BandwidthMessage
 from proto_compiled.ping_pb2_grpc import PingStub
 from proto_compiled.register_pb2 import AllServerInfo, ServerState
 from proto_compiled.register_pb2_grpc import RegisterStub
@@ -143,6 +143,7 @@ class ServerMonitor:
 
             if server_info.server_id.server_id not in self.server_chan_dict.keys():
                 ## Opening channel for the first time to this server
+
                 server_chan = grpc.insecure_channel(
                     "{}:{}".format(
                         server_info.reachability_info.ip_address,
@@ -153,14 +154,16 @@ class ServerMonitor:
 
             server_chan = self.server_chan_dict[server_info.server_id.server_id]
 
-            latency = self.__evaluate_latency(server_chan)
+            latency = self.__evaluate_latency(
+                server_chan, server_info.server_id.server_id
+            )
 
             if latency is not None:
                 ## Successfully pinged the server
                 self.latencies[server_info.server_id.server_id] = latency
 
                 bandwidth = self.__evaluate_bandwidth(
-                    server_info.reachability_info.ip_address
+                    server_chan, server_info.server_id.server_id, latency
                 )
 
                 if bandwidth is not None:
@@ -178,7 +181,8 @@ class ServerMonitor:
                 self.latencies.pop(server_info.server_id.server_id, None)
                 self.bandwidths.pop(server_info.server_id.server_id, None)
 
-    def __evaluate_latency(self, server_chan: grpc.Channel):
+    def __evaluate_latency(self, server_chan: grpc.Channel, server_id: str):
+        print("Evaluating latency for server {}".format(server_id))
         try:
             ping_stub = PingStub(server_chan)
 
@@ -191,74 +195,45 @@ class ServerMonitor:
             end = time.perf_counter_ns()
             rtt_ns = (end - start) / ping_times
 
-            latency_ns = rtt_ns / 2
+            latency_ns = rtt_ns
             latency = latency_ns * 1e-9
+            print("\t Done evaluating Latency")
         except Exception:
-            print("Could not ping the server")
+            print("\t Could not ping the server")
             latency = None
         return latency
 
-    def __evaluate_bandwidth(self, server_ip_addr: str):
+    def __evaluate_bandwidth(
+        self, server_chan: grpc.Channel, server_id: str, rtt: float
+    ):
+        print("Evaluating bandwidth for server {}".format(server_id))
+        ping_server_stub = PingStub(server_chan)
 
-        port = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "ports", "IPERF3_PORT"
-        )
+        max_msg_size_bytes = ConfigReader.ConfigReader().read_bytes_chunk_size()
 
-        duration = ConfigReader.ConfigReader("./config/config.ini").read_int(
-            "monitor", "IPERF3_TEST_DURATION_SEC"
-        )
+        msg = BandwidthMessage(payload=bytes(max_msg_size_bytes))
 
-        bandwidth = (
-            ConfigReader.ConfigReader("./config/config.ini").read_int(
-                "monitor", "IPERF3_TEST_BANDWIDTH"
-            )
-            * 10**9
-        )
+        def bandwidth_message_yield(send_msgs_num):
+            for _ in range(send_msgs_num):
+                yield msg
 
-        cmd = [
-            "iperf3",
-            "-c",
-            server_ip_addr,
-            "-p",
-            str(port),
-            "-t",
-            str(duration),
-            "--zerocopy",
-            "-b",
-            str(bandwidth),
-            "--json",
-        ]
+        ## Channel Cold Start
+        ping_server_stub.bandwidth_test(bandwidth_message_yield(5))
 
-        run_success = False
-        sent_MB_s = None
-        while not run_success:
+        ## Hot Channel Measure
+        tot_msgs = 50
+        start = time.perf_counter_ns()
+        ping_server_stub.bandwidth_test(bandwidth_message_yield(tot_msgs))
+        end = time.perf_counter_ns()
 
-            # trunk-ignore(bandit/B603)
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            test_result: dict = json.loads(result.stdout)
-            test_error = result.stderr
+        tot_time_sec = (end - start) * 1e-9 - rtt
 
-            if len(test_error) > 0:
-                ## An error has occurred
-                run_success = False
+        tot_sent_B = max_msg_size_bytes * tot_msgs
+        tot_sent_MB = tot_sent_B / MEGABYTE_SIZE
 
-                print(f"Bandwidth Test to {server_ip_addr} >> ", test_error)
-                time.sleep(1)
-            else:
-                end_dict: dict = test_result.get("end", {})
-                sum_sent_dict: dict = end_dict.get("sum_sent", {})
-                bits_per_second: dict = sum_sent_dict.get("bits_per_second", None)
-                if bits_per_second is not None:
-                    sent_MB_s = bits_per_second / (8 * MEGABYTE_SIZE)
-                    run_success = True
-                else:
-                    print("No 'bits_per_second' Info")
-                    print(result)
-                    run_success = False
+        print("\t Done evaluating Bandwidth")
 
-                    time.sleep(1)
-
-        return sent_MB_s
+        return tot_sent_MB / tot_time_sec
 
     def init_monitoring(self):
         threading.Thread(target=self.__monitor, daemon=True).start()

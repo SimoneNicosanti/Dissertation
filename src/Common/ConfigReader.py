@@ -41,7 +41,7 @@ class ConfigReader:
             dir_list.append(self.config.get(section, key))
         return dir_list
 
-    def read_bytes_chunk_size(self) -> float:
+    def read_bytes_chunk_size(self) -> int:
         m_bytes_chunk_size = self.read_float("grpc", "MAX_CHUNK_SIZE_MB")
         bytes_chunk_size = int(m_bytes_chunk_size * MEGABYTE_SIZE)
 

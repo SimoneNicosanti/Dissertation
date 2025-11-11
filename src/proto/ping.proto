@@ -5,4 +5,9 @@ import "common.proto";
 
 service Ping {
     rpc latency_test(common.Empty) returns (common.Empty);
+    rpc bandwidth_test(stream BandwidthMessage) returns (common.Empty);
+}
+
+message BandwidthMessage {
+    bytes payload = 1;
 }

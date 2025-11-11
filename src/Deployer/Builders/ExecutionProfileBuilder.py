@@ -1,4 +1,5 @@
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 import grpc
 
@@ -35,37 +36,77 @@ class ExecutionProfileBuilder:
         self, models_ids: list[ModelId]
     ) -> ServerExecutionProfilePool:
 
+        # registry: RegisterStub = RegisterStub(self.registry_chann)
+        # all_server_info: AllServerInfo = registry.get_all_servers_info(Empty())
+
+        # server_exec_profile_pool = ServerExecutionProfilePool()
+
+        # for server_info in all_server_info.all_server_info:
+        #     print(
+        #         "\t Contacting Server {} for Profiles".format(
+        #             server_info.server_id.server_id
+        #         )
+        #     )
+        #     server_addr = server_info.reachability_info.ip_address
+        #     server_profile_port = ConfigReader.ConfigReader(
+        #         "./config/config.ini"
+        #     ).read_int("ports", "EXECUTION_PROFILER_PORT")
+
+        #     server_conn = grpc.insecure_channel(
+        #         "{}:{}".format(server_addr, server_profile_port)
+        #     )
+
+        #     server_exec_profile = ServerExecutionProfile()
+
+        #     server_profiler: ExecutionProfileStub = ExecutionProfileStub(server_conn)
+        #     for model_id in models_ids:
+
+        #         execution_profile_response: ExecutionProfileResponse = (
+        #             server_profiler.profile_execution(
+        #                 ExecutionProfileRequest(model_id=model_id)
+        #             )
+        #         )
+
+        #         execution_profile_dict = json.loads(execution_profile_response.profile)
+
+        #         server_exec_profile.put_model_execution_profile(
+        #             model_id.model_name,
+        #             ModelExecutionProfile().decode(execution_profile_dict),
+        #         )
+        #         print(f"\t\t Received Profile For Model >> {model_id.model_name}")
+
+        #     server_exec_profile_pool.put_execution_profiles_for_server(
+        #         NodeId(server_info.server_id.server_id), server_exec_profile
+        #     )
+
+        #     server_conn.close()
+
+        # return server_exec_profile_pool
+
         registry: RegisterStub = RegisterStub(self.registry_chann)
         all_server_info: AllServerInfo = registry.get_all_servers_info(Empty())
 
         server_exec_profile_pool = ServerExecutionProfilePool()
 
-        for server_info in all_server_info.all_server_info:
+        def process_server(server_info):
             print(
-                "\t Contacting Server {} for Profiles".format(
-                    server_info.server_id.server_id
-                )
+                f"\t Contacting Server {server_info.server_id.server_id} for Profiles"
             )
             server_addr = server_info.reachability_info.ip_address
             server_profile_port = ConfigReader.ConfigReader(
                 "./config/config.ini"
             ).read_int("ports", "EXECUTION_PROFILER_PORT")
 
-            server_conn = grpc.insecure_channel(
-                "{}:{}".format(server_addr, server_profile_port)
-            )
-
+            server_conn = grpc.insecure_channel(f"{server_addr}:{server_profile_port}")
             server_exec_profile = ServerExecutionProfile()
-
             server_profiler: ExecutionProfileStub = ExecutionProfileStub(server_conn)
-            for model_id in models_ids:
 
+            for model_id in models_ids:
                 execution_profile_response: ExecutionProfileResponse = (
                     server_profiler.profile_execution(
                         ExecutionProfileRequest(model_id=model_id)
                     )
                 )
-
                 execution_profile_dict = json.loads(execution_profile_response.profile)
 
                 server_exec_profile.put_model_execution_profile(
@@ -74,11 +115,17 @@ class ExecutionProfileBuilder:
                 )
                 print(f"\t\t Received Profile For Model >> {model_id.model_name}")
 
-            server_exec_profile_pool.put_execution_profiles_for_server(
-                NodeId(server_info.server_id.server_id), server_exec_profile
-            )
-
             server_conn.close()
+            return (NodeId(server_info.server_id.server_id), server_exec_profile)
+
+        # Run all servers in parallel
+        with ThreadPoolExecutor() as executor:
+            for node_id, exec_profile in executor.map(
+                process_server, all_server_info.all_server_info
+            ):
+                server_exec_profile_pool.put_execution_profiles_for_server(
+                    node_id, exec_profile
+                )
 
         return server_exec_profile_pool
 

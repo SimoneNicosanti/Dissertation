@@ -1,0 +1,11 @@
+model_name,latency_weight,energy_weight,device_max_energy,max_noises,device_cpus,edge_cpus,cloud_cpus,device_bandwidth,edge_bandwidth,cloud_bandwidth,run_time
+yolo11x-seg,1.0,0.0,0.0,0.0,1.0,,,,,,8.045499272
+yolo11x-seg,1.0,0.0,0.0,0.025,1.0,,,,,,29.989941507
+yolo11x-seg,1.0,0.0,0.0,0.05,1.0,,,,,,28.986017672000003
+yolo11x-seg,1.0,0.0,0.0,0.075,1.0,,,,,,28.810509856000003
+yolo11x-seg,1.0,0.0,0.0,0.1,1.0,,,,,,28.987550713
+yolo11x-seg,1.0,0.0,0.0,0.125,1.0,,,,,,28.894207811
+yolo11x-seg,1.0,0.0,0.0,0.15,1.0,,,,,,29.077401759
+yolo11x-seg,1.0,0.0,0.0,0.175,1.0,,,,,,29.042129494
+yolo11x-seg,1.0,0.0,0.0,0.2,1.0,,,,,,28.978207018000003
+yolo11x-seg,1.0,0.0,0.0,0.5,1.0,,,,,,29.035513505

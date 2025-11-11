@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 import time
 
@@ -8,7 +7,6 @@ import numpy as np
 import pandas as pd
 
 from Common import ConfigReader
-from CommonProfile.ExecutionProfile import ModelExecutionProfile, ServerExecutionProfile
 from proto_compiled.common_pb2 import ModelId
 from proto_compiled.server_pb2 import ExecutionProfileRequest, ExecutionProfileResponse
 from proto_compiled.server_pb2_grpc import ExecutionProfileStub
@@ -59,8 +57,6 @@ def main():
                 "model_name",
                 "cpus",
                 "profile_time",
-                "pred_time",
-                "quant_pred_time",
             ]
         )
 
@@ -77,8 +73,6 @@ def main():
         # profiler_stub.profile_execution(execution_profile_request)
 
         time_array = np.zeros(runs)
-        pred_time = np.zeros(runs)
-        quant_pred_time = np.zeros(runs)
         for idx in range(runs):
             print("\t Run Number >> ", idx)
 
@@ -90,20 +84,11 @@ def main():
 
             time_array[idx] = (end - start) * 1e-9
 
-            model_exec_profile = ModelExecutionProfile.decode(
-                json.loads(exec_profile_response.profile)
-            )
-
-            pred_time[idx] = model_exec_profile.get_total_not_quantized_time()
-            quant_pred_time[idx] = model_exec_profile.get_total_quantized_time()
-
         add_df = pd.DataFrame(
             {
                 "model_name": [model_name] * runs,
                 "cpus": [cpus] * runs,
                 "profile_time": time_array,
-                "pred_time": pred_time,
-                "quant_pred_time": quant_pred_time,
             }
         )
 
@@ -112,7 +97,7 @@ def main():
         ]
         dataframe = pd.concat([dataframe, add_df], ignore_index=True)
 
-        dataframe.to_csv(csv_file_name, index=False)
+        # dataframe.to_csv(csv_file_name, index=False)
 
         exec_profile_json = exec_profile_response.profile
 

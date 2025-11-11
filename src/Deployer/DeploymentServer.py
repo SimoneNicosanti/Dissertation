@@ -81,7 +81,4 @@ class DeploymentServer(DeploymentServicer):
         self.divider_caller.divide_model(whole_plan)
         self.fetcher_caller.distribute_plan(whole_plan)
 
-        ## TODO Model Division
-        ## TODO Fetcher Calls
-
         return DeploymentResponse()

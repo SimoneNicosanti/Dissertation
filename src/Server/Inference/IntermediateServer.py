@@ -1,5 +1,7 @@
+import gc
 import json
 import threading
+import time
 
 import grpc
 from readerwriterlock import rwlock
@@ -18,7 +20,6 @@ from Server.Utils.InferenceInfo import (
 )
 from Server.Utils.InputReceiver import InputReceiver
 from Server.Utils.OutputSender import OutputSender
-import gc
 
 
 class IntermediateServer(InferenceServicer):
@@ -40,7 +41,6 @@ class IntermediateServer(InferenceServicer):
         component_info, request_info, tensor_wrapper_list = (
             self.input_receiver.handle_input_stream(input_stream)
         )
-        print("Completed Input Reading")
 
         ## 2. Do actual inference
         ## Running in async way allows not to block the sender thread
@@ -65,7 +65,6 @@ class IntermediateServer(InferenceServicer):
         output_tensor_info = model_manager.pass_input_and_infer(
             component_id, request_info, tensor_wrapper_list
         )
-        print("Completed Inference")
 
         if output_tensor_info is not None:
             ## 3. Send Output
@@ -78,7 +77,6 @@ class IntermediateServer(InferenceServicer):
                 request_info,
                 output_tensor_info,
             )
-            print("Sent Output")
 
     def assign_plan(self, assignment_request: AssignmentRequest, context):
 

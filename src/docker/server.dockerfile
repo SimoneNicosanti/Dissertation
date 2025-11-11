@@ -4,7 +4,6 @@ RUN pip install grpcio
 RUN pip install grpcio-tools
 RUN pip install numpy
 RUN pip install onnx
-RUN pip install onnxruntime
 RUN pip install opencv-python-headless
 RUN pip install grpcio
 RUN pip install grpcio-tools
@@ -32,8 +31,11 @@ RUN apt install -y libgl1
 RUN apt update 
 RUN apt install screen -y
 
+RUN pip install onnxruntime
 RUN pip install onnxruntime-openvino
 RUN pip install openvino
+
+
 
 # USER customuser
 

@@ -5,7 +5,7 @@ import configparser
 import os
 
 
-def modify_energy_config(original_name: str, cpus: float = 0.0):
+def modify_energy_config(original_name: str, cpus: int = 0):
 
     if original_name != "edge" and original_name != "device":
         return
@@ -13,10 +13,17 @@ def modify_energy_config(original_name: str, cpus: float = 0.0):
     config = configparser.ConfigParser()
     config.read("./src/config/energy_config.ini")
 
-    base_energy_value = float(config.get("base_values", "COMP_ENERGY_PER_SEC"))
+    if original_name == "device":
+        base_energy_value = float(
+            config.get("base_values", "DEVICE_BASE_COMP_ENERGY_PER_SEC")
+        )
+    else:
+        base_energy_value = float(
+            config.get("base_values", "EDGE_BASE_COMP_ENERGY_PER_SEC")
+        )
 
     if cpus == 0:
-        cpus_multiplier = float(config.get("base_values", "DEFAULT_CORE_NUMS"))
+        cpus_multiplier = 1  # float(config.get("base_values", "DEFAULT_CORE_NUMS"))
     else:
         cpus_multiplier = cpus
 
@@ -27,7 +34,8 @@ def modify_energy_config(original_name: str, cpus: float = 0.0):
         config.write(f)
 
 
-def map_execution_profiles(original_name: str, cpus: float = 0.0):
+def map_execution_profiles(original_name: str, cpus: int = 0):
+    return []
 
     directory = "/home/customuser/Exec_Profile/"
 
@@ -68,7 +76,7 @@ def main():
     parser.add_argument("--name", type=str, help="Name for Container", required=True)
     # parser.add_argument("--dockerfile", type=str, help="Dockerfile Name", required=True)
     parser.add_argument("--memory", type=float, help="Memory Size for Container")
-    parser.add_argument("--cpus", type=float, help="CPUs percentage for Container")
+    parser.add_argument("--cpus", type=float, help="CPUs number to set affinity to")
     parser.add_argument(
         "--gpu",
         help="Use GPU for Container",
@@ -113,7 +121,9 @@ def main():
     if args.memory is not None:
         command += f" -m {args.memory}g"
     if args.cpus is not None:
-        command += f" --cpus={args.cpus}"
+        cpus_list = [x for x in range(int(args.cpus))]
+        command += f" --cpuset-cpus={','.join(map(str, cpus_list))}"
+        # command += f" --cpus={args.cpus}"
 
     ## Setting Volumes
     command += " -v /home/customuser/src:/src"
@@ -135,6 +145,7 @@ def main():
             use_name = "client"
         else:
             use_name = original_name
+
         for map_tuple in map_execution_profiles(
             use_name, args.cpus if args.cpus is not None else 0.0
         ):
@@ -152,6 +163,9 @@ def main():
         modify_energy_config(original_name, args.cpus)
     else:
         modify_energy_config(original_name, 0)
+
+    if args.gpu is True:
+        os.system(f"docker exec -it {cont_name} pip install onnxruntime-gpu")
 
     # trunk-ignore(bandit/B605)
     os.system(f"docker exec -it --workdir {work_dir} {cont_name} /bin/bash")

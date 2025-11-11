@@ -10,18 +10,23 @@ class Plan:
         model_name: str,
         plan_dict: dict[ComponentId, dict],
         quantized_nodes: list[NodeId],
+        latency_value: float = -1,
+        energy_value: float = -1,
+        device_energy: float = -1,
         latency_cost: float = -1,
         energy_cost: float = -1,
-        device_energy: float = -1,
     ):
 
         self.model_name = model_name
         self.plan_dict: dict[ComponentId, dict] = plan_dict
         self.quantized_nodes: list[NodeId] = quantized_nodes
 
+        self.latency_value = latency_value
+        self.energy_value = energy_value
+        self.device_energy = device_energy
+
         self.latency_cost = latency_cost
         self.energy_cost = energy_cost
-        self.device_energy = device_energy
 
     def encode(self) -> dict:
 
@@ -51,9 +56,12 @@ class Plan:
         encoded_plan["quantized_nodes"] = [
             comp_id.encode() for comp_id in self.quantized_nodes
         ]
+        encoded_plan["latency_value"] = self.latency_value
+        encoded_plan["energy_value"] = self.energy_value
+        encoded_plan["device_energy"] = self.device_energy
+
         encoded_plan["latency_cost"] = self.latency_cost
         encoded_plan["energy_cost"] = self.energy_cost
-        encoded_plan["device_energy"] = self.device_energy
 
         return encoded_plan
 
@@ -89,19 +97,27 @@ class Plan:
             model_name,
             plan_dict,
             quantized_nodes,
+            encoded_plan["latency_value"],
+            encoded_plan["energy_value"],
+            encoded_plan["device_energy"],
             encoded_plan["latency_cost"],
             encoded_plan["energy_cost"],
-            encoded_plan["device_energy"],
         )
+
+    def get_latency_value(self) -> float:
+        return self.latency_value
+
+    def get_energy_value(self) -> float:
+        return self.energy_value
+
+    def get_device_energy(self) -> float:
+        return self.device_energy
 
     def get_latency_cost(self) -> float:
         return self.latency_cost
 
     def get_energy_cost(self) -> float:
         return self.energy_cost
-
-    def get_device_energy(self) -> float:
-        return self.device_energy
 
     def get_quantized_nodes(self) -> list[NodeId]:
         return self.quantized_nodes

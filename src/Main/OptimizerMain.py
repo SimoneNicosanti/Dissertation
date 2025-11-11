@@ -16,7 +16,13 @@ def main():
     for dir in dir_list:
         os.makedirs(dir, exist_ok=True)
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=10),
+        options=[
+            ("grpc.max_send_message_length", 1000 * 1024 * 1024),
+            ("grpc.max_receive_message_length", 1000 * 1024 * 1024),
+        ],
+    )
     add_OptimizationServicer_to_server(OptmizationServer(), server)
     port = server.add_insecure_port(f"[::]:{optimizer_port}")
     print(port)
