@@ -47,7 +47,7 @@ RUN pip install networkx
 RUN pip install readerwriterlock
 
 # RUN apt-get install iperf3 -y
-RUN apt install rsync -y
+# RUN apt install rsync -y
 
 # RUN pip install supervision
 RUN pip install tqdm
