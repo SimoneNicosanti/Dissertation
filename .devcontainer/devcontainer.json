@@ -16,8 +16,6 @@
         "ms-python.python",
         "ms-python.debugpy",
         "ms-azuretools.vscode-docker",
-        "VisualStudioExptTeam.vscodeintellicode",
-        "VisualStudioExptTeam.intellicode-api-usage-examples",
         "AykutSarac.jsoncrack-vscode",
         "Gruntfuggly.todo-tree",
         "zxh404.vscode-proto3",

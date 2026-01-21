@@ -57,7 +57,7 @@ RUN apt update
 RUN pip install Jinja2
 # RUN apt install graphviz libgraphviz-dev pkg-config
 # RUN pip install pygraphviz
-
+RUN pip install scipy
 
 
 

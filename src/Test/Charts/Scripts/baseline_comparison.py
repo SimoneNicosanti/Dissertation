@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pyparsing import col
+from scipy import stats
 
 DEVICE_USAGE_PATH = "../../Results/DevicePlan/usage.csv"
 DEVICE_PLAN_PATH = "../../Results/DevicePlan/generation.csv"
@@ -33,23 +34,44 @@ def main():
         pd.read_csv(DEVICE_USAGE_PATH)
         .fillna(-1)
         .groupby(group_cols)
-        .mean()
-        .reset_index()
+        .agg(["mean", "std", "count"])
     )
+    print(device_usage_df)
     device_edge_usage_df = (
         pd.read_csv(DEVICE_EDGE_USAGE_PATH)
         .fillna(-1)
         .groupby(group_cols)
-        .mean()
-        .reset_index()
+        .agg(["mean", "std", "count"])
     )
+    print(device_edge_usage_df)
     device_edge_cloud_usage_df = (
         pd.read_csv(DEVICE_EDGE_CLOUD_USAGE_PATH)
         .fillna(-1)
         .groupby(group_cols)
-        .mean()
-        .reset_index()
+        .agg(["mean", "std", "count"])
     )
+    print(device_edge_cloud_usage_df)
+
+    for dataframe in [
+        device_usage_df,
+        device_edge_usage_df,
+        device_edge_cloud_usage_df,
+    ]:
+        mean = dataframe[("run_time", "mean")]
+        std = dataframe[("run_time", "std")]
+        count = dataframe[("run_time", "count")]
+
+        lower, upper = stats.t.interval(
+            confidence=0.95, df=count - 1, loc=mean, scale=std / np.sqrt(count)
+        )
+
+        dataframe[("run_time", "ci_lower")] = lower
+        dataframe[("run_time", "ci_upper")] = upper
+
+        dataframe.reset_index(inplace=True)
+        dataframe.columns = ["_".join(col).strip("_") for col in dataframe.columns]
+
+    print(device_edge_cloud_usage_df)
 
     device_plan_gen_df = (
         pd.read_csv(DEVICE_PLAN_PATH)
@@ -111,21 +133,40 @@ def main():
 
                     curr_ax.plot(
                         device_usage_df_i["max_noises"].unique(),
-                        device_usage_df_i["run_time"],
+                        device_usage_df_i["run_time_mean"],
                         label="device",
                         marker="o",
                     )
                     curr_ax.plot(
                         device_edge_usage_df_i["max_noises"].unique(),
-                        device_edge_usage_df_i["run_time"],
+                        device_edge_usage_df_i["run_time_mean"],
                         label="device + edge",
                         marker="o",
                     )
                     curr_ax.plot(
                         device_edge_cloud_usage_df_i["max_noises"].unique(),
-                        device_edge_cloud_usage_df_i["run_time"],
+                        device_edge_cloud_usage_df_i["run_time_mean"],
                         label="device + edge + cloud",
                         marker="o",
+                    )
+
+                    curr_ax.fill_between(
+                        device_usage_df_i["max_noises"].unique(),
+                        device_usage_df_i["run_time_ci_lower"],
+                        device_usage_df_i["run_time_ci_upper"],
+                        alpha=0.2,
+                    )
+                    curr_ax.fill_between(
+                        device_edge_usage_df_i["max_noises"].unique(),
+                        device_edge_usage_df_i["run_time_ci_lower"],
+                        device_edge_usage_df_i["run_time_ci_upper"],
+                        alpha=0.2,
+                    )
+                    curr_ax.fill_between(
+                        device_edge_cloud_usage_df_i["max_noises"].unique(),
+                        device_edge_cloud_usage_df_i["run_time_ci_lower"],
+                        device_edge_cloud_usage_df_i["run_time_ci_upper"],
+                        alpha=0.2,
                     )
 
                     drop_columns = [
@@ -299,7 +340,7 @@ def main():
 
                 plt.tight_layout()
                 plt.savefig(
-                    f"../Images/Base_Comparisons/baseline_comparison_{model}_{dev_cpus}_{edge_cpus}.eps"
+                    f"../Images/Base_Comparisons/baseline_comparison_{model}_{dev_cpus}_{edge_cpus}.png"
                 )
 
                 pass
