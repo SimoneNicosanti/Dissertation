@@ -33,22 +33,28 @@ def main():
     device_usage_df = (
         pd.read_csv(DEVICE_USAGE_PATH)
         .fillna(-1)
-        .groupby(group_cols)
-        .agg(["mean", "std", "count"])
+        .groupby(group_cols, group_keys=False)
+        .head(25)  # keep first 25 per group
+        .groupby(group_cols)  # group again
+        .agg(["mean", "std", "count"])  # aggregate
     )
     print(device_usage_df)
     device_edge_usage_df = (
         pd.read_csv(DEVICE_EDGE_USAGE_PATH)
         .fillna(-1)
-        .groupby(group_cols)
-        .agg(["mean", "std", "count"])
+        .groupby(group_cols, group_keys=False)
+        .head(25)  # keep first 25 per group
+        .groupby(group_cols)  # group again
+        .agg(["mean", "std", "count"])  # aggregate
     )
     print(device_edge_usage_df)
     device_edge_cloud_usage_df = (
         pd.read_csv(DEVICE_EDGE_CLOUD_USAGE_PATH)
         .fillna(-1)
-        .groupby(group_cols)
-        .agg(["mean", "std", "count"])
+        .groupby(group_cols, group_keys=False)
+        .head(25)  # keep first 25 per group
+        .groupby(group_cols)  # group again
+        .agg(["mean", "std", "count"])  # aggregate
     )
     print(device_edge_cloud_usage_df)
 
@@ -150,24 +156,24 @@ def main():
                         marker="o",
                     )
 
-                    curr_ax.fill_between(
-                        device_usage_df_i["max_noises"].unique(),
-                        device_usage_df_i["run_time_ci_lower"],
-                        device_usage_df_i["run_time_ci_upper"],
-                        alpha=0.2,
-                    )
-                    curr_ax.fill_between(
-                        device_edge_usage_df_i["max_noises"].unique(),
-                        device_edge_usage_df_i["run_time_ci_lower"],
-                        device_edge_usage_df_i["run_time_ci_upper"],
-                        alpha=0.2,
-                    )
-                    curr_ax.fill_between(
-                        device_edge_cloud_usage_df_i["max_noises"].unique(),
-                        device_edge_cloud_usage_df_i["run_time_ci_lower"],
-                        device_edge_cloud_usage_df_i["run_time_ci_upper"],
-                        alpha=0.2,
-                    )
+                    # curr_ax.fill_between(
+                    #     device_usage_df_i["max_noises"].unique(),
+                    #     device_usage_df_i["run_time_ci_lower"],
+                    #     device_usage_df_i["run_time_ci_upper"],
+                    #     alpha=0.2,
+                    # )
+                    # curr_ax.fill_between(
+                    #     device_edge_usage_df_i["max_noises"].unique(),
+                    #     device_edge_usage_df_i["run_time_ci_lower"],
+                    #     device_edge_usage_df_i["run_time_ci_upper"],
+                    #     alpha=0.2,
+                    # )
+                    # curr_ax.fill_between(
+                    #     device_edge_cloud_usage_df_i["max_noises"].unique(),
+                    #     device_edge_cloud_usage_df_i["run_time_ci_lower"],
+                    #     device_edge_cloud_usage_df_i["run_time_ci_upper"],
+                    #     alpha=0.2,
+                    # )
 
                     drop_columns = [
                         "model_name",
@@ -218,8 +224,8 @@ def main():
 
                     curr_ax.set_title(f"Latency Weight: {lw}", fontsize=11)
 
-                    curr_ax.set_ylabel("Time [s]")
-                    curr_ax.set_xlabel("Max Noise")
+                    curr_ax.set_ylabel("Average Latency [s]")
+                    curr_ax.set_xlabel("Quantization Noise")
 
                     curr_ax.set_xticks(device_edge_usage_df_i["max_noises"].unique())
                     curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
@@ -271,8 +277,8 @@ def main():
 
                     curr_ax.set_title(f"Energy Weight: {ew}", fontsize=11)
 
-                    curr_ax.set_ylabel("Energy [J]")
-                    curr_ax.set_xlabel("Max Noise")
+                    curr_ax.set_ylabel("Estimated Energy [J]")
+                    curr_ax.set_xlabel("Quantization Noise")
 
                     curr_ax.set_xticks(device_edge_plan_gen_df_i["max_noises"].unique())
                     curr_ax.set_xticklabels(curr_ax.get_xticklabels(), rotation=45)
@@ -340,7 +346,7 @@ def main():
 
                 plt.tight_layout()
                 plt.savefig(
-                    f"../Images/Base_Comparisons/baseline_comparison_{model}_{dev_cpus}_{edge_cpus}.png"
+                    f"../Images/Base_Comparisons/baseline_comparison_{model}_{dev_cpus}_{edge_cpus}.svg"
                 )
 
                 pass

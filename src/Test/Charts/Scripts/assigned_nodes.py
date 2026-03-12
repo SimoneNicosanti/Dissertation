@@ -109,6 +109,11 @@ def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
         edge_cpus,
         cloud_cpus,
     ), servers in whole_assigned_sizes.items():
+
+        tot_layers = 0
+        for _, layers in servers.items():
+            tot_layers += layers[0]
+
         for server_id, layers in servers.items():
             # total_layers = sum(layers)  # if you want total layers per server
             rows.append(
@@ -119,7 +124,7 @@ def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
                     "edge_cpus": edge_cpus,
                     "cloud_cpus": cloud_cpus,
                     "server_id": server_id,
-                    "num_layers": layers[0],
+                    "num_layers": layers[0] / tot_layers * 100,
                     "quant_layers": layers[1],
                 }
             )
@@ -169,21 +174,28 @@ def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
                     for p in curr_ax.patches:
                         # Only annotate bars with positive height
                         if p.get_height() > 0 and p.get_y() >= 0:
+                            pass
                             curr_ax.text(
                                 x=p.get_x() + p.get_width() / 2,
                                 y=p.get_height(),
-                                s=int(p.get_height()),
+                                s=float(f"{p.get_height():.2f}"),
                                 ha="center",
                                 va="bottom",
                                 fontsize=8,
+                                rotation=0,
                             )
+                    curr_ax.set_yticks(
+                        np.arange(0, 100 + 10, 10),
+                    )
+                    # curr_ax.grid(axis="y")
+                    curr_ax.legend(loc="center right")
 
                     curr_ax.set_title(
                         f"Total Layers - Latency Weight: {lw}; Energy Weight: {1- lw}",
                         fontsize=11,
                     )
-                    curr_ax.set_xlabel("Max Noises")
-                    curr_ax.set_ylabel("# Assigned Layers")
+                    curr_ax.set_xlabel("Quantization Noise")
+                    curr_ax.set_ylabel("% of DNN Layers")
 
                 for idx, lw in enumerate(
                     df["latency_weight"].unique()
@@ -223,14 +235,14 @@ def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
                         f"Quantized Layers - Latency Weight: {lw}; Energy Weight: {1- lw}",
                         fontsize=11,
                     )
-                    curr_ax.set_xlabel("Max Noises")
+                    curr_ax.set_xlabel("Quantization Noise")
                     curr_ax.set_ylabel("# Quantized Layers")
 
                 if cloud_cpus == -1.0:
                     fig.suptitle(f"Device {dev_cpus} + Edge {edge_cpus} - yolo11x-seg")
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_assigned_nodes_{dev_cpus}_{edge_cpus}.eps"
+                        f"../Images/Assigned_Nodes/device_edge_assigned_nodes_{dev_cpus}_{edge_cpus}.svg"
                     )
                 else:
                     fig.suptitle(
@@ -238,7 +250,7 @@ def plot_assigned_nodes_for_plan_on_axes(curr_plan: dict):
                     )
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_nodes_{dev_cpus}_{edge_cpus}_{cloud_cpus}.eps"
+                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_nodes_{dev_cpus}_{edge_cpus}_{cloud_cpus}.svg"
                     )
 
     pass
@@ -347,7 +359,7 @@ def plot_assigned_components_for_plan_on_axes(curr_plan):
                             curr_ax.text(
                                 x=p.get_x() + p.get_width() / 2,
                                 y=p.get_height(),
-                                s=int(p.get_height()),
+                                s=float(p.get_height()),
                                 ha="center",
                                 va="bottom",
                                 fontsize=8,
@@ -357,14 +369,14 @@ def plot_assigned_components_for_plan_on_axes(curr_plan):
                         f"Total Components - Latency Weight: {lw}; Energy Weight: {1- lw}",
                         fontsize=11,
                     )
-                    curr_ax.set_xlabel("Max Noises")
+                    curr_ax.set_xlabel("Quantization Noise")
                     curr_ax.set_ylabel("# Components")
 
                 if cloud_cpus == -1.0:
                     fig.suptitle(f"Device {dev_cpus} + Edge {edge_cpus} - yolo11x-seg")
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_assigned_comps_{dev_cpus}_{edge_cpus}.eps"
+                        f"../Images/Assigned_Nodes/device_edge_assigned_comps_{dev_cpus}_{edge_cpus}.svg"
                     )
                 else:
                     fig.suptitle(
@@ -372,7 +384,7 @@ def plot_assigned_components_for_plan_on_axes(curr_plan):
                     )
                     plt.tight_layout()
                     plt.savefig(
-                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_comps_{dev_cpus}_{edge_cpus}_{cloud_cpus}.eps"
+                        f"../Images/Assigned_Nodes/device_edge_cloud_assigned_comps_{dev_cpus}_{edge_cpus}_{cloud_cpus}.svg"
                     )
 
 
